@@ -3,6 +3,15 @@
 ### Bug Fixes
 
 * **docs:** corregir deployment de GitHub Pages ([c5feb32](https://github.com/Mkdir-arg/SistemSo/commit/c5feb32f1e138574996bd5f9404e0bfe74bb7fa3))
+* **docs:** eliminar emojis de navegación ([d82258e](https://github.com/Mkdir-arg/SistemSo/commit/d82258e1ed79aae97dabbd1d99ffbf541515a9e9))
+* **pages:** configurar GitHub Pages correctamente ([83a98f6](https://github.com/Mkdir-arg/SistemSo/commit/83a98f69807ec661468839171457c8d83c7316bd))
+* **workflows:** cambiar rama main a Main (mayúscula) ([b7a4738](https://github.com/Mkdir-arg/SistemSo/commit/b7a4738b5a94c897a826564e6ddd6776be621c06))
+
+## [1.1.1](https://github.com/Mkdir-arg/SistemSo/compare/v1.1.0...v1.1.1) (2026-02-06)
+
+### Bug Fixes
+
+* **docs:** corregir deployment de GitHub Pages ([c5feb32](https://github.com/Mkdir-arg/SistemSo/commit/c5feb32f1e138574996bd5f9404e0bfe74bb7fa3))
 * **pages:** configurar GitHub Pages correctamente ([83a98f6](https://github.com/Mkdir-arg/SistemSo/commit/83a98f69807ec661468839171457c8d83c7316bd))
 * **workflows:** cambiar rama main a Main (mayúscula) ([b7a4738](https://github.com/Mkdir-arg/SistemSo/commit/b7a4738b5a94c897a826564e6ddd6776be621c06))
 
