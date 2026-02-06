@@ -51,16 +51,16 @@ markdown_extensions:
   - md_in_html
 
 nav:
-  - 🏠 Inicio: index.md
-  - 📐 Arquitectura:
+  - Inicio: index.md
+  - Arquitectura:
       - Visión General: arquitectura/ARQUITECTURA_v1.0_2025-02-06.md
-  - 🔀 Pull Requests:
+  - Pull Requests:
       - Índice: prs/index.md
-  - 🚀 Versiones:
+  - Versiones:
       - Índice: versiones/index.md
-  - ✨ Funcionalidades:
+  - Funcionalidades:
       - Índice: funcionalidades/index.md
-  - 📖 Guías:
+  - Guías:
       - Convenciones de Commits: CONVENCIONES_COMMITS.md
 
 extra:
