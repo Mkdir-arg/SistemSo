@@ -3,7 +3,7 @@ name: Release & Changelog
 on:
   push:
     branches:
-      - main
+      - Main
       - Dev
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
         run: |
           cat > .releaserc.json << 'EOF'
           {
-            "branches": ["main", "Dev"],
+            "branches": ["Main", "Dev"],
             "plugins": [
               ["@semantic-release/commit-analyzer", {
                 "preset": "conventionalcommits",
