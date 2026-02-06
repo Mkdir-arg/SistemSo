@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/Mkdir-arg/SistemSo/compare/v1.0.0...v1.1.0) (2026-02-06)
+
+### Features
+
+* **docs:** agregar validación del sistema de documentación automática ([3ddecf3](https://github.com/Mkdir-arg/SistemSo/commit/3ddecf339cb6395b5a10e58a919017b043faa68f))
+
 ## 1.0.0 (2026-02-06)
 
 ### Features
