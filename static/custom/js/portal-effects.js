@@ -1,4 +1,4 @@
-// Portal SEDRONAR - Efectos Avanzados
+// Portal NODO - Efectos Avanzados
 
 class PortalEffects {
     constructor() {

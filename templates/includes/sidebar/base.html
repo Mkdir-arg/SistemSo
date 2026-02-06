@@ -12,8 +12,8 @@
             </div>
             <div class="flex grow flex-col gap-y-3 sm:gap-y-5 overflow-y-auto px-4 sm:px-6 pb-4" style="background: var(--fondo-sidebar);">
                 <div class="flex h-14 sm:h-16 shrink-0 items-center">
-                    <img class="h-6 sm:h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
-                    <span class="ml-2 sm:ml-3 text-lg sm:text-xl font-lora font-semibold text-white">SEDRONAR</span>
+                    <img class="h-6 sm:h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="NODO">
+                    <span class="ml-2 sm:ml-3 text-lg sm:text-xl font-lora font-semibold text-white">NODO</span>
                 </div>
                 <nav class="flex flex-1 flex-col">
                     {% include 'includes/sidebar/opciones.html' %}
@@ -30,14 +30,14 @@
         <div class="flex h-16 shrink-0 items-center border-b border-white/10 px-4">
             <template x-if="!sidebarCollapsed">
                 <div class="flex items-center flex-1">
-                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
-                    <span class="ml-3 text-xl font-lora font-semibold text-white">SEDRONAR</span>
+                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="NODO">
+                    <span class="ml-3 text-xl font-lora font-semibold text-white">NODO</span>
                 </div>
             </template>
             
             <template x-if="sidebarCollapsed">
                 <div class="flex items-center justify-center flex-1">
-                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
+                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="NODO">
                 </div>
             </template>
             
