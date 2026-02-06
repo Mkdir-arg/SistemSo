@@ -5,6 +5,13 @@
 * **docs:** corregir deployment de GitHub Pages ([c5feb32](https://github.com/Mkdir-arg/SistemSo/commit/c5feb32f1e138574996bd5f9404e0bfe74bb7fa3))
 * **workflows:** cambiar rama main a Main (mayúscula) ([b7a4738](https://github.com/Mkdir-arg/SistemSo/commit/b7a4738b5a94c897a826564e6ddd6776be621c06))
 
+## [1.1.1](https://github.com/Mkdir-arg/SistemSo/compare/v1.1.0...v1.1.1) (2026-02-06)
+
+### Bug Fixes
+
+* **docs:** corregir deployment de GitHub Pages ([c5feb32](https://github.com/Mkdir-arg/SistemSo/commit/c5feb32f1e138574996bd5f9404e0bfe74bb7fa3))
+* **workflows:** cambiar rama main a Main (mayúscula) ([b7a4738](https://github.com/Mkdir-arg/SistemSo/commit/b7a4738b5a94c897a826564e6ddd6776be621c06))
+
 ## [1.1.0](https://github.com/Mkdir-arg/SistemSo/compare/v1.0.0...v1.1.0) (2026-02-06)
 
 ### Features
