@@ -1,3 +1,9 @@
+## 1.0.0 (2026-02-06)
+
+### Features
+
+* **docs:** implementar sistema completo de documentación automática ([b5dee21](https://github.com/Mkdir-arg/SistemSo/commit/b5dee215ec0da75fd0fe1840bad4dd12dc6326cb))
+
 # Changelog
 
 Todos los cambios notables de este proyecto serán documentados en este archivo.
