@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/Mkdir-arg/SistemSo/compare/v1.1.0...v1.1.1) (2026-02-06)
+
+### Bug Fixes
+
+* **docs:** corregir deployment de GitHub Pages ([c5feb32](https://github.com/Mkdir-arg/SistemSo/commit/c5feb32f1e138574996bd5f9404e0bfe74bb7fa3))
+
 ## [1.1.0](https://github.com/Mkdir-arg/SistemSo/compare/v1.0.0...v1.1.0) (2026-02-06)
 
 ### Features
