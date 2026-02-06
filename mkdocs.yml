@@ -1,0 +1,72 @@
+site_name: SistemSo - Documentación
+site_description: Documentación técnica y funcional del proyecto SistemSo
+site_author: Equipo de Desarrollo
+repo_url: https://github.com/Mkdir-arg/SistemSo
+repo_name: Mkdir-arg/SistemSo
+
+theme:
+  name: material
+  language: es
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Modo oscuro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Modo claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search:
+      lang: es
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - 🏠 Inicio: index.md
+  - 📐 Arquitectura:
+      - Visión General: arquitectura/ARQUITECTURA_v1.0_2025-02-06.md
+  - 🔀 Pull Requests:
+      - Índice: prs/index.md
+  - 🚀 Versiones:
+      - Índice: versiones/index.md
+  - ✨ Funcionalidades:
+      - Índice: funcionalidades/index.md
+  - 🧾 CHANGELOG: ../CHANGELOG.md
+  - 📖 Guías:
+      - Convenciones de Commits: CONVENCIONES_COMMITS.md
+      - Sistema de Documentación: README.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Mkdir-arg/SistemSo
+  version:
+    provider: mike

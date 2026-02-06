@@ -1,0 +1,410 @@
+name: Merge to Main - Documentation & Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  process-merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g semantic-release @semantic-release/changelog @semantic-release/git conventional-changelog-conventionalcommits
+
+      - name: Analyze Changes
+        id: analyze
+        run: |
+          # Obtener commits del PR
+          COMMITS=$(git log --pretty=format:"%s" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+          
+          # Detectar tipos de cambios
+          HAS_FEAT=$(echo "$COMMITS" | grep -c "^feat" || echo "0")
+          HAS_FIX=$(echo "$COMMITS" | grep -c "^fix" || echo "0")
+          HAS_BREAKING=$(echo "$COMMITS" | grep -c "BREAKING CHANGE" || echo "0")
+          HAS_PERF=$(echo "$COMMITS" | grep -c "^perf" || echo "0")
+          
+          # Determinar tipo de release
+          if [ "$HAS_BREAKING" -gt 0 ]; then
+            RELEASE_TYPE="major"
+            IS_NEW_VERSION="true"
+          elif [ "$HAS_FEAT" -gt 0 ]; then
+            RELEASE_TYPE="minor"
+            IS_NEW_VERSION="true"
+          elif [ "$HAS_FIX" -gt 0 ] || [ "$HAS_PERF" -gt 0 ]; then
+            RELEASE_TYPE="patch"
+            IS_NEW_VERSION="false"
+          else
+            RELEASE_TYPE="none"
+            IS_NEW_VERSION="false"
+          fi
+          
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "is_new_version=$IS_NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "has_feat=$HAS_FEAT" >> $GITHUB_OUTPUT
+          echo "has_fix=$HAS_FIX" >> $GITHUB_OUTPUT
+          echo "has_breaking=$HAS_BREAKING" >> $GITHUB_OUTPUT
+
+      - name: Run Semantic Release
+        if: steps.analyze.outputs.release_type != 'none'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > .releaserc.json << 'EOF'
+          {
+            "branches": ["main"],
+            "plugins": [
+              ["@semantic-release/commit-analyzer", {
+                "preset": "conventionalcommits",
+                "releaseRules": [
+                  {"type": "feat", "release": "minor"},
+                  {"type": "fix", "release": "patch"},
+                  {"type": "perf", "release": "patch"},
+                  {"breaking": true, "release": "major"}
+                ]
+              }],
+              ["@semantic-release/release-notes-generator", {
+                "preset": "conventionalcommits"
+              }],
+              ["@semantic-release/changelog", {
+                "changelogFile": "CHANGELOG.md"
+              }],
+              ["@semantic-release/git", {
+                "assets": ["CHANGELOG.md", "documentos/**/*.md"],
+                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+              }],
+              "@semantic-release/github"
+            ]
+          }
+          EOF
+          npx semantic-release
+
+      - name: Get Version Info
+        id: version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
+          PREV_VERSION=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "v0.0.0")
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
+          echo "previous=$PREV_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate Feature Documentation
+        if: steps.analyze.outputs.has_feat > 0
+        run: |
+          VERSION="${{ steps.version.outputs.current }}"
+          DATE=$(date +%Y-%m-%d)
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          mkdir -p documentos/funcionalidades
+          
+          # Extraer features del PR
+          git log --pretty=format:"%s|||%b" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep "^feat" | while IFS='|||' read -r subject body; do
+            # Extraer módulo y descripción
+            MODULE=$(echo "$subject" | sed -n 's/^feat(\([^)]*\)).*/\1/p')
+            DESC=$(echo "$subject" | sed 's/^feat[^:]*: //')
+            SLUG=$(echo "$DESC" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-')
+            
+            cat > "documentos/funcionalidades/${SLUG}.md" << EOF
+          # ${DESC}
+          
+          ## Información General
+          - **Módulo**: ${MODULE}
+          - **Versión**: ${VERSION}
+          - **Fecha**: ${DATE}
+          - **PR**: #${PR_NUMBER}
+          
+          ## Descripción Funcional
+          ${body}
+          
+          ## Descripción Técnica
+          Implementación de nueva funcionalidad en el módulo ${MODULE}.
+          
+          ## Impacto
+          - [ ] Modifica flujos existentes
+          - [x] Agrega nueva funcionalidad
+          - [ ] Requiere migración de datos
+          
+          ## Referencias
+          - Pull Request: #${PR_NUMBER}
+          - Versión: ${VERSION}
+          
+          ---
+          *Generado automáticamente el ${DATE}*
+          EOF
+          done
+
+      - name: Generate Version Documentation
+        run: |
+          VERSION="${{ steps.version.outputs.current }}"
+          PREV_VERSION="${{ steps.version.outputs.previous }}"
+          DATE=$(date +%Y-%m-%d)
+          IS_NEW_VERSION="${{ steps.analyze.outputs.is_new_version }}"
+          
+          mkdir -p "documentos/versiones/${VERSION}"
+          
+          if [ "$IS_NEW_VERSION" = "true" ]; then
+            # Nueva versión
+            cat > "documentos/versiones/${VERSION}/index.md" << EOF
+          # Versión ${VERSION}
+          
+          **Fecha de liberación**: ${DATE}  
+          **Tipo**: Nueva Versión  
+          **Versión anterior**: ${PREV_VERSION}
+          
+          ## 🚀 Resumen Ejecutivo
+          
+          Esta versión introduce nuevas funcionalidades y mejoras significativas al sistema.
+          
+          ## ✨ Funcionalidades Nuevas
+          
+          $(git log --pretty=format:"- **%s** (%h)" --grep="^feat" ${PREV_VERSION}..HEAD 2>/dev/null || echo "- Sin funcionalidades nuevas")
+          
+          ## 🐛 Correcciones
+          
+          $(git log --pretty=format:"- %s (%h)" --grep="^fix" ${PREV_VERSION}..HEAD 2>/dev/null || echo "- Sin correcciones")
+          
+          ## ⚡ Mejoras de Performance
+          
+          $(git log --pretty=format:"- %s (%h)" --grep="^perf" ${PREV_VERSION}..HEAD 2>/dev/null || echo "- Sin mejoras de performance")
+          
+          ## 🔧 Cambios Técnicos
+          
+          $(git log --pretty=format:"- %s (%h)" --grep="^refactor" ${PREV_VERSION}..HEAD 2>/dev/null || echo "- Sin cambios técnicos")
+          
+          ## 📊 Estadísticas
+          
+          - **Commits**: $(git rev-list --count ${PREV_VERSION}..HEAD 2>/dev/null || echo "N/A")
+          - **Archivos modificados**: $(git diff --name-only ${PREV_VERSION}..HEAD 2>/dev/null | wc -l || echo "N/A")
+          - **Colaboradores**: $(git log --format='%an' ${PREV_VERSION}..HEAD 2>/dev/null | sort -u | wc -l || echo "N/A")
+          
+          ## 🔄 Requerimientos de Migración
+          
+          $(if [ "${{ steps.analyze.outputs.has_breaking }}" -gt 0 ]; then echo "⚠️ Esta versión contiene cambios incompatibles. Ver detalles en CHANGELOG.md"; else echo "✅ No requiere migración"; fi)
+          
+          ## 📝 Mejoras Aplicadas
+          
+          Ver [mejoras.md](mejoras.md) para el historial de mejoras incrementales.
+          
+          ---
+          *Documentación generada automáticamente el ${DATE}*
+          EOF
+          
+            # Crear archivo de mejoras vacío
+            echo "# Mejoras de la versión ${VERSION}" > "documentos/versiones/${VERSION}/mejoras.md"
+            echo "" >> "documentos/versiones/${VERSION}/mejoras.md"
+            echo "Esta sección registra las mejoras incrementales aplicadas a esta versión." >> "documentos/versiones/${VERSION}/mejoras.md"
+          else
+            # Mejora incremental
+            cat >> "documentos/versiones/${VERSION}/mejoras.md" << EOF
+          
+          ## Mejora del ${DATE}
+          
+          **PR**: #${{ github.event.pull_request.number }}
+          
+          ### Cambios
+          $(git log --pretty=format:"- %s" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+          
+          ---
+          EOF
+          fi
+
+      - name: Update Documentation Home
+        run: |
+          VERSION="${{ steps.version.outputs.current }}"
+          DATE=$(date +%Y-%m-%d)
+          
+          # Contar documentos
+          PR_COUNT=$(find documentos/prs -name "PR-*.md" 2>/dev/null | wc -l || echo "0")
+          VERSION_COUNT=$(find documentos/versiones -maxdepth 1 -type d 2>/dev/null | wc -l || echo "1")
+          FEATURE_COUNT=$(find documentos/funcionalidades -name "*.md" 2>/dev/null | wc -l || echo "0")
+          
+          # Obtener últimas features
+          LATEST_FEATURES=$(find documentos/funcionalidades -name "*.md" -type f 2>/dev/null | head -5 | xargs -I {} basename {} .md | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g' || echo "")
+          
+          cat > documentos/index.md << EOF
+          # 🏠 SistemSo - Centro de Documentación
+          
+          Bienvenido al centro de documentación del proyecto SistemSo. Aquí encontrarás toda la información técnica y funcional del sistema, actualizada automáticamente.
+          
+          ---
+          
+          ## 📊 Estado del Proyecto
+          
+          | Métrica | Valor |
+          |---------|-------|
+          | **Versión Actual** | ${VERSION} |
+          | **Última Actualización** | ${DATE} |
+          | **Pull Requests Documentados** | ${PR_COUNT} |
+          | **Versiones Liberadas** | ${VERSION_COUNT} |
+          | **Funcionalidades** | ${FEATURE_COUNT} |
+          
+          ---
+          
+          ## 🗂️ Navegación
+          
+          ### 📐 Documentación Técnica
+          
+          **[Arquitectura del Sistema](arquitectura/ARQUITECTURA_v1.0_2025-02-06.md)**  
+          Stack tecnológico, patrones de diseño, arquitectura de deployment y sistema de mensajería en tiempo real.  
+          *Última actualización: 2025-02-06*
+          
+          **[Convenciones de Commits](CONVENCIONES_COMMITS.md)**  
+          Guía completa de Conventional Commits para mantener un historial claro y generar documentación automática.  
+          *Última actualización: ${DATE}*
+          
+          ---
+          
+          ### 🔀 Pull Requests
+          
+          **[Ver todos los PRs →](prs/index.md)**
+          
+          Documentación detallada de cada Pull Request, incluyendo:
+          - Módulos afectados
+          - Archivos modificados
+          - Estadísticas de cambios
+          - Impacto funcional
+          
+          📈 **Total documentados**: ${PR_COUNT} PRs
+          
+          ---
+          
+          ### 🚀 Versiones del Sistema
+          
+          **[Ver historial de versiones →](versiones/index.md)**
+          
+          #### Última Versión: ${VERSION}
+          
+          Liberada el ${DATE}
+          
+          **Características principales:**
+          - Sistema de documentación automática
+          - Versionado semántico
+          - Workflows de CI/CD
+          - Sitio de documentación web
+          
+          [📖 Ver documentación completa de ${VERSION} →](versiones/${VERSION}/index.md)
+          
+          ---
+          
+          ### ✨ Funcionalidades Recientes
+          
+          $(if [ -n "$LATEST_FEATURES" ]; then echo "$LATEST_FEATURES" | while read -r feature; do echo "- $feature"; done; else echo "- Sistema de documentación automática"; fi)
+          
+          [🔍 Ver todas las funcionalidades →](funcionalidades/index.md)
+          
+          ---
+          
+          ### 🧾 CHANGELOG
+          
+          **[Ver CHANGELOG completo →](../CHANGELOG.md)**
+          
+          Registro cronológico de todos los cambios del proyecto, actualizado automáticamente con cada release.
+          
+          ---
+          
+          ## 🎯 Guías Rápidas
+          
+          ### Para Desarrolladores
+          
+          1. **[Cómo hacer commits](CONVENCIONES_COMMITS.md#formato)** - Formato de commits
+          2. **[Crear Pull Request](README.md#para-desarrolladores)** - Flujo de trabajo
+          3. **[Arquitectura](arquitectura/ARQUITECTURA_v1.0_2025-02-06.md)** - Entender el sistema
+          
+          ### Para QA/Negocio
+          
+          1. **[Versiones](versiones/index.md)** - Qué cambió en cada versión
+          2. **[Funcionalidades](funcionalidades/index.md)** - Nuevas features
+          3. **[CHANGELOG](../CHANGELOG.md)** - Resumen de cambios
+          
+          ---
+          
+          ## 🔄 Actualización Automática
+          
+          Esta documentación se actualiza automáticamente cuando:
+          
+          - ✅ Se abre o actualiza un Pull Request
+          - ✅ Se hace merge a la rama principal
+          - ✅ Se libera una nueva versión
+          - ✅ Se agregan nuevas funcionalidades
+          
+          **No requiere mantenimiento manual.**
+          
+          ---
+          
+          ## 📚 Recursos Adicionales
+          
+          - [GitHub Repository](https://github.com/Mkdir-arg/SistemSo)
+          - [Sistema de Documentación](README.md)
+          - [Conventional Commits](https://www.conventionalcommits.org/)
+          - [Semantic Versioning](https://semver.org/)
+          
+          ---
+          
+          *Documentación generada automáticamente el ${DATE}*  
+          *Versión del sistema: ${VERSION}*
+          EOF
+
+      - name: Create Features Index
+        run: |
+          mkdir -p documentos/funcionalidades
+          
+          cat > documentos/funcionalidades/index.md << 'EOF'
+          # ✨ Funcionalidades
+          
+          Catálogo completo de funcionalidades del sistema, organizadas por versión.
+          
+          ## Cómo se Documenta
+          
+          Cada funcionalidad se documenta automáticamente cuando:
+          - Se hace merge de un PR con commits tipo `feat`
+          - Se genera una nueva versión del sistema
+          
+          ## Estructura
+          
+          Cada funcionalidad incluye:
+          - **Módulo**: Componente del sistema afectado
+          - **Versión**: En qué versión se introdujo
+          - **Descripción funcional**: Qué hace
+          - **Descripción técnica**: Cómo funciona
+          - **Impacto**: Qué cambia en el sistema
+          - **Referencias**: PR y versión asociados
+          
+          ## Funcionalidades por Módulo
+          
+          Las funcionalidades se organizan por módulo del sistema:
+          - `conversaciones`: Sistema de mensajería
+          - `legajos`: Gestión de legajos
+          - `dashboard`: Panel de control
+          - `core`: Funcionalidad central
+          - `users`: Sistema de usuarios
+          - `chatbot`: Bot de conversación
+          - `tramites`: Gestión de trámites
+          - `portal`: Portal público
+          - `configuracion`: Configuración
+          
+          ---
+          
+          *Esta página se actualiza automáticamente*
+          EOF
+
+      - name: Commit Documentation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add documentos/
+          git commit -m "docs: actualizar documentación post-merge PR #${{ github.event.pull_request.number }} [skip ci]" || echo "No changes"
+          git push || echo "Nothing to push"
