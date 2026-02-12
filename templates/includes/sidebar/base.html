@@ -12,8 +12,7 @@
             </div>
             <div class="flex grow flex-col gap-y-3 sm:gap-y-5 overflow-y-auto px-4 sm:px-6 pb-4" style="background: var(--fondo-sidebar);">
                 <div class="flex h-14 sm:h-16 shrink-0 items-center">
-                    <img class="h-6 sm:h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="NODO">
-                    <span class="ml-2 sm:ml-3 text-lg sm:text-xl font-lora font-semibold text-white">NODO</span>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-nodo-purple to-magenta bg-clip-text text-transparent">NODO</span>
                 </div>
                 <nav class="flex flex-1 flex-col">
                     {% include 'includes/sidebar/opciones.html' %}
@@ -25,25 +24,24 @@
 
 <!-- Desktop sidebar -->
 <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300" :class="sidebarCollapsed ? 'lg:w-20' : 'lg:w-72'">
-    <div class="flex grow flex-col bg-gradient-to-b from-arg-azul to-arg-secundario shadow-xl h-full">
+    <div class="flex grow flex-col bg-white shadow-xl h-full border-r border-gray-200">
         <!-- Header con botón de colapso -->
-        <div class="flex h-16 shrink-0 items-center border-b border-white/10 px-4">
+        <div class="flex h-16 shrink-0 items-center border-b border-gray-200 px-4">
             <template x-if="!sidebarCollapsed">
                 <div class="flex items-center flex-1">
-                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="NODO">
-                    <span class="ml-3 text-xl font-lora font-semibold text-white">NODO</span>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-nodo-purple to-magenta bg-clip-text text-transparent">NODO</span>
                 </div>
             </template>
             
             <template x-if="sidebarCollapsed">
                 <div class="flex items-center justify-center flex-1">
-                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="NODO">
+                    <span class="text-xl font-bold bg-gradient-to-r from-nodo-purple to-magenta bg-clip-text text-transparent">N</span>
                 </div>
             </template>
             
-            <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-lg hover:bg-white/10 transition-colors touch-target" :class="sidebarCollapsed ? 'absolute top-4 right-4' : 'ml-auto'">
-                <i class="fas fa-bars text-white text-sm" x-show="!sidebarCollapsed"></i>
-                <i class="fas fa-chevron-right text-white text-sm" x-show="sidebarCollapsed"></i>
+            <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-lg hover:bg-gray-100 transition-colors touch-target" :class="sidebarCollapsed ? 'absolute top-4 right-4' : 'ml-auto'">
+                <i class="fas fa-bars text-gray-700 text-sm" x-show="!sidebarCollapsed"></i>
+                <i class="fas fa-chevron-right text-gray-700 text-sm" x-show="sidebarCollapsed"></i>
             </button>
         </div>
         

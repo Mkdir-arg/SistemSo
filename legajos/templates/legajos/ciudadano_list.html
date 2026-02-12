@@ -10,7 +10,7 @@
             <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">Historia Clínica</h1>
             <p class="text-gray-600 mt-2">Gestión de historias clínicas registradas en el sistema</p>
         </div>
-        <a href="{% url 'legajos:ciudadano_nuevo' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors font-medium text-center">
+        <a href="{% url 'legajos:ciudadano_nuevo' %}" class="bg-gradient-to-r from-nodo-purple to-magenta text-white px-6 py-3 rounded-xl hover:opacity-90 transition-all font-medium text-center shadow-lg">
             <i class="fas fa-plus mr-2"></i>Nueva Historia Clínica
         </a>
     </div>
@@ -21,9 +21,9 @@
             <div class="flex-1">
                 <input type="text" name="search" value="{{ request.GET.search }}" 
                        placeholder="Buscar por DNI, nombre o apellido..." 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-arg-azul focus:border-transparent">
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent">
             </div>
-            <button type="submit" class="bg-arg-azul text-white px-6 py-3 rounded-lg hover:bg-arg-secundario transition-colors">
+            <button type="submit" class="bg-magenta text-white px-6 py-3 rounded-lg hover:bg-nodo-purple transition-colors">
                 <i class="fas fa-search mr-2 sm:mr-0"></i>
                 <span class="sm:hidden">Buscar</span>
             </button>
@@ -54,14 +54,14 @@
                             <td class="px-6 py-4 text-sm text-gray-600">{{ ciudadano.telefono|default:"-" }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ ciudadano.email|default:"-" }}</td>
                             <td class="px-6 py-4 text-sm">
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                <span class="bg-nodo-cyan/10 text-nodo-cyan px-2 py-1 rounded-full text-xs font-medium">
                                     {{ ciudadano.legajos.count }} acompañamiento{{ ciudadano.legajos.count|pluralize }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm">
                                 <div class="flex gap-2">
                                     <a href="{% url 'legajos:ciudadano_detalle' ciudadano.pk %}" 
-                                       class="text-arg-azul hover:text-arg-secundario">
+                                       class="text-magenta hover:text-nodo-purple">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{% url 'legajos:ciudadano_editar' ciudadano.pk %}" 
@@ -84,7 +84,7 @@
                         <div class="font-medium text-gray-900">{{ ciudadano.apellido }}, {{ ciudadano.nombre }}</div>
                         <div class="flex gap-2">
                             <a href="{% url 'legajos:ciudadano_detalle' ciudadano.pk %}" 
-                               class="text-arg-azul hover:text-arg-secundario p-2">
+                               class="text-magenta hover:text-nodo-purple p-2">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a href="{% url 'legajos:ciudadano_editar' ciudadano.pk %}" 
@@ -102,7 +102,7 @@
                         <div><span class="font-medium">Email:</span> {{ ciudadano.email }}</div>
                         {% endif %}
                         <div class="flex items-center gap-2 mt-2">
-                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            <span class="bg-nodo-cyan/10 text-nodo-cyan px-2 py-1 rounded-full text-xs font-medium">
                                 {{ ciudadano.legajos.count }} acompañamiento{{ ciudadano.legajos.count|pluralize }}
                             </span>
                         </div>
@@ -123,7 +123,7 @@
                             <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Anterior</a>
                         {% endif %}
                         {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 bg-arg-azul text-white rounded hover:bg-arg-secundario">Siguiente</a>
+                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 bg-magenta text-white rounded hover:bg-nodo-purple">Siguiente</a>
                         {% endif %}
                     </div>
                 </div>
@@ -134,7 +134,7 @@
                 <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay ciudadanos registrados</h3>
                 <p class="text-gray-600 mb-6">Comienza agregando el primer ciudadano al sistema</p>
-                <a href="{% url 'legajos:ciudadano_nuevo' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors">
+                <a href="{% url 'legajos:ciudadano_nuevo' %}" class="bg-gradient-to-r from-nodo-purple to-magenta text-white px-6 py-3 rounded-xl hover:opacity-90 transition-all shadow-lg">
                     <i class="fas fa-plus mr-2"></i>Agregar Ciudadano
                 </a>
             </div>

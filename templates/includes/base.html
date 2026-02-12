@@ -14,20 +14,23 @@
                 theme: {
                     extend: {
                         colors: {
-                            // Paleta unificada NODO
-                            'primario': '#1e3a8a',
-                            'primario-claro': '#3b82f6',
-                            'primario-oscuro': '#1e40af',
+                            // Paleta NODO
+                            'magenta': '#FF0080',
+                            'nodo-purple': '#7928CA',
+                            'nodo-cyan': '#08B8CC',
+                            // Compatibilidad anterior
+                            'primario': '#7928CA',
+                            'primario-claro': '#FF0080',
+                            'primario-oscuro': '#8908CC',
                             'secundario': '#475569',
                             'secundario-claro': '#64748b',
                             'secundario-oscuro': '#334155',
-                            'acento': '#0f766e',
+                            'acento': '#08B8CC',
                             'acento-claro': '#14b8a6',
                             'acento-oscuro': '#0d9488',
-                            // Compatibilidad con nombres anteriores
-                            'arg-azul': '#1e3a8a',
+                            'arg-azul': '#7928CA',
                             'arg-secundario': '#475569',
-                            primary: '#1e3a8a',
+                            primary: '#7928CA',
                             secondary: '#475569',
                         },
                         fontFamily: {
@@ -52,6 +55,9 @@
         
         <!-- Paleta de colores unificada (DEBE IR PRIMERO) -->
         <link rel="stylesheet" href="{% static 'custom/css/paleta-unificada.css' %}" />
+        
+        <!-- NODO Brand Manual de Marca -->
+        <link rel="stylesheet" href="{% static 'custom/css/nodo-brand.css' %}" />
         
         <!-- Custom CSS Files -->
         <link rel="stylesheet" href="{% static 'custom/css/main.css' %}" />

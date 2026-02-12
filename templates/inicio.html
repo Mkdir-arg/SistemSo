@@ -14,11 +14,11 @@
 {% block main-content %}
 <div class="max-w-full mx-4 lg:mx-8" x-data="dashboard()">
     <!-- Header Dinámico -->
-    <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-2xl shadow-2xl p-8 mb-8 text-white">
+    <div class="bg-gradient-to-r from-nodo-purple via-magenta to-nodo-purple rounded-2xl shadow-2xl p-8 mb-8 text-white">
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-bold mb-2" x-text="saludo"></h1>
-                <p class="text-blue-100" x-text="fechaHora"></p>
+                <p class="text-purple-100" x-text="fechaHora"></p>
             </div>
             <div class="flex items-center space-x-4">
                 <button @click="toggleTheme()" class="bg-white bg-opacity-20 p-3 rounded-xl hover:bg-opacity-30 transition-all">
@@ -27,7 +27,7 @@
                 </button>
                 <div class="bg-white bg-opacity-20 px-4 py-2 rounded-xl">
                     <div class="flex items-center space-x-2">
-                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <div class="w-2 h-2 bg-nodo-cyan rounded-full animate-pulse"></div>
                         <span class="text-sm">Sistema Activo</span>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
             <div class="flex-1">
                 <div class="relative">
                     <input type="text" placeholder="Buscar ciudadano (mín. 3 caracteres): nombre, apellido, DNI..." 
-                           class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta focus:border-transparent"
                            x-model="busqueda" @input="buscarCiudadano()">
                     <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
@@ -91,10 +91,10 @@
 
     <!-- Métricas Principales con Gráficos -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+        <div class="bg-gradient-to-br from-nodo-purple to-magenta rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <p class="text-blue-100 text-sm font-medium">Total Ciudadanos</p>
+                    <p class="text-purple-100 text-sm font-medium">Total Ciudadanos</p>
                     <p class="text-3xl font-bold" x-text="metricas.ciudadanos"></p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-4">
@@ -106,10 +106,10 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+        <div class="bg-gradient-to-br from-nodo-cyan to-cyan-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <p class="text-emerald-100 text-sm font-medium">Legajos Activos</p>
+                    <p class="text-cyan-100 text-sm font-medium">Legajos Activos</p>
                     <p class="text-3xl font-bold" x-text="metricas.legajos"></p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-4">
@@ -121,10 +121,10 @@
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+        <div class="bg-gradient-to-br from-magenta to-pink-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <p class="text-purple-100 text-sm font-medium">Seguimientos Hoy</p>
+                    <p class="text-pink-100 text-sm font-medium">Seguimientos Hoy</p>
                     <p class="text-3xl font-bold" x-text="metricas.seguimientos"></p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-full p-4">
@@ -159,9 +159,9 @@
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-semibold text-gray-900">Tendencias Mensuales</h3>
                 <div class="flex space-x-2">
-                    <button @click="cambiarPeriodo('7d')" :class="periodo === '7d' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">7D</button>
-                    <button @click="cambiarPeriodo('30d')" :class="periodo === '30d' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">30D</button>
-                    <button @click="cambiarPeriodo('90d')" :class="periodo === '90d' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">90D</button>
+                    <button @click="cambiarPeriodo('7d')" :class="periodo === '7d' ? 'bg-magenta text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">7D</button>
+                    <button @click="cambiarPeriodo('30d')" :class="periodo === '30d' ? 'bg-magenta text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">30D</button>
+                    <button @click="cambiarPeriodo('90d')" :class="periodo === '90d' ? 'bg-magenta text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">90D</button>
                 </div>
             </div>
             <div class="h-80">
@@ -178,21 +178,21 @@
             <div class="mt-4 space-y-2">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <div class="w-3 h-3 bg-nodo-cyan rounded-full mr-2"></div>
                         <span class="text-sm text-gray-600">Abiertos</span>
                     </div>
                     <span class="text-sm font-medium" x-text="estadosLegajos.abiertos"></span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                        <div class="w-3 h-3 bg-nodo-purple rounded-full mr-2"></div>
                         <span class="text-sm text-gray-600">En Seguimiento</span>
                     </div>
                     <span class="text-sm font-medium" x-text="estadosLegajos.seguimiento"></span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                        <div class="w-3 h-3 bg-magenta rounded-full mr-2"></div>
                         <span class="text-sm text-gray-600">Derivados</span>
                     </div>
                     <span class="text-sm font-medium" x-text="estadosLegajos.derivados"></span>
@@ -221,7 +221,7 @@
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-semibold text-gray-900">Actividad en Tiempo Real</h3>
                 <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 bg-nodo-cyan rounded-full animate-pulse"></div>
                     <span class="text-sm text-gray-500">En vivo</span>
                 </div>
             </div>
@@ -245,31 +245,31 @@
 
     <!-- Acciones Rápidas Mejoradas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
+        <div class="bg-gradient-to-br from-nodo-purple to-magenta rounded-xl p-6 text-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between mb-4">
                 <i class="fas fa-users text-3xl"></i>
                 <i class="fas fa-arrow-right"></i>
             </div>
             <h4 class="font-semibold mb-1">Gestionar Ciudadanos</h4>
-            <p class="text-blue-100 text-sm">Ver, buscar y administrar</p>
+            <p class="text-purple-100 text-sm">Ver, buscar y administrar</p>
         </div>
 
-        <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-6 text-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
+        <div class="bg-gradient-to-br from-nodo-cyan to-cyan-600 rounded-xl p-6 text-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between mb-4">
                 <i class="fas fa-plus-circle text-3xl"></i>
                 <i class="fas fa-arrow-right"></i>
             </div>
             <h4 class="font-semibold mb-1">Nuevo Registro</h4>
-            <p class="text-green-100 text-sm">Crear legajo rápido</p>
+            <p class="text-cyan-100 text-sm">Crear legajo rápido</p>
         </div>
 
-        <div class="bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-6 text-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
+        <div class="bg-gradient-to-br from-magenta to-pink-600 rounded-xl p-6 text-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between mb-4">
                 <i class="fas fa-chart-bar text-3xl"></i>
                 <i class="fas fa-arrow-right"></i>
             </div>
             <h4 class="font-semibold mb-1">Reportes</h4>
-            <p class="text-purple-100 text-sm">Análisis y estadísticas</p>
+            <p class="text-pink-100 text-sm">Análisis y estadísticas</p>
         </div>
 
         <div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-6 text-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
@@ -287,34 +287,34 @@
         <h3 class="text-xl font-semibold text-gray-900 mb-6">Estado del Sistema</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                    <i class="fas fa-server text-green-600 text-2xl"></i>
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-cyan-100 rounded-full mb-4">
+                    <i class="fas fa-server text-nodo-cyan text-2xl"></i>
                 </div>
                 <h4 class="font-semibold text-gray-900 mb-2">Servidor</h4>
-                <div class="bg-green-100 rounded-full h-2 mb-2">
-                    <div class="bg-green-500 h-2 rounded-full" style="width: 95%"></div>
+                <div class="bg-cyan-100 rounded-full h-2 mb-2">
+                    <div class="bg-nodo-cyan h-2 rounded-full" style="width: 95%"></div>
                 </div>
                 <p class="text-sm text-gray-500">95% Rendimiento</p>
             </div>
 
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                    <i class="fas fa-database text-blue-600 text-2xl"></i>
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                    <i class="fas fa-database text-nodo-purple text-2xl"></i>
                 </div>
                 <h4 class="font-semibold text-gray-900 mb-2">Base de Datos</h4>
-                <div class="bg-blue-100 rounded-full h-2 mb-2">
-                    <div class="bg-blue-500 h-2 rounded-full" style="width: 88%"></div>
+                <div class="bg-purple-100 rounded-full h-2 mb-2">
+                    <div class="bg-nodo-purple h-2 rounded-full" style="width: 88%"></div>
                 </div>
                 <p class="text-sm text-gray-500">88% Uso</p>
             </div>
 
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-                    <i class="fas fa-shield-alt text-purple-600 text-2xl"></i>
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mb-4">
+                    <i class="fas fa-shield-alt text-magenta text-2xl"></i>
                 </div>
                 <h4 class="font-semibold text-gray-900 mb-2">Seguridad</h4>
-                <div class="bg-purple-100 rounded-full h-2 mb-2">
-                    <div class="bg-purple-500 h-2 rounded-full" style="width: 100%"></div>
+                <div class="bg-pink-100 rounded-full h-2 mb-2">
+                    <div class="bg-magenta h-2 rounded-full" style="width: 100%"></div>
                 </div>
                 <p class="text-sm text-gray-500">Protección Activa</p>
             </div>
@@ -444,10 +444,10 @@ function dashboard() {
 
         getIconoActividad(tipo) {
             const colores = {
-                create: 'bg-green-100 text-green-600',
-                update: 'bg-blue-100 text-blue-600',
+                create: 'bg-cyan-100 text-nodo-cyan',
+                update: 'bg-purple-100 text-nodo-purple',
                 alert: 'bg-red-100 text-red-600',
-                login: 'bg-purple-100 text-purple-600'
+                login: 'bg-pink-100 text-magenta'
             };
             return colores[tipo] || 'bg-gray-100 text-gray-600';
         },
@@ -462,8 +462,8 @@ function dashboard() {
                     datasets: [{
                         label: 'Nuevos Legajos',
                         data: [12, 19, 15, 25, 22, 30],
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: 'rgb(255, 0, 128)',
+                        backgroundColor: 'rgba(255, 0, 128, 0.1)',
                         tension: 0.4
                     }]
                 },
@@ -483,7 +483,7 @@ function dashboard() {
                     labels: ['Abiertos', 'En Seguimiento', 'Derivados', 'Cerrados'],
                     datasets: [{
                         data: [45, 78, 23, 10],
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#6b7280']
+                        backgroundColor: ['#08B8CC', '#7928CA', '#FF0080', '#6b7280']
                     }]
                 },
                 options: {
