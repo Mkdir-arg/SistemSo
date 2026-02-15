@@ -10,10 +10,17 @@
                     <i class="fas fa-times h-5 w-5 sm:h-6 sm:w-6 text-white"></i>
                 </button>
             </div>
-            <div class="flex grow flex-col gap-y-3 sm:gap-y-5 overflow-y-auto px-4 sm:px-6 pb-4" style="background: var(--fondo-sidebar);">
-                <div class="flex h-14 sm:h-16 shrink-0 items-center">
-                    <img class="h-6 sm:h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
-                    <span class="ml-2 sm:ml-3 text-lg sm:text-xl font-lora font-semibold text-white">SEDRONAR</span>
+            <div class="flex grow flex-col gap-y-3 sm:gap-y-5 overflow-y-auto px-4 sm:px-6 pb-4 bg-white">
+                <div class="flex h-14 sm:h-16 shrink-0 items-center border-b border-[#E5E7EB]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-[#7928CA] flex items-center justify-center shadow-md">
+                            <i class="fas fa-shield-alt text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-[#252F40] text-lg">NODO</h2>
+                            <p class="text-xs text-[#8C8C8C]">Sistema de Gestión</p>
+                        </div>
+                    </div>
                 </div>
                 <nav class="flex flex-1 flex-col">
                     {% include 'includes/sidebar/opciones.html' %}
@@ -25,30 +32,48 @@
 
 <!-- Desktop sidebar -->
 <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300" :class="sidebarCollapsed ? 'lg:w-20' : 'lg:w-72'">
-    <div class="flex grow flex-col bg-gradient-to-b from-arg-azul to-arg-secundario shadow-xl h-full">
-        <!-- Header con botón de colapso -->
-        <div class="flex h-16 shrink-0 items-center border-b border-white/10 px-4">
-            <template x-if="!sidebarCollapsed">
-                <div class="flex items-center flex-1">
-                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
-                    <span class="ml-3 text-xl font-lora font-semibold text-white">SEDRONAR</span>
-                </div>
-            </template>
-            
-            <template x-if="sidebarCollapsed">
-                <div class="flex items-center justify-center flex-1">
-                    <img class="h-8 w-auto" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
-                </div>
-            </template>
-            
-            <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-lg hover:bg-white/10 transition-colors touch-target" :class="sidebarCollapsed ? 'absolute top-4 right-4' : 'ml-auto'">
-                <i class="fas fa-bars text-white text-sm" x-show="!sidebarCollapsed"></i>
-                <i class="fas fa-chevron-right text-white text-sm" x-show="sidebarCollapsed"></i>
-            </button>
+    <div class="flex grow flex-col bg-white shadow-xl h-full border-r border-[#E5E7EB]">
+        <!-- Header -->
+        <div class="p-6 border-b border-[#E5E7EB]">
+            <div class="flex items-center justify-between">
+                <template x-if="!sidebarCollapsed">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-[#7928CA] flex items-center justify-center shadow-md">
+                            <i class="fas fa-shield-alt text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-[#252F40] text-lg">NODO</h2>
+                            <p class="text-xs text-[#8C8C8C]">Sistema de Gestión</p>
+                        </div>
+                    </div>
+                </template>
+                
+                <template x-if="sidebarCollapsed">
+                    <div class="w-10 h-10 rounded-xl bg-[#7928CA] flex items-center justify-center shadow-md mx-auto">
+                        <i class="fas fa-shield-alt text-white text-lg"></i>
+                    </div>
+                </template>
+            </div>
         </div>
         
-        <div class="flex-1 px-4 py-6 overflow-y-auto">
+        <!-- Navigation -->
+        <div class="flex-1 p-4 overflow-y-auto">
             {% include 'includes/sidebar/opciones.html' %}
+        </div>
+        
+        <!-- Toggle Button -->
+        <div class="p-4 border-t border-[#E5E7EB]">
+            <button @click="sidebarCollapsed = !sidebarCollapsed" class="w-full px-4 py-3 bg-[#F9FAFB] hover:bg-[#E5E7EB] rounded-xl transition-colors flex items-center justify-center gap-2 text-[#4A5565] font-medium">
+                <template x-if="sidebarCollapsed">
+                    <i class="fas fa-chevron-right text-sm"></i>
+                </template>
+                <template x-if="!sidebarCollapsed">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-chevron-left text-sm"></i>
+                        <span class="text-sm">Colapsar</span>
+                    </div>
+                </template>
+            </button>
         </div>
     </div>
 </div>

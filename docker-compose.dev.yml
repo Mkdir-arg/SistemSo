@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Base de datos
   sedronar-mysql:
     image: mysql:8.0
     environment:
@@ -13,13 +12,11 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      # - ./docker/mysql/local-dump.sql:/docker-entrypoint-initdb.d/local-dump.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
 
-  # Redis para cache y channels
   sedronar-redis:
     image: redis:7-alpine
     ports:
@@ -31,14 +28,15 @@ services:
       timeout: 10s
       retries: 5
 
-  # Gunicorn para HTTP
   sedronar-http:
     build: .
     ports:
       - "8000:8000"
     depends_on:
-      sedronar-ws:
-        condition: service_started
+      sedronar-mysql:
+        condition: service_healthy
+      sedronar-redis:
+        condition: service_healthy
     volumes:
       - .:/sisoc
       - ./media:/sisoc/media
@@ -48,19 +46,15 @@ services:
       - DATABASE_PASSWORD=sedronar123
       - DATABASE_HOST=sedronar-mysql
       - DATABASE_PORT=3306
+      - DJANGO_SETTINGS_MODULE=config.settings
     command: >
       sh -c "
         pip install -r requirements.txt &&
-        sleep 10 &&
-        python manage.py collectstatic --noinput &&
-        gunicorn --reload --config gunicorn.conf.py config.wsgi:application
+        python manage.py migrate --noinput &&
+        python manage.py load_initial_data &&
+        python manage.py runserver 0.0.0.0:8000
       "
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
-      timeout: 10s
-      retries: 3
 
-  # Daphne para WebSockets (ejecuta migraciones y carga datos)
   sedronar-ws:
     build: .
     ports:
@@ -81,26 +75,8 @@ services:
     command: >
       sh -c "
         pip install -r requirements.txt &&
-        python manage.py migrate --noinput &&
-        python manage.py load_initial_data &&
         daphne -b 0.0.0.0 -p 8001 config.asgi:application
       "
-
-  # Nginx proxy
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "9000:80"
-    depends_on:
-      - sedronar-http
-      - sedronar-ws
-    volumes:
-      - ./nginx.hybrid.conf:/etc/nginx/conf.d/default.conf
-      - ./static:/var/www/static:ro
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health/"]
-      timeout: 10s
-      retries: 3
 
 volumes:
   mysql_data:

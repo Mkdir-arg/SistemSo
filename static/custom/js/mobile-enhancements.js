@@ -1,5 +1,5 @@
 /**
- * Mobile Enhancements for SEDRONAR
+ * Mobile Enhancements for NODO
  * Mejoras específicas para dispositivos móviles
  */
 

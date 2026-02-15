@@ -1,7 +1,7 @@
 {% load static %}
-<div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8" style="background: linear-gradient(135deg, #232D4F 0%, #3E5A7E 100%);">
+<div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
     <!-- Mobile menu button -->
-    <button type="button" class="-m-2.5 p-2.5 text-white lg:hidden" @click="sidebarOpen = true">
+    <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebarOpen = true">
         <span class="sr-only">Abrir sidebar</span>
         <i class="fas fa-bars h-6 w-6"></i>
     </button>
@@ -14,7 +14,7 @@
         <div class="flex items-center gap-x-4 lg:gap-x-6">
             <!-- Indicador de alertas -->
             <div class="relative" x-data="{ showDropdown: false }">
-                <button @click="showDropdown = !showDropdown" class="text-white hover:text-gray-300 transition-colors relative">
+                <button @click="showDropdown = !showDropdown" class="text-gray-700 hover:text-magenta transition-colors relative">
                     <i class="fas fa-bell text-lg"></i>
                     <span id="alertas-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center hidden">0</span>
                 </button>
@@ -32,7 +32,7 @@
                     <div class="p-4 border-b border-gray-200">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-medium text-gray-900">Alertas Activas</h3>
-                            <a href="{% url 'legajos:alertas_dashboard' %}" class="text-blue-600 hover:text-blue-800 text-sm">
+                            <a href="{% url 'legajos:alertas_dashboard' %}" class="text-magenta hover:text-nodo-purple text-sm">
                                 Ver todas
                             </a>
                         </div>
@@ -46,7 +46,7 @@
                     </div>
                     
                     <div class="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-                        <a href="{% url 'legajos:alertas_dashboard' %}" class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
+                        <a href="{% url 'legajos:alertas_dashboard' %}" class="block w-full text-center bg-magenta text-white py-2 px-4 rounded hover:bg-nodo-purple transition-colors">
                             <i class="fas fa-external-link-alt mr-2"></i>Dashboard de Alertas
                         </a>
                     </div>
@@ -61,18 +61,18 @@
             <div class="relative" x-data="{ open: false }">
                 <button type="button" class="-m-1.5 flex items-center p-1.5" @click="open = !open">
                     <span class="sr-only">Abrir menú de usuario</span>
-                    <div class="h-8 w-8 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #232D4F 0%, #3E5A7E 100%);">
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-nodo-purple to-magenta flex items-center justify-center">
                         <span class="text-sm font-medium text-white">{{ user.username|first|upper }}</span>
                     </div>
                     <span class="hidden lg:flex lg:items-center">
-                        <span class="ml-4 text-sm font-semibold leading-6 text-white">{{ user.get_full_name|default:user.username }}</span>
-                        <i class="ml-2 h-5 w-5 text-gray-300 fas fa-chevron-down"></i>
+                        <span class="ml-4 text-sm font-semibold leading-6 text-gray-900">{{ user.get_full_name|default:user.username }}</span>
+                        <i class="ml-2 h-5 w-5 text-gray-500 fas fa-chevron-down"></i>
                     </span>
                 </button>
 
                 <!-- Dropdown menu -->
-                <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md py-2 shadow-lg ring-1 ring-gray-900/5" style="background: linear-gradient(135deg, #232D4F 0%, #3E5A7E 100%);">
-                    <a href="{% url 'logout' %}" class="block px-3 py-1 text-sm leading-6 text-white hover:bg-white/10">
+                <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5">
+                    <a href="{% url 'logout' %}" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-50">
                         <i class="fas fa-sign-out-alt mr-2"></i>Cerrar sesión
                     </a>
                 </div>
