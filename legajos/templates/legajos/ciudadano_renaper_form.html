@@ -6,86 +6,37 @@
 {% block main-content %}
 <div class="max-w-2xl mx-auto">
     <!-- Header -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-4">
-            <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg">
-                <i class="fas fa-search text-blue-600 text-xl"></i>
+    <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 mb-6">
+        <div class="flex items-center gap-4 mb-3">
+            <div class="w-14 h-14 bg-gradient-to-br from-[#3B82F6] to-[#2563EB] rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-user-plus text-white text-xl"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Consultar RENAPER</h1>
-                <p class="text-gray-600">Ingrese DNI y sexo para consultar datos del ciudadano</p>
-            </div>
-        </div>
-        
-        <!-- Breadcrumb -->
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="flex items-center space-x-4">
-                <li>
-                    <a href="{% url 'legajos:ciudadanos' %}" class="text-gray-400 hover:text-gray-500">
-                        <i class="fas fa-users"></i>
-                        <span class="sr-only">Ciudadanos</span>
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                        <span class="text-gray-500">Nuevo Ciudadano</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
-
-    <!-- Información sobre RENAPER -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <i class="fas fa-info-circle text-blue-400 text-xl"></i>
-            </div>
-            <div class="ml-3">
-                <h3 class="text-sm font-medium text-blue-800">Integración con RENAPER</h3>
-                <div class="mt-2 text-sm text-blue-700">
-                    <p>Este formulario consulta automáticamente los datos del ciudadano en el Registro Nacional de las Personas (RENAPER).</p>
-                    <ul class="list-disc list-inside mt-2 space-y-1">
-                        <li>Ingrese el DNI sin puntos ni espacios</li>
-                        <li>Seleccione el sexo registrado en el documento</li>
-                        <li>Los datos se completarán automáticamente si se encuentra la persona</li>
-                    </ul>
-                </div>
+                <h1 class="text-3xl font-bold text-[#252F40]">Nuevo Ciudadano</h1>
+                <p class="text-[#8C8C8C] text-sm">Consulta automática con RENAPER</p>
             </div>
         </div>
     </div>
 
     <!-- Formulario -->
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Datos para consulta</h2>
-        </div>
-        
-        <form method="post" class="p-6 space-y-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+        <form method="post" class="p-8 space-y-6">
             {% csrf_token %}
             
             {% if renaper_error %}
-                <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-medium text-red-800">Error al consultar RENAPER</h3>
-                            <div class="mt-2 text-sm text-red-700">
-                                <p>{{ error_message }}</p>
-                            </div>
-                            <div class="mt-4">
+                <div class="bg-[#FEF2F2] border-l-4 border-[#EF4444] rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-exclamation-circle text-[#EF4444] text-lg mt-0.5"></i>
+                        <div class="flex-1">
+                            <p class="text-sm text-[#7F1D1D] font-medium mb-3">{{ error_message }}</p>
+                            <div class="flex gap-3">
                                 <a href="{% url 'legajos:ciudadano_manual' %}?dni={{ dni_consultado }}&sexo={{ sexo_consultado }}" 
-                                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                    <i class="fas fa-edit mr-2"></i>
-                                    Cargar Manualmente
+                                   class="text-sm font-medium text-[#EF4444] hover:text-[#DC2626] underline">
+                                    Cargar manualmente
                                 </a>
                                 <button type="button" onclick="location.reload()" 
-                                        class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    <i class="fas fa-redo mr-2"></i>
-                                    Intentar Nuevamente
+                                        class="text-sm font-medium text-[#8C8C8C] hover:text-[#4A5565]">
+                                    Reintentar
                                 </button>
                             </div>
                         </div>
@@ -94,62 +45,51 @@
             {% endif %}
             
             {% if form.errors %}
-                <div class="bg-red-50 border border-red-200 rounded-md p-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-circle text-red-400"></i>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800">Error en el formulario</h3>
-                            <div class="mt-2 text-sm text-red-700">
-                                {% for field, errors in form.errors.items %}
-                                    {% for error in errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
+                <div class="bg-[#FEF2F2] border-l-4 border-[#EF4444] rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-exclamation-circle text-[#EF4444] text-lg"></i>
+                        <div class="text-sm text-[#7F1D1D]">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <p>{{ error }}</p>
                                 {% endfor %}
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
             {% endif %}
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <!-- DNI -->
+            <div class="grid grid-cols-2 gap-6">
                 <div>
-                    <label for="{{ form.dni.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        {{ form.dni.label }}
-                        <span class="text-red-500">*</span>
+                    <label for="{{ form.dni.id_for_label }}" class="block text-sm font-semibold text-[#252F40] mb-2">
+                        DNI <span class="text-[#EF4444]">*</span>
                     </label>
-                    {{ form.dni }}
-                    {% if form.dni.help_text %}
-                        <p class="mt-1 text-sm text-gray-500">{{ form.dni.help_text }}</p>
-                    {% endif %}
+                    <input type="text" name="dni" id="{{ form.dni.id_for_label }}" 
+                           class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all" 
+                           placeholder="12345678" required>
                 </div>
 
-                <!-- Sexo -->
                 <div>
-                    <label for="{{ form.sexo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        {{ form.sexo.label }}
-                        <span class="text-red-500">*</span>
+                    <label for="{{ form.sexo.id_for_label }}" class="block text-sm font-semibold text-[#252F40] mb-2">
+                        Sexo <span class="text-[#EF4444]">*</span>
                     </label>
-                    {{ form.sexo }}
-                    {% if form.sexo.help_text %}
-                        <p class="mt-1 text-sm text-gray-500">{{ form.sexo.help_text }}</p>
-                    {% endif %}
+                    <select name="sexo" id="{{ form.sexo.id_for_label }}" 
+                            class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Botones -->
-            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between pt-6">
                 <a href="{% url 'legajos:ciudadanos' %}" 
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Cancelar
+                   class="text-[#8C8C8C] hover:text-[#4A5565] font-medium transition-colors">
+                    ← Volver
                 </a>
                 
                 <button type="submit" 
-                        class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <i class="fas fa-search mr-2"></i>
+                        class="px-8 py-3 bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white font-semibold rounded-xl hover:shadow-lg transition-all">
                     Consultar RENAPER
                 </button>
             </div>
