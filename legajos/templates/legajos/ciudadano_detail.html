@@ -9,35 +9,30 @@
 
     <!-- Información Personal - Header completo -->
     <div class="mb-8">
-        <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
             <div class="relative p-8">
-                <!-- Patrón de fondo decorativo -->
-                <div class="absolute inset-0 bg-black bg-opacity-10">
-                    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);"></div>
-                </div>
-                
                 <div class="relative z-10">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center space-x-6">
                             <!-- Avatar -->
-                            <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white border-opacity-30">
+                            <div class="w-20 h-20 bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] rounded-full flex items-center justify-center">
                                 <span class="text-3xl font-bold text-white">{{ ciudadano.nombre.0 }}{{ ciudadano.apellido.0 }}</span>
                             </div>
                             
                             <!-- Info básica -->
-                            <div class="text-white">
-                                <h2 class="text-3xl font-bold mb-1">{{ ciudadano.apellido }}, {{ ciudadano.nombre }}</h2>
-                                <p class="text-blue-100 text-lg">DNI: {{ ciudadano.dni }}</p>
+                            <div>
+                                <h2 class="text-3xl font-bold text-[#252F40] mb-1">{{ ciudadano.apellido }}, {{ ciudadano.nombre }}</h2>
+                                <p class="text-[#8C8C8C] text-lg">DNI: {{ ciudadano.dni }}</p>
                             </div>
                         </div>
                         
                         <!-- Botones de acción -->
                         <div class="flex gap-3">
-                            <a href="{% url 'legajos:ciudadano_editar' ciudadano.pk %}" class="bg-white bg-opacity-20 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:bg-opacity-30 transition-all duration-300 border border-white border-opacity-30 flex items-center space-x-2">
+                            <a href="{% url 'legajos:ciudadano_editar' ciudadano.pk %}" class="bg-white text-[#4A5565] px-6 py-3 rounded-xl hover:bg-[#F9FAFB] transition-all border border-[#E5E7EB] flex items-center space-x-2">
                                 <i class="fas fa-edit"></i>
                                 <span>Editar</span>
                             </a>
-                            <a href="{% url 'legajos:admision_paso1' %}?ciudadano={{ ciudadano.pk }}" class="bg-white text-blue-600 px-6 py-3 rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-lg flex items-center space-x-2 font-semibold">
+                            <a href="{% url 'legajos:admision_paso1' %}?ciudadano={{ ciudadano.pk }}" class="bg-[#10B981] text-white px-6 py-3 rounded-xl hover:bg-[#059669] transition-all shadow-sm flex items-center space-x-2 font-semibold">
                                 <i class="fas fa-plus"></i>
                                 <span>Nuevo Acompañamiento</span>
                             </a>
@@ -47,62 +42,62 @@
                     <!-- Información detallada en grid -->
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                         {% if ciudadano.fecha_nacimiento %}
-                        <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4 border border-white border-opacity-20">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
                             <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-birthday-cake text-yellow-300"></i>
-                                <span class="text-blue-100 text-sm font-medium">Nacimiento</span>
+                                <i class="fas fa-birthday-cake text-[#F59E0B]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Nacimiento</span>
                             </div>
-                            <p class="text-white font-semibold">{{ ciudadano.fecha_nacimiento|date:"d/m/Y" }}</p>
+                            <p class="text-[#252F40] font-semibold">{{ ciudadano.fecha_nacimiento|date:"d/m/Y" }}</p>
                         </div>
                         {% endif %}
                         
                         {% if ciudadano.genero %}
-                        <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4 border border-white border-opacity-20">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
                             <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-user text-pink-300"></i>
-                                <span class="text-blue-100 text-sm font-medium">Género</span>
+                                <i class="fas fa-user text-[#EC4899]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Género</span>
                             </div>
-                            <p class="text-white font-semibold">{{ ciudadano.get_genero_display|default:ciudadano.genero }}</p>
+                            <p class="text-[#252F40] font-semibold">{{ ciudadano.get_genero_display|default:ciudadano.genero }}</p>
                         </div>
                         {% endif %}
                         
                         {% if ciudadano.telefono %}
-                        <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4 border border-white border-opacity-20">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
                             <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-phone text-green-300"></i>
-                                <span class="text-blue-100 text-sm font-medium">Teléfono</span>
+                                <i class="fas fa-phone text-[#10B981]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Teléfono</span>
                             </div>
-                            <p class="text-white font-semibold">{{ ciudadano.telefono }}</p>
+                            <p class="text-[#252F40] font-semibold">{{ ciudadano.telefono }}</p>
                         </div>
                         {% endif %}
                         
                         {% if ciudadano.email %}
-                        <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4 border border-white border-opacity-20">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
                             <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-envelope text-blue-300"></i>
-                                <span class="text-blue-100 text-sm font-medium">Email</span>
+                                <i class="fas fa-envelope text-[#3B82F6]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Email</span>
                             </div>
-                            <p class="text-white font-semibold text-sm">{{ ciudadano.email }}</p>
+                            <p class="text-[#252F40] font-semibold text-sm">{{ ciudadano.email }}</p>
                         </div>
                         {% endif %}
                         
                         {% if ciudadano.domicilio %}
-                        <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4 border border-white border-opacity-20 md:col-span-2">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB] md:col-span-2">
                             <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-map-marker-alt text-red-300"></i>
-                                <span class="text-blue-100 text-sm font-medium">Domicilio</span>
+                                <i class="fas fa-map-marker-alt text-[#EF4444]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Domicilio</span>
                             </div>
-                            <p class="text-white font-semibold">{{ ciudadano.domicilio }}</p>
+                            <p class="text-[#252F40] font-semibold">{{ ciudadano.domicilio }}</p>
                         </div>
                         {% endif %}
                         
                         <!-- Estadística de legajos -->
-                        <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-4 border border-white border-opacity-20">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
                             <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-folder text-orange-300"></i>
-                                <span class="text-blue-100 text-sm font-medium">Acompañamiento</span>
+                                <i class="fas fa-folder text-[#3B82F6]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Acompañamiento</span>
                             </div>
-                            <p class="text-white font-semibold text-xl">{{ legajos.count }}</p>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ legajos.count }}</p>
                         </div>
                     </div>
                 </div>
@@ -152,92 +147,92 @@
     <!-- Tab: Resumen -->
     <div id="tab-resumen" class="tab-content">
     <!-- Dashboard Resumido -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-100 p-8 mb-8">
-        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-2 mr-3">
+    <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8 mb-8">
+        <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+            <div class="bg-[#3B82F6] rounded-lg p-2 mr-3">
                 <i class="fas fa-chart-bar text-white text-lg"></i>
             </div>
             Dashboard Resumido
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Total Legajos -->
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-blue-100 text-sm font-medium mb-1">Total Acompañamiento</p>
-                        <p class="text-3xl font-bold" id="total-legajos">{{ legajos.count }}</p>
+                        <p class="text-[#8C8C8C] text-sm font-medium mb-1">Total Acompañamiento</p>
+                        <p class="text-3xl font-bold text-[#252F40]" id="total-legajos">{{ legajos.count }}</p>
                     </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-4">
-                        <i class="fas fa-folder text-2xl"></i>
+                    <div class="bg-[#3B82F6] bg-opacity-10 rounded-full p-4">
+                        <i class="fas fa-folder text-2xl text-[#3B82F6]"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-full w-2 h-2 mr-2 animate-pulse"></div>
-                    <span class="text-xs text-blue-100">Total de acompañamiento</span>
+                    <div class="bg-[#3B82F6] rounded-full w-2 h-2 mr-2"></div>
+                    <span class="text-xs text-[#8C8C8C]">Total de acompañamiento</span>
                 </div>
             </div>
 
             <!-- Vínculos Familiares -->
-            <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-emerald-100 text-sm font-medium mb-1">Vínculos Familiares</p>
-                        <p class="text-3xl font-bold" id="total-vinculos">0</p>
+                        <p class="text-[#8C8C8C] text-sm font-medium mb-1">Vínculos Familiares</p>
+                        <p class="text-3xl font-bold text-[#252F40]" id="total-vinculos">0</p>
                     </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-4">
-                        <i class="fas fa-users text-2xl"></i>
+                    <div class="bg-[#10B981] bg-opacity-10 rounded-full p-4">
+                        <i class="fas fa-users text-2xl text-[#10B981]"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-full w-2 h-2 mr-2 animate-pulse"></div>
-                    <span class="text-xs text-emerald-100">Red familiar registrada</span>
+                    <div class="bg-[#10B981] rounded-full w-2 h-2 mr-2"></div>
+                    <span class="text-xs text-[#8C8C8C]">Red familiar registrada</span>
                 </div>
             </div>
 
             <!-- Archivos Adjuntos -->
-            <div class="bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-purple-100 text-sm font-medium mb-1">Archivos Adjuntos</p>
-                        <p class="text-3xl font-bold" id="total-archivos-dash">0</p>
+                        <p class="text-[#8C8C8C] text-sm font-medium mb-1">Archivos Adjuntos</p>
+                        <p class="text-3xl font-bold text-[#252F40]" id="total-archivos-dash">0</p>
                     </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-4">
-                        <i class="fas fa-paperclip text-2xl"></i>
+                    <div class="bg-[#64748B] bg-opacity-10 rounded-full p-4">
+                        <i class="fas fa-paperclip text-2xl text-[#64748B]"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-full w-2 h-2 mr-2 animate-pulse"></div>
-                    <span class="text-xs text-purple-100">Documentos disponibles</span>
+                    <div class="bg-[#64748B] rounded-full w-2 h-2 mr-2"></div>
+                    <span class="text-xs text-[#8C8C8C]">Documentos disponibles</span>
                 </div>
             </div>
 
             <!-- Alertas Activas -->
-            <div class="bg-gradient-to-br from-red-500 to-rose-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-red-100 text-sm font-medium mb-1">Alertas Activas</p>
-                        <p class="text-3xl font-bold" id="total-alertas-dash">0</p>
+                        <p class="text-[#8C8C8C] text-sm font-medium mb-1">Alertas Activas</p>
+                        <p class="text-3xl font-bold text-[#252F40]" id="total-alertas-dash">0</p>
                     </div>
-                    <div class="bg-white bg-opacity-20 rounded-full p-4">
-                        <i class="fas fa-exclamation-triangle text-2xl animate-pulse"></i>
+                    <div class="bg-[#EF4444] bg-opacity-10 rounded-full p-4">
+                        <i class="fas fa-exclamation-triangle text-2xl text-[#EF4444]"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-full w-2 h-2 mr-2 animate-pulse"></div>
-                    <span class="text-xs text-red-100">Requieren atención</span>
+                    <div class="bg-[#EF4444] rounded-full w-2 h-2 mr-2"></div>
+                    <span class="text-xs text-[#8C8C8C]">Requieren atención</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Predicción de Riesgo con IA -->
-    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg border border-purple-100 p-8 mb-8">
-        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-            <div class="bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg p-2 mr-3">
+    <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8 mb-8">
+        <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+            <div class="bg-[#64748B] rounded-lg p-2 mr-3">
                 <i class="fas fa-brain text-white text-lg"></i>
             </div>
             Predicción de Riesgo con IA
-            <span class="ml-3 text-xs font-normal text-gray-500 bg-white px-3 py-1 rounded-full">Beta</span>
+            <span class="ml-3 text-xs font-normal text-[#8C8C8C] bg-[#F9FAFB] px-3 py-1 rounded-full border border-[#E5E7EB]">Beta</span>
         </h3>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -302,16 +297,14 @@
 
     <!-- Línea Temporal -->
     <div class="mt-8">
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-1">📅 Línea Temporal</h2>
-                        <p class="text-indigo-100">Evolución cronológica del legajo</p>
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+            <div class="p-8">
+                <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+                    <div class="bg-[#6366F1] rounded-lg p-2 mr-3">
+                        <i class="fas fa-calendar text-white text-lg"></i>
                     </div>
-                </div>
-            </div>
-            <div class="p-6">
+                    Línea Temporal
+                </h3>
                 <div id="timeline-container" class="relative">
                     <!-- La línea temporal se cargará aquí -->
                 </div>
@@ -325,33 +318,33 @@
 
     <!-- Actividad Reciente -->
     <div class="mt-8">
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-green-600 to-teal-600 p-6 text-white">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-1">📊 Actividad Reciente</h2>
-                        <p class="text-green-100">Historial completo de acciones en todos los legajos</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
-                        <span class="text-lg font-bold" id="total-actividades">-</span>
-                        <span class="text-sm">registros</span>
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                        <div class="bg-[#10B981] rounded-lg p-2 mr-3">
+                            <i class="fas fa-chart-bar text-white text-lg"></i>
+                        </div>
+                        Actividad Reciente
+                    </h3>
+                    <div class="bg-[#F9FAFB] px-4 py-2 rounded-full border border-[#E5E7EB]">
+                        <span class="text-lg font-bold text-[#252F40]" id="total-actividades">-</span>
+                        <span class="text-sm text-[#8C8C8C]">registros</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="p-6">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
+                    <table class="w-full">
+                        <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Legajo</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Fecha/Hora</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Tipo</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Descripción</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Usuario</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Legajo</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-actividades" class="bg-white divide-y divide-gray-200">
+                        <tbody id="tabla-actividades" class="divide-y divide-[#E5E7EB]">
                             <!-- Las actividades se cargarán aquí dinámicamente -->
                         </tbody>
                     </table>
@@ -371,30 +364,36 @@
 
         <!-- Legajos -->
         <div>
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h2 class="text-2xl font-bold mb-1">📋 Acompañamiento</h2>
-                            <p class="text-blue-100">Historial completo de acompañamientos</p>
-                        </div>
-                        <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
-                            <span class="text-lg font-bold">{{ legajos.count }}</span>
-                            <span class="text-sm">acompañamiento{{ legajos.count|pluralize }}</span>
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                            <div class="bg-[#3B82F6] rounded-lg p-2 mr-3">
+                                <i class="fas fa-folder text-white text-lg"></i>
+                            </div>
+                            Acompañamiento
+                            <span class="ml-3 text-sm font-normal text-[#8C8C8C]">Historial completo de acompañamientos</span>
+                        </h3>
+                        <div class="bg-[#F9FAFB] px-4 py-2 rounded-full border border-[#E5E7EB]">
+                            <span class="text-lg font-bold text-[#252F40]">{{ legajos.count }}</span>
+                            <span class="text-sm text-[#8C8C8C]">acompañamiento{{ legajos.count|pluralize }}</span>
                         </div>
                     </div>
-                </div>
 
-                <div class="p-6">
                     {% if legajos.count > 0 %}
                         <div class="grid gap-6">
                             {% for legajo in legajos %}
-                            <div class="group relative bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all duration-300">
+                            <div class="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden hover:shadow-md hover:border-[#3B82F6] transition-all duration-300">
                                 <!-- Gráfico de Evolución del Tratamiento -->
-                                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 text-white">
+                                <div class="bg-[#F9FAFB] border-b border-[#E5E7EB] p-4">
                                     <div class="flex items-center justify-between">
-                                        <h4 class="font-bold text-lg">Evolución del Tratamiento</h4>
-                                        <span class="text-xs bg-white bg-opacity-20 px-3 py-1 rounded-full">Legajo #{{ forloop.counter }}</span>
+                                        <h4 class="font-bold text-lg text-[#252F40] flex items-center">
+                                            <div class="bg-[#475569] rounded-lg p-2 mr-3">
+                                                <i class="fas fa-chart-line text-white text-sm"></i>
+                                            </div>
+                                            Evolución del Tratamiento
+                                        </h4>
+                                        <span class="text-xs bg-[#475569] text-white px-3 py-1 rounded-full">Legajo #{{ forloop.counter }}</span>
                                     </div>
                                 </div>
                                 
@@ -403,7 +402,7 @@
                                 <!-- Header del legajo -->
                                 <div class="flex justify-between items-start mb-4">
                                     <div class="flex items-center space-x-3">
-                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                                        <div class="w-12 h-12 bg-[#3B82F6] rounded-xl flex items-center justify-center text-white font-bold text-lg">
                                             {{ forloop.counter }}
                                         </div>
                                         <div>
@@ -545,15 +544,14 @@
                             <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
                                 <i class="fas fa-folder-open text-4xl text-gray-400"></i>
                             </div>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Sin legajos registrados</h3>
-                            <p class="text-gray-600 mb-6 max-w-md mx-auto">Este ciudadano no tiene legajos de atención. Crea el primer legajo para comenzar el seguimiento.</p>
-                            <a href="{% url 'legajos:admision_paso1' %}?ciudadano={{ ciudadano.pk }}" class="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <h3 class="text-xl font-semibold text-[#252F40] mb-2">Sin legajos registrados</h3>
+                            <p class="text-[#8C8C8C] mb-6 max-w-md mx-auto">Este ciudadano no tiene legajos de atención. Crea el primer legajo para comenzar el seguimiento.</p>
+                            <a href="{% url 'legajos:admision_paso1' %}?ciudadano={{ ciudadano.pk }}" class="inline-flex items-center bg-[#3B82F6] text-white px-6 py-3 rounded-lg hover:bg-[#2563EB] transition-all duration-300 shadow-sm hover:shadow-md">
                                 <i class="fas fa-plus mr-2"></i>
                                 Crear Primer Acompañamiento
                             </a>
                         </div>
                     {% endif %}
-                </div>
             </div>
         </div>
     </div>
@@ -563,21 +561,21 @@
 
     <!-- Tab: Cursos y Actividades -->
     <div id="tab-cursos" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-1">🎓 Cursos y Actividades</h2>
-                        <p class="text-purple-100">Actividades activas del ciudadano</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
-                        <span class="text-lg font-bold" id="total-cursos">-</span>
-                        <span class="text-sm">activas</span>
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                        <div class="bg-[#8B5CF6] rounded-lg p-2 mr-3">
+                            <i class="fas fa-graduation-cap text-white text-lg"></i>
+                        </div>
+                        Cursos y Actividades
+                    </h3>
+                    <div class="bg-[#F9FAFB] px-4 py-2 rounded-full border border-[#E5E7EB]">
+                        <span class="text-lg font-bold text-[#252F40]" id="total-cursos">-</span>
+                        <span class="text-sm text-[#8C8C8C]">activas</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="p-6">
                 <div id="contenedor-cursos" class="grid gap-4">
                     <!-- Los cursos se cargarán aquí dinámicamente -->
                 </div>
@@ -591,10 +589,15 @@
 
     <!-- Tab: Red Familiar -->
     <div id="tab-red" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-gray-900">👥 Red Familiar Interactiva</h2>
-                <button onclick="toggleRedFamiliar()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                    <div class="bg-[#10B981] rounded-lg p-2 mr-3">
+                        <i class="fas fa-users text-white text-lg"></i>
+                    </div>
+                    Red Familiar Interactiva
+                </h3>
+                <button onclick="toggleRedFamiliar()" class="bg-[#10B981] text-white px-4 py-2 rounded-lg hover:bg-[#059669] transition-colors">
                     <i class="fas fa-users mr-2"></i>Ver Red Completa
                 </button>
             </div>
@@ -623,20 +626,20 @@
 
                 <!-- Vínculos existentes -->
                 <div id="vinculos-existentes">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Vínculos Registrados</h3>
+                    <h3 class="text-lg font-medium text-[#252F40] mb-4">Vínculos Registrados</h3>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
-                            <thead class="bg-gray-50">
+                        <table class="w-full">
+                            <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudadano</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Relación</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DNI</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Ciudadano</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Relación</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">DNI</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Teléfono</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-vinculos" class="bg-white divide-y divide-gray-200">
+                            <tbody id="tabla-vinculos" class="divide-y divide-[#E5E7EB]">
                                 <!-- Los vínculos se cargarán aquí dinámicamente -->
                             </tbody>
                         </table>
@@ -652,39 +655,39 @@
 
     <!-- Tab: Archivos -->
     <div id="tab-archivos" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6 text-white">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-1">📁 Archivos</h2>
-                        <p class="text-orange-100">Todos los documentos</p>
-                    </div>
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                        <div class="bg-[#64748B] rounded-lg p-2 mr-3">
+                            <i class="fas fa-paperclip text-white text-lg"></i>
+                        </div>
+                        Archivos
+                    </h3>
                     <div class="flex items-center space-x-4">
-                        <button onclick="abrirModalArchivosGeneral()" class="bg-white bg-opacity-20 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:bg-opacity-30 transition-all duration-300 border border-white border-opacity-30 flex items-center space-x-2">
+                        <button onclick="abrirModalArchivosGeneral()" class="bg-[#64748B] text-white px-6 py-3 rounded-xl hover:bg-[#475569] transition-all flex items-center space-x-2">
                             <i class="fas fa-upload"></i>
                             <span>Subir Archivo</span>
                         </button>
-                        <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
-                            <span class="text-lg font-bold" id="total-archivos">-</span>
-                            <span class="text-sm">archivos</span>
+                        <div class="bg-[#F9FAFB] px-4 py-2 rounded-full border border-[#E5E7EB]">
+                            <span class="text-lg font-bold text-[#252F40]" id="total-archivos">-</span>
+                            <span class="text-sm text-[#8C8C8C]">archivos</span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="p-6">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
+                    <table class="w-full">
+                        <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archivo</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etiqueta</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Origen</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Archivo</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Etiqueta</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Origen</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Fecha</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-archivos" class="bg-white divide-y divide-gray-200">
+                        <tbody id="tabla-archivos" class="divide-y divide-[#E5E7EB]">
                             <!-- Los archivos se cargarán aquí dinámicamente -->
                         </tbody>
                     </table>
@@ -1042,33 +1045,33 @@ function cargarArchivos() {
                     const icono = getIconoArchivo(extension);
                     
                     return `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-4 whitespace-nowrap">
+                        <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <i class="${icono} text-2xl mr-3 text-gray-600"></i>
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">${archivo.nombre}</div>
-                                        <div class="text-sm text-gray-500">${formatearTamano(archivo.tamano)}</div>
+                                        <div class="text-sm font-medium text-[#252F40]">${archivo.nombre}</div>
+                                        <div class="text-sm text-[#8C8C8C]">${formatearTamano(archivo.tamano)}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
                                 ${archivo.etiqueta || '-'}
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 ${archivo.tipo_origen === 'ciudadano' ? 
-                                    '<span class="text-gray-600">Ciudadano</span>' : 
-                                    `<a href="/legajos/${archivo.legajo_id}/" class="text-blue-600 hover:text-blue-900">Acompañamiento</a>`
+                                    '<span class="text-[#8C8C8C]">Ciudadano</span>' : 
+                                    `<a href="/legajos/${archivo.legajo_id}/" class="text-[#3B82F6] hover:text-[#2563EB]">Acompañamiento</a>`
                                 }
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
                                 ${fecha}
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="${archivo.url}" target="_blank" class="text-blue-600 hover:text-blue-900 mr-3" title="Descargar">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="${archivo.url}" target="_blank" class="text-[#3B82F6] hover:text-[#2563EB] mr-3" title="Descargar">
                                     <i class="fas fa-download"></i>
                                 </a>
-                                <button onclick="eliminarArchivo(${archivo.id})" class="text-red-600 hover:text-red-900" title="Eliminar">
+                                <button onclick="eliminarArchivo(${archivo.id})" class="text-[#EF4444] hover:text-[#DC2626]" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1085,7 +1088,7 @@ function cargarArchivos() {
         })
         .catch(error => {
             console.error('Error:', error);
-            document.getElementById('tabla-archivos').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Error al cargar archivos</td></tr>';
+            document.getElementById('tabla-archivos').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-[#EF4444]">Error al cargar archivos</td></tr>';
         });
 }
 
@@ -1332,31 +1335,31 @@ function cargarVinculos() {
                     if (vinculo.es_referente_tratamiento) badges.push('<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Referente</span>');
                     
                     return `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-4 whitespace-nowrap">
+                        <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                                    <div class="w-10 h-10 bg-[#3B82F6] rounded-full flex items-center justify-center mr-3">
                                         <span class="text-white font-semibold text-sm">${nombre.charAt(0)}${apellido.charAt(0)}</span>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">${nombre} ${apellido}</div>
+                                        <div class="text-sm font-medium text-[#252F40]">${nombre} ${apellido}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-[#F9FAFB] text-[#252F40]">
                                     ${tipoVinculo}
                                 </span>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${dni}</td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${telefono}</td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">${dni}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">${telefono}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-wrap gap-1">
                                     ${badges.join('')}
                                 </div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="eliminarVinculo(${vinculo.id})" class="text-red-600 hover:text-red-900 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button onclick="eliminarVinculo(${vinculo.id})" class="text-[#EF4444] hover:text-[#DC2626] transition-colors">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1371,7 +1374,7 @@ function cargarVinculos() {
         })
         .catch(error => {
             console.error('Error:', error);
-            document.getElementById('tabla-vinculos').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-red-500">Error al cargar vínculos</td></tr>';
+            document.getElementById('tabla-vinculos').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-[#EF4444]">Error al cargar vínculos</td></tr>';
         });
 }
 
@@ -1522,10 +1525,10 @@ function cargarCursosActividades() {
                     const estadoIcon = getEstadoInscripcionIcon(inscripcion.estado);
                     
                     return `
-                        <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-purple-300 transition-all duration-300">
+                        <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 hover:shadow-md hover:border-[#475569] transition-all duration-300">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                                    <div class="w-12 h-12 bg-[#475569] rounded-xl flex items-center justify-center text-white font-bold text-lg">
                                         <i class="fas fa-graduation-cap"></i>
                                     </div>
                                     <div>
@@ -1622,7 +1625,7 @@ function cargarLineaTemporal() {
                                     <div class="absolute -left-12 mt-1.5 w-8 h-8 rounded-full ${iconoConfig.bg} flex items-center justify-center border-4 border-white shadow-lg">
                                         <i class="${iconoConfig.icon} ${iconoConfig.color} text-sm"></i>
                                     </div>
-                                    <div class="bg-gradient-to-r from-gray-50 to-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-200">
+                                    <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                                         <div class="flex justify-between items-start mb-2">
                                             <h3 class="font-bold text-gray-900">${evento.titulo}</h3>
                                             <span class="text-xs text-gray-500 whitespace-nowrap ml-4">${new Date(evento.fecha).toLocaleDateString('es-AR')}</span>

@@ -44,6 +44,35 @@ class CiudadanoListView(LoginRequiredMixin, ListView):
         
         return queryset.order_by('apellido', 'nombre')
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Métricas del dashboard
+        total_ciudadanos = Ciudadano.objects.filter(activo=True).count()
+        legajos_activos = LegajoAtencion.objects.filter(estado__in=['ABIERTO', 'EN_SEGUIMIENTO']).count()
+        alertas_criticas = EventoCritico.objects.count()
+        
+        from datetime import date
+        seguimientos_hoy = SeguimientoContacto.objects.filter(creado__date=date.today()).count()
+        
+        # Tasa de adherencia
+        total_seguimientos = SeguimientoContacto.objects.count()
+        seguimientos_adecuados = SeguimientoContacto.objects.filter(adherencia='ADECUADA').count()
+        tasa_adherencia = round((seguimientos_adecuados / total_seguimientos * 100) if total_seguimientos > 0 else 0)
+        
+        casos_alto_riesgo = LegajoAtencion.objects.filter(nivel_riesgo='ALTO').count()
+        
+        context['metricas'] = {
+            'total_ciudadanos': total_ciudadanos,
+            'legajos_activos': legajos_activos,
+            'alertas_criticas': alertas_criticas,
+            'seguimientos_hoy': seguimientos_hoy,
+            'tasa_adherencia': tasa_adherencia,
+            'casos_alto_riesgo': casos_alto_riesgo,
+        }
+        
+        return context
+    
 
 
 
