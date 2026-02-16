@@ -4,6 +4,10 @@ from . import views_dashboard_simple as views_simple
 from . import views_simple_contactos as views_contactos_simple
 from . import views_alertas
 from . import views_cursos
+from . import views_derivacion
+from . import views_api_derivaciones
+from . import views_bandeja_derivaciones
+from . import views_gestionar_derivaciones
 
 app_name = 'legajos'
 
@@ -16,6 +20,16 @@ urlpatterns = [
     path('ciudadanos/manual/', views.CiudadanoManualView.as_view(), name='ciudadano_manual'),
     path('ciudadanos/<int:pk>/', views.CiudadanoDetailView.as_view(), name='ciudadano_detalle'),
     path('ciudadanos/<int:pk>/editar/', views.CiudadanoUpdateView.as_view(), name='ciudadano_editar'),
+    
+    # Derivación a Programas
+    path('ciudadanos/<int:ciudadano_id>/derivar-programa/', views_derivacion.derivar_programa_view, name='derivar_programa'),
+    path('bandeja-derivaciones/', views_bandeja_derivaciones.bandeja_derivaciones_view, name='bandeja_derivaciones'),
+    path('derivaciones/<int:derivacion_id>/aceptar/', views_gestionar_derivaciones.aceptar_derivacion_view, name='aceptar_derivacion'),
+    path('derivaciones/<int:derivacion_id>/rechazar/', views_gestionar_derivaciones.rechazar_derivacion_view, name='rechazar_derivacion'),
+    
+    # API Derivaciones de Programas
+    path('ciudadanos/<int:ciudadano_id>/derivaciones-programa/<int:programa_id>/', views_api_derivaciones.derivaciones_programa_api, name='derivaciones_programa_api'),
+    
     path('admision/paso1/', views.AdmisionPaso1View.as_view(), name='admision_paso1'),
     path('admision/paso2/', views.AdmisionPaso2View.as_view(), name='admision_paso2'),
     path('admision/paso3/', views.AdmisionPaso3View.as_view(), name='admision_paso3'),

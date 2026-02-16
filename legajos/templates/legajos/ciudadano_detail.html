@@ -32,9 +32,9 @@
                                 <i class="fas fa-edit"></i>
                                 <span>Editar</span>
                             </a>
-                            <a href="{% url 'legajos:admision_paso1' %}?ciudadano={{ ciudadano.pk }}" class="bg-[#10B981] text-white px-6 py-3 rounded-xl hover:bg-[#059669] transition-all shadow-sm flex items-center space-x-2 font-semibold">
-                                <i class="fas fa-plus"></i>
-                                <span>Nuevo Acompañamiento</span>
+                            <a href="{% url 'legajos:derivar_programa' ciudadano.pk %}" class="bg-[#10B981] text-white px-6 py-3 rounded-xl hover:bg-[#059669] transition-all shadow-sm flex items-center space-x-2 font-semibold">
+                                <i class="fas fa-share"></i>
+                                <span>Derivar a Programa</span>
                             </a>
                         </div>
                     </div>
@@ -121,25 +121,23 @@
         </div>
     </div>
 
-    <!-- Tabs de Navegación -->
+    <!-- Tabs de Navegación Dinámicos -->
     <div class="bg-white rounded-xl shadow-lg mb-8">
         <div class="border-b border-gray-200">
-            <nav class="flex -mb-px">
-                <button onclick="cambiarTab('resumen')" data-tab="resumen" class="tab-button border-b-2 border-blue-500 text-blue-600 py-4 px-6 font-medium">
-                    <i class="fas fa-chart-line mr-2"></i>Resumen
+            <nav class="flex -mb-px overflow-x-auto">
+                {% for solapa in solapas %}
+                <button 
+                    onclick="cambiarTab('{{ solapa.id }}')"
+                    data-tab="{{ solapa.id }}" 
+                    class="tab-button {% if forloop.first %}border-b-2 border-blue-500 text-blue-600{% else %}border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} py-4 px-6 font-medium whitespace-nowrap"
+                    {% if not solapa.estatica %}style="border-bottom-color: {{ solapa.color }};"{% endif %}
+                >
+                    <i class="fas fa-{{ solapa.icono }} mr-2"></i>{{ solapa.nombre }}
+                    {% if not solapa.estatica %}
+                    <span class="ml-2 w-2 h-2 rounded-full inline-block" style="background-color: {{ solapa.color }};"></span>
+                    {% endif %}
                 </button>
-                <button onclick="cambiarTab('acompanamiento')" data-tab="acompanamiento" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium">
-                    <i class="fas fa-folder mr-2"></i>Acompañamiento
-                </button>
-                <button onclick="cambiarTab('cursos')" data-tab="cursos" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium">
-                    <i class="fas fa-graduation-cap mr-2"></i>Cursos y Actividades
-                </button>
-                <button onclick="cambiarTab('red')" data-tab="red" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium">
-                    <i class="fas fa-users mr-2"></i>Red Familiar
-                </button>
-                <button onclick="cambiarTab('archivos')" data-tab="archivos" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium">
-                    <i class="fas fa-paperclip mr-2"></i>Archivos
-                </button>
+                {% endfor %}
             </nav>
         </div>
     </div>
@@ -358,9 +356,50 @@
     </div>
     </div>
 
-    <!-- Tab: Acompañamiento -->
-    <div id="tab-acompanamiento" class="tab-content hidden">
+    <!-- Tab: Acompañamiento (solo si tiene programas activos) -->
+    {% for programa in programas_activos %}
+    {% if programa.programa.tipo == 'ACOMPANAMIENTO_SEDRONAR' %}
+    <div id="tab-programa_{{ programa.programa.tipo }}" class="tab-content hidden">
     <div class="grid grid-cols-1 gap-8">
+
+        <!-- Derivaciones al Programa -->
+        <div>
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                            <div class="bg-[#10B981] rounded-lg p-2 mr-3">
+                                <i class="fas fa-share text-white text-lg"></i>
+                            </div>
+                            Derivaciones al Programa
+                            <span class="ml-3 text-sm font-normal text-[#8C8C8C]">Historial de derivaciones</span>
+                        </h3>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Fecha</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Programa Origen</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Motivo</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Urgencia</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Estado</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Derivado Por</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-derivaciones-programa-{{ programa.programa.id }}" class="divide-y divide-[#E5E7EB]">
+                                <!-- Las derivaciones se cargarán aquí dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="mensaje-sin-derivaciones-{{ programa.programa.id }}" class="text-center py-12 hidden">
+                        <div class="text-gray-400 text-4xl mb-2">📋</div>
+                        <p class="text-gray-500">No hay derivaciones registradas para este programa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Legajos -->
         <div>
@@ -558,9 +597,11 @@
 
     </div>
     </div>
+    {% endif %}
+    {% endfor %}
 
     <!-- Tab: Cursos y Actividades -->
-    <div id="tab-cursos" class="tab-content hidden">
+    <div id="tab-cursos_actividades" class="tab-content hidden">
         <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
             <div class="p-8">
                 <div class="flex justify-between items-center mb-6">
@@ -588,7 +629,7 @@
     </div>
 
     <!-- Tab: Red Familiar -->
-    <div id="tab-red" class="tab-content hidden">
+    <div id="tab-red_familiar" class="tab-content hidden">
         <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
@@ -811,6 +852,11 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarLineaTemporal();
     cargarPrediccionRiesgo();
     actualizarDashboard();
+    
+    // Cargar derivaciones para cada programa activo
+    {% for programa in programas_activos %}
+    cargarDerivacionesPrograma({{ programa.programa.id }}, '{{ programa.programa.tipo }}');
+    {% endfor %}
 });
 
 // Sistema de Tabs
@@ -831,7 +877,7 @@ function cambiarTab(tabName) {
     activeButton.classList.remove('border-transparent', 'text-gray-500');
     
     // Cargar datos de legajos si se abre la pestaña de acompañamiento
-    if (tabName === 'acompanamiento') {
+    if (tabName.startsWith('programa_ACOMPANAMIENTO_SEDRONAR')) {
         cargarDatosLegajos();
     }
 }
@@ -1777,6 +1823,85 @@ function getPrioridadText(prioridad) {
         'BAJA': 'text-blue-600'
     };
     return colores[prioridad] || 'text-gray-600';
+}
+
+// Cargar derivaciones de un programa específico
+function cargarDerivacionesPrograma(programaId, programaTipo) {
+    fetch(`/legajos/ciudadanos/{{ ciudadano.id }}/derivaciones-programa/${programaId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById(`tabla-derivaciones-programa-${programaId}`);
+            const mensajeSin = document.getElementById(`mensaje-sin-derivaciones-${programaId}`);
+            
+            if (data.derivaciones && data.derivaciones.length > 0) {
+                tbody.innerHTML = data.derivaciones.map(derivacion => {
+                    const fecha = new Date(derivacion.creado).toLocaleDateString('es-AR');
+                    const estadoColor = getEstadoDerivacionColor(derivacion.estado);
+                    const urgenciaColor = getUrgenciaColor(derivacion.urgencia);
+                    
+                    return `
+                        <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
+                                ${fecha}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
+                                ${derivacion.programa_origen || '<span class="text-gray-400">Espontáneo</span>'}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-[#252F40]">
+                                <div class="max-w-xs truncate" title="${derivacion.motivo}">
+                                    ${derivacion.motivo}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${urgenciaColor}">
+                                    ${derivacion.urgencia_display}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${estadoColor}">
+                                    ${derivacion.estado_display}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
+                                ${derivacion.derivado_por || '-'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                mensajeSin.classList.add('hidden');
+            } else {
+                tbody.innerHTML = '';
+                mensajeSin.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando derivaciones:', error);
+            const tbody = document.getElementById(`tabla-derivaciones-programa-${programaId}`);
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-[#EF4444]">Error al cargar derivaciones</td></tr>';
+            }
+        });
+}
+
+// Obtener color según estado de derivación
+function getEstadoDerivacionColor(estado) {
+    const colores = {
+        'PENDIENTE': 'bg-yellow-100 text-yellow-800',
+        'ACEPTADA': 'bg-green-100 text-green-800',
+        'RECHAZADA': 'bg-red-100 text-red-800',
+        'CANCELADA': 'bg-gray-100 text-gray-800'
+    };
+    return colores[estado] || 'bg-gray-100 text-gray-800';
+}
+
+// Obtener color según urgencia
+function getUrgenciaColor(urgencia) {
+    const colores = {
+        'BAJA': 'bg-blue-100 text-blue-800',
+        'MEDIA': 'bg-yellow-100 text-yellow-800',
+        'ALTA': 'bg-red-100 text-red-800'
+    };
+    return colores[urgencia] || 'bg-gray-100 text-gray-800';
 }
 
 // Obtener configuración de icono para timeline
