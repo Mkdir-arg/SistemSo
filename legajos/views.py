@@ -84,6 +84,12 @@ class CiudadanoDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['legajos'] = self.object.legajos.select_related('dispositivo', 'responsable').order_by('-fecha_apertura')
+        
+        # Agregar solapas dinámicas
+        from .services_solapas import SolapasService
+        context['solapas'] = SolapasService.obtener_solapas_ciudadano(self.object)
+        context['programas_activos'] = SolapasService.obtener_programas_activos(self.object)
+        
         return context
 
 

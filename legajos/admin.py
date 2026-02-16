@@ -188,3 +188,9 @@ try:
     from .admin_contactos import *
 except ImportError:
     pass
+
+# Registrar modelos de programas en admin
+try:
+    from .admin_programas import *
+except ImportError:
+    pass
