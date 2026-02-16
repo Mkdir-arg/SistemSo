@@ -66,18 +66,6 @@
     <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6 mb-8">
         <form method="get" class="flex flex-wrap gap-4">
             <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-[#252F40] mb-2">Programa</label>
-                <select name="programa" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
-                    <option value="">Todos los programas</option>
-                    {% for programa in programas %}
-                    <option value="{{ programa.id }}" {% if programa.id == programa_actual %}selected{% endif %}>
-                        {{ programa.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="flex-1 min-w-[200px]">
                 <label class="block text-sm font-medium text-[#252F40] mb-2">Estado</label>
                 <select name="estado" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
                     <option value="">Todos</option>
@@ -87,6 +75,8 @@
                     <option value="CANCELADA" {% if estado_actual == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
                 </select>
             </div>
+            
+            <input type="hidden" name="programa" value="{{ request.GET.programa }}">
 
             <div class="flex items-end">
                 <button type="submit" class="bg-[#3B82F6] text-white px-6 py-2 rounded-lg hover:bg-[#2563EB] transition-colors">
