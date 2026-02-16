@@ -11,7 +11,7 @@ class Command(BaseCommand):
         # 1. Cargar programas
         try:
             self.stdout.write('  → Cargando programas...')
-            call_command('loaddata', 'programas_initial', verbosity=0)
+            call_command('loaddata', 'legajos/fixtures/programas_initial.json', verbosity=0)
             self.stdout.write(self.style.SUCCESS('    ✓ Programas cargados'))
         except Exception as e:
             self.stdout.write(self.style.WARNING(f'    ⚠ Programas ya existen o error: {e}'))

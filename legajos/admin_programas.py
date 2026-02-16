@@ -1,10 +1,12 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 from .models_programas import Programa, InscripcionPrograma, DerivacionPrograma
 
 
 @admin.register(Programa)
 class ProgramaAdmin(admin.ModelAdmin):
-    list_display = ('codigo', 'nombre', 'tipo', 'activo', 'orden')
+    list_display = ('codigo', 'nombre', 'tipo', 'activo', 'orden', 'ver_derivaciones_button')
     list_filter = ('activo', 'tipo')
     search_fields = ('codigo', 'nombre')
     ordering = ('orden', 'nombre')
@@ -23,6 +25,18 @@ class ProgramaAdmin(admin.ModelAdmin):
             'fields': ('activo',)
         }),
     )
+    
+    def ver_derivaciones_button(self, obj):
+        url = reverse('legajos:bandeja_derivaciones') + f'?programa={obj.id}&estado=PENDIENTE'
+        return format_html(
+            '<a class="button" href="{}" style="background-color: {}; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;">'
+            '<i class="fas fa-inbox"></i> Consumuso'
+            '</a>',
+            url,
+            obj.color
+        )
+    ver_derivaciones_button.short_description = 'Derivaciones'
+    ver_derivaciones_button.allow_tags = True
 
 
 @admin.register(InscripcionPrograma)

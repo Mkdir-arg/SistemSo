@@ -1,0 +1,235 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de Derivaciones{% endblock %}
+
+{% block main-content %}
+<div class="max-w-full mx-4 lg:mx-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-[#252F40] mb-2">Bandeja de Derivaciones</h1>
+        <p class="text-[#8C8C8C]">Gestión de derivaciones entre programas</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[#8C8C8C] text-sm font-medium mb-1">Pendientes</p>
+                    <p class="text-3xl font-bold text-[#F59E0B]">{{ stats.pendientes }}</p>
+                </div>
+                <div class="bg-[#F59E0B] bg-opacity-10 rounded-full p-4">
+                    <i class="fas fa-clock text-2xl text-[#F59E0B]"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[#8C8C8C] text-sm font-medium mb-1">Aceptadas</p>
+                    <p class="text-3xl font-bold text-[#10B981]">{{ stats.aceptadas }}</p>
+                </div>
+                <div class="bg-[#10B981] bg-opacity-10 rounded-full p-4">
+                    <i class="fas fa-check-circle text-2xl text-[#10B981]"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[#8C8C8C] text-sm font-medium mb-1">Rechazadas</p>
+                    <p class="text-3xl font-bold text-[#EF4444]">{{ stats.rechazadas }}</p>
+                </div>
+                <div class="bg-[#EF4444] bg-opacity-10 rounded-full p-4">
+                    <i class="fas fa-times-circle text-2xl text-[#EF4444]"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[#8C8C8C] text-sm font-medium mb-1">Total</p>
+                    <p class="text-3xl font-bold text-[#3B82F6]">{{ stats.total }}</p>
+                </div>
+                <div class="bg-[#3B82F6] bg-opacity-10 rounded-full p-4">
+                    <i class="fas fa-share text-2xl text-[#3B82F6]"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6 mb-8">
+        <form method="get" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-[#252F40] mb-2">Programa</label>
+                <select name="programa" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                    <option value="">Todos los programas</option>
+                    {% for programa in programas %}
+                    <option value="{{ programa.id }}" {% if programa.id == programa_actual %}selected{% endif %}>
+                        {{ programa.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-[#252F40] mb-2">Estado</label>
+                <select name="estado" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                    <option value="">Todos</option>
+                    <option value="PENDIENTE" {% if estado_actual == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                    <option value="ACEPTADA" {% if estado_actual == 'ACEPTADA' %}selected{% endif %}>Aceptada</option>
+                    <option value="RECHAZADA" {% if estado_actual == 'RECHAZADA' %}selected{% endif %}>Rechazada</option>
+                    <option value="CANCELADA" {% if estado_actual == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="bg-[#3B82F6] text-white px-6 py-2 rounded-lg hover:bg-[#2563EB] transition-colors">
+                    <i class="fas fa-filter mr-2"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Derivaciones -->
+    <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Fecha</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Ciudadano</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Origen</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Destino</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Motivo</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Urgencia</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Estado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Derivado Por</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E5E7EB]">
+                    {% for derivacion in derivaciones %}
+                    <tr class="hover:bg-[#F9FAFB]">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
+                            {{ derivacion.creado|date:"d/m/Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'legajos:ciudadano_detalle' derivacion.ciudadano.pk %}" class="text-[#3B82F6] hover:text-[#2563EB] font-medium">
+                                {{ derivacion.ciudadano.apellido }}, {{ derivacion.ciudadano.nombre }}
+                            </a>
+                            <div class="text-xs text-[#8C8C8C]">DNI: {{ derivacion.ciudadano.dni }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
+                            {% if derivacion.programa_origen %}
+                                {{ derivacion.programa_origen.nombre }}
+                            {% else %}
+                                <span class="text-[#8C8C8C]">Espontáneo</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style="background-color: {{ derivacion.programa_destino.color }}20; color: {{ derivacion.programa_destino.color }};">
+                                {{ derivacion.programa_destino.nombre }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-[#252F40]">
+                            <div class="max-w-xs truncate" title="{{ derivacion.motivo }}">
+                                {{ derivacion.motivo }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if derivacion.urgencia == 'ALTA' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-exclamation-circle mr-1"></i>Alta
+                            </span>
+                            {% elif derivacion.urgencia == 'MEDIA' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Media
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <i class="fas fa-info-circle mr-1"></i>Baja
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if derivacion.estado == 'PENDIENTE' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-clock mr-1"></i>Pendiente
+                            </span>
+                            {% elif derivacion.estado == 'ACEPTADA' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-check-circle mr-1"></i>Aceptada
+                            </span>
+                            {% elif derivacion.estado == 'RECHAZADA' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-times-circle mr-1"></i>Rechazada
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                <i class="fas fa-ban mr-1"></i>Cancelada
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
+                            {{ derivacion.derivado_por.get_full_name|default:derivacion.derivado_por.username }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{% url 'legajos:ciudadano_detalle' derivacion.ciudadano.pk %}" class="text-[#3B82F6] hover:text-[#2563EB] mr-3" title="Ver ciudadano">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if derivacion.estado == 'PENDIENTE' %}
+                            <a href="{% url 'legajos:aceptar_derivacion' derivacion.id %}" class="text-[#10B981] hover:text-[#059669] mr-3" title="Aceptar" onclick="return confirm('¿Está seguro de aceptar esta derivación?')">
+                                <i class="fas fa-check"></i>
+                            </a>
+                            <button onclick="rechazarDerivacion({{ derivacion.id }})" class="text-[#EF4444] hover:text-[#DC2626]" title="Rechazar">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="px-6 py-12 text-center">
+                            <div class="text-gray-400 text-4xl mb-2">📋</div>
+                            <p class="text-[#8C8C8C]">No hay derivaciones con los filtros seleccionados</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function rechazarDerivacion(derivacionId) {
+    const motivo = prompt('Ingrese el motivo del rechazo:');
+    if (motivo) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/legajos/derivaciones/${derivacionId}/rechazar/`;
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        
+        const motivoInput = document.createElement('input');
+        motivoInput.type = 'hidden';
+        motivoInput.name = 'motivo_rechazo';
+        motivoInput.value = motivo;
+        
+        form.appendChild(csrfInput);
+        form.appendChild(motivoInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}
