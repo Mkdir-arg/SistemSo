@@ -683,11 +683,17 @@ class LegajoInstitucional(TimeStamped):
         related_name="legajo_institucional"
     )
     codigo = models.CharField(max_length=50, unique=True, editable=False)
-    estado = models.CharField(
+    
+    # Estado global - controla operatividad de TODOS los programas
+    estado_global = models.CharField(
         max_length=20,
         choices=Estado.choices,
-        default=Estado.ACTIVO
+        default=Estado.ACTIVO,
+        db_index=True,
+        verbose_name="Estado Global",
+        help_text="Si es CERRADO, bloquea todos los programas de la institución"
     )
+    
     responsable_sedronar = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

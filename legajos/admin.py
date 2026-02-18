@@ -1,5 +1,11 @@
 from django.contrib import admin
 from .models import Ciudadano, Profesional, LegajoAtencion, Consentimiento, EvaluacionInicial, Objetivo, PlanIntervencion, SeguimientoContacto, Derivacion, EventoCritico, Adjunto, AlertaEventoCritico
+from .models_institucional import (
+    ProgramaInstitucional,
+    InstitucionPrograma,
+    DerivacionInstitucional,
+    CasoInstitucional
+)
 
 
 @admin.register(Ciudadano)
@@ -194,3 +200,100 @@ try:
     from .admin_programas import *
 except ImportError:
     pass
+
+
+# ============================================================================
+# SISTEMA NODO - MODELOS INSTITUCIONALES
+# ============================================================================
+
+@admin.register(ProgramaInstitucional)
+class ProgramaInstitucionalAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'tipo', 'activo', 'orden', 'color')
+    list_filter = ('activo',)
+    search_fields = ('nombre', 'tipo')
+    ordering = ('orden', 'nombre')
+
+
+@admin.register(InstitucionPrograma)
+class InstitucionProgramaAdmin(admin.ModelAdmin):
+    list_display = ('institucion', 'programa', 'estado_programa', 'activo', 'cupo_maximo', 'casos_activos_count')
+    list_filter = ('estado_programa', 'activo', 'programa')
+    search_fields = ('institucion__nombre', 'programa__nombre')
+    raw_id_fields = ('institucion', 'responsable_local')
+    
+    fieldsets = (
+        ('Relación', {
+            'fields': ('institucion', 'programa')
+        }),
+        ('Estado', {
+            'fields': ('estado_programa', 'activo')
+        }),
+        ('Control de Cupo', {
+            'fields': ('cupo_maximo', 'controlar_cupo', 'permite_sobrecupo')
+        }),
+        ('Responsable', {
+            'fields': ('responsable_local',)
+        }),
+        ('Fechas', {
+            'fields': ('fecha_inicio', 'fecha_fin')
+        }),
+    )
+
+
+@admin.register(DerivacionInstitucional)
+class DerivacionInstitucionalAdmin(admin.ModelAdmin):
+    list_display = ('ciudadano', 'institucion', 'programa', 'estado', 'urgencia', 'creado')
+    list_filter = ('estado', 'urgencia', 'programa', 'creado')
+    search_fields = ('ciudadano__dni', 'ciudadano__nombre', 'ciudadano__apellido', 'institucion__nombre')
+    raw_id_fields = ('ciudadano', 'derivado_por', 'respondido_por', 'caso_creado')
+    readonly_fields = ('creado', 'modificado', 'fecha_respuesta')
+    date_hierarchy = 'creado'
+    
+    fieldsets = (
+        ('Derivación', {
+            'fields': ('ciudadano', 'institucion_programa', 'motivo', 'urgencia')
+        }),
+        ('Redundancia (BI)', {
+            'fields': ('institucion', 'programa'),
+            'classes': ('collapse',)
+        }),
+        ('Estado', {
+            'fields': ('estado', 'respuesta', 'fecha_respuesta', 'respondido_por')
+        }),
+        ('Caso Creado', {
+            'fields': ('caso_creado',)
+        }),
+        ('Auditoría', {
+            'fields': ('derivado_por', 'creado', 'modificado'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(CasoInstitucional)
+class CasoInstitucionalAdmin(admin.ModelAdmin):
+    list_display = ('codigo', 'ciudadano', 'institucion_programa', 'estado', 'version', 'fecha_apertura')
+    list_filter = ('estado', 'institucion_programa__programa', 'fecha_apertura')
+    search_fields = ('codigo', 'ciudadano__dni', 'ciudadano__nombre', 'ciudadano__apellido')
+    raw_id_fields = ('ciudadano', 'responsable')
+    readonly_fields = ('codigo', 'creado', 'modificado', 'dias_activo')
+    date_hierarchy = 'fecha_apertura'
+    
+    fieldsets = (
+        ('Identificación', {
+            'fields': ('codigo', 'ciudadano', 'institucion_programa', 'version')
+        }),
+        ('Estado', {
+            'fields': ('estado', 'responsable')
+        }),
+        ('Fechas', {
+            'fields': ('fecha_apertura', 'fecha_cierre', 'dias_activo')
+        }),
+        ('Notas', {
+            'fields': ('observaciones',)
+        }),
+        ('Auditoría', {
+            'fields': ('creado', 'modificado'),
+            'classes': ('collapse',)
+        }),
+    )
