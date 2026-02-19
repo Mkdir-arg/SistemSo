@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 
 from .views import (
     inicio_view,
+    relevamiento_detail_view,
+    relevamientos_view,
     load_localidad,
     load_municipios,
 )
@@ -20,6 +22,8 @@ from .performance_dashboard import (
 
 urlpatterns = [
     path("inicio/", login_required(inicio_view), name="inicio"),
+    path("relevamientos/", login_required(relevamientos_view), name="relevamientos"),
+    path("relevamientos/<uuid:relevamiento_id>/", login_required(relevamiento_detail_view), name="relevamiento_detail"),
     path(
         "ajax/load-municipios/",
         login_required(load_municipios),
