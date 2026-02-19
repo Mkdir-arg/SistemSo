@@ -348,7 +348,7 @@ SILKY_INTERCEPT_PERCENT = 100 if DEBUG else 10  # 100% en dev, 10% en prod
 
 # --- Seguridad por entorno ---
 if ENVIRONMENT == "prd":
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # Cambiado temporalmente
     SECURE_HSTS_SECONDS = 0  # Deshabilitado hasta configurar SSL
     SECURE_HSTS_INCLUDE_SUBDOMAINS = False
     SECURE_SSL_REDIRECT = False  # Deshabilitado hasta configurar SSL
