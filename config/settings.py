@@ -48,7 +48,11 @@ ALLOWED_HOSTS = list(dict.fromkeys(hosts))  # sin duplicados
 DEFAULT_SCHEME = "https" if ENVIRONMENT == "prd" else "http"
 
 # CSRF_TRUSTED_ORIGINS requiere esquema. Para PA siempre https.
-CSRF_TRUSTED_ORIGINS = ["https://mlepera.pythonanywhere.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://mlepera.pythonanywhere.com",
+    "http://54.172.163.63",
+    "http://ec2-54-172-163-63.compute-1.amazonaws.com"
+]
 if DEBUG:
     CSRF_TRUSTED_ORIGINS += ["http://localhost", "http://127.0.0.1", "http://localhost:9000", "http://127.0.0.1:9000"]
 
@@ -345,11 +349,11 @@ SILKY_INTERCEPT_PERCENT = 100 if DEBUG else 10  # 100% en dev, 10% en prod
 # --- Seguridad por entorno ---
 if ENVIRONMENT == "prd":
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 0  # Deshabilitado hasta configurar SSL
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_SSL_REDIRECT = False  # Deshabilitado hasta configurar SSL
+    SESSION_COOKIE_SECURE = False  # Deshabilitado hasta configurar SSL
+    CSRF_COOKIE_SECURE = False  # Deshabilitado hasta configurar SSL
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 else:
