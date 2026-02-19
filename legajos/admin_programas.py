@@ -27,15 +27,15 @@ class ProgramaAdmin(admin.ModelAdmin):
     )
     
     def ver_derivaciones_button(self, obj):
-        url = reverse('legajos:bandeja_derivaciones') + f'?programa={obj.id}&estado=PENDIENTE'
+        url = reverse('legajos:programa_detalle', args=[obj.id])
         return format_html(
             '<a class="button" href="{}" style="background-color: {}; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;">'
-            '<i class="fas fa-inbox"></i> Consumuso'
+            '<i class="fas fa-eye"></i> Ver Programa'
             '</a>',
             url,
             obj.color
         )
-    ver_derivaciones_button.short_description = 'Derivaciones'
+    ver_derivaciones_button.short_description = 'Acciones'
     ver_derivaciones_button.allow_tags = True
 
 

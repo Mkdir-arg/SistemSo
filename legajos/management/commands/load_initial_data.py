@@ -8,13 +8,21 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Cargando datos iniciales...')
         
-        # 1. Cargar programas
+        # 1. Cargar programas ciudadanos
         try:
-            self.stdout.write('  → Cargando programas...')
+            self.stdout.write('  → Cargando programas ciudadanos...')
             call_command('loaddata', 'legajos/fixtures/programas_initial.json', verbosity=0)
-            self.stdout.write(self.style.SUCCESS('    ✓ Programas cargados'))
+            self.stdout.write(self.style.SUCCESS('    ✓ Programas ciudadanos cargados'))
         except Exception as e:
-            self.stdout.write(self.style.WARNING(f'    ⚠ Programas ya existen o error: {e}'))
+            self.stdout.write(self.style.WARNING(f'    ⚠ Programas ciudadanos ya existen o error: {e}'))
+        
+        # 1b. Crear programas institucionales
+        try:
+            self.stdout.write('  → Creando programas institucionales...')
+            call_command('crear_programas', verbosity=0)
+            self.stdout.write(self.style.SUCCESS('    ✓ Programas institucionales creados'))
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'    ⚠ Programas institucionales: {e}'))
         
         # 2. Migrar legajos existentes
         try:
