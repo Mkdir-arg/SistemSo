@@ -4,11 +4,11 @@ services:
   web:
     build: .
     container_name: nodo-web
-    command: gunicorn sisoc.wsgi:application --bind 0.0.0.0:8000 --workers 4 --worker-class gevent --timeout 120
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --worker-class gevent --timeout 120
     volumes:
-      - ./staticfiles:/sisoc/staticfiles
-      - ./media:/sisoc/media
-      - ./logs:/sisoc/logs
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+      - ./logs:/app/logs
     ports:
       - "8000:8000"
     env_file:

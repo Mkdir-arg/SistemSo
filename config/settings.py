@@ -12,7 +12,7 @@ load_dotenv(BASE_DIR / ".env")
 
 # --- Entorno ---
 DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
-ENVIRONMENT = os.environ.get("ENVIRONMENT", "dev")  # dev|qa|prd
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "prd")  # dev|qa|prd
 
 # --- Secret Key ---
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
@@ -205,7 +205,7 @@ if "pytest" in sys.argv or os.environ.get("PYTEST_RUNNING") == "1":
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
 
 # --- Cache ---
-REDIS_HOST = os.environ.get("REDIS_HOST", "sedronar-redis")
+REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
 REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
 
 CACHES = {
