@@ -6,10 +6,8 @@ from . import views_alertas
 from . import views_cursos
 from . import views_derivacion
 from . import views_api_derivaciones
-from . import views_bandeja_derivaciones
-from . import views_gestionar_derivaciones
-from . import views_institucional  # ← NUEVO
-from . import views_programas  # ← Gestión operativa de programas
+from . import views_institucional
+from . import views_programas
 
 app_name = 'legajos'
 
@@ -78,9 +76,6 @@ urlpatterns = [
     
     # Derivación a Programas
     path('ciudadanos/<int:ciudadano_id>/derivar-programa/', views_derivacion.derivar_programa_view, name='derivar_programa'),
-    path('bandeja-derivaciones/', views_bandeja_derivaciones.bandeja_derivaciones_view, name='bandeja_derivaciones'),
-    path('derivaciones/<int:derivacion_id>/aceptar/', views_gestionar_derivaciones.aceptar_derivacion_view, name='aceptar_derivacion'),
-    path('derivaciones/<int:derivacion_id>/rechazar/', views_gestionar_derivaciones.rechazar_derivacion_view, name='rechazar_derivacion'),
     
     # API Derivaciones de Programas
     path('ciudadanos/<int:ciudadano_id>/derivaciones-programa/<int:programa_id>/', views_api_derivaciones.derivaciones_programa_api, name='derivaciones_programa_api'),
