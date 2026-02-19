@@ -1,0 +1,343 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}{{ programa.nombre }}{% endblock %}
+
+{% block main-content %}
+<div class="max-w-full mx-4 lg:mx-8">
+
+    <!-- Header del Programa -->
+    <div class="mb-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+            <div class="relative p-8" style="background: linear-gradient(135deg, {{ programa.color }}15 0%, {{ programa.color }}05 100%);">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-6">
+                        <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background-color: {{ programa.color }};">
+                            <i class="fas fa-{{ programa.icono }} text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-[#252F40] mb-1">{{ programa.nombre }}</h2>
+                            <p class="text-[#8C8C8C] text-lg">{{ programa.descripcion|default:"Gestión Operativa del Programa" }}</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'legajos:programas' %}" class="bg-white text-[#4A5565] px-6 py-3 rounded-xl hover:bg-[#F9FAFB] transition-all border border-[#E5E7EB] flex items-center space-x-2">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Volver</span>
+                    </a>
+                </div>
+
+                <!-- Métricas Rápidas -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-xl p-4 border border-[#E5E7EB]">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-building text-[#3B82F6]"></i>
+                            <span class="text-[#8C8C8C] text-sm font-medium">Instituciones</span>
+                        </div>
+                        <p class="text-[#252F40] font-semibold text-2xl">{{ total_instituciones }}</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-4 border border-[#E5E7EB]">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-inbox text-[#F59E0B]"></i>
+                            <span class="text-[#8C8C8C] text-sm font-medium">Derivaciones Pendientes</span>
+                        </div>
+                        <p class="text-[#252F40] font-semibold text-2xl">{{ total_derivaciones_pendientes }}</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-4 border border-[#E5E7EB]">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-users text-[#10B981]"></i>
+                            <span class="text-[#8C8C8C] text-sm font-medium">Casos Activos</span>
+                        </div>
+                        <p class="text-[#252F40] font-semibold text-2xl">{{ total_casos_activos }}</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-4 border border-[#E5E7EB]">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-chart-line text-[#8B5CF6]"></i>
+                            <span class="text-[#8C8C8C] text-sm font-medium">Total Casos</span>
+                        </div>
+                        <p class="text-[#252F40] font-semibold text-2xl">{{ total_casos_totales }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs de Navegación -->
+    <div class="bg-white rounded-xl shadow-lg mb-8">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px overflow-x-auto">
+                <button onclick="cambiarTab('dashboard')" data-tab="dashboard" class="tab-button border-b-2 border-blue-500 text-blue-600 py-4 px-6 font-medium whitespace-nowrap flex items-center">
+                    <i class="fas fa-chart-bar mr-2"></i>Dashboard
+                </button>
+                <button onclick="cambiarTab('derivaciones')" data-tab="derivaciones" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
+                    <i class="fas fa-inbox mr-2"></i>Derivaciones
+                    {% if total_derivaciones_pendientes > 0 %}
+                    <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">{{ total_derivaciones_pendientes }}</span>
+                    {% endif %}
+                </button>
+                <button onclick="cambiarTab('ciudadanos')" data-tab="ciudadanos" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
+                    <i class="fas fa-users mr-2"></i>Ciudadanos
+                </button>
+                <button onclick="cambiarTab('instituciones')" data-tab="instituciones" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
+                    <i class="fas fa-building mr-2"></i>Instituciones
+                </button>
+                <button onclick="cambiarTab('indicadores')" data-tab="indicadores" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
+                    <i class="fas fa-chart-pie mr-2"></i>Indicadores
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Tab: Dashboard -->
+    <div id="tab-dashboard" class="tab-content">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6">Dashboard Ejecutivo</h3>
+            <p class="text-gray-500">Vista consolidada del programa - Próximamente con gráficos...</p>
+        </div>
+    </div>
+
+    <!-- Tab: Derivaciones -->
+    <div id="tab-derivaciones" class="tab-content hidden">
+        <div class="space-y-6">
+            
+            <!-- Derivaciones de Ciudadanos -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-[#252F40]">Derivaciones de Ciudadanos</h3>
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                            {{ stats_ciudadanos.pendientes }} Pendientes
+                        </span>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                            {{ stats_ciudadanos.aceptadas }} Aceptadas
+                        </span>
+                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                            {{ stats_ciudadanos.rechazadas }} Rechazadas
+                        </span>
+                    </div>
+                </div>
+                
+                {% if derivaciones_ciudadanos %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Origen</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Urgencia</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Fecha</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#E5E7EB]">
+                            {% for derivacion in derivaciones_ciudadanos %}
+                            <tr class="hover:bg-[#F9FAFB]">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
+                                    <a href="{% url 'legajos:ciudadano_detalle' derivacion.ciudadano.pk %}" class="text-blue-600 hover:underline">
+                                        {{ derivacion.ciudadano.nombre_completo }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.programa_origen.nombre|default:"Espontáneo" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        {% if derivacion.estado == 'PENDIENTE' %}bg-yellow-100 text-yellow-800
+                                        {% elif derivacion.estado == 'ACEPTADA' %}bg-green-100 text-green-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ derivacion.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        {% if derivacion.urgencia == 'ALTA' %}bg-red-100 text-red-800
+                                        {% elif derivacion.urgencia == 'MEDIA' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {{ derivacion.get_urgencia_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ derivacion.creado|date:"d/m/Y H:i" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    {% if derivacion.estado == 'PENDIENTE' %}
+                                    <a href="{% url 'legajos:aceptar_derivacion' derivacion.pk %}" class="text-green-600 hover:underline mr-2">Aceptar</a>
+                                    <a href="{% url 'legajos:rechazar_derivacion' derivacion.pk %}" class="text-red-600 hover:underline">Rechazar</a>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No hay derivaciones de ciudadanos</p>
+                {% endif %}
+            </div>
+            
+            <!-- Derivaciones Institucionales -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-2xl font-bold text-[#252F40] mb-6">Derivaciones a Instituciones</h3>
+                
+                {% if derivaciones_institucionales %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Institución</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Urgencia</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#E5E7EB]">
+                            {% for derivacion in derivaciones_institucionales %}
+                            <tr class="hover:bg-[#F9FAFB]">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.ciudadano.nombre_completo }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.institucion.nombre }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        {% if derivacion.estado == 'PENDIENTE' %}bg-yellow-100 text-yellow-800
+                                        {% elif derivacion.estado == 'ACEPTADA' %}bg-green-100 text-green-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ derivacion.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        {% if derivacion.urgencia == 'ALTA' %}bg-red-100 text-red-800
+                                        {% elif derivacion.urgencia == 'MEDIA' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {{ derivacion.get_urgencia_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ derivacion.creado|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No hay derivaciones institucionales</p>
+                {% endif %}
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Tab: Ciudadanos -->
+    <div id="tab-ciudadanos" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6">Ciudadanos en Atención</h3>
+            
+            {% if casos_activos %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Código</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Institución</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Responsable</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Apertura</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#E5E7EB]">
+                        {% for caso in casos_activos %}
+                        <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#252F40]">{{ caso.codigo }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.ciudadano.nombre_completo }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.institucion_programa.institucion.nombre }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    {{ caso.get_estado_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ caso.responsable.get_full_name|default:"-" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ caso.fecha_apertura|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No hay casos activos</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tab: Instituciones -->
+    <div id="tab-instituciones" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6">Instituciones Participantes</h3>
+            
+            {% if instituciones %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for ip in instituciones %}
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 hover:shadow-lg transition-all">
+                    <h4 class="text-lg font-semibold text-[#252F40] mb-2">{{ ip.institucion.nombre }}</h4>
+                    <p class="text-sm text-[#8C8C8C] mb-4">{{ ip.institucion.get_tipo_display }}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-[#8C8C8C]">Casos Activos</p>
+                            <p class="text-xl font-bold text-[#10B981]">{{ ip.casos_activos }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-[#8C8C8C]">Pendientes</p>
+                            <p class="text-xl font-bold text-[#F59E0B]">{{ ip.derivaciones_pendientes }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if ip.cupo_maximo %}
+                    <div class="mt-4 pt-4 border-t border-[#E5E7EB]">
+                        <p class="text-xs text-[#8C8C8C] mb-1">Cupo</p>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ ip.casos_activos|floatformat:0 }}%"></div>
+                            </div>
+                            <span class="text-xs font-medium">{{ ip.casos_activos }}/{{ ip.cupo_maximo }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-8">No hay instituciones habilitadas</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tab: Indicadores -->
+    <div id="tab-indicadores" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6">Indicadores Programáticos</h3>
+            <p class="text-gray-500">Métricas y reportes del programa - Próximamente...</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function cambiarTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('border-blue-500', 'text-blue-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    activeButton.classList.add('border-blue-500', 'text-blue-600');
+    activeButton.classList.remove('border-transparent', 'text-gray-500');
+}
+</script>
+{% endblock %}

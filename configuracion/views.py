@@ -262,6 +262,16 @@ class InstitucionDetailView(LoginRequiredMixin, DetailView):
         })
         
         solapas.append({
+            'id': 'actividades',
+            'nombre': 'Actividades',
+            'icono': 'event',
+            'color': None,
+            'estatica': True,
+            'orden': 25,
+            'badge': legajo.planes_fortalecimiento.count()
+        })
+        
+        solapas.append({
             'id': 'documentos',
             'nombre': 'Documentos',
             'icono': 'folder',
@@ -271,7 +281,8 @@ class InstitucionDetailView(LoginRequiredMixin, DetailView):
         })
         
         # Solapas dinámicas por programa
-        from legajos.models_institucional import InstitucionPrograma, ProgramaInstitucional, DerivacionInstitucional, CasoInstitucional
+        from legajos.models_programas import Programa
+        from legajos.models_institucional import InstitucionPrograma, DerivacionInstitucional, CasoInstitucional
         programas_activos = InstitucionPrograma.objects.filter(
             institucion=institucion,
             activo=True

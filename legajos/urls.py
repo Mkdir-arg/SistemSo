@@ -9,6 +9,7 @@ from . import views_api_derivaciones
 from . import views_bandeja_derivaciones
 from . import views_gestionar_derivaciones
 from . import views_institucional  # ← NUEVO
+from . import views_programas  # ← Gestión operativa de programas
 
 app_name = 'legajos'
 
@@ -21,6 +22,13 @@ urlpatterns = [
     path('ciudadanos/manual/', views.CiudadanoManualView.as_view(), name='ciudadano_manual'),
     path('ciudadanos/<int:pk>/', views.CiudadanoDetailView.as_view(), name='ciudadano_detalle'),
     path('ciudadanos/<int:pk>/editar/', views.CiudadanoUpdateView.as_view(), name='ciudadano_editar'),
+    
+    # ========================================================================
+    # GESTIÓN OPERATIVA DE PROGRAMAS
+    # ========================================================================
+    
+    path('programas/', views_programas.ProgramaListView.as_view(), name='programas'),
+    path('programas/<int:pk>/', views_programas.ProgramaDetailView.as_view(), name='programa_detalle'),
     
     # ========================================================================
     # SISTEMA NODO - GESTIÓN PROGRAMÁTICA INSTITUCIONAL

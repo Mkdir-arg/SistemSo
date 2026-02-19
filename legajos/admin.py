@@ -1,10 +1,11 @@
 from django.contrib import admin
 from .models import Ciudadano, Profesional, LegajoAtencion, Consentimiento, EvaluacionInicial, Objetivo, PlanIntervencion, SeguimientoContacto, Derivacion, EventoCritico, Adjunto, AlertaEventoCritico
+from .models_programas import Programa, InscripcionPrograma, DerivacionPrograma
 from .models_institucional import (
-    ProgramaInstitucional,
     InstitucionPrograma,
     DerivacionInstitucional,
-    CasoInstitucional
+    CasoInstitucional,
+    CoordinadorPrograma
 )
 
 
@@ -206,14 +207,6 @@ except ImportError:
 # SISTEMA NODO - MODELOS INSTITUCIONALES
 # ============================================================================
 
-@admin.register(ProgramaInstitucional)
-class ProgramaInstitucionalAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'tipo', 'activo', 'orden', 'color')
-    list_filter = ('activo',)
-    search_fields = ('nombre', 'tipo')
-    ordering = ('orden', 'nombre')
-
-
 @admin.register(InstitucionPrograma)
 class InstitucionProgramaAdmin(admin.ModelAdmin):
     list_display = ('institucion', 'programa', 'estado_programa', 'activo', 'cupo_maximo', 'casos_activos_count')
@@ -297,3 +290,25 @@ class CasoInstitucionalAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+
+@admin.register(CoordinadorPrograma)
+class CoordinadorProgramaAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'programa', 'activo', 'creado')
+    list_filter = ('activo', 'programa')
+    search_fields = ('usuario__username', 'usuario__first_name', 'usuario__last_name', 'programa__nombre')
+    raw_id_fields = ('usuario',)
+    
+    fieldsets = (
+        ('Asignación', {
+            'fields': ('usuario', 'programa', 'activo')
+        }),
+        ('Auditoría', {
+            'fields': ('creado', 'modificado'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('usuario', 'programa')

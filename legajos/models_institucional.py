@@ -1,6 +1,6 @@
 """
 Modelos para el Sistema NODO - Gestión Programática Institucional
-Versión 2.0 - Implementación con ajustes de hardening
+Versión 3.0 - Unificación con modelo Programa
 """
 from django.db import models
 from django.contrib.auth.models import User
@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db.models import Q
 from core.models import TimeStamped, Institucion
+from .models_programas import Programa
 
 
 # ============================================================================
@@ -59,46 +60,6 @@ class RolUsuarioPrograma(models.TextChoices):
 # MODELOS PRINCIPALES
 # ============================================================================
 
-class ProgramaInstitucional(TimeStamped):
-    """
-    Programa social (ej: SEDRONAR, Prevención, etc.)
-    Define el marco conceptual de intervención.
-    """
-    nombre = models.CharField(max_length=200, unique=True)
-    tipo = models.CharField(
-        max_length=50,
-        unique=True,
-        help_text="Identificador técnico (ej: ACOMPANAMIENTO_SEDRONAR)"
-    )
-    descripcion = models.TextField(blank=True)
-    
-    # Visualización
-    icono = models.CharField(
-        max_length=50,
-        default='folder',
-        help_text="Nombre del ícono FontAwesome (sin 'fa-')"
-    )
-    color = models.CharField(
-        max_length=7,
-        default='#3B82F6',
-        help_text="Color hexadecimal para UI"
-    )
-    orden = models.PositiveIntegerField(
-        default=100,
-        help_text="Orden de aparición en solapas"
-    )
-    
-    activo = models.BooleanField(default=True, db_index=True)
-    
-    class Meta:
-        verbose_name = "Programa"
-        verbose_name_plural = "Programas"
-        ordering = ['orden', 'nombre']
-    
-    def __str__(self):
-        return self.nombre
-
-
 class InstitucionPrograma(TimeStamped):
     """
     Relación N:N contextualizada entre Institución y Programa.
@@ -110,7 +71,7 @@ class InstitucionPrograma(TimeStamped):
         related_name='programas_habilitados'
     )
     programa = models.ForeignKey(
-        ProgramaInstitucional,
+        Programa,
         on_delete=models.PROTECT,
         related_name='instituciones_habilitadas'
     )
@@ -222,7 +183,7 @@ class DerivacionInstitucional(TimeStamped):
         related_name='derivaciones_recibidas'
     )
     programa = models.ForeignKey(
-        ProgramaInstitucional,
+        Programa,
         on_delete=models.PROTECT,
         related_name='derivaciones_programa'
     )
@@ -382,3 +343,39 @@ class CasoInstitucional(TimeStamped):
         if self.fecha_cierre:
             return (self.fecha_cierre - self.fecha_apertura).days
         return (datetime.now().date() - self.fecha_apertura).days
+
+
+
+class CoordinadorPrograma(TimeStamped):
+    """
+    Relaciona usuarios con programas que coordinan.
+    Permite gestión operativa del programa a nivel sistema.
+    """
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='programas_coordinados'
+    )
+    programa = models.ForeignKey(
+        Programa,
+        on_delete=models.CASCADE,
+        related_name='coordinadores'
+    )
+    activo = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text="Si False, el usuario pierde acceso al programa"
+    )
+    
+    class Meta:
+        verbose_name = "Coordinador de Programa"
+        verbose_name_plural = "Coordinadores de Programas"
+        unique_together = ['usuario', 'programa']
+        indexes = [
+            models.Index(fields=['usuario', 'activo']),
+            models.Index(fields=['programa', 'activo']),
+        ]
+    
+    def __str__(self):
+        return f"{self.usuario.get_full_name()} - {self.programa.nombre}"
+

@@ -2,7 +2,7 @@
 Comando para crear programas de ejemplo en el sistema
 """
 from django.core.management.base import BaseCommand
-from legajos.models_institucional import ProgramaInstitucional
+from legajos.models_programas import Programa
 
 
 class Command(BaseCommand):
@@ -56,7 +56,7 @@ class Command(BaseCommand):
         updated_count = 0
 
         for data in programas_data:
-            programa, created = ProgramaInstitucional.objects.update_or_create(
+            programa, created = Programa.objects.update_or_create(
                 tipo=data['tipo'],
                 defaults={
                     'nombre': data['nombre'],
