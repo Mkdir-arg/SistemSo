@@ -205,10 +205,13 @@ if "pytest" in sys.argv or os.environ.get("PYTEST_RUNNING") == "1":
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
 
 # --- Cache ---
+REDIS_HOST = os.environ.get("REDIS_HOST", "sedronar-redis")
+REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://sedronar-redis:6379/1",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
@@ -219,7 +222,7 @@ CACHES = {
     },
     "sessions": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://sedronar-redis:6379/2",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {"max_connections": 100},
@@ -238,7 +241,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("sedronar-redis", 6379)],
+            "hosts": [(REDIS_HOST, int(REDIS_PORT))],
             "capacity": 1500,
             "expiry": 60,
         },
