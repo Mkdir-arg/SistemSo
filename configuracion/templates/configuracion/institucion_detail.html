@@ -4,304 +4,240 @@
 {% block title %}{{ institucion.nombre }}{% endblock %}
 
 {% block main-content %}
-<div class="min-h-screen bg-[#F9FAFB] p-4 lg:p-8">
-    <div class="max-w-7xl mx-auto space-y-6">
-        <!-- Header -->
-        <div class="bg-[#7928CA] rounded-2xl p-8 text-white shadow-lg relative overflow-hidden animate-fade-in">
-            <!-- Decoración de fondo -->
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
-            </div>
-            
-            <a href="{% url 'legajos:instituciones' %}" class="relative z-10 flex items-center gap-2 mb-4 hover:bg-white/20 px-3 py-2 rounded-lg transition-all w-fit">
-                <i class="fas fa-chevron-left"></i>
-                Volver al listado
-            </a>
-            
-            <div class="relative z-10 flex items-start justify-between mb-6">
-                <div>
-                    <h1 class="text-3xl font-bold mb-2">{{ institucion.nombre }}</h1>
-                    <p class="text-sm opacity-90 mb-4">{{ institucion.get_tipo_display }}</p>
-                    <div class="flex items-center gap-4 text-sm">
-                        <span class="flex items-center gap-2">
-                            <i class="fas fa-map-marker-alt"></i>
-                            {{ institucion.direccion|default:"Sin dirección" }}, {{ institucion.municipio }}, {{ institucion.provincia }}
-                        </span>
-                        {% if institucion.telefono %}
-                        <span class="flex items-center gap-2">
-                            <i class="fas fa-phone"></i>
-                            {{ institucion.telefono }}
-                        </span>
-                        {% endif %}
-                    </div>
-                </div>
-                {% if institucion.estado_registro == 'APROBADO' %}
-                    <span class="px-4 py-2 text-sm font-semibold rounded-full bg-green-100 text-green-800 shadow-md">APROBADO</span>
-                {% else %}
-                    <span class="px-4 py-2 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800 shadow-md">{{ institucion.get_estado_registro_display }}</span>
-                {% endif %}
-            </div>
+<div class="max-w-full mx-4 lg:mx-8">
 
-            <!-- Indicadores Rápidos -->
-            <div class="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p class="text-xs opacity-75 mb-1">Personal</p>
-                    <p class="text-2xl font-bold">{{ personal.count }}</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p class="text-xs opacity-75 mb-1">Evaluaciones</p>
-                    <p class="text-2xl font-bold">{{ evaluaciones.count }}</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p class="text-xs opacity-75 mb-1">Actividades</p>
-                    <p class="text-2xl font-bold">{{ planes.count }}</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p class="text-xs opacity-75 mb-1">Indicadores</p>
-                    <p class="text-2xl font-bold">{{ indicadores.count }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dashboard de Métricas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Personal -->
-            <div class="bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] rounded-xl p-6 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slide-up" style="animation-delay: 0.1s">
-                <div class="flex items-center justify-between mb-4">
-                    <i class="fas fa-users text-3xl opacity-80"></i>
-                    <div class="text-right">
-                        <p class="text-4xl font-bold">{{ personal.count }}</p>
-                        <p class="text-xs opacity-90">profesionales</p>
-                    </div>
-                </div>
-                <p class="text-sm font-semibold mb-2">Personal Activo</p>
-                <div class="w-full bg-white/20 rounded-full h-2">
-                    <div class="bg-white h-2 rounded-full transition-all duration-1000" style="width: 100%"></div>
-                </div>
-            </div>
-
-            <!-- Evaluaciones -->
-            <div class="bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-xl p-6 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slide-up" style="animation-delay: 0.2s">
-                <div class="flex items-center justify-between mb-4">
-                    <i class="fas fa-clipboard-check text-3xl opacity-80"></i>
-                    <div class="text-right">
-                        <p class="text-4xl font-bold">{{ evaluaciones.count }}</p>
-                        <p class="text-xs opacity-90">realizadas</p>
-                    </div>
-                </div>
-                <p class="text-sm font-semibold mb-2">Evaluaciones</p>
-                <div class="flex gap-1">
-                    {% for i in "12345" %}
-                    <div class="w-4 h-4 rounded-sm bg-yellow-300"></div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Actividades -->
-            <div class="bg-gradient-to-br from-[#10B981] to-[#059669] rounded-xl p-6 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slide-up" style="animation-delay: 0.3s">
-                <div class="flex items-center justify-between mb-4">
-                    <i class="fas fa-tasks text-3xl opacity-80"></i>
-                    <div class="text-right">
-                        <p class="text-4xl font-bold">{{ planes.count }}</p>
-                        <p class="text-xs opacity-90">activas</p>
-                    </div>
-                </div>
-                <p class="text-sm font-semibold mb-2">Actividades</p>
-                <p class="text-xs opacity-90">Programa completo</p>
-            </div>
-
-            <!-- Indicadores -->
-            <div class="bg-gradient-to-br from-[#F59E0B] to-[#D97706] rounded-xl p-6 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-slide-up" style="animation-delay: 0.4s">
-                <div class="flex items-center justify-between mb-4">
-                    <i class="fas fa-chart-line text-3xl opacity-80"></i>
-                    <div class="text-right">
-                        <p class="text-4xl font-bold">{{ indicadores.count }}</p>
-                        <p class="text-xs opacity-90">registros</p>
-                    </div>
-                </div>
-                <p class="text-sm font-semibold mb-2">Indicadores</p>
-                <div class="flex gap-2 text-xs">
-                    <div class="flex-1 bg-white/20 rounded px-2 py-1">
-                        📊 Seguimiento
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Módulos de Gestión -->
-        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
-            <h3 class="text-xl font-bold text-[#252F40] mb-6 flex items-center gap-2">
-                <i class="fas fa-cogs text-[#7928CA]"></i>
-                Gestión Institucional
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white rounded-lg p-4 border-2 border-purple-200 hover:shadow-md transition-all">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-users text-3xl text-purple-600 mb-2"></i>
-                        <h4 class="font-semibold text-[#252F40]">Personal</h4>
-                        <p class="text-2xl font-bold text-purple-600 my-2">{{ personal.count }}</p>
-                    </div>
-                    <a href="{% url 'configuracion:personal_crear' institucion.pk %}" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                        <i class="fas fa-plus mr-1"></i>Agregar
-                    </a>
-                </div>
-                
-                <div class="bg-white rounded-lg p-4 border-2 border-blue-200 hover:shadow-md transition-all">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-clipboard-check text-3xl text-blue-600 mb-2"></i>
-                        <h4 class="font-semibold text-[#252F40]">Evaluaciones</h4>
-                        <p class="text-2xl font-bold text-blue-600 my-2">{{ evaluaciones.count }}</p>
-                    </div>
-                    <a href="{% url 'configuracion:evaluacion_crear' institucion.pk %}" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                        <i class="fas fa-plus mr-1"></i>Nueva
-                    </a>
-                </div>
-                
-                <div class="bg-white rounded-lg p-4 border-2 border-green-200 hover:shadow-md transition-all">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-tasks text-3xl text-green-600 mb-2"></i>
-                        <h4 class="font-semibold text-[#252F40]">Actividades</h4>
-                        <p class="text-2xl font-bold text-green-600 my-2">{{ planes.count }}</p>
-                    </div>
-                    <a href="{% url 'configuracion:plan_crear' institucion.pk %}" class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                        <i class="fas fa-plus mr-1"></i>Crear
-                    </a>
-                </div>
-                
-                <div class="bg-white rounded-lg p-4 border-2 border-orange-200 hover:shadow-md transition-all">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-chart-line text-3xl text-orange-600 mb-2"></i>
-                        <h4 class="font-semibold text-[#252F40]">Indicadores</h4>
-                        <p class="text-2xl font-bold text-orange-600 my-2">{{ indicadores.count }}</p>
-                    </div>
-                    <a href="{% url 'configuracion:indicador_crear' institucion.pk %}" class="w-full bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                        <i class="fas fa-plus mr-1"></i>Registrar
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Información Detallada -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Información General -->
-            <div class="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
-                <h4 class="text-lg font-bold text-[#252F40] mb-4 flex items-center gap-2">
-                    <i class="fas fa-info-circle text-[#7928CA]"></i>
-                    Información General
-                </h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between py-2 border-b border-[#E5E7EB]">
-                        <span class="text-[#8C8C8C] font-medium">Tipo:</span>
-                        <span class="text-[#252F40] font-semibold">{{ institucion.get_tipo_display }}</span>
-                    </div>
-                    <div class="flex justify-between py-2 border-b border-[#E5E7EB]">
-                        <span class="text-[#8C8C8C] font-medium">Estado:</span>
-                        {% if institucion.activo %}
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                        {% else %}
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
-                        {% endif %}
-                    </div>
-                    <div class="flex justify-between py-2 border-b border-[#E5E7EB]">
-                        <span class="text-[#8C8C8C] font-medium">Estado Registro:</span>
-                        {% if institucion.estado_registro == 'APROBADO' %}
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aprobado</span>
-                        {% elif institucion.estado_registro == 'REVISION' %}
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">En Revisión</span>
-                        {% else %}
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{ institucion.get_estado_registro_display }}</span>
-                        {% endif %}
-                    </div>
-                    {% if institucion.email %}
-                    <div class="flex justify-between py-2 border-b border-[#E5E7EB]">
-                        <span class="text-[#8C8C8C] font-medium">Email:</span>
-                        <span class="text-[#252F40]">{{ institucion.email }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Personal Destacado -->
-            <div class="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
-                <h4 class="text-lg font-bold text-[#252F40] mb-4 flex items-center gap-2">
-                    <i class="fas fa-users text-[#7928CA]"></i>
-                    Personal ({{ personal.count }})
-                </h4>
-                {% if personal %}
-                    <div class="space-y-3">
-                        {% for persona in personal|slice:":5" %}
-                        <div class="flex items-center justify-between p-3 bg-[#F9FAFB] rounded-lg hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-[#7928CA] flex items-center justify-center text-white font-bold">
-                                    {{ persona.nombre|first }}{{ persona.apellido|first }}
-                                </div>
-                                <div>
-                                    <div class="font-medium text-[#252F40]">{{ persona.nombre }} {{ persona.apellido }}</div>
-                                    <div class="text-sm text-[#8C8C8C]">{{ persona.get_tipo_display }}</div>
+    <!-- Header Institucional -->
+    <div class="mb-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+            <div class="relative p-8">
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-6">
+                            <!-- Logo/Avatar -->
+                            <div class="w-20 h-20 bg-gradient-to-br from-[#7928CA] to-[#FF0080] rounded-full flex items-center justify-center">
+                                <span class="text-3xl font-bold text-white">{{ institucion.nombre.0 }}</span>
+                            </div>
+                            
+                            <!-- Info básica -->
+                            <div>
+                                <h2 class="text-3xl font-bold text-[#252F40] mb-1">{{ institucion.nombre }}</h2>
+                                <p class="text-[#8C8C8C] text-lg">{{ institucion.get_tipo_display }} - {{ institucion.provincia.nombre }}</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                        {% if legajo.estado_global == 'ACTIVO' %}bg-green-100 text-green-800
+                                        {% elif legajo.estado_global == 'OBSERVACION' %}bg-yellow-100 text-yellow-800
+                                        {% elif legajo.estado_global == 'SUSPENDIDO' %}bg-orange-100 text-orange-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        Estado Global: {{ legajo.get_estado_global_display }}
+                                    </span>
                                 </div>
                             </div>
-                            {% if persona.activo %}
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                            {% else %}
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
-                            {% endif %}
                         </div>
-                        {% endfor %}
+                        
+                        <!-- Botones de acción -->
+                        <div class="flex gap-3">
+                            <a href="{% url 'legajos:instituciones' %}" class="bg-white text-[#4A5565] px-6 py-3 rounded-xl hover:bg-[#F9FAFB] transition-all border border-[#E5E7EB] flex items-center space-x-2">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Volver</span>
+                            </a>
+                        </div>
                     </div>
-                {% else %}
-                    <p class="text-[#8C8C8C] text-center py-4">No hay personal registrado</p>
-                {% endif %}
+                    
+                    <!-- Información detallada en grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-folder text-[#3B82F6]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Código Legajo</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold">{{ legajo.codigo }}</p>
+                        </div>
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-layer-group text-[#10B981]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Programas Activos</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ total_programas_activos }}</p>
+                        </div>
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-inbox text-[#F59E0B]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Derivaciones Pendientes</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ total_derivaciones_pendientes }}</p>
+                        </div>
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-users text-[#8B5CF6]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Casos Activos</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ total_casos_activos }}</p>
+                        </div>
+                        
+                        {% if institucion.telefono %}
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-phone text-[#10B981]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Teléfono</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold">{{ institucion.telefono }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-user-tie text-[#EC4899]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Personal</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ personal.count }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Tabla de Actividades -->
-        {% if planes %}
-        <div class="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden shadow-sm">
-            <div class="bg-[#10B981] p-4">
-                <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-table"></i>
-                    Actividades ({{ planes.count }})
+    <!-- Tabs de Navegación Dinámicos -->
+    <div class="bg-white rounded-xl shadow-lg mb-8">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px overflow-x-auto">
+                {% for solapa in solapas %}
+                <button 
+                    onclick="cambiarTab('{{ solapa.id }}')"
+                    data-tab="{{ solapa.id }}" 
+                    class="tab-button {% if forloop.first %}border-b-2 border-blue-500 text-blue-600{% else %}border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} py-4 px-6 font-medium whitespace-nowrap flex items-center"
+                    {% if not solapa.estatica and solapa.color %}style="border-bottom-color: {{ solapa.color }};"{% endif %}
+                >
+                    <i class="fas fa-{{ solapa.icono }} mr-2"></i>{{ solapa.nombre }}
+                    {% if not solapa.estatica %}
+                        {% if solapa.badge_derivaciones > 0 %}
+                        <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                            {{ solapa.badge_derivaciones }}
+                        </span>
+                        {% endif %}
+                        {% if solapa.badge_casos > 0 %}
+                        <span class="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                            {{ solapa.badge_casos }}
+                        </span>
+                        {% endif %}
+                    {% endif %}
+                </button>
+                {% endfor %}
+            </nav>
+        </div>
+    </div>
+
+    <!-- Tab: Resumen -->
+    <div id="tab-resumen" class="tab-content">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8 mb-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+                <div class="bg-[#3B82F6] rounded-lg p-2 mr-3">
+                    <i class="fas fa-chart-bar text-white text-lg"></i>
+                </div>
+                Dashboard Ejecutivo
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Programas Activos</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ total_programas_activos }}</p>
+                        </div>
+                        <div class="bg-[#3B82F6] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-layer-group text-2xl text-[#3B82F6]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Derivaciones Pendientes</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ total_derivaciones_pendientes }}</p>
+                        </div>
+                        <div class="bg-[#F59E0B] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-inbox text-2xl text-[#F59E0B]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Casos Activos</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ total_casos_activos }}</p>
+                        </div>
+                        <div class="bg-[#10B981] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-users text-2xl text-[#10B981]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Personal</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ personal.count }}</p>
+                        </div>
+                        <div class="bg-[#8B5CF6] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-user-tie text-2xl text-[#8B5CF6]"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Personal -->
+    <div id="tab-personal" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                    <div class="bg-[#8B5CF6] rounded-lg p-2 mr-3">
+                        <i class="fas fa-users text-white text-lg"></i>
+                    </div>
+                    Personal de la Institución
                 </h3>
+                <a href="{% url 'configuracion:personal_crear' institucion.pk %}" class="bg-[#8B5CF6] text-white px-6 py-3 rounded-xl hover:bg-[#7C3AED] transition-all flex items-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Agregar Personal</span>
+                </a>
             </div>
             
+            {% if personal %}
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-[#E5E7EB]">
-                    <thead class="bg-[#F9FAFB]">
+                <table class="w-full">
+                    <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-[#252F40] uppercase tracking-wider">Actividad</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-[#252F40] uppercase tracking-wider">Tipo</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-[#252F40] uppercase tracking-wider">Cupo</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-[#252F40] uppercase tracking-wider">Fechas</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-[#252F40] uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Nombre</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">DNI</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Tipo</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Título</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Estado</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-[#E5E7EB]">
-                        {% for plan in planes %}
-                        <tr class="hover:bg-[#F9FAFB] transition-colors">
-                            <td class="px-6 py-4">
-                                <a href="{% url 'configuracion:actividad_detalle' plan.pk %}" class="font-medium text-[#7928CA] hover:text-[#6D28D9]">
-                                    {{ plan.nombre }}
-                                </a>
+                    <tbody class="divide-y divide-[#E5E7EB]">
+                        {% for persona in personal %}
+                        <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-[#8B5CF6] rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white font-semibold text-sm">{{ persona.nombre.0 }}{{ persona.apellido.0 }}</span>
+                                    </div>
+                                    <div class="text-sm font-medium text-[#252F40]">{{ persona.apellido }}, {{ persona.nombre }}</div>
+                                </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    {{ plan.get_tipo_display }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-[#4A5565]">
-                                <i class="fas fa-users text-[#8C8C8C] mr-1"></i>
-                                {{ plan.cupo_ciudadanos }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-[#4A5565]">
-                                {{ plan.fecha_inicio|date:"d/m/Y" }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {% if plan.estado == 'ACTIVO' %}
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{ plan.get_estado_display }}</span>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ persona.dni }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ persona.get_tipo_display }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ persona.titulo_profesional|default:"-" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if persona.activo %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
                                 {% else %}
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{ plan.get_estado_display }}</span>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -309,41 +245,183 @@
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="text-gray-400 text-4xl mb-2">👥</div>
+                <p class="text-gray-500">No hay personal registrado</p>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
+
+    <!-- Tab: Evaluaciones -->
+    <div id="tab-evaluaciones" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+                <div class="bg-[#10B981] rounded-lg p-2 mr-3">
+                    <i class="fas fa-clipboard-check text-white text-lg"></i>
+                </div>
+                Evaluaciones Institucionales
+            </h3>
+            <p class="text-gray-500">Contenido de evaluaciones - Próximamente...</p>
+        </div>
+    </div>
+
+    <!-- Tab: Actividades -->
+    <div id="tab-actividades" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                    <div class="bg-[#3B82F6] rounded-lg p-2 mr-3">
+                        <i class="fas fa-calendar-alt text-white text-lg"></i>
+                    </div>
+                    Actividades y Cursos
+                </h3>
+                <a href="{% url 'configuracion:plan_crear' institucion.pk %}" class="bg-[#3B82F6] text-white px-6 py-3 rounded-xl hover:bg-[#2563EB] transition-all flex items-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Nueva Actividad</span>
+                </a>
+            </div>
+            
+            {% if planes %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for plan in planes %}
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-[#252F40] mb-2">{{ plan.nombre }}</h4>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if plan.estado == 'ACTIVO' %}bg-green-100 text-green-800
+                                {% elif plan.estado == 'PLANIFICADO' %}bg-blue-100 text-blue-800
+                                {% elif plan.estado == 'SUSPENDIDO' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ plan.get_estado_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm text-[#6B7280] mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-tag w-5 text-[#8B5CF6]"></i>
+                            <span>{{ plan.get_tipo_display }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar w-5 text-[#10B981]"></i>
+                            <span>{{ plan.fecha_inicio|date:"d/m/Y" }} - {{ plan.fecha_fin|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-users w-5 text-[#F59E0B]"></i>
+                            <span>Cupo: {{ plan.cupo_ciudadanos }} personas</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'configuracion:actividad_detalle' plan.pk %}" class="block w-full text-center bg-[#F9FAFB] text-[#3B82F6] px-4 py-2 rounded-lg hover:bg-[#3B82F6] hover:text-white transition-all">
+                        Ver Detalle
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="text-gray-400 text-4xl mb-2">📅</div>
+                <p class="text-gray-500 mb-4">No hay actividades registradas</p>
+                <a href="{% url 'configuracion:plan_crear' institucion.pk %}" class="inline-flex items-center px-6 py-3 bg-[#3B82F6] text-white rounded-xl hover:bg-[#2563EB] transition-all">
+                    <i class="fas fa-plus mr-2"></i>
+                    Crear Primera Actividad
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tab: Documentos -->
+    <div id="tab-documentos" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+                <div class="bg-[#64748B] rounded-lg p-2 mr-3">
+                    <i class="fas fa-folder text-white text-lg"></i>
+                </div>
+                Documentos
+            </h3>
+            <p class="text-gray-500">Contenido de documentos - Próximamente...</p>
+        </div>
+    </div>
+
+    <!-- Tabs Dinámicos por Programa -->
+    {% for solapa in solapas %}
+    {% if not solapa.estatica %}
+    <div id="tab-{{ solapa.id }}" class="tab-content hidden">
+        <div class="space-y-6">
+            
+            <!-- 1. Derivaciones Recibidas -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">call_received</span>
+                    Derivaciones Recibidas
+                </h3>
+                <p class="text-gray-600">Gestión de derivaciones programáticas - Próximamente...</p>
+            </div>
+            
+            <!-- 2. Ciudadanos en Atención -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">people</span>
+                    Ciudadanos en Atención
+                </h3>
+                <p class="text-gray-600">Lista de casos activos - Próximamente...</p>
+            </div>
+            
+            <!-- 3. Actividades del Programa -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">event</span>
+                    Actividades del Programa
+                </h3>
+                <p class="text-gray-600">Actividades asociadas - Próximamente...</p>
+            </div>
+            
+            <!-- 4. Indicadores Programáticos -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">analytics</span>
+                    Indicadores Programáticos
+                </h3>
+                <p class="text-gray-600">Métricas del período - Próximamente...</p>
+            </div>
+            
+            <!-- 5. Staff Asignado -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">badge</span>
+                    Staff Asignado
+                </h3>
+                <p class="text-gray-600">Personal vinculado al programa - Próximamente...</p>
+            </div>
+            
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
 </div>
 
-<style>
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+<script>
+// Sistema de Tabs
+function cambiarTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('border-blue-500', 'text-blue-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    activeButton.classList.add('border-blue-500', 'text-blue-600');
+    activeButton.classList.remove('border-transparent', 'text-gray-500');
 }
-
-@keyframes slide-up {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fade-in 0.6s ease-out;
-}
-
-.animate-slide-up {
-    animation: slide-up 0.6s ease-out;
-    animation-fill-mode: both;
-}
-</style>
+</script>
 {% endblock %}

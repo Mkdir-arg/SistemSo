@@ -8,30 +8,51 @@ from .models import Ciudadano
 
 
 class Programa(TimeStamped):
-    """Catálogo de programas disponibles en el sistema"""
+    """
+    Catálogo UNIFICADO de programas sociales del sistema.
+    Sirve tanto para ciudadanos (InscripcionPrograma) como para instituciones (InstitucionPrograma).
+    """
     
     class TipoPrograma(models.TextChoices):
         ACOMPANAMIENTO_SEDRONAR = "ACOMPANAMIENTO_SEDRONAR", "Acompañamiento SEDRONAR"
         NACHEC = "NACHEC", "ÑACHEC"
         ECONOMICO = "ECONOMICO", "Acompañamiento Económico"
         FAMILIAR = "FAMILIAR", "Acompañamiento Familiar"
-        # Agregar más programas según necesidad
+        PREVENCION_UNIVERSAL = "PREVENCION_UNIVERSAL", "Prevención Universal"
+        REDUCCION_DANOS = "REDUCCION_DANOS", "Reducción de Daños"
+        REINSERCION_SOCIAL = "REINSERCION_SOCIAL", "Reinserción Social"
+        CAPACITACION_COMUNITARIA = "CAPACITACION_COMUNITARIA", "Capacitación Comunitaria"
     
+    # Identificación
     codigo = models.CharField(max_length=50, unique=True, db_index=True)
-    nombre = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=200, unique=True)
     tipo = models.CharField(max_length=50, choices=TipoPrograma.choices, unique=True)
     descripcion = models.TextField(blank=True)
-    color = models.CharField(max_length=20, default="#6366f1", help_text="Color hex para la UI")
-    icono = models.CharField(max_length=50, blank=True, help_text="Nombre del icono")
-    activo = models.BooleanField(default=True, db_index=True)
-    orden = models.PositiveIntegerField(default=0, help_text="Orden de visualización")
     
-    # Configuración de campos requeridos para el programa
+    # UI - Campos para visualización en solapas dinámicas
+    icono = models.CharField(
+        max_length=50, 
+        default='folder',
+        help_text="Nombre del ícono (ej: people, assessment, school)"
+    )
+    color = models.CharField(
+        max_length=20, 
+        default="#6366f1",
+        help_text="Color hex para la UI (ej: #6366f1)"
+    )
+    orden = models.PositiveIntegerField(
+        default=0,
+        help_text="Orden de visualización en solapas (menor = primero)"
+    )
+    
+    activo = models.BooleanField(default=True, db_index=True)
+    
+    # Configuración para ciudadanos
     requiere_evaluacion = models.BooleanField(default=True)
     requiere_plan = models.BooleanField(default=True)
     requiere_seguimientos = models.BooleanField(default=True)
     
-    # Modelo asociado (para renderizado dinámico)
+    # Modelo asociado (para renderizado dinámico de legajos de ciudadanos)
     modelo_legajo = models.CharField(
         max_length=100, 
         blank=True,

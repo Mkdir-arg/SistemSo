@@ -6,8 +6,8 @@ from . import views_alertas
 from . import views_cursos
 from . import views_derivacion
 from . import views_api_derivaciones
-from . import views_bandeja_derivaciones
-from . import views_gestionar_derivaciones
+from . import views_institucional
+from . import views_programas
 
 app_name = 'legajos'
 
@@ -21,11 +21,61 @@ urlpatterns = [
     path('ciudadanos/<int:pk>/', views.CiudadanoDetailView.as_view(), name='ciudadano_detalle'),
     path('ciudadanos/<int:pk>/editar/', views.CiudadanoUpdateView.as_view(), name='ciudadano_editar'),
     
+    # ========================================================================
+    # GESTIÓN OPERATIVA DE PROGRAMAS
+    # ========================================================================
+    
+    path('programas/', views_programas.ProgramaListView.as_view(), name='programas'),
+    path('programas/<int:pk>/', views_programas.ProgramaDetailView.as_view(), name='programa_detalle'),
+    
+    # ========================================================================
+    # SISTEMA NODO - GESTIÓN PROGRAMÁTICA INSTITUCIONAL
+    # ========================================================================
+    
+    # Detalle institucional con solapas dinámicas
+    path('instituciones/<int:pk>/detalle-programatico/', 
+         views_institucional.institucion_detalle_programatico, 
+         name='institucion_detalle_programatico'),
+    
+    # Derivaciones por programa
+    path('programa/<int:institucion_programa_id>/derivaciones/', 
+         views_institucional.programa_derivaciones, 
+         name='programa_derivaciones'),
+    path('derivacion/<int:derivacion_id>/aceptar/', 
+         views_institucional.aceptar_derivacion, 
+         name='derivacion_aceptar'),
+    path('derivacion/<int:derivacion_id>/rechazar/', 
+         views_institucional.rechazar_derivacion_view, 
+         name='derivacion_rechazar'),
+    
+    # Casos por programa
+    path('programa/<int:institucion_programa_id>/casos/', 
+         views_institucional.programa_casos, 
+         name='programa_casos'),
+    path('caso/<int:caso_id>/', 
+         views_institucional.caso_detalle, 
+         name='caso_detalle'),
+    path('caso/<int:caso_id>/cambiar-estado/', 
+         views_institucional.cambiar_estado_caso_view, 
+         name='caso_cambiar_estado'),
+    
+    # API Indicadores
+    path('programa/<int:institucion_programa_id>/indicadores/', 
+         views_institucional.api_programa_indicadores, 
+         name='api_programa_indicadores'),
+    
+    # ========================================================================
+    path('', views.LegajoListView.as_view(), name='lista'),
+    path('nuevo/', views.LegajoCreateView.as_view(), name='nuevo'),
+    path('ciudadanos/', views.CiudadanoListView.as_view(), name='ciudadanos'),
+    path('ciudadanos/nuevo/', views.CiudadanoCreateView.as_view(), name='ciudadano_nuevo'),
+    path('ciudadanos/confirmar/', views.CiudadanoConfirmarView.as_view(), name='ciudadano_confirmar'),
+    path('ciudadanos/manual/', views.CiudadanoManualView.as_view(), name='ciudadano_manual'),
+    path('ciudadanos/<int:pk>/', views.CiudadanoDetailView.as_view(), name='ciudadano_detalle'),
+    path('ciudadanos/<int:pk>/editar/', views.CiudadanoUpdateView.as_view(), name='ciudadano_editar'),
+    
     # Derivación a Programas
     path('ciudadanos/<int:ciudadano_id>/derivar-programa/', views_derivacion.derivar_programa_view, name='derivar_programa'),
-    path('bandeja-derivaciones/', views_bandeja_derivaciones.bandeja_derivaciones_view, name='bandeja_derivaciones'),
-    path('derivaciones/<int:derivacion_id>/aceptar/', views_gestionar_derivaciones.aceptar_derivacion_view, name='aceptar_derivacion'),
-    path('derivaciones/<int:derivacion_id>/rechazar/', views_gestionar_derivaciones.rechazar_derivacion_view, name='rechazar_derivacion'),
     
     # API Derivaciones de Programas
     path('ciudadanos/<int:ciudadano_id>/derivaciones-programa/<int:programa_id>/', views_api_derivaciones.derivaciones_programa_api, name='derivaciones_programa_api'),

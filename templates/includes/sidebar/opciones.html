@@ -106,7 +106,7 @@
             {% endif %}
 
             <!-- Programas -->
-            <div x-data="{ open: {% if 'bandeja-derivaciones' in pagina_actual %}true{% else %}false{% endif %} }" class="relative">
+            <div x-data="{ open: {% if 'programas' in pagina_actual %}true{% else %}false{% endif %} }" class="relative">
                 <template x-if="!sidebarCollapsed">
                     <div>
                         <button @click="open = !open" class="text-[#4A5565] hover:bg-[#F9FAFB] group flex w-full items-center gap-x-3 rounded-xl p-3 text-left text-sm font-semibold transition-all">
@@ -118,8 +118,8 @@
                             {% load programas_tags %}
                             {% programas_activos as programas %}
                             {% for programa in programas %}
-                            <a href="{% url 'legajos:bandeja_derivaciones' %}?programa={{ programa.id }}&estado=PENDIENTE" class="{% if 'bandeja-derivaciones' in pagina_actual and request.GET.programa|add:'0' == programa.id|stringformat:'s' %}bg-[#7928CA]/10 text-[#7928CA] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-lg py-2 px-3 text-sm transition-colors">
-                                <i class="fas fa-inbox mr-2 text-xs"></i>{{ programa.nombre }}
+                            <a href="{% url 'legajos:programa_detalle' programa.id %}" class="{% if 'programas' in pagina_actual and request.resolver_match.kwargs.pk == programa.id %}bg-[#7928CA]/10 text-[#7928CA] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-lg py-2 px-3 text-sm transition-colors">
+                                <i class="fas fa-folder-open mr-2 text-xs"></i>{{ programa.nombre }}
                             </a>
                             {% endfor %}
                         </div>
@@ -127,7 +127,7 @@
                 </template>
                 
                 <template x-if="sidebarCollapsed">
-                    <a href="{% url 'legajos:bandeja_derivaciones' %}" class="text-[#4A5565] hover:bg-[#F9FAFB] group flex items-center justify-center rounded-xl p-3 text-sm font-semibold transition-all">
+                    <a href="{% url 'legajos:programas' %}" class="text-[#4A5565] hover:bg-[#F9FAFB] group flex items-center justify-center rounded-xl p-3 text-sm font-semibold transition-all">
                         <i class="fas fa-clipboard-list text-base"></i>
                     </a>
                 </template>

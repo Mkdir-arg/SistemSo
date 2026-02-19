@@ -1,1 +1,1 @@
-# Comandos de gestión para el módulo legajos
+# Management commands

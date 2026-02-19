@@ -224,14 +224,110 @@ class InstitucionDetailView(LoginRequiredMixin, DetailView):
         # Obtener o crear legajo institucional
         legajo, created = LegajoInstitucional.objects.get_or_create(
             institucion=institucion,
-            defaults={'estado': 'ACTIVO'}
+            defaults={'estado_global': 'ACTIVO'}
         )
         
         context['legajo'] = legajo
+        
+        # Generar solapas dinámicas
+        solapas = []
+        
+        # Solapa estática: Resumen
+        solapas.append({
+            'id': 'resumen',
+            'nombre': 'Resumen',
+            'icono': 'dashboard',
+            'color': None,
+            'estatica': True,
+            'orden': 0
+        })
+        
+        # Solapas estáticas adicionales
+        solapas.append({
+            'id': 'personal',
+            'nombre': 'Personal',
+            'icono': 'people',
+            'color': None,
+            'estatica': True,
+            'orden': 10
+        })
+        
+        solapas.append({
+            'id': 'evaluaciones',
+            'nombre': 'Evaluaciones',
+            'icono': 'assessment',
+            'color': None,
+            'estatica': True,
+            'orden': 20
+        })
+        
+        solapas.append({
+            'id': 'actividades',
+            'nombre': 'Actividades',
+            'icono': 'event',
+            'color': None,
+            'estatica': True,
+            'orden': 25,
+            'badge': legajo.planes_fortalecimiento.count()
+        })
+        
+        solapas.append({
+            'id': 'documentos',
+            'nombre': 'Documentos',
+            'icono': 'folder',
+            'color': None,
+            'estatica': True,
+            'orden': 30
+        })
+        
+        # Solapas dinámicas por programa
+        from legajos.models_programas import Programa
+        from legajos.models_institucional import InstitucionPrograma, DerivacionInstitucional, CasoInstitucional
+        programas_activos = InstitucionPrograma.objects.filter(
+            institucion=institucion,
+            activo=True
+        ).select_related('programa').order_by('programa__orden')
+        
+        for ip in programas_activos:
+            programa = ip.programa
+            
+            # Contar derivaciones pendientes
+            derivaciones_pendientes = DerivacionInstitucional.objects.filter(
+                institucion_programa=ip,
+                estado='PENDIENTE'
+            ).count()
+            
+            # Contar casos activos
+            casos_activos = CasoInstitucional.objects.filter(
+                institucion_programa=ip,
+                estado__in=['ACTIVO', 'EN_SEGUIMIENTO']
+            ).count()
+            
+            solapas.append({
+                'id': f'programa_{programa.tipo}',
+                'nombre': programa.nombre,
+                'icono': programa.icono,
+                'color': programa.color,
+                'estatica': False,
+                'orden': 100 + programa.orden,
+                'institucion_programa_id': ip.id,
+                'badge_derivaciones': derivaciones_pendientes,
+                'badge_casos': casos_activos,
+            })
+        
+        # Ordenar solapas
+        solapas.sort(key=lambda x: x['orden'])
+        
+        context['solapas'] = solapas
         context['personal'] = PersonalInstitucion.objects.filter(legajo_institucional=legajo).select_related('legajo_institucional')
         context['evaluaciones'] = EvaluacionInstitucional.objects.filter(legajo_institucional=legajo).select_related('evaluador').order_by('-fecha_evaluacion')
         context['planes'] = PlanFortalecimiento.objects.filter(legajo_institucional=legajo).prefetch_related('staff__personal').order_by('-fecha_inicio')
         context['indicadores'] = IndicadorInstitucional.objects.filter(legajo_institucional=legajo).select_related('legajo_institucional').order_by('-periodo')
+        
+        # Métricas consolidadas
+        context['total_programas_activos'] = programas_activos.count()
+        context['total_derivaciones_pendientes'] = sum(s.get('badge_derivaciones', 0) for s in solapas if not s['estatica'])
+        context['total_casos_activos'] = sum(s.get('badge_casos', 0) for s in solapas if not s['estatica'])
         
         return context
 

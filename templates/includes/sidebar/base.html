@@ -12,15 +12,7 @@
             </div>
             <div class="flex grow flex-col gap-y-3 sm:gap-y-5 overflow-y-auto px-4 sm:px-6 pb-4 bg-white">
                 <div class="flex h-14 sm:h-16 shrink-0 items-center border-b border-[#E5E7EB]">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-[#7928CA] flex items-center justify-center shadow-md">
-                            <i class="fas fa-shield-alt text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h2 class="font-bold text-[#252F40] text-lg">NODO</h2>
-                            <p class="text-xs text-[#8C8C8C]">Sistema de Gestión</p>
-                        </div>
-                    </div>
+                    <img src="{% static 'custom/img/NODO.png' %}" alt="NODO" class="h-10 w-auto">
                 </div>
                 <nav class="flex flex-1 flex-col">
                     {% include 'includes/sidebar/opciones.html' %}
@@ -37,21 +29,11 @@
         <div class="p-6 border-b border-[#E5E7EB]">
             <div class="flex items-center justify-between">
                 <template x-if="!sidebarCollapsed">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-[#7928CA] flex items-center justify-center shadow-md">
-                            <i class="fas fa-shield-alt text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h2 class="font-bold text-[#252F40] text-lg">NODO</h2>
-                            <p class="text-xs text-[#8C8C8C]">Sistema de Gestión</p>
-                        </div>
-                    </div>
+                    <img src="{% static 'custom/img/NODO.png' %}" alt="NODO" class="h-10 w-auto">
                 </template>
                 
                 <template x-if="sidebarCollapsed">
-                    <div class="w-10 h-10 rounded-xl bg-[#7928CA] flex items-center justify-center shadow-md mx-auto">
-                        <i class="fas fa-shield-alt text-white text-lg"></i>
-                    </div>
+                    <img src="{% static 'custom/img/NODO.png' %}" alt="NODO" class="h-8 w-auto mx-auto">
                 </template>
             </div>
         </div>
