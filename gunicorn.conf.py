@@ -17,7 +17,7 @@ timeout = 30  # Timeout de requests
 keepalive = 5  # Keep-alive connections
 
 # Configuración de bind
-bind = "0.0.0.0:8000"
+bind = "0.0.0.0:8001"
 backlog = 2048  # Queue de conexiones pendientes
 
 # Logging

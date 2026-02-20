@@ -35,7 +35,7 @@ services:
   sedronar-http:
     build: .
     ports:
-      - "8000:8000"
+      - "8000:8001"
     depends_on:
       sedronar-ws:
         condition: service_started
@@ -55,13 +55,11 @@ services:
       sh -c "
         pip install -r requirements.txt &&
         sleep 10 &&
-        python manage.py migrate --noinput &&
-        python manage.py crear_programas &&
         python manage.py collectstatic --noinput &&
         gunicorn --reload --config gunicorn.conf.py config.wsgi:application
       "
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health/"]
       timeout: 10s
       retries: 3
 
@@ -89,9 +87,14 @@ services:
     command: >
       sh -c "
         pip install -r requirements.txt &&
-        python manage.py migrate --noinput &&
+        python manage.py migrate --noinput --fake-initial &&
+        python manage.py crear_superadmin &&
         python manage.py crear_programas &&
         python manage.py load_initial_data &&
+        python manage.py setup_system &&
+        python manage.py create_groups &&
+        python manage.py setup_groups &&
+        python manage.py setup_conversaciones &&
         daphne -b 0.0.0.0 -p 8001 config.asgi:application
       "
 

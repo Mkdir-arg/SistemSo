@@ -7,14 +7,40 @@ services:
       - ./media:/app/media
       - ./logs:/app/logs
     ports:
-      - "8000:8000"
+      - "8000:8001"
     env_file:
       - .env.production
+    environment:
+      - RUN_MIGRATIONS=true
+      - RUN_CREAR_PROGRAMAS=true
+      - RUN_COLLECTSTATIC=true
+      - RUN_CREAR_SUPERADMIN=true
     restart: unless-stopped
     networks:
       - nodo-network
     mem_limit: 400m
     memswap_limit: 600m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health/"]
+      timeout: 10s
+      retries: 3
+
+  websocket:
+    build: .
+    container_name: nodo-websocket
+    volumes:
+      - ./media:/app/media
+      - ./logs:/app/logs
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env.production
+    command: daphne -b 0.0.0.0 -p 8001 config.asgi:application
+    restart: unless-stopped
+    networks:
+      - nodo-network
+    mem_limit: 300m
+    memswap_limit: 500m
 
   nginx:
     image: nginx:alpine

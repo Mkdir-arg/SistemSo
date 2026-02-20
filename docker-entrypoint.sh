@@ -1,25 +1,35 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Iniciando NODO..."
+echo "Iniciando NODO..."
 
-# Ejecutar migraciones y setup
-echo "📦 Ejecutando migraciones..."
-python manage.py migrate --noinput
+# Si Docker Compose/env provee un comando, delegar y salir.
+# Esto permite que cada servicio (HTTP/WS) controle su propio flujo.
+if [ "$#" -gt 0 ]; then
+  echo "Comando personalizado detectado: $*"
+  exec "$@"
+fi
 
-echo "📋 Creando programas iniciales..."
-python manage.py crear_programas || echo "⚠️  Programas ya existen"
+# Flujo por defecto (usado cuando no se pasa command)
+if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
+  echo "Ejecutando migraciones..."
+  python manage.py migrate --noinput
+fi
 
-echo "📁 Recolectando archivos estáticos..."
-python manage.py collectstatic --noinput --clear
+if [ "${RUN_CREAR_SUPERADMIN:-false}" = "true" ]; then
+  echo "Creando superadmin..."
+  python manage.py crear_superadmin
+fi
 
-echo "✅ Setup completado. Iniciando Gunicorn..."
+if [ "${RUN_CREAR_PROGRAMAS:-false}" = "true" ]; then
+  echo "Creando programas iniciales..."
+  python manage.py crear_programas || echo "Programas ya existen"
+fi
 
-# Iniciar Gunicorn
-exec gunicorn config.wsgi:application \
-    --bind 0.0.0.0:8000 \
-    --workers 2 \
-    --worker-class gevent \
-    --timeout 120 \
-    --max-requests 1000 \
-    --max-requests-jitter 50
+if [ "${RUN_COLLECTSTATIC:-true}" = "true" ]; then
+  echo "Recolectando archivos estaticos..."
+  python manage.py collectstatic --noinput --clear
+fi
+
+echo "Setup completado. Iniciando Gunicorn..."
+exec gunicorn --config gunicorn.conf.py config.wsgi:application
