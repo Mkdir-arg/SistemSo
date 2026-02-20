@@ -171,11 +171,11 @@ select:focus {
 }
 
 /* Links */
-a:not(.btn):not([class*="bg-"]) {
+a:not(.btn):not(.btn-nodo):not(.btn-brand):not([class*="bg-"]) {
     color: var(--nodo-magenta) !important;
 }
 
-a:not(.btn):not([class*="bg-"]):hover {
+a:not(.btn):not(.btn-nodo):not(.btn-brand):not([class*="bg-"]):hover {
     color: var(--nodo-purple) !important;
 }
 
