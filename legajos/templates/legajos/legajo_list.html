@@ -12,11 +12,11 @@
         </div>
         <div class="flex flex-col sm:flex-row gap-3">
             <a href="{% url 'legajos:exportar_csv' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
-               class="bg-green-600 text-white px-4 py-3 rounded-xl hover:bg-green-700 transition-colors font-medium text-center">
-                <i class="fas fa-file-csv mr-2"></i>Exportar CSV
+               class="btn-nodo btn-brand btn-base">
+                <i class="fas fa-file-csv"></i>Exportar CSV
             </a>
-            <a href="{% url 'legajos:admision_paso1' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors font-medium text-center">
-                <i class="fas fa-plus mr-2"></i>Nuevo Legajo
+            <a href="{% url 'legajos:admision_paso1' %}" class="btn-nodo btn-brand btn-base">
+                <i class="fas fa-plus"></i>Nuevo Legajo
             </a>
         </div>
     </div>
@@ -33,8 +33,8 @@
                     <option value="CERRADO" {% if request.GET.estado == 'CERRADO' %}selected{% endif %}>Cerrado</option>
                 </select>
             </div>
-            <button type="submit" class="bg-arg-azul text-white px-6 py-3 rounded-lg hover:bg-arg-secundario transition-colors">
-                <i class="fas fa-filter mr-2 sm:mr-0"></i>
+            <button type="submit" class="btn-nodo btn-brand btn-base">
+                <i class="fas fa-filter"></i>
                 <span class="sm:hidden">Filtrar</span>
             </button>
         </form>
@@ -71,11 +71,11 @@
                             </td>
                             <td class="px-6 py-4 text-sm">
                                 {% if legajo.ciudadano.dni == '00000000' or 'Institución' in legajo.ciudadano.apellido or 'Institución' in legajo.ciudadano.nombre %}
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md bg-[#FFB9DC] text-[#A11F60] border border-[#101828]">
                                         <i class="fas fa-building mr-1"></i>Institución
                                     </span>
                                 {% else %}
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md bg-[#F9FAFB] text-[#101828] border border-[#101828]">
                                         <i class="fas fa-user mr-1"></i>Ciudadano
                                     </span>
                                 {% endif %}
@@ -93,19 +93,19 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm">
-                                <span class="px-2 py-1 rounded-full text-xs font-medium
-                                    {% if legajo.estado == 'ABIERTO' %}bg-green-100 text-green-800
-                                    {% elif legajo.estado == 'EN_SEGUIMIENTO' %}bg-blue-100 text-blue-800
-                                    {% elif legajo.estado == 'DERIVADO' %}bg-yellow-100 text-yellow-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md
+                                    {% if legajo.estado == 'ABIERTO' %}bg-[#ECFDF5] text-[#006045] border border-[#A4F4CF]
+                                    {% elif legajo.estado == 'EN_SEGUIMIENTO' %}bg-[#F9FAFB] text-[#101828] border border-[#101828]
+                                    {% elif legajo.estado == 'DERIVADO' %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]
+                                    {% else %}bg-[#F9FAFB] text-[#101828] border border-[#101828]{% endif %}">
                                     {{ legajo.get_estado_display }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm">
-                                <span class="px-2 py-1 rounded-full text-xs font-medium
-                                    {% if legajo.nivel_riesgo == 'ALTO' %}bg-red-100 text-red-800
-                                    {% elif legajo.nivel_riesgo == 'MEDIO' %}bg-orange-100 text-orange-800
-                                    {% else %}bg-green-100 text-green-800{% endif %}">
+                                <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md
+                                    {% if legajo.nivel_riesgo == 'ALTO' %}bg-[#FEF0F2] text-[#8B0836] border border-[#FFCCD3]
+                                    {% elif legajo.nivel_riesgo == 'MEDIO' %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]
+                                    {% else %}bg-[#ECFDF5] text-[#006045] border border-[#A4F4CF]{% endif %}">
                                     {{ legajo.get_nivel_riesgo_display }}
                                 </span>
                             </td>
@@ -140,11 +140,11 @@
                             </div>
                             <div class="mb-2">
                                 {% if legajo.ciudadano.dni == '00000000' or 'Institución' in legajo.ciudadano.apellido or 'Institución' in legajo.ciudadano.nombre %}
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md bg-[#FFB9DC] text-[#A11F60] border border-[#101828]">
                                         <i class="fas fa-building mr-1"></i>Institución
                                     </span>
                                 {% else %}
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md bg-[#F9FAFB] text-[#101828] border border-[#101828]">
                                         <i class="fas fa-user mr-1"></i>Ciudadano
                                     </span>
                                 {% endif %}
@@ -169,17 +169,17 @@
                     </div>
                     
                     <div class="flex items-center gap-2 mt-3">
-                        <span class="px-2 py-1 rounded-full text-xs font-medium
-                            {% if legajo.estado == 'ABIERTO' %}bg-green-100 text-green-800
-                            {% elif legajo.estado == 'EN_SEGUIMIENTO' %}bg-blue-100 text-blue-800
-                            {% elif legajo.estado == 'DERIVADO' %}bg-yellow-100 text-yellow-800
-                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md
+                            {% if legajo.estado == 'ABIERTO' %}bg-[#ECFDF5] text-[#006045] border border-[#A4F4CF]
+                            {% elif legajo.estado == 'EN_SEGUIMIENTO' %}bg-[#F9FAFB] text-[#101828] border border-[#101828]
+                            {% elif legajo.estado == 'DERIVADO' %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]
+                            {% else %}bg-[#F9FAFB] text-[#101828] border border-[#101828]{% endif %}">
                             {{ legajo.get_estado_display }}
                         </span>
-                        <span class="px-2 py-1 rounded-full text-xs font-medium
-                            {% if legajo.nivel_riesgo == 'ALTO' %}bg-red-100 text-red-800
-                            {% elif legajo.nivel_riesgo == 'MEDIO' %}bg-orange-100 text-orange-800
-                            {% else %}bg-green-100 text-green-800{% endif %}">
+                        <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md
+                            {% if legajo.nivel_riesgo == 'ALTO' %}bg-[#FEF0F2] text-[#8B0836] border border-[#FFCCD3]
+                            {% elif legajo.nivel_riesgo == 'MEDIO' %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]
+                            {% else %}bg-[#ECFDF5] text-[#006045] border border-[#A4F4CF]{% endif %}">
                             {{ legajo.get_nivel_riesgo_display }}
                         </span>
                     </div>
@@ -196,10 +196,10 @@
                     </p>
                     <div class="flex gap-2">
                         {% if page_obj.has_previous %}
-                            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Anterior</a>
+                            <a href="?page={{ page_obj.previous_page_number }}" class="btn-nodo btn-secondary btn-sm">Anterior</a>
                         {% endif %}
                         {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 bg-arg-azul text-white rounded hover:bg-arg-secundario">Siguiente</a>
+                            <a href="?page={{ page_obj.next_page_number }}" class="btn-nodo btn-brand btn-sm">Siguiente</a>
                         {% endif %}
                     </div>
                 </div>
@@ -210,8 +210,8 @@
                 <i class="fas fa-folder-open text-6xl text-gray-300 mb-4"></i>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay legajos registrados</h3>
                 <p class="text-gray-600 mb-6">Comienza creando el primer legajo de atención</p>
-                <a href="{% url 'legajos:admision_paso1' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Crear Legajo
+                <a href="{% url 'legajos:admision_paso1' %}" class="btn-nodo btn-brand btn-base">
+                    <i class="fas fa-plus"></i>Crear Legajo
                 </a>
             </div>
         {% endif %}
