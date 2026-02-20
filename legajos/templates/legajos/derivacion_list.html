@@ -154,18 +154,18 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                                    {% if derivacion.urgencia == 'ALTA' %}bg-red-100 text-red-800
-                                    {% elif derivacion.urgencia == 'MEDIA' %}bg-yellow-100 text-yellow-800
-                                    {% else %}bg-green-100 text-green-800{% endif %}">
+                                <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md
+                                    {% if derivacion.urgencia == 'ALTA' %}bg-[#FEF0F2] text-[#8B0836] border border-[#FFCCD3]
+                                    {% elif derivacion.urgencia == 'MEDIA' %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]
+                                    {% else %}bg-[#ECFDF5] text-[#006045] border border-[#A4F4CF]{% endif %}">
                                     {{ derivacion.get_urgencia_display }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                                    {% if derivacion.estado == 'ACEPTADA' %}bg-green-100 text-green-800
-                                    {% elif derivacion.estado == 'RECHAZADA' %}bg-red-100 text-red-800
-                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md
+                                    {% if derivacion.estado == 'ACEPTADA' %}bg-[#ECFDF5] text-[#006045] border border-[#A4F4CF]
+                                    {% elif derivacion.estado == 'RECHAZADA' %}bg-[#FEF0F2] text-[#8B0836] border border-[#FFCCD3]
+                                    {% else %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]{% endif %}">
                                     {{ derivacion.get_estado_display }}
                                 </span>
                             </td>

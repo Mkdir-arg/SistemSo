@@ -156,8 +156,11 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                                    {% if evento.tipo == 'RECAIDA' %}bg-orange-100 text-orange-800{% elif evento.tipo == 'ABANDONO' %}bg-purple-100 text-purple-800{% elif evento.tipo == 'CRISIS' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md
+                                    {% if evento.tipo == 'RECAIDA' %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]
+                                    {% elif evento.tipo == 'ABANDONO' %}bg-[#FFB9DC] text-[#A11F60] border border-[#101828]
+                                    {% elif evento.tipo == 'CRISIS' %}bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]
+                                    {% else %}bg-[#FEF0F2] text-[#8B0836] border border-[#FFCCD3]{% endif %}">
                                     {{ evento.get_tipo_display }}
                                 </span>
                             </td>
@@ -176,15 +179,15 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 {% if evento.gravedad == 'ALTA' %}
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md bg-[#FEF0F2] text-[#8B0836] border border-[#FFCCD3]">
                                         Alta
                                     </span>
                                 {% elif evento.gravedad == 'MEDIA' %}
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md bg-[#FFF8F1] text-[#771D1D] border border-[#FCD9BD]">
                                         Media
                                     </span>
                                 {% else %}
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <span class="h-5 inline-flex items-center px-2 text-xs font-medium rounded-md bg-[#ECFDF5] text-[#006045] border border-[#A4F4CF]">
                                         Baja
                                     </span>
                                 {% endif %}

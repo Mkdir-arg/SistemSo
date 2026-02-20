@@ -38,8 +38,8 @@
                        class="w-full pl-12 pr-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#101828] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#FF0080] focus:border-transparent transition-all"
                        x-model="busqueda" @input="buscarCiudadano()">
             </div>
-            <button class="px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-medium rounded-xl flex items-center gap-2 shadow-md hover:shadow-lg transition-all">
-                <i class="fas fa-plus w-5 h-5"></i>
+            <button class="btn-nodo btn-brand btn-base">
+                <i class="fas fa-plus"></i>
                 <span>Nuevo Legajo</span>
             </button>
         </div>
@@ -82,64 +82,36 @@
 
     <!-- Métricas Principales con Gráficos -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-[#7928CA] rounded-xl p-6 text-white shadow-md hover:shadow-lg transition-all">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-purple-100 text-sm font-medium">Total Ciudadanos</p>
-                    <p class="text-3xl font-bold" x-text="metricas.ciudadanos"></p>
-                </div>
-                <div class="bg-white/20 rounded-full p-4">
-                    <i class="fas fa-users text-2xl"></i>
-                </div>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-user-friends text-xl text-[#10B981]"></i>
             </div>
-            <div class="h-16">
-                <canvas id="chartCiudadanos" class="w-full h-full"></canvas>
-            </div>
+            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.ciudadanos"></p>
+            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Total Ciudadanos</p>
         </div>
 
-        <div class="bg-[#08B8CC] rounded-xl p-6 text-white shadow-md hover:shadow-lg transition-all">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-cyan-100 text-sm font-medium">Legajos Activos</p>
-                    <p class="text-3xl font-bold" x-text="metricas.legajos"></p>
-                </div>
-                <div class="bg-white/20 rounded-full p-4">
-                    <i class="fas fa-folder-open text-2xl"></i>
-                </div>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-folder-open text-xl text-[#3B82F6]"></i>
             </div>
-            <div class="h-16">
-                <canvas id="chartLegajos" class="w-full h-full"></canvas>
-            </div>
+            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.legajos"></p>
+            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Legajos Activos</p>
         </div>
 
-        <div class="bg-[#FF0080] rounded-xl p-6 text-white shadow-md hover:shadow-lg transition-all">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-pink-100 text-sm font-medium">Seguimientos Hoy</p>
-                    <p class="text-3xl font-bold" x-text="metricas.seguimientos"></p>
-                </div>
-                <div class="bg-white/20 rounded-full p-4">
-                    <i class="fas fa-calendar-check text-2xl"></i>
-                </div>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-calendar-check text-xl text-[#F59E0B]"></i>
             </div>
-            <div class="h-16">
-                <canvas id="chartSeguimientos" class="w-full h-full"></canvas>
-            </div>
+            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.seguimientos"></p>
+            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Seguimientos Hoy</p>
         </div>
 
-        <div class="bg-[#F97316] rounded-xl p-6 text-white shadow-md hover:shadow-lg transition-all">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-orange-100 text-sm font-medium">Alertas Activas</p>
-                    <p class="text-3xl font-bold" x-text="metricas.alertas"></p>
-                </div>
-                <div class="bg-white/20 rounded-full p-4">
-                    <i class="fas fa-exclamation-triangle text-2xl animate-pulse"></i>
-                </div>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-exclamation-triangle text-xl text-[#EF4444]"></i>
             </div>
-            <div class="h-16">
-                <canvas id="chartAlertas" class="w-full h-full"></canvas>
-            </div>
+            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.alertas"></p>
+            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Alertas Activas</p>
         </div>
     </div>
 
@@ -236,40 +208,36 @@
 
     <!-- Acciones Rápidas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-[#7928CA] rounded-xl p-6 text-white hover:shadow-lg transition-all cursor-pointer">
-            <div class="flex items-center justify-between mb-4">
-                <i class="fas fa-users text-3xl"></i>
-                <i class="fas fa-arrow-right"></i>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-users text-xl text-[#3B82F6]"></i>
             </div>
-            <h4 class="font-semibold mb-1">Gestionar Ciudadanos</h4>
-            <p class="text-purple-100 text-sm">Ver, buscar y administrar</p>
+            <h4 class="text-base font-semibold mb-1 text-[#252F40]">Gestionar Ciudadanos</h4>
+            <p class="text-xs text-[#8C8C8C]">Ver, buscar y administrar</p>
         </div>
 
-        <div class="bg-[#08B8CC] rounded-xl p-6 text-white hover:shadow-lg transition-all cursor-pointer">
-            <div class="flex items-center justify-between mb-4">
-                <i class="fas fa-plus-circle text-3xl"></i>
-                <i class="fas fa-arrow-right"></i>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-plus-circle text-xl text-[#10B981]"></i>
             </div>
-            <h4 class="font-semibold mb-1">Nuevo Registro</h4>
-            <p class="text-cyan-100 text-sm">Crear legajo rápido</p>
+            <h4 class="text-base font-semibold mb-1 text-[#252F40]">Nuevo Registro</h4>
+            <p class="text-xs text-[#8C8C8C]">Crear legajo rápido</p>
         </div>
 
-        <div class="bg-[#FF0080] rounded-xl p-6 text-white hover:shadow-lg transition-all cursor-pointer">
-            <div class="flex items-center justify-between mb-4">
-                <i class="fas fa-chart-bar text-3xl"></i>
-                <i class="fas fa-arrow-right"></i>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-chart-bar text-xl text-[#8B5CF6]"></i>
             </div>
-            <h4 class="font-semibold mb-1">Reportes</h4>
-            <p class="text-pink-100 text-sm">Análisis y estadísticas</p>
+            <h4 class="text-base font-semibold mb-1 text-[#252F40]">Reportes</h4>
+            <p class="text-xs text-[#8C8C8C]">Análisis y estadísticas</p>
         </div>
 
-        <div class="bg-[#F97316] rounded-xl p-6 text-white hover:shadow-lg transition-all cursor-pointer">
-            <div class="flex items-center justify-between mb-4">
-                <i class="fas fa-cog text-3xl"></i>
-                <i class="fas fa-arrow-right"></i>
+        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
+            <div class="flex items-center justify-between mb-3">
+                <i class="fas fa-cog text-xl text-[#8C8C8C]"></i>
             </div>
-            <h4 class="font-semibold mb-1">Configuración</h4>
-            <p class="text-orange-100 text-sm">Ajustes del sistema</p>
+            <h4 class="text-base font-semibold mb-1 text-[#252F40]">Configuración</h4>
+            <p class="text-xs text-[#8C8C8C]">Ajustes del sistema</p>
         </div>
     </div>
 
