@@ -17,72 +17,36 @@
     <!-- Stats cards -->
     <div class="mt-6 sm:mt-8">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <!-- Card 1 -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-4 sm:py-5 shadow sm:p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-white">
-                            <i class="fas fa-users text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4 sm:ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="truncate text-sm font-medium text-gray-500">Total Usuarios</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ total_usuarios|default:"0" }}</dd>
-                        </dl>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-user-friends text-xl text-[#10B981]"></i>
                 </div>
+                <p class="text-3xl font-bold mb-1 text-[#252F40]">{{ total_ciudadanos|default:0 }}</p>
+                <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Total Ciudadanos</p>
             </div>
 
-            <!-- Card 2 -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-green-500 text-white">
-                            <i class="fas fa-user-friends text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="truncate text-sm font-medium text-gray-500">Ciudadanos</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ total_ciudadanos|default:"0" }}</dd>
-                        </dl>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-folder-open text-xl text-[#3B82F6]"></i>
                 </div>
+                <p class="text-3xl font-bold mb-1 text-[#252F40]">{{ legajos_abiertos|default:0 }}</p>
+                <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Legajos Activos</p>
             </div>
 
-            <!-- Card 3 -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500 text-white">
-                            <i class="fas fa-folder-open text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="truncate text-sm font-medium text-gray-500">Legajos Totales</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ total_legajos|default:"0" }}</dd>
-                        </dl>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-calendar-check text-xl text-[#F59E0B]"></i>
                 </div>
+                <p class="text-3xl font-bold mb-1 text-[#252F40]">{{ seguimientos_semana|default:0 }}</p>
+                <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Seguimientos Hoy</p>
             </div>
 
-            <!-- Card 4 -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-orange-500 text-white">
-                            <i class="fas fa-exclamation-triangle text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="truncate text-sm font-medium text-gray-500">Riesgo Alto</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ legajos_riesgo_alto|default:"0" }}</dd>
-                        </dl>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-exclamation-triangle text-xl text-[#EF4444]"></i>
                 </div>
+                <p class="text-3xl font-bold mb-1 text-[#252F40]">{{ legajos_riesgo_alto|default:0 }}</p>
+                <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Alertas Activas</p>
             </div>
         </div>
     </div>
@@ -224,12 +188,12 @@
                     </p>
                     <div class="mt-6">
                         <div class="flex flex-col sm:flex-row justify-center gap-4 sm:space-x-6">
-                            <a href="{% url 'legajos:ciudadanos' %}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                                <i class="fas fa-users mr-2"></i>
+                            <a href="{% url 'legajos:ciudadanos' %}" class="btn-nodo btn-brand btn-base">
+                                <i class="fas fa-users"></i>
                                 Gestionar Ciudadanos
                             </a>
-                            <a href="{% url 'legajos:lista' %}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                                <i class="fas fa-folder mr-2"></i>
+                            <a href="{% url 'legajos:lista' %}" class="btn-nodo btn-secondary btn-base">
+                                <i class="fas fa-folder"></i>
                                 Ver Legajos
                             </a>
                         </div>
@@ -305,64 +269,44 @@
     <div class="mt-6 sm:mt-8">
         <h3 class="text-lg font-medium text-gray-900">Acciones Rápidas</h3>
         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <div class="relative rounded-lg border border-gray-300 bg-white px-4 sm:px-6 py-4 sm:py-5 shadow-sm hover:border-gray-400">
-                <div class="flex items-center space-x-3">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-user-plus h-5 w-5 sm:h-6 sm:w-6 text-primary"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <a href="{% url 'legajos:ciudadano_nuevo' %}" class="focus:outline-none">
-                            <span class="absolute inset-0" aria-hidden="true"></span>
-                            <p class="text-sm font-medium text-gray-900">Nuevo Ciudadano</p>
-                            <p class="truncate text-xs sm:text-sm text-gray-500">Registrar ciudadano con RENAPER</p>
-                        </a>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-users text-xl text-[#3B82F6]"></i>
                 </div>
+                <a href="{% url 'legajos:ciudadanos' %}" class="block">
+                    <p class="text-base font-semibold mb-1 text-[#252F40]">Gestionar Ciudadanos</p>
+                    <p class="text-xs text-[#8C8C8C]">Ver, buscar y administrar</p>
+                </a>
             </div>
 
-            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                <div class="flex items-center space-x-3">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-folder-plus h-6 w-6 text-green-600"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <a href="{% url 'legajos:admision_paso1' %}" class="focus:outline-none">
-                            <span class="absolute inset-0" aria-hidden="true"></span>
-                            <p class="text-sm font-medium text-gray-900">Nueva Admisión</p>
-                            <p class="truncate text-sm text-gray-500">Proceso completo de admisión</p>
-                        </a>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-folder-plus text-xl text-[#10B981]"></i>
                 </div>
+                <a href="{% url 'legajos:admision_paso1' %}" class="block">
+                    <p class="text-base font-semibold mb-1 text-[#252F40]">Nuevo Registro</p>
+                    <p class="text-xs text-[#8C8C8C]">Crear legajo rápido</p>
+                </a>
             </div>
 
-            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                <div class="flex items-center space-x-3">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-list h-6 w-6 text-blue-600"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <a href="{% url 'legajos:lista' %}" class="focus:outline-none">
-                            <span class="absolute inset-0" aria-hidden="true"></span>
-                            <p class="text-sm font-medium text-gray-900">Ver Legajos</p>
-                            <p class="truncate text-sm text-gray-500">Gestionar legajos existentes</p>
-                        </a>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-chart-bar text-xl text-[#8B5CF6]"></i>
                 </div>
+                <a href="#" class="block">
+                    <p class="text-base font-semibold mb-1 text-[#252F40]">Reportes</p>
+                    <p class="text-xs text-[#8C8C8C]">Análisis y estadísticas</p>
+                </a>
             </div>
 
-            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                <div class="flex items-center space-x-3">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-phone-alt h-6 w-6 text-purple-600"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <a href="{% url 'legajos:dashboard_contactos' %}" class="focus:outline-none">
-                            <span class="absolute inset-0" aria-hidden="true"></span>
-                            <p class="text-sm font-medium text-gray-900">Dashboard Contactos</p>
-                            <p class="truncate text-sm text-gray-500">Métricas y red de contactos</p>
-                        </a>
-                    </div>
+            <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <i class="fas fa-cog text-xl text-[#8C8C8C]"></i>
                 </div>
+                <a href="#" class="block">
+                    <p class="text-base font-semibold mb-1 text-[#252F40]">Configuración</p>
+                    <p class="text-xs text-[#8C8C8C]">Ajustes del sistema</p>
+                </a>
             </div>
         </div>
     </div>
