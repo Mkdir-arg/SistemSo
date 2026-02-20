@@ -12,8 +12,11 @@ logger = logging.getLogger("django")
 
 def invalidate_cache_keys(*cache_keys):
     """Invalida múltiples claves de cache."""
-    for key in cache_keys:
-        cache.delete(key)
+    try:
+        for key in cache_keys:
+            cache.delete(key)
+    except Exception as e:
+        logger.warning(f"No se pudo invalidar cache: {e}")
 
 
 def invalidate_ciudadano_cache(ciudadano_id=None):
