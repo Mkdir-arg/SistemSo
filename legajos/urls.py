@@ -8,6 +8,7 @@ from . import views_derivacion
 from . import views_api_derivaciones
 from . import views_institucional
 from . import views_programas
+from . import views_derivacion_programa
 
 app_name = 'legajos'
 
@@ -42,10 +43,10 @@ urlpatterns = [
          views_institucional.programa_derivaciones, 
          name='programa_derivaciones'),
     path('derivacion/<int:derivacion_id>/aceptar/', 
-         views_institucional.aceptar_derivacion, 
+         views_derivacion_programa.aceptar_derivacion_programa, 
          name='derivacion_aceptar'),
     path('derivacion/<int:derivacion_id>/rechazar/', 
-         views_institucional.rechazar_derivacion_view, 
+         views_derivacion_programa.rechazar_derivacion_programa, 
          name='derivacion_rechazar'),
     
     # Casos por programa

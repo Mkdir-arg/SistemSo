@@ -138,10 +138,16 @@ def programa_derivaciones(request, institucion_programa_id):
 
 
 @login_required
-@require_operar_programa
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 def aceptar_derivacion(request, derivacion_id):
     """Acepta una derivación institucional"""
+    derivacion = get_object_or_404(DerivacionInstitucional, id=derivacion_id)
+    
+    # Verificar permisos
+    if not puede_operar_programa(derivacion.institucion_programa, request.user):
+        messages.error(request, 'No tiene permisos para operar este programa.')
+        return redirect('legajos:programas')
+    
     try:
         caso, created = DerivacionService.aceptar_derivacion(
             derivacion_id=derivacion_id,
@@ -161,10 +167,15 @@ def aceptar_derivacion(request, derivacion_id):
 
 
 @login_required
-@require_operar_programa
+@require_http_methods(["GET", "POST"])
 def rechazar_derivacion_view(request, derivacion_id):
     """Vista para rechazar derivación"""
     derivacion = get_object_or_404(DerivacionInstitucional, id=derivacion_id)
+    
+    # Verificar permisos
+    if not puede_operar_programa(derivacion.institucion_programa, request.user):
+        messages.error(request, 'No tiene permisos para operar este programa.')
+        return redirect('legajos:programas')
     
     if request.method == 'POST':
         form = RechazarDerivacionForm(request.POST)
