@@ -48,6 +48,9 @@ services:
       - DATABASE_PASSWORD=sedronar123
       - DATABASE_HOST=sedronar-mysql
       - DATABASE_PORT=3306
+      - REDIS_HOST=sedronar-redis
+      - REDIS_PORT=6379
+      - REDIS_SSL=False
     command: >
       sh -c "
         pip install -r requirements.txt &&
@@ -78,6 +81,9 @@ services:
       - DATABASE_PASSWORD=sedronar123
       - DATABASE_HOST=sedronar-mysql
       - DATABASE_PORT=3306
+      - REDIS_HOST=sedronar-redis
+      - REDIS_PORT=6379
+      - REDIS_SSL=False
     command: >
       sh -c "
         pip install -r requirements.txt &&
