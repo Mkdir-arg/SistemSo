@@ -1,269 +1,308 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es" class="h-full">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>SEDRONAR - Sistema de Gestión</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NODO - Acceso al Sistema</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-30px) scale(1.2); opacity: 0.8; }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 0, 128, 0.3); }
+            50% { box-shadow: 0 0 80px rgba(255, 0, 128, 0.5); }
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white flex items-center justify-end p-4 lg:p-8 relative overflow-hidden">
+    <!-- Canvas para nodos animados -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Círculos animados de fondo -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl" style="background: radial-gradient(circle, rgba(255, 0, 128, 0.08) 0%, transparent 70%); animation: float 8s ease-in-out infinite;"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl" style="background: radial-gradient(circle, rgba(121, 40, 202, 0.08) 0%, transparent 70%); animation: float 8s ease-in-out infinite; animation-delay: 2s;"></div>
+        <div class="absolute top-1/2 left-1/2 w-80 h-80 rounded-full blur-3xl" style="background: radial-gradient(circle, rgba(137, 8, 204, 0.06) 0%, transparent 70%); animation: float 10s ease-in-out infinite; animation-delay: 4s;"></div>
         
-        <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            'primario': '#1e3a8a',
-                            'primario-claro': '#3b82f6',
-                            'primario-oscuro': '#1e40af',
-                            'secundario': '#475569',
-                            'acento': '#0f766e',
-                            'acento-claro': '#14b8a6',
-                            'surface': 'rgba(255, 255, 255, 0.1)',
-                        },
-                        fontFamily: {
-                            'montserrat': ['Montserrat', 'sans-serif'],
-                        },
-                        animation: {
-                            'float': 'float 6s ease-in-out infinite',
-                            'glow': 'glow 2s ease-in-out infinite alternate',
-                        }
+        <!-- Grid de fondo -->
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(255,0,128,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,0,128,0.04)_1px,transparent_1px)] bg-[size:100px_100px]"></div>
+    </div>
+
+    <!-- Tarjeta de Login -->
+    <div class="w-full max-w-md relative z-10" style="animation: pulse-glow 3s ease-in-out infinite;">
+        <div class="bg-white rounded-[15px] border border-[#E5E7EB] overflow-hidden" style="box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);">
+            <!-- Header -->
+            <div class="p-8 text-center border-b border-[#E5E7EB]" style="background: linear-gradient(135deg, #7928CA 0%, #FF0080 100%);">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-4 shadow-lg border border-white/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="2"></circle>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tighter">Nodo</h1>
+                <p class="text-white/90 font-medium text-sm">Sistema Social Conectado</p>
+            </div>
+
+            <!-- Form -->
+            <div class="p-8">
+                <!-- Toggle Login/Registro -->
+                <div class="flex gap-2 mb-6 bg-[#F9FAFB] rounded-xl p-1 border border-[#E5E7EB]">
+                    <button type="button" id="btnLogin" onclick="toggleMode(true)"
+                            class="flex-1 py-2 px-4 rounded-lg transition-all font-medium text-sm tracking-tight text-white shadow-md"
+                            style="background: linear-gradient(135deg, #7928CA 0%, #FF0080 100%);">
+                        Iniciar Sesión
+                    </button>
+                    <button type="button" id="btnRegister" onclick="toggleMode(false)"
+                            class="flex-1 py-2 px-4 rounded-lg transition-all font-medium text-sm tracking-tight text-[#4A5565] hover:text-[#252F40]">
+                        Registrarse
+                    </button>
+                </div>
+
+                <form method="post" class="space-y-4" id="loginForm">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500 mr-3">
+                                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <p class="text-sm text-red-700 font-medium">Credenciales inválidas</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Usuario Input -->
+                    <div>
+                        <label class="block text-sm font-semibold text-[#252F40] mb-2">Usuario</label>
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#56606A]">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text" 
+                                   name="username" 
+                                   required
+                                   class="w-full pl-12 pr-4 py-3 bg-white border border-[#E5E7EB] rounded-xl text-[#101828] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#FF0080] focus:border-transparent transition-all font-normal"
+                                   placeholder="Ingrese su usuario">
+                        </div>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <label class="block text-sm font-semibold text-[#252F40] mb-2">Contraseña</label>
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-[#56606A]">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <input type="password" 
+                                   name="password" 
+                                   id="password"
+                                   required
+                                   class="w-full pl-12 pr-12 py-3 bg-white border border-[#E5E7EB] rounded-xl text-[#101828] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#FF0080] focus:border-transparent transition-all font-normal"
+                                   placeholder="••••••••">
+                            <button type="button" 
+                                    onclick="togglePassword()"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#56606A] hover:text-[#252F40] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="toggleIcon">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Forgot Password -->
+                    <div class="text-right" id="forgotPassword">
+                        <button type="button" class="text-sm font-medium hover:underline transition-colors" style="color: #7928CA;">
+                            ¿Olvidaste tu contraseña?
+                        </button>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit"
+                            class="w-full py-3 text-white rounded-xl font-medium text-base shadow-md hover:shadow-lg transition-all mt-6 hover:scale-[1.02] active:scale-[0.98]"
+                            style="background: linear-gradient(135deg, #7928CA 0%, #FF0080 100%);">
+                        <span id="submitText">Iniciar Sesión</span>
+                    </button>
+                </form>
+
+                <!-- Social Login -->
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-[#E5E7EB]"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white text-[#4A5565] font-medium">O continúa con</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button"
+                                class="py-2 px-4 bg-white border border-[#E5E7EB] rounded-xl text-[#4A5565] hover:bg-[#F9FAFB] hover:border-[#56606A] transition-all font-medium text-sm">
+                            Google
+                        </button>
+                        <button type="button"
+                                class="py-2 px-4 bg-white border border-[#E5E7EB] rounded-xl text-[#4A5565] hover:bg-[#F9FAFB] hover:border-[#56606A] transition-all font-medium text-sm">
+                            GitHub
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-[#8C8C8C] text-sm mt-6 font-normal">
+            Al continuar, aceptas nuestros 
+            <button type="button" class="underline hover:text-[#FF0080] transition-colors font-medium">Términos de Servicio</button>
+            y 
+            <button type="button" class="underline hover:text-[#FF0080] transition-colors font-medium">Política de Privacidad</button>
+        </p>
+    </div>
+
+    <script>
+        // Toggle Login/Register mode
+        let isLogin = true;
+        function toggleMode(login) {
+            isLogin = login;
+            const btnLogin = document.getElementById('btnLogin');
+            const btnRegister = document.getElementById('btnRegister');
+            const submitText = document.getElementById('submitText');
+            const forgotPassword = document.getElementById('forgotPassword');
+            
+            if (login) {
+                btnLogin.style.background = 'linear-gradient(135deg, #7928CA 0%, #FF0080 100%)';
+                btnLogin.className = 'flex-1 py-2 px-4 rounded-lg transition-all font-medium text-sm tracking-tight text-white shadow-md';
+                btnRegister.style.background = '';
+                btnRegister.className = 'flex-1 py-2 px-4 rounded-lg transition-all font-medium text-sm tracking-tight text-[#4A5565] hover:text-[#252F40]';
+                submitText.textContent = 'Iniciar Sesión';
+                forgotPassword.style.display = 'block';
+            } else {
+                btnRegister.style.background = 'linear-gradient(135deg, #7928CA 0%, #FF0080 100%)';
+                btnRegister.className = 'flex-1 py-2 px-4 rounded-lg transition-all font-medium text-sm tracking-tight text-white shadow-md';
+                btnLogin.style.background = '';
+                btnLogin.className = 'flex-1 py-2 px-4 rounded-lg transition-all font-medium text-sm tracking-tight text-[#4A5565] hover:text-[#252F40]';
+                submitText.textContent = 'Crear Cuenta';
+                forgotPassword.style.display = 'none';
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword() {
+            const password = document.getElementById('password');
+            const icon = document.getElementById('toggleIcon');
+            if (password.type === 'password') {
+                password.type = 'text';
+                icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                password.type = 'password';
+                icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle>';
+            }
+        }
+
+        // Animated Nodes Network
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Nodes
+        const nodes = [];
+        const nodeCount = 30;
+        const maxDistance = 150;
+
+        for (let i = 0; i < nodeCount; i++) {
+            nodes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update positions
+            nodes.forEach(node => {
+                node.x += node.vx;
+                node.y += node.vy;
+
+                if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+            });
+
+            // Draw connections
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        const opacity = (1 - distance / maxDistance) * 0.4;
+                        
+                        const gradient = ctx.createLinearGradient(
+                            nodes[i].x, 
+                            nodes[i].y,
+                            nodes[j].x,
+                            nodes[j].y
+                        );
+                        gradient.addColorStop(0, `rgba(121, 40, 202, ${opacity})`);
+                        gradient.addColorStop(1, `rgba(255, 0, 128, ${opacity})`);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.strokeStyle = gradient;
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
                     }
                 }
             }
-        </script>
-        <style>
-            @keyframes float {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-20px); }
-            }
-            @keyframes glow {
-                from { box-shadow: 0 0 20px rgba(30, 58, 138, 0.5); }
-                to { box-shadow: 0 0 30px rgba(30, 58, 138, 0.8); }
-            }
-            .glass {
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-        </style>
-        
-        <!-- Google Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-        
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    </head>
-    <body class="h-full bg-gradient-to-br from-slate-900 via-primario to-primario-oscuro font-montserrat overflow-hidden">
-        <!-- Animated Background -->
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute -top-40 -right-40 w-80 h-80 bg-primario-claro rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
-            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-acento-claro rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-secundario rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 4s;"></div>
-        </div>
-        
-        <!-- Header Minimalista -->
-        <div class="relative z-10 glass border-b border-white/10">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="flex items-center justify-between h-20">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primario to-acento rounded-lg flex items-center justify-center">
-                            <img class="h-6 w-6" src="{% static 'custom/img/escudo_nacional.png' %}" alt="Escudo">
-                        </div>
-                        <div class="text-white">
-                            <div class="text-sm font-semibold">Presidencia de la Nación</div>
-                            <div class="text-xs text-white/70">República Argentina</div>
-                        </div>
-                    </div>
-                    <div class="text-white text-right">
-                        <div class="text-lg font-bold bg-gradient-to-r from-primario-claro to-acento-claro bg-clip-text text-transparent">SEDRONAR</div>
-                        <div class="text-xs text-white/70">Sistema de Gestión</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="relative z-10 flex min-h-screen">
-            <!-- Panel Izquierdo - Información Institucional -->
-            <div class="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
-                <div class="max-w-md">
-                    <div class="text-center mb-12">
-                        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primario to-acento rounded-2xl mb-6 animate-glow">
-                            <img class="h-12 w-12" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
-                        </div>
-                        <h1 class="text-5xl font-bold text-white mb-4 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                            SEDRONAR
-                        </h1>
-                        <p class="text-xl text-white/80 leading-relaxed">
-                            Secretaría Nacional de Políticas<br>
-                            Integrales sobre Drogas
-                        </p>
-                    </div>
-                    
-                    <div class="glass rounded-2xl p-8 text-white">
-                        <h3 class="text-xl font-bold mb-6 text-center">Sistema de Gestión Integral</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="text-center p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300">
-                                <i class="fas fa-users text-2xl text-acento-claro mb-2"></i>
-                                <p class="text-sm font-medium">Gestión de Ciudadanos</p>
-                            </div>
-                            <div class="text-center p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300">
-                                <i class="fas fa-shield-alt text-2xl text-primario-claro mb-2"></i>
-                                <p class="text-sm font-medium">Seguridad y Control</p>
-                            </div>
-                            <div class="text-center p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300">
-                                <i class="fas fa-chart-line text-2xl text-secundario mb-2"></i>
-                                <p class="text-sm font-medium">Reportes y Analytics</p>
-                            </div>
-                            <div class="text-center p-4 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300">
-                                <i class="fas fa-file-alt text-2xl text-acento mb-2"></i>
-                                <p class="text-sm font-medium">Gestión Documental</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Panel Derecho - Formulario de Login -->
-            <div class="flex-1 flex items-center justify-center p-4 sm:p-6">
-                <div class="w-full max-w-md">
-                    <!-- Logo Mobile -->
-                    <div class="text-center lg:hidden mb-6 sm:mb-8">
-                        <div class="inline-flex items-center justify-center w-14 sm:w-16 h-14 sm:h-16 bg-gradient-to-r from-primario to-acento rounded-2xl mb-4">
-                            <img class="h-8 sm:h-10 w-8 sm:w-10" src="{% static 'custom/img/sisoc_logo.png' %}" alt="SEDRONAR">
-                        </div>
-                        <h2 class="text-2xl sm:text-3xl font-bold text-white">SEDRONAR</h2>
-                    </div>
-
-                    <!-- Formulario Moderno -->
-                    <div class="glass rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20">
-                        <div class="text-center mb-6 sm:mb-8">
-                            <div class="inline-flex items-center justify-center w-14 sm:w-16 h-14 sm:h-16 bg-gradient-to-r from-primario to-acento rounded-2xl mb-4 animate-pulse">
-                                <i class="fas fa-fingerprint text-xl sm:text-2xl text-white"></i>
-                            </div>
-                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">Acceso Seguro</h3>
-                            <p class="text-sm sm:text-base text-white/70">Autenticación biométrica del sistema</p>
-                        </div>
-
-                        <form class="space-y-6" method="post" id="form-login">
-                            {% csrf_token %}
-                            
-                            {% if form.errors %}
-                                <div class="bg-red-500/20 border border-red-500/50 backdrop-blur-sm p-4 rounded-2xl">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-exclamation-circle text-red-400 mr-3"></i>
-                                        <p class="text-sm text-red-200">
-                                            <strong>Error de autenticación:</strong> Credenciales inválidas
-                                        </p>
-                                    </div>
-                                </div>
-                            {% endif %}
-
-                            <div class="space-y-5">
-                                <div class="group">
-                                    <label for="id_username" class="block text-sm font-medium text-white/90 mb-2">
-                                        Usuario
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-user text-white/50 group-focus-within:text-acento-claro transition-colors"></i>
-                                        </div>
-                                        <input id="id_username" 
-                                               name="username" 
-                                               type="text" 
-                                               required 
-                                               class="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:bg-white/20 focus:border-acento-claro focus:ring-2 focus:ring-acento-claro/50 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
-                                               placeholder="Ingrese su usuario">
-                                    </div>
-                                </div>
-
-                                <div class="group">
-                                    <label for="id_password" class="block text-sm font-medium text-white/90 mb-2">
-                                        Contraseña
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-lock text-white/50 group-focus-within:text-acento-claro transition-colors"></i>
-                                        </div>
-                                        <input id="id_password" 
-                                               name="password" 
-                                               type="password" 
-                                               required 
-                                               class="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:bg-white/20 focus:border-acento-claro focus:ring-2 focus:ring-acento-claro/50 transition-all duration-300 backdrop-blur-sm text-sm sm:text-base" 
-                                               placeholder="Ingrese su contraseña">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" 
-                                    class="w-full bg-gradient-to-r from-primario to-acento hover:from-primario-claro hover:to-acento-claro text-white font-semibold py-3 sm:py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg border border-white/20 backdrop-blur-sm group text-sm sm:text-base">
-                                <i class="fas fa-rocket mr-2 group-hover:animate-bounce"></i>
-                                Acceder al Sistema
-                            </button>
-                        </form>
-
-                        <div class="mt-8 pt-6 border-t border-white/20">
-                            <div class="text-center text-xs text-white/60 space-y-1">
-                                <p class="font-medium text-white/80">Secretaría Nacional de Políticas Integrales sobre Drogas</p>
-                                <p>Presidencia de la Nación - República Argentina</p>
-                                <div class="flex items-center justify-center mt-3 space-x-2">
-                                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                    <p class="text-green-400 font-medium text-xs">Sistema Seguro y Encriptado</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer Moderno -->
-        <div class="relative z-10 glass border-t border-white/10">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8 py-6">
-                <div class="flex flex-col sm:flex-row items-center justify-between">
-                    <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                        <div class="w-8 h-8 bg-gradient-to-r from-primario to-acento rounded-lg flex items-center justify-center">
-                            <img class="h-5 w-5" src="{% static 'custom/img/presidencia_logo.svg' %}" alt="Presidencia">
-                        </div>
-                        <div class="text-white text-xs">
-                            <div class="font-medium">© 2024 Presidencia de la Nación</div>
-                            <div class="text-white/60">Todos los derechos reservados</div>
-                        </div>
-                    </div>
-                    <div class="text-white text-xs text-center sm:text-right">
-                        <div class="font-medium flex items-center justify-center sm:justify-end">
-                            <i class="fas fa-headset mr-2 text-acento-claro"></i>
-                            Mesa de Ayuda: 0800-SEDRONAR
-                        </div>
-                        <div class="text-white/60 flex items-center justify-center sm:justify-end mt-1">
-                            <i class="fas fa-clock mr-2 text-primario-claro"></i>
-                            Lunes a Viernes de 8:00 a 18:00 hs
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Particles Effect -->
-        <script>
-            // Efecto de partículas flotantes
-            function createParticle() {
-                const particle = document.createElement('div');
-                particle.className = 'absolute w-1 h-1 bg-white/20 rounded-full animate-float';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                particle.style.animationDelay = Math.random() * 2 + 's';
-                document.body.appendChild(particle);
+            // Draw nodes
+            nodes.forEach(node => {
+                const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, 8);
+                gradient.addColorStop(0, 'rgba(255, 0, 128, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(121, 40, 202, 0.5)');
+                gradient.addColorStop(1, 'rgba(121, 40, 202, 0)');
                 
-                setTimeout(() => {
-                    particle.remove();
-                }, 5000);
-            }
-            
-            // Crear partículas cada 500ms
-            setInterval(createParticle, 500);
-        </script>
-    </body>
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 0, 128, 0.9)';
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
 </html>

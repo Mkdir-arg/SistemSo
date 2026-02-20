@@ -5,7 +5,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="shortcut icon" type="image/png" href="{% static 'custom/img/sisoc_logo.ico' %}" />
+        <link rel="shortcut icon" type="image/png" href="{% static 'custom/img/NODO.png' %}" />
         
         <!-- Tailwind CSS -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -14,20 +14,23 @@
                 theme: {
                     extend: {
                         colors: {
-                            // Paleta unificada SEDRONAR
-                            'primario': '#1e3a8a',
-                            'primario-claro': '#3b82f6',
-                            'primario-oscuro': '#1e40af',
+                            // Paleta NODO
+                            'magenta': '#FF0080',
+                            'nodo-purple': '#7928CA',
+                            'nodo-cyan': '#08B8CC',
+                            // Compatibilidad anterior
+                            'primario': '#7928CA',
+                            'primario-claro': '#FF0080',
+                            'primario-oscuro': '#8908CC',
                             'secundario': '#475569',
                             'secundario-claro': '#64748b',
                             'secundario-oscuro': '#334155',
-                            'acento': '#0f766e',
+                            'acento': '#08B8CC',
                             'acento-claro': '#14b8a6',
                             'acento-oscuro': '#0d9488',
-                            // Compatibilidad con nombres anteriores
-                            'arg-azul': '#1e3a8a',
+                            'arg-azul': '#7928CA',
                             'arg-secundario': '#475569',
-                            primary: '#1e3a8a',
+                            primary: '#7928CA',
                             secondary: '#475569',
                         },
                         fontFamily: {
@@ -53,6 +56,9 @@
         <!-- Paleta de colores unificada (DEBE IR PRIMERO) -->
         <link rel="stylesheet" href="{% static 'custom/css/paleta-unificada.css' %}" />
         
+        <!-- NODO Brand Manual de Marca -->
+        <link rel="stylesheet" href="{% static 'custom/css/nodo-brand.css' %}" />
+        
         <!-- Custom CSS Files -->
         <link rel="stylesheet" href="{% static 'custom/css/main.css' %}" />
         <link rel="stylesheet" href="{% static 'custom/css/custom.css' %}" />
@@ -70,9 +76,9 @@
         <!-- Custom styles -->
         {% block head %}{% endblock %}
         
-        <title>SEDRONAR - {% block title %}{% endblock %}</title>
+        <title>NODO - {% block title %}{% endblock %}</title>
     </head>
-    <body class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-slate-100 font-montserrat" x-data="{ sidebarOpen: false, sidebarCollapsed: false }" style="background: var(--fondo-principal);">
+    <body class="min-h-screen bg-white font-montserrat" x-data="{ sidebarOpen: false, sidebarCollapsed: false }" style="background: var(--fondo-principal);">
         <div class="min-h-full">
             {% include 'includes/navbar.html' %}
             {% include 'includes/sidebar/base.html' %}
@@ -141,7 +147,7 @@
                         <button id="modal-cancel" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors hidden">
                             Cancelar
                         </button>
-                        <button id="modal-confirm" class="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors">
+                        <button id="modal-confirm" class="px-6 py-2 bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white rounded-lg hover:from-[#2563EB] hover:to-[#7C3AED] transition-colors">
                             Aceptar
                         </button>
                     </div>
@@ -175,7 +181,7 @@
                             success: { icon: 'fa-check-circle', color: 'bg-green-100 text-green-600', btnColor: 'bg-green-600 hover:bg-green-700' },
                             error: { icon: 'fa-exclamation-triangle', color: 'bg-red-100 text-red-600', btnColor: 'bg-red-600 hover:bg-red-700' },
                             warning: { icon: 'fa-exclamation-triangle', color: 'bg-yellow-100 text-yellow-600', btnColor: 'bg-yellow-600 hover:bg-yellow-700' },
-                            info: { icon: 'fa-info-circle', color: 'bg-blue-100 text-blue-600', btnColor: 'bg-blue-900 hover:bg-blue-800' },
+                            info: { icon: 'fa-info-circle', color: 'bg-blue-100 text-blue-600', btnColor: 'bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED]' },
                             confirm: { icon: 'fa-question-circle', color: 'bg-purple-100 text-purple-600', btnColor: 'bg-purple-600 hover:bg-purple-700' }
                         };
                         

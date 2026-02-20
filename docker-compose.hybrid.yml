@@ -13,7 +13,7 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/local-dump.sql:/docker-entrypoint-initdb.d/local-dump.sql
+      # - ./docker/mysql/local-dump.sql:/docker-entrypoint-initdb.d/local-dump.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -53,7 +53,7 @@ services:
         pip install -r requirements.txt &&
         sleep 10 &&
         python manage.py collectstatic --noinput &&
-        gunicorn --config gunicorn.conf.py config.wsgi:application
+        gunicorn --reload --config gunicorn.conf.py config.wsgi:application
       "
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]

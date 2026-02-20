@@ -12,7 +12,7 @@ load_dotenv(BASE_DIR / ".env")
 
 # --- Entorno ---
 DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
-ENVIRONMENT = os.environ.get("ENVIRONMENT", "dev")  # dev|qa|prd
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "prd")  # dev|qa|prd
 
 # --- Secret Key ---
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
@@ -48,7 +48,11 @@ ALLOWED_HOSTS = list(dict.fromkeys(hosts))  # sin duplicados
 DEFAULT_SCHEME = "https" if ENVIRONMENT == "prd" else "http"
 
 # CSRF_TRUSTED_ORIGINS requiere esquema. Para PA siempre https.
-CSRF_TRUSTED_ORIGINS = ["https://mlepera.pythonanywhere.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://mlepera.pythonanywhere.com",
+    "http://54.172.163.63",
+    "http://ec2-54-172-163-63.compute-1.amazonaws.com"
+]
 if DEBUG:
     CSRF_TRUSTED_ORIGINS += ["http://localhost", "http://127.0.0.1", "http://localhost:9000", "http://127.0.0.1:9000"]
 
@@ -205,24 +209,40 @@ if "pytest" in sys.argv or os.environ.get("PYTEST_RUNNING") == "1":
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
 
 # --- Cache ---
+import ssl
+
+REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
+REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
+REDIS_SSL = os.environ.get("REDIS_SSL", "False") == "True"
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://sedronar-redis:6379/1",
+        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 200},
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 200,
+            },
+            "REDIS_CLIENT_KWARGS": {
+                "ssl_cert_reqs": ssl.CERT_NONE,
+            } if REDIS_SSL else {},
         },
         "KEY_PREFIX": "sedronar",
         "TIMEOUT": 300,
     },
     "sessions": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://sedronar-redis:6379/2",
+        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 100,
+            },
+            "REDIS_CLIENT_KWARGS": {
+                "ssl_cert_reqs": ssl.CERT_NONE,
+            } if REDIS_SSL else {},
         },
         "KEY_PREFIX": "session",
     }
@@ -238,7 +258,12 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("sedronar-redis", 6379)],
+            "hosts": [
+                {
+                    "address": (REDIS_HOST, int(REDIS_PORT)),
+                    "ssl_cert_reqs": ssl.CERT_NONE if REDIS_SSL else None,
+                }
+            ] if REDIS_SSL else [(REDIS_HOST, int(REDIS_PORT))],
             "capacity": 1500,
             "expiry": 60,
         },
@@ -252,9 +277,9 @@ HEALTH_CHECK = {
 }
 
 # --- TTLs ---
-DEFAULT_CACHE_TIMEOUT = 300
-DASHBOARD_CACHE_TIMEOUT = 300
-CIUDADANO_CACHE_TIMEOUT = 300
+DEFAULT_CACHE_TIMEOUT = 600  # Aumentado a 10 minutos
+DASHBOARD_CACHE_TIMEOUT = 600
+CIUDADANO_CACHE_TIMEOUT = 600
 
 # --- DRF ---
 REST_FRAMEWORK = {
@@ -270,6 +295,10 @@ RENAPER_API_PASSWORD = os.getenv("RENAPER_API_PASSWORD")
 RENAPER_API_URL = os.getenv("RENAPER_API_URL")
 RENAPER_TEST_MODE = os.getenv("RENAPER_TEST_MODE", "False") == "True"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", os.getenv("SUPABASE_KEY", ""))
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+SUPABASE_TIMEOUT_SECONDS = int(os.getenv("SUPABASE_TIMEOUT_SECONDS", "12"))
 
 # --- Logging ---
 LOG_DIR = BASE_DIR / "logs"
@@ -337,12 +366,12 @@ SILKY_INTERCEPT_PERCENT = 100 if DEBUG else 10  # 100% en dev, 10% en prod
 
 # --- Seguridad por entorno ---
 if ENVIRONMENT == "prd":
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # Cambiado temporalmente
+    SECURE_HSTS_SECONDS = 0  # Deshabilitado hasta configurar SSL
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_SSL_REDIRECT = False  # Deshabilitado hasta configurar SSL
+    SESSION_COOKIE_SECURE = False  # Deshabilitado hasta configurar SSL
+    CSRF_COOKIE_SECURE = False  # Deshabilitado hasta configurar SSL
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 else:

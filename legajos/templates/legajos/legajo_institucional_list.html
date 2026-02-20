@@ -51,7 +51,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">
-                                {{ legajo.responsable_sedronar.get_full_name|default:legajo.responsable_sedronar.username|default:"-" }}
+                                {{ legajo.responsable_NODO.get_full_name|default:legajo.responsable_NODO.username|default:"-" }}
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ legajo.fecha_apertura|date:"d/m/Y" }}</td>
                             <td class="px-6 py-4 text-sm">

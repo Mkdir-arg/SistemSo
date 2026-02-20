@@ -4,377 +4,424 @@
 {% block title %}{{ institucion.nombre }}{% endblock %}
 
 {% block main-content %}
-<div class="mb-8">
-    <!-- Header -->
-    <div class="mb-6">
-        <div class="flex items-center mb-4">
-            <a href="{% url 'legajos:instituciones' %}" class="text-gray-500 hover:text-gray-700 mr-4">
-                <i class="fas fa-arrow-left text-xl"></i>
-            </a>
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">{{ institucion.nombre }}</h1>
-                <p class="text-gray-600 mt-2">Detalle de la institución</p>
-            </div>
-        </div>
-    </div>
+<div class="max-w-full mx-4 lg:mx-8">
 
-    <!-- Información principal -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
-            <div class="flex items-center">
-                <div class="bg-white bg-opacity-20 rounded-full p-3 mr-4">
-                    <i class="fas fa-building text-2xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold mb-1">{{ institucion.nombre }}</h2>
-                    <p class="text-blue-100">{{ institucion.get_tipo_display }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Información General</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <span class="text-gray-500 font-medium">Tipo:</span>
-                            <span class="text-gray-900 ml-2">{{ institucion.get_tipo_display }}</span>
+    <!-- Header Institucional -->
+    <div class="mb-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+            <div class="relative p-8">
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-6">
+                            <!-- Logo/Avatar -->
+                            <div class="w-20 h-20 bg-gradient-to-br from-[#7928CA] to-[#FF0080] rounded-full flex items-center justify-center">
+                                <span class="text-3xl font-bold text-white">{{ institucion.nombre.0 }}</span>
+                            </div>
+                            
+                            <!-- Info básica -->
+                            <div>
+                                <h2 class="text-3xl font-bold text-[#252F40] mb-1">{{ institucion.nombre }}</h2>
+                                <p class="text-[#8C8C8C] text-lg">{{ institucion.get_tipo_display }} - {{ institucion.provincia.nombre }}</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                        {% if legajo.estado_global == 'ACTIVO' %}bg-green-100 text-green-800
+                                        {% elif legajo.estado_global == 'OBSERVACION' %}bg-yellow-100 text-yellow-800
+                                        {% elif legajo.estado_global == 'SUSPENDIDO' %}bg-orange-100 text-orange-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        Estado Global: {{ legajo.get_estado_global_display }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-gray-500 font-medium">Estado:</span>
-                            {% if institucion.activo %}
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium ml-2">Activo</span>
-                            {% else %}
-                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium ml-2">Inactivo</span>
-                            {% endif %}
-                        </div>
-                        <div>
-                            <span class="text-gray-500 font-medium">Estado Registro:</span>
-                            {% if institucion.estado_registro == 'APROBADO' %}
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium ml-2">Aprobado</span>
-                            {% elif institucion.estado_registro == 'REVISION' %}
-                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium ml-2">En Revisión</span>
-                            {% else %}
-                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium ml-2">{{ institucion.get_estado_registro_display }}</span>
-                            {% endif %}
-                        </div>
-                        {% if institucion.nro_registro %}
-                        <div>
-                            <span class="text-gray-500 font-medium">Nº Registro:</span>
-                            <span class="text-gray-900 ml-2">{{ institucion.nro_registro }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Ubicación</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <span class="text-gray-500 font-medium">Provincia:</span>
-                            <span class="text-gray-900 ml-2">{{ institucion.provincia }}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500 font-medium">Municipio:</span>
-                            <span class="text-gray-900 ml-2">{{ institucion.municipio }}</span>
-                        </div>
-                        {% if institucion.direccion %}
-                        <div>
-                            <span class="text-gray-500 font-medium">Dirección:</span>
-                            <span class="text-gray-900 ml-2">{{ institucion.direccion }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gestión Institucional -->
-    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl shadow-lg border border-purple-100 p-6 mb-6">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold text-gray-800 flex items-center">
-                <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg p-2 mr-3">
-                    <i class="fas fa-building text-white"></i>
-                </div>
-                Gestión Institucional
-            </h3>
-            <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                {{ legajo.get_estado_display }}
-            </span>
-        </div>
-        
-        <!-- Métricas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-lg p-4 shadow-sm">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-purple-600">{{ personal.count }}</div>
-                    <div class="text-sm text-gray-600">Personal</div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg p-4 shadow-sm">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ evaluaciones.count }}</div>
-                    <div class="text-sm text-gray-600">Evaluaciones</div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg p-4 shadow-sm">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-green-600">{{ planes.count }}</div>
-                    <div class="text-sm text-gray-600">Planes</div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg p-4 shadow-sm">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-orange-600">{{ indicadores.count }}</div>
-                    <div class="text-sm text-gray-600">Indicadores</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Módulos de gestión -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-purple-100">
-                <div class="text-center mb-3">
-                    <i class="fas fa-users text-2xl text-purple-600 mb-2"></i>
-                    <h4 class="font-semibold text-gray-800">Personal</h4>
-                </div>
-                <a href="{% url 'configuracion:personal_crear' institucion.pk %}" 
-                   class="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                    <i class="fas fa-plus mr-1"></i>Agregar
-                </a>
-            </div>
-            
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                <div class="text-center mb-3">
-                    <i class="fas fa-clipboard-check text-2xl text-blue-600 mb-2"></i>
-                    <h4 class="font-semibold text-gray-800">Evaluaciones</h4>
-                </div>
-                <a href="{% url 'configuracion:evaluacion_crear' institucion.pk %}" 
-                   class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                    <i class="fas fa-plus mr-1"></i>Nueva
-                </a>
-            </div>
-            
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-green-100">
-                <div class="text-center mb-3">
-                    <i class="fas fa-tasks text-2xl text-green-600 mb-2"></i>
-                    <h4 class="font-semibold text-gray-800">Actividades</h4>
-                </div>
-                <a href="{% url 'configuracion:plan_crear' institucion.pk %}" 
-                   class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                    <i class="fas fa-plus mr-1"></i>Crear
-                </a>
-            </div>
-            
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-orange-100">
-                <div class="text-center mb-3">
-                    <i class="fas fa-chart-line text-2xl text-orange-600 mb-2"></i>
-                    <h4 class="font-semibold text-gray-800">Indicadores</h4>
-                </div>
-                <a href="{% url 'configuracion:indicador_crear' institucion.pk %}" 
-                   class="w-full bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium block text-center">
-                    <i class="fas fa-plus mr-1"></i>Registrar
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Listados de datos -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Personal -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-users text-purple-600 mr-2"></i>
-                Personal ({{ personal.count }})
-            </h4>
-            {% if personal %}
-                <div class="space-y-3">
-                    {% for persona in personal|slice:":5" %}
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <div class="font-medium text-gray-900">{{ persona.nombre }} {{ persona.apellido }}</div>
-                            <div class="text-sm text-gray-600">{{ persona.get_tipo_display }}</div>
-                        </div>
-                        <span class="px-2 py-1 rounded-full text-xs font-medium
-                            {% if persona.activo %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
-                            {% if persona.activo %}Activo{% else %}Inactivo{% endif %}
-                        </span>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-gray-500 text-center py-4">No hay personal registrado</p>
-            {% endif %}
-        </div>
-        
-        <!-- Evaluaciones recientes -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-clipboard-check text-blue-600 mr-2"></i>
-                Evaluaciones Recientes ({{ evaluaciones.count }})
-            </h4>
-            {% if evaluaciones %}
-                <div class="space-y-3">
-                    {% for evaluacion in evaluaciones|slice:":5" %}
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <div class="font-medium text-gray-900">{{ evaluacion.tipo }}</div>
-                            <div class="text-sm text-gray-600">{{ evaluacion.fecha_evaluacion|date:"d/m/Y" }}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-lg font-bold text-blue-600">{{ evaluacion.puntaje }}/100</div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-gray-500 text-center py-4">No hay evaluaciones registradas</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Planes y Indicadores -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Actividades -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-tasks text-green-600 mr-2"></i>
-                Actividades ({{ planes.count }})
-            </h4>
-            {% if planes %}
-                <div class="space-y-3">
-                    {% for plan in planes|slice:":5" %}
-                    <div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <a href="{% url 'configuracion:actividad_detalle' plan.pk %}" class="block">
-                            <div class="font-medium text-gray-900 hover:text-blue-600">{{ plan.nombre }}</div>
-                            <div class="text-sm text-gray-600 mb-1">{{ plan.get_tipo_display }} - {{ plan.get_subtipo_display }}</div>
-                            <div class="text-sm text-gray-500 mb-2">Cupo: {{ plan.cupo_ciudadanos }} | Staff: {{ plan.staff.count }}</div>
-                            <span class="px-2 py-1 rounded-full text-xs font-medium
-                                {% if plan.estado == 'ACTIVO' %}bg-green-100 text-green-800
-                                {% elif plan.estado == 'FINALIZADO' %}bg-blue-100 text-blue-800
-                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                {{ plan.get_estado_display }}
-                            </span>
-                        </a>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-gray-500 text-center py-4">No hay actividades registradas</p>
-            {% endif %}
-        </div>
-        
-        <!-- Indicadores -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-chart-line text-orange-600 mr-2"></i>
-                Indicadores Recientes ({{ indicadores.count }})
-            </h4>
-            {% if indicadores %}
-                <div class="space-y-3">
-                    {% for indicador in indicadores|slice:":5" %}
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <div class="font-medium text-gray-900">Indicador</div>
-                            <div class="text-sm text-gray-600">{{ indicador.periodo }}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-lg font-bold text-orange-600">{{ indicador.beneficiarios_atendidos }}</div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-gray-500 text-center py-4">No hay indicadores registrados</p>
-            {% endif %}
-        </div>
-    </div>
-    
-    <!-- Tabla de Actividades -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-        <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-4">
-            <h3 class="text-xl font-bold text-white flex items-center">
-                <i class="fas fa-table mr-3"></i>
-                Tabla de Actividades
-            </h3>
-        </div>
-        
-        {% if planes %}
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actividad</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtipo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cupo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fechas</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for plan in planes %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="{% url 'configuracion:actividad_detalle' plan.pk %}" class="block hover:text-blue-600">
-                                <div class="font-medium text-gray-900 hover:text-blue-600">{{ plan.nombre }}</div>
-                                {% if plan.descripcion %}
-                                    <div class="text-sm text-gray-500">{{ plan.descripcion|truncatechars:50 }}</div>
-                                {% endif %}
+                        
+                        <!-- Botones de acción -->
+                        <div class="flex gap-3">
+                            <a href="{% url 'legajos:instituciones' %}" class="bg-white text-[#4A5565] px-6 py-3 rounded-xl hover:bg-[#F9FAFB] transition-all border border-[#E5E7EB] flex items-center space-x-2">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Volver</span>
                             </a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {{ plan.get_tipo_display }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ plan.get_subtipo_display }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div class="flex items-center">
-                                <i class="fas fa-users text-gray-400 mr-1"></i>
-                                {{ plan.cupo_ciudadanos }}
+                        </div>
+                    </div>
+                    
+                    <!-- Información detallada en grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-folder text-[#3B82F6]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Código Legajo</span>
                             </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div class="flex items-center">
-                                <i class="fas fa-user-tie text-gray-400 mr-1"></i>
-                                {{ plan.staff.count }}
+                            <p class="text-[#252F40] font-semibold">{{ legajo.codigo }}</p>
+                        </div>
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-layer-group text-[#10B981]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Programas Activos</span>
                             </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div>{{ plan.fecha_inicio|date:"d/m/Y" }}</div>
-                            {% if plan.fecha_fin %}
-                                <div class="text-xs text-gray-500">hasta {{ plan.fecha_fin|date:"d/m/Y" }}</div>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                            <p class="text-[#252F40] font-semibold text-xl">{{ total_programas_activos }}</p>
+                        </div>
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-inbox text-[#F59E0B]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Derivaciones Pendientes</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ total_derivaciones_pendientes }}</p>
+                        </div>
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-users text-[#8B5CF6]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Casos Activos</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ total_casos_activos }}</p>
+                        </div>
+                        
+                        {% if institucion.telefono %}
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-phone text-[#10B981]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Teléfono</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold">{{ institucion.telefono }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i class="fas fa-user-tie text-[#EC4899]"></i>
+                                <span class="text-[#8C8C8C] text-sm font-medium">Personal</span>
+                            </div>
+                            <p class="text-[#252F40] font-semibold text-xl">{{ personal.count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs de Navegación Dinámicos -->
+    <div class="bg-white rounded-xl shadow-lg mb-8">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px overflow-x-auto">
+                {% for solapa in solapas %}
+                <button 
+                    onclick="cambiarTab('{{ solapa.id }}')"
+                    data-tab="{{ solapa.id }}" 
+                    class="tab-button {% if forloop.first %}border-b-2 border-blue-500 text-blue-600{% else %}border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} py-4 px-6 font-medium whitespace-nowrap flex items-center"
+                    {% if not solapa.estatica and solapa.color %}style="border-bottom-color: {{ solapa.color }};"{% endif %}
+                >
+                    <i class="fas fa-{{ solapa.icono }} mr-2"></i>{{ solapa.nombre }}
+                    {% if not solapa.estatica %}
+                        {% if solapa.badge_derivaciones > 0 %}
+                        <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                            {{ solapa.badge_derivaciones }}
+                        </span>
+                        {% endif %}
+                        {% if solapa.badge_casos > 0 %}
+                        <span class="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                            {{ solapa.badge_casos }}
+                        </span>
+                        {% endif %}
+                    {% endif %}
+                </button>
+                {% endfor %}
+            </nav>
+        </div>
+    </div>
+
+    <!-- Tab: Resumen -->
+    <div id="tab-resumen" class="tab-content">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8 mb-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+                <div class="bg-[#3B82F6] rounded-lg p-2 mr-3">
+                    <i class="fas fa-chart-bar text-white text-lg"></i>
+                </div>
+                Dashboard Ejecutivo
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Programas Activos</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ total_programas_activos }}</p>
+                        </div>
+                        <div class="bg-[#3B82F6] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-layer-group text-2xl text-[#3B82F6]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Derivaciones Pendientes</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ total_derivaciones_pendientes }}</p>
+                        </div>
+                        <div class="bg-[#F59E0B] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-inbox text-2xl text-[#F59E0B]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Casos Activos</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ total_casos_activos }}</p>
+                        </div>
+                        <div class="bg-[#10B981] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-users text-2xl text-[#10B981]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[#8C8C8C] text-sm font-medium mb-1">Personal</p>
+                            <p class="text-3xl font-bold text-[#252F40]">{{ personal.count }}</p>
+                        </div>
+                        <div class="bg-[#8B5CF6] bg-opacity-10 rounded-full p-4">
+                            <i class="fas fa-user-tie text-2xl text-[#8B5CF6]"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Personal -->
+    <div id="tab-personal" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                    <div class="bg-[#8B5CF6] rounded-lg p-2 mr-3">
+                        <i class="fas fa-users text-white text-lg"></i>
+                    </div>
+                    Personal de la Institución
+                </h3>
+                <a href="{% url 'configuracion:personal_crear' institucion.pk %}" class="bg-[#8B5CF6] text-white px-6 py-3 rounded-xl hover:bg-[#7C3AED] transition-all flex items-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Agregar Personal</span>
+                </a>
+            </div>
+            
+            {% if personal %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Nombre</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">DNI</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Tipo</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Título</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase tracking-wide">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#E5E7EB]">
+                        {% for persona in personal %}
+                        <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-[#8B5CF6] rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-white font-semibold text-sm">{{ persona.nombre.0 }}{{ persona.apellido.0 }}</span>
+                                    </div>
+                                    <div class="text-sm font-medium text-[#252F40]">{{ persona.apellido }}, {{ persona.nombre }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ persona.dni }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ persona.get_tipo_display }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ persona.titulo_profesional|default:"-" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if persona.activo %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                                {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="text-gray-400 text-4xl mb-2">👥</div>
+                <p class="text-gray-500">No hay personal registrado</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tab: Evaluaciones -->
+    <div id="tab-evaluaciones" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+                <div class="bg-[#10B981] rounded-lg p-2 mr-3">
+                    <i class="fas fa-clipboard-check text-white text-lg"></i>
+                </div>
+                Evaluaciones Institucionales
+            </h3>
+            <p class="text-gray-500">Contenido de evaluaciones - Próximamente...</p>
+        </div>
+    </div>
+
+    <!-- Tab: Actividades -->
+    <div id="tab-actividades" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#252F40] flex items-center">
+                    <div class="bg-[#3B82F6] rounded-lg p-2 mr-3">
+                        <i class="fas fa-calendar-alt text-white text-lg"></i>
+                    </div>
+                    Actividades y Cursos
+                </h3>
+                <a href="{% url 'configuracion:plan_crear' institucion.pk %}" class="bg-[#3B82F6] text-white px-6 py-3 rounded-xl hover:bg-[#2563EB] transition-all flex items-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Nueva Actividad</span>
+                </a>
+            </div>
+            
+            {% if planes %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for plan in planes %}
+                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-[#252F40] mb-2">{{ plan.nombre }}</h4>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                 {% if plan.estado == 'ACTIVO' %}bg-green-100 text-green-800
-                                {% elif plan.estado == 'FINALIZADO' %}bg-blue-100 text-blue-800
-                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {% elif plan.estado == 'PLANIFICADO' %}bg-blue-100 text-blue-800
+                                {% elif plan.estado == 'SUSPENDIDO' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
                                 {{ plan.get_estado_display }}
                             </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm text-[#6B7280] mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-tag w-5 text-[#8B5CF6]"></i>
+                            <span>{{ plan.get_tipo_display }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar w-5 text-[#10B981]"></i>
+                            <span>{{ plan.fecha_inicio|date:"d/m/Y" }} - {{ plan.fecha_fin|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-users w-5 text-[#F59E0B]"></i>
+                            <span>Cupo: {{ plan.cupo_ciudadanos }} personas</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'configuracion:actividad_detalle' plan.pk %}" class="block w-full text-center bg-[#F9FAFB] text-[#3B82F6] px-4 py-2 rounded-lg hover:bg-[#3B82F6] hover:text-white transition-all">
+                        Ver Detalle
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="text-gray-400 text-4xl mb-2">📅</div>
+                <p class="text-gray-500 mb-4">No hay actividades registradas</p>
+                <a href="{% url 'configuracion:plan_crear' institucion.pk %}" class="inline-flex items-center px-6 py-3 bg-[#3B82F6] text-white rounded-xl hover:bg-[#2563EB] transition-all">
+                    <i class="fas fa-plus mr-2"></i>
+                    Crear Primera Actividad
+                </a>
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="p-8 text-center">
-            <i class="fas fa-clipboard-list text-4xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500 mb-4">No hay actividades registradas</p>
-            <a href="{% url 'configuracion:plan_crear' institucion.pk %}" 
-               class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
-                <i class="fas fa-plus mr-2"></i>Crear Primera Actividad
-            </a>
-        </div>
-        {% endif %}
     </div>
+
+    <!-- Tab: Documentos -->
+    <div id="tab-documentos" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+            <h3 class="text-2xl font-bold text-[#252F40] mb-6 flex items-center">
+                <div class="bg-[#64748B] rounded-lg p-2 mr-3">
+                    <i class="fas fa-folder text-white text-lg"></i>
+                </div>
+                Documentos
+            </h3>
+            <p class="text-gray-500">Contenido de documentos - Próximamente...</p>
+        </div>
+    </div>
+
+    <!-- Tabs Dinámicos por Programa -->
+    {% for solapa in solapas %}
+    {% if not solapa.estatica %}
+    <div id="tab-{{ solapa.id }}" class="tab-content hidden">
+        <div class="space-y-6">
+            
+            <!-- 1. Derivaciones Recibidas -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">call_received</span>
+                    Derivaciones Recibidas
+                </h3>
+                <p class="text-gray-600">Gestión de derivaciones programáticas - Próximamente...</p>
+            </div>
+            
+            <!-- 2. Ciudadanos en Atención -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">people</span>
+                    Ciudadanos en Atención
+                </h3>
+                <p class="text-gray-600">Lista de casos activos - Próximamente...</p>
+            </div>
+            
+            <!-- 3. Actividades del Programa -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">event</span>
+                    Actividades del Programa
+                </h3>
+                <p class="text-gray-600">Actividades asociadas - Próximamente...</p>
+            </div>
+            
+            <!-- 4. Indicadores Programáticos -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">analytics</span>
+                    Indicadores Programáticos
+                </h3>
+                <p class="text-gray-600">Métricas del período - Próximamente...</p>
+            </div>
+            
+            <!-- 5. Staff Asignado -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="material-icons mr-2">badge</span>
+                    Staff Asignado
+                </h3>
+                <p class="text-gray-600">Personal vinculado al programa - Próximamente...</p>
+            </div>
+            
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
 </div>
+
+<script>
+// Sistema de Tabs
+function cambiarTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('border-blue-500', 'text-blue-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    activeButton.classList.add('border-blue-500', 'text-blue-600');
+    activeButton.classList.remove('border-transparent', 'text-gray-500');
+}
+</script>
 {% endblock %}
