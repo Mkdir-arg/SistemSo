@@ -10,7 +10,14 @@ class Command(BaseCommand):
         
         # Migraciones
         self.stdout.write('📦 Aplicando migraciones...')
-        call_command('migrate', verbosity=0)
+        call_command('migrate', verbosity=1)
+        
+        # Crear programas iniciales
+        self.stdout.write('📋 Creando programas iniciales...')
+        try:
+            call_command('crear_programas')
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'⚠️  Error creando programas: {e}'))
         
         # Optimizaciones DB
         self.stdout.write('⚡ Optimizando base de datos...')

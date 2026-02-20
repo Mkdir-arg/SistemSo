@@ -11,6 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         programas_data = [
             {
+                'codigo': 'ACOMP-SEDRONAR',
                 'nombre': 'Acompañamiento SEDRONAR',
                 'tipo': 'ACOMPANAMIENTO_SEDRONAR',
                 'descripcion': 'Programa de acompañamiento terapéutico SEDRONAR',
@@ -19,6 +20,7 @@ class Command(BaseCommand):
                 'orden': 1
             },
             {
+                'codigo': 'PREV-UNIVERSAL',
                 'nombre': 'Prevención Universal',
                 'tipo': 'PREVENCION_UNIVERSAL',
                 'descripcion': 'Programa de prevención universal en consumos problemáticos',
@@ -27,6 +29,7 @@ class Command(BaseCommand):
                 'orden': 2
             },
             {
+                'codigo': 'RED-DANOS',
                 'nombre': 'Reducción de Daños',
                 'tipo': 'REDUCCION_DANOS',
                 'descripcion': 'Programa de reducción de daños y riesgos',
@@ -35,6 +38,7 @@ class Command(BaseCommand):
                 'orden': 3
             },
             {
+                'codigo': 'REINS-SOCIAL',
                 'nombre': 'Reinserción Social',
                 'tipo': 'REINSERCION_SOCIAL',
                 'descripcion': 'Programa de reinserción social y laboral',
@@ -43,6 +47,7 @@ class Command(BaseCommand):
                 'orden': 4
             },
             {
+                'codigo': 'CAPAC-COMUNITARIA',
                 'nombre': 'Capacitación Comunitaria',
                 'tipo': 'CAPACITACION_COMUNITARIA',
                 'descripcion': 'Programa de capacitación a referentes comunitarios',
@@ -59,6 +64,7 @@ class Command(BaseCommand):
             programa, created = Programa.objects.update_or_create(
                 tipo=data['tipo'],
                 defaults={
+                    'codigo': data['codigo'],
                     'nombre': data['nombre'],
                     'descripcion': data['descripcion'],
                     'icono': data['icono'],

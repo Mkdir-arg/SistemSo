@@ -24,6 +24,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar código fuente
 COPY . .
 
+# Copiar y dar permisos al entrypoint
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 # Crear directorio para logs
 RUN mkdir -p logs
 
@@ -31,4 +35,4 @@ RUN mkdir -p logs
 EXPOSE 8000 8001
 
 # Comando por defecto
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
