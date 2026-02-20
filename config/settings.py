@@ -224,8 +224,10 @@ CACHES = {
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
             "CONNECTION_POOL_KWARGS": {
                 "max_connections": 200,
-                "ssl_cert_reqs": ssl.CERT_NONE if REDIS_SSL else None,
             },
+            "REDIS_CLIENT_KWARGS": {
+                "ssl_cert_reqs": ssl.CERT_NONE,
+            } if REDIS_SSL else {},
         },
         "KEY_PREFIX": "sedronar",
         "TIMEOUT": 300,
@@ -237,8 +239,10 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
                 "max_connections": 100,
-                "ssl_cert_reqs": ssl.CERT_NONE if REDIS_SSL else None,
             },
+            "REDIS_CLIENT_KWARGS": {
+                "ssl_cert_reqs": ssl.CERT_NONE,
+            } if REDIS_SSL else {},
         },
         "KEY_PREFIX": "session",
     }
@@ -254,7 +258,12 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(REDIS_HOST, int(REDIS_PORT))],
+            "hosts": [
+                {
+                    "address": (REDIS_HOST, int(REDIS_PORT)),
+                    "ssl_cert_reqs": ssl.CERT_NONE if REDIS_SSL else None,
+                }
+            ] if REDIS_SSL else [(REDIS_HOST, int(REDIS_PORT))],
             "capacity": 1500,
             "expiry": 60,
         },
