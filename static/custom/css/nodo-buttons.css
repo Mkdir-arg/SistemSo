@@ -66,6 +66,12 @@
     border: none;
 }
 
+.btn-brand,
+.btn-brand i,
+.btn-brand span {
+    color: #FFFFFF !important;
+}
+
 .btn-brand:hover {
     background: linear-gradient(45deg, #7828CA, #FF0080);
     filter: brightness(0.8);
