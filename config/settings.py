@@ -211,25 +211,32 @@ if "pytest" in sys.argv or os.environ.get("PYTEST_RUNNING") == "1":
 # --- Cache ---
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
 REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
+REDIS_SSL = os.environ.get("REDIS_SSL", "False") == "True"
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
+        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 200},
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 200,
+                "ssl_cert_reqs": None if REDIS_SSL else None,
+            },
         },
         "KEY_PREFIX": "sedronar",
         "TIMEOUT": 300,
     },
     "sessions": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/2",
+        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 100,
+                "ssl_cert_reqs": None if REDIS_SSL else None,
+            },
         },
         "KEY_PREFIX": "session",
     }
