@@ -222,7 +222,7 @@ CACHES = {
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
             "CONNECTION_POOL_KWARGS": {
                 "max_connections": 200,
-                "ssl_cert_reqs": None if REDIS_SSL else None,
+                "ssl_cert_reqs": "none" if REDIS_SSL else None,
             },
         },
         "KEY_PREFIX": "sedronar",
@@ -235,7 +235,7 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
                 "max_connections": 100,
-                "ssl_cert_reqs": None if REDIS_SSL else None,
+                "ssl_cert_reqs": "none" if REDIS_SSL else None,
             },
         },
         "KEY_PREFIX": "session",
