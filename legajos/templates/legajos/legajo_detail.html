@@ -629,13 +629,75 @@ function cerrarModal(modalId) {
 }
 
 function cargarArchivos() {
-    // Simular carga de archivos del legajo
     const container = document.getElementById('archivos-container');
     const sinArchivos = document.getElementById('sin-archivos');
     
-    // Por ahora mostrar mensaje sin archivos
-    container.innerHTML = '';
-    sinArchivos.classList.remove('hidden');
+    fetch(`/legajos/{{ legajo.id }}/archivos/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.archivos.length > 0) {
+                container.innerHTML = '';
+                sinArchivos.classList.add('hidden');
+                
+                data.archivos.forEach(archivo => {
+                    const archivoHTML = `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-orange-100 rounded-lg p-2">
+                                    <i class="fas fa-file-alt text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">${archivo.etiqueta || archivo.nombre}</p>
+                                    <p class="text-xs text-gray-500">${archivo.fecha}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="${archivo.url}" target="_blank" class="text-blue-600 hover:text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                {% if legajo.estado != 'CERRADO' %}
+                                <button onclick="eliminarArchivo(${archivo.id})" class="text-red-600 hover:text-red-800 px-3 py-1 rounded-lg hover:bg-red-50">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += archivoHTML;
+                });
+            } else {
+                container.innerHTML = '';
+                sinArchivos.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = '';
+            sinArchivos.classList.remove('hidden');
+        });
+}
+
+function eliminarArchivo(archivoId) {
+    if (!confirm('¿Está seguro de eliminar este archivo?')) return;
+    
+    fetch(`/legajos/archivos/${archivoId}/eliminar/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            cargarArchivos();
+        } else {
+            alert(data.error || 'Error al eliminar archivo');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar archivo');
+    });
 }
 
 // Manejar envío de archivos

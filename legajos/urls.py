@@ -141,6 +141,7 @@ urlpatterns = [
     
     # Subir archivos
     path('<uuid:legajo_id>/subir-archivos/', views_contactos_simple.subir_archivos_legajo, name='subir_archivos'),
+    path('<uuid:legajo_id>/archivos/', views_contactos_simple.archivos_legajo_api, name='archivos_legajo'),
     
     # API Archivos
     path('ciudadanos/<int:ciudadano_id>/archivos/', views_contactos_simple.archivos_ciudadano_api, name='archivos_ciudadano'),

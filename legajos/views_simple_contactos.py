@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 from .models import LegajoAtencion, Ciudadano
 from datetime import datetime
 try:
@@ -704,3 +705,30 @@ def timeline_ciudadano_api(request, ciudadano_id):
             'count': 0,
             'error': str(e)
         })
+
+
+@login_required
+def archivos_legajo_api(request, legajo_id):
+    """API para obtener archivos de un legajo"""
+    try:
+        legajo = get_object_or_404(LegajoAtencion, id=legajo_id)
+        from django.contrib.contenttypes.models import ContentType
+        from .models import Adjunto
+        
+        content_type = ContentType.objects.get_for_model(LegajoAtencion)
+        archivos = Adjunto.objects.filter(
+            content_type=content_type,
+            object_id=legajo.id
+        ).order_by('-creado')
+        
+        archivos_data = [{
+            'id': archivo.id,
+            'nombre': archivo.archivo.name.split('/')[-1],
+            'etiqueta': archivo.etiqueta,
+            'url': archivo.archivo.url,
+            'fecha': archivo.creado.strftime('%d/%m/%Y %H:%M')
+        } for archivo in archivos]
+        
+        return JsonResponse({'success': True, 'archivos': archivos_data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
