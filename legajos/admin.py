@@ -202,6 +202,12 @@ try:
 except ImportError:
     pass
 
+# Registrar modelos de Ñachec en admin
+try:
+    from .admin_nachec import *
+except ImportError:
+    pass
+
 
 # ============================================================================
 # SISTEMA NODO - MODELOS INSTITUCIONALES

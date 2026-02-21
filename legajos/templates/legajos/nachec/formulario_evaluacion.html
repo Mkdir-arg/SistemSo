@@ -1,0 +1,102 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Evaluación - Caso #{{ caso.id }}{% endblock %}
+
+{% block main-content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-[#252F40]">Evaluación de Vulnerabilidad</h2>
+            <p class="text-[#8C8C8C]">Caso #{{ caso.id }} - {{ caso.ciudadano_titular.nombre_completo }}</p>
+        </div>
+        <a href="{% url 'nachec:bandeja_evaluacion' %}" class="bg-white text-[#4A5565] px-4 py-2 rounded-lg border border-[#E5E7EB] hover:bg-[#F9FAFB]">
+            <i class="fas fa-arrow-left mr-2"></i>Volver
+        </a>
+    </div>
+
+    <!-- Datos del Relevamiento -->
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+        <h3 class="font-bold text-blue-800 mb-3">Resumen del Relevamiento</h3>
+        <div class="grid grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="text-blue-700">Integrantes:</span> <strong>{{ relevamiento.cantidad_integrantes }}</strong>
+            </div>
+            <div>
+                <span class="text-blue-700">Ingreso:</span> <strong>{{ relevamiento.get_rango_ingreso_display }}</strong>
+            </div>
+            <div>
+                <span class="text-blue-700">Vivienda:</span> <strong>{{ relevamiento.get_tipo_vivienda_display }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Scoring de Vulnerabilidad -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">Scoring de Vulnerabilidad</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Vulnerabilidad Económica (0-10)</label>
+                    <input type="number" name="score_economico" min="0" max="10" value="{{ evaluacion.score_economico }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Vulnerabilidad Habitacional (0-10)</label>
+                    <input type="number" name="score_habitacional" min="0" max="10" value="{{ evaluacion.score_habitacional }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Vulnerabilidad Sanitaria (0-10)</label>
+                    <input type="number" name="score_sanitario" min="0" max="10" value="{{ evaluacion.score_sanitario }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Vulnerabilidad Social (0-10)</label>
+                    <input type="number" name="score_social" min="0" max="10" value="{{ evaluacion.score_social }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dictamen -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">Dictamen Técnico</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Categoría de Vulnerabilidad</label>
+                    <select name="categoria_vulnerabilidad" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in categorias %}
+                        <option value="{{ value }}" {% if evaluacion.categoria_vulnerabilidad == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Requiere Intervención Inmediata</label>
+                    <select name="requiere_intervencion_inmediata" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="False" {% if not evaluacion.requiere_intervencion_inmediata %}selected{% endif %}>No</option>
+                        <option value="True" {% if evaluacion.requiere_intervencion_inmediata %}selected{% endif %}>Sí</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Dictamen Técnico</label>
+                    <textarea name="dictamen_tecnico" rows="6" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required placeholder="Análisis técnico de la situación...">{{ evaluacion.dictamen_tecnico }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Recomendaciones</label>
+                    <textarea name="recomendaciones" rows="4" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" placeholder="Recomendaciones de intervención...">{{ evaluacion.recomendaciones }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-4">
+            <button type="submit" name="accion" value="guardar" class="flex-1 bg-[#3B82F6] text-white px-6 py-3 rounded-lg hover:bg-[#2563EB] font-semibold">
+                <i class="fas fa-save mr-2"></i>Guardar Borrador
+            </button>
+            <button type="submit" name="accion" value="completar" class="flex-1 bg-[#10B981] text-white px-6 py-3 rounded-lg hover:bg-[#059669] font-semibold">
+                <i class="fas fa-check mr-2"></i>Completar Evaluación
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

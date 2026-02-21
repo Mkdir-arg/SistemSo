@@ -880,7 +880,7 @@ class PlanFortalecimiento(TimeStamped):
     
     class SubtipoActividad(models.TextChoices):
         # Prevención
-        PREVENCION_UNIVERSAL = "PREVENCION_UNIVERSAL", "Prevención Universal"
+        ÑACHEC = "ÑACHEC", "ÑACHEC"
         PREVENCION_SELECTIVA = "PREVENCION_SELECTIVA", "Prevención Selectiva"
         PREVENCION_INDICADA = "PREVENCION_INDICADA", "Prevención Indicada"
         # Tratamiento

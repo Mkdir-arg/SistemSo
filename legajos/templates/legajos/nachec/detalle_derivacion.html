@@ -1,0 +1,110 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Detalle Derivación - Ñachec{% endblock %}
+
+{% block main-content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="mb-6 flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-[#252F40]">Detalle de Derivación</h2>
+        <a href="{% url 'nachec:bandeja_derivaciones' %}" class="bg-white text-[#4A5565] px-4 py-2 rounded-lg border border-[#E5E7EB] hover:bg-[#F9FAFB]">
+            <i class="fas fa-arrow-left mr-2"></i>Volver
+        </a>
+    </div>
+
+    <!-- Alertas de Duplicados -->
+    {% if duplicados %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+        <div class="flex items-start">
+            <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
+            <div>
+                <h3 class="font-bold text-yellow-800 mb-2">⚠️ Posibles Duplicados Detectados</h3>
+                <ul class="text-sm text-yellow-700 space-y-1">
+                    {% for dup in duplicados %}
+                    <li>• Caso #{{ dup.id }} - {{ dup.ciudadano_titular.nombre_completo }} ({{ dup.get_estado_display }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Información del Caso -->
+    <div class="bg-white rounded-xl border border-[#E5E7EB] p-6 mb-6">
+        <h3 class="text-lg font-bold text-[#252F40] mb-4">Información del Ciudadano</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-[#8C8C8C]">Nombre Completo</p>
+                <p class="font-semibold text-[#252F40]">{{ caso.ciudadano_titular.nombre_completo }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-[#8C8C8C]">DNI</p>
+                <p class="font-semibold text-[#252F40]">{{ caso.ciudadano_titular.dni }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-[#8C8C8C]">Municipio</p>
+                <p class="font-semibold text-[#252F40]">{{ caso.municipio }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-[#8C8C8C]">Localidad</p>
+                <p class="font-semibold text-[#252F40]">{{ caso.localidad }}</p>
+            </div>
+            <div class="col-span-2">
+                <p class="text-sm text-[#8C8C8C]">Dirección</p>
+                <p class="font-semibold text-[#252F40]">{{ caso.direccion }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivo de Derivación -->
+    <div class="bg-white rounded-xl border border-[#E5E7EB] p-6 mb-6">
+        <h3 class="text-lg font-bold text-[#252F40] mb-4">Motivo de Derivación</h3>
+        <p class="text-[#252F40]">{{ caso.motivo_derivacion }}</p>
+        <div class="mt-4 flex gap-4">
+            <span class="px-3 py-1 text-sm font-semibold rounded-full {% if caso.prioridad == 'URGENTE' %}bg-red-100 text-red-800{% elif caso.prioridad == 'ALTA' %}bg-orange-100 text-orange-800{% else %}bg-green-100 text-green-800{% endif %}">
+                Prioridad: {{ caso.get_prioridad_display }}
+            </span>
+            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+                {{ caso.get_estado_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    {% if caso.estado == 'DERIVADO' %}
+    <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+        <h3 class="text-lg font-bold text-[#252F40] mb-4">Acciones</h3>
+        <div class="flex gap-4">
+            <form method="post" action="{% url 'nachec:tomar_caso' caso.pk %}" class="flex-1">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-[#10B981] text-white px-6 py-3 rounded-lg hover:bg-[#059669] font-semibold">
+                    <i class="fas fa-check mr-2"></i>Tomar Caso
+                </button>
+            </form>
+            <button onclick="document.getElementById('modalRechazo').classList.remove('hidden')" class="flex-1 bg-[#EF4444] text-white px-6 py-3 rounded-lg hover:bg-[#DC2626] font-semibold">
+                <i class="fas fa-times mr-2"></i>Rechazar
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal Rechazo -->
+<div id="modalRechazo" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-bold text-[#252F40] mb-4">Rechazar Caso</h3>
+        <form method="post" action="{% url 'nachec:rechazar_caso' caso.pk %}">
+            {% csrf_token %}
+            <textarea name="motivo_rechazo" rows="4" required class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2 mb-4" placeholder="Motivo del rechazo..."></textarea>
+            <div class="flex gap-3">
+                <button type="button" onclick="document.getElementById('modalRechazo').classList.add('hidden')" class="flex-1 bg-white text-[#4A5565] px-4 py-2 rounded-lg border border-[#E5E7EB] hover:bg-[#F9FAFB]">
+                    Cancelar
+                </button>
+                <button type="submit" class="flex-1 bg-[#EF4444] text-white px-4 py-2 rounded-lg hover:bg-[#DC2626]">
+                    Confirmar Rechazo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

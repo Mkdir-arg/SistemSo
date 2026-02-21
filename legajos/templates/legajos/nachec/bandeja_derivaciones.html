@@ -1,0 +1,101 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de Derivaciones - Ñachec{% endblock %}
+
+{% block main-content %}
+<div class="max-w-full mx-4 lg:mx-8">
+    <div class="mb-6 flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-[#252F40]">Bandeja de Derivaciones - Ñachec</h2>
+        <a href="{% url 'legajos:programas' %}" class="bg-white text-[#4A5565] px-4 py-2 rounded-lg border border-[#E5E7EB] hover:bg-[#F9FAFB]">
+            <i class="fas fa-arrow-left mr-2"></i>Volver
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-xl p-6 mb-6 border border-[#E5E7EB]">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input type="text" name="buscar" value="{{ request.GET.buscar }}" placeholder="Buscar por nombre, DNI..." class="border border-[#E5E7EB] rounded-lg px-4 py-2">
+            <select name="estado" class="border border-[#E5E7EB] rounded-lg px-4 py-2">
+                <option value="">Todos los estados</option>
+                {% for value, label in estados %}
+                <option value="{{ value }}" {% if request.GET.estado == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="prioridad" class="border border-[#E5E7EB] rounded-lg px-4 py-2">
+                <option value="">Todas las prioridades</option>
+                {% for value, label in prioridades %}
+                <option value="{{ value }}" {% if request.GET.prioridad == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="bg-[#3B82F6] text-white px-4 py-2 rounded-lg hover:bg-[#2563EB]">
+                <i class="fas fa-search mr-2"></i>Filtrar
+            </button>
+        </form>
+    </div>
+
+    <!-- Tabla de Derivaciones -->
+    <div class="bg-white rounded-xl border border-[#E5E7EB]">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Municipio</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Prioridad</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Fecha</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E5E7EB]">
+                    {% for caso in casos %}
+                    <tr class="hover:bg-[#F9FAFB]">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-[#252F40]">{{ caso.ciudadano_titular.nombre_completo }}</div>
+                            <div class="text-xs text-[#8C8C8C]">DNI: {{ caso.ciudadano_titular.dni }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.municipio }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if caso.estado == 'DERIVADO' %}bg-yellow-100 text-yellow-800{% elif caso.estado == 'EN_REVISION' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ caso.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if caso.prioridad == 'URGENTE' %}bg-red-100 text-red-800{% elif caso.prioridad == 'ALTA' %}bg-orange-100 text-orange-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ caso.get_prioridad_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ caso.fecha_derivacion|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{% url 'nachec:detalle_derivacion' caso.pk %}" class="text-[#3B82F6] hover:underline">Ver Detalle</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-[#8C8C8C]">No hay derivaciones pendientes</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        {% if casos.has_other_pages %}
+        <div class="px-6 py-4 border-t border-[#E5E7EB] flex justify-between items-center">
+            <div class="text-sm text-[#8C8C8C]">
+                Mostrando {{ casos.start_index }} - {{ casos.end_index }} de {{ casos.paginator.count }}
+            </div>
+            <div class="flex gap-2">
+                {% if casos.has_previous %}
+                <a href="?page={{ casos.previous_page_number }}" class="px-3 py-1 border border-[#E5E7EB] rounded-lg hover:bg-[#F9FAFB]">Anterior</a>
+                {% endif %}
+                {% if casos.has_next %}
+                <a href="?page={{ casos.next_page_number }}" class="px-3 py-1 border border-[#E5E7EB] rounded-lg hover:bg-[#F9FAFB]">Siguiente</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

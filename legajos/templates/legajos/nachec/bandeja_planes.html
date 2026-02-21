@@ -1,0 +1,97 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de Planes - Ñachec{% endblock %}
+
+{% block main-content %}
+<div class="max-w-full mx-4 lg:mx-8">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-[#252F40]">Planes de Intervención</h2>
+        <p class="text-[#8C8C8C]">Gestión de planes y prestaciones</p>
+    </div>
+
+    <!-- Métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-clipboard-list text-[#3B82F6] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Total</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.total }}</p>
+            <p class="text-sm text-[#8C8C8C]">Planes activos</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-box text-[#10B981] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Prestaciones</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.prestaciones }}</p>
+            <p class="text-sm text-[#8C8C8C]">En curso</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-check-circle text-[#8B5CF6] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Completadas</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.completadas }}</p>
+            <p class="text-sm text-[#8C8C8C]">Este mes</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-exclamation-triangle text-[#F59E0B] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Pendientes</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.pendientes }}</p>
+            <p class="text-sm text-[#8C8C8C]">Requieren atención</p>
+        </div>
+    </div>
+
+    <!-- Tabla de Planes -->
+    <div class="bg-white rounded-xl border border-[#E5E7EB]">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Caso</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Categoría</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Prestaciones</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Creado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E5E7EB]">
+                    {% for plan in planes %}
+                    <tr class="hover:bg-[#F9FAFB]">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#252F40]">#{{ plan.caso.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ plan.caso.ciudadano_titular.nombre_completo }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if plan.evaluacion.categoria_vulnerabilidad == 'ALTO' %}bg-red-100 text-red-800{% elif plan.evaluacion.categoria_vulnerabilidad == 'MEDIO' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ plan.evaluacion.get_categoria_vulnerabilidad_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ plan.prestaciones_count }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if plan.caso.estado == 'EN_EJECUCION' %}bg-blue-100 text-blue-800{% elif plan.caso.estado == 'EN_SEGUIMIENTO' %}bg-purple-100 text-purple-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ plan.caso.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ plan.creado|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{% url 'legajos:ciudadano_detalle' plan.caso.ciudadano_titular.pk %}" class="text-[#3B82F6] hover:underline">
+                                <i class="fas fa-eye mr-1"></i>Ver Detalle
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-[#8C8C8C]">No hay planes registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

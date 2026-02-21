@@ -1,0 +1,212 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Relevamiento - Caso #{{ caso.id }}{% endblock %}
+
+{% block main-content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-[#252F40]">Relevamiento Sociofamiliar</h2>
+            <p class="text-[#8C8C8C]">Caso #{{ caso.id }} - {{ caso.ciudadano_titular.nombre_completo }}</p>
+        </div>
+        <a href="{% url 'nachec:mis_casos' %}" class="bg-white text-[#4A5565] px-4 py-2 rounded-lg border border-[#E5E7EB] hover:bg-[#F9FAFB]">
+            <i class="fas fa-arrow-left mr-2"></i>Volver
+        </a>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- 1. Composición Familiar -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">1. Composición Familiar</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Cantidad de Integrantes</label>
+                    <input type="number" name="cantidad_integrantes" value="{{ relevamiento.cantidad_integrantes }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Menores de Edad</label>
+                    <input type="number" name="menores_edad" value="{{ relevamiento.menores_edad }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Adultos Mayores</label>
+                    <input type="number" name="adultos_mayores" value="{{ relevamiento.adultos_mayores }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Personas con Discapacidad</label>
+                    <input type="number" name="personas_discapacidad" value="{{ relevamiento.personas_discapacidad }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Situación Económica -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">2. Situación Económica</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Rango de Ingreso</label>
+                    <select name="rango_ingreso" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in rangos_ingreso %}
+                        <option value="{{ value }}" {% if relevamiento.rango_ingreso == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Fuente Principal</label>
+                    <select name="fuente_ingreso" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in fuentes_ingreso %}
+                        <option value="{{ value }}" {% if relevamiento.fuente_ingreso == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Situación Laboral Titular</label>
+                    <select name="situacion_laboral" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in situaciones_laborales %}
+                        <option value="{{ value }}" {% if relevamiento.situacion_laboral == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Recibe Planes Sociales</label>
+                    <select name="recibe_planes" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                        <option value="False" {% if not relevamiento.recibe_planes %}selected{% endif %}>No</option>
+                        <option value="True" {% if relevamiento.recibe_planes %}selected{% endif %}>Sí</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Vivienda -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">3. Vivienda</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Tipo de Vivienda</label>
+                    <select name="tipo_vivienda" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in tipos_vivienda %}
+                        <option value="{{ value }}" {% if relevamiento.tipo_vivienda == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Material Predominante</label>
+                    <select name="material_vivienda" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in materiales_vivienda %}
+                        <option value="{{ value }}" {% if relevamiento.material_vivienda == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Cantidad de Ambientes</label>
+                    <input type="number" name="cantidad_ambientes" value="{{ relevamiento.cantidad_ambientes }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Servicios Básicos</label>
+                    <div class="flex gap-4 mt-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="tiene_agua" {% if relevamiento.tiene_agua %}checked{% endif %} class="mr-2">
+                            <span class="text-sm">Agua</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="tiene_luz" {% if relevamiento.tiene_luz %}checked{% endif %} class="mr-2">
+                            <span class="text-sm">Luz</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="tiene_gas" {% if relevamiento.tiene_gas %}checked{% endif %} class="mr-2">
+                            <span class="text-sm">Gas</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Salud -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">4. Salud</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Cobertura de Salud</label>
+                    <select name="cobertura_salud" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in coberturas_salud %}
+                        <option value="{{ value }}" {% if relevamiento.cobertura_salud == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Problemas de Salud Crónicos</label>
+                    <select name="problemas_salud" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                        <option value="False" {% if not relevamiento.problemas_salud %}selected{% endif %}>No</option>
+                        <option value="True" {% if relevamiento.problemas_salud %}selected{% endif %}>Sí</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Alimentación -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">5. Alimentación</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Acceso a Alimentos</label>
+                    <select name="acceso_alimentos" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" required>
+                        <option value="">Seleccionar...</option>
+                        {% for value, label in accesos_alimentos %}
+                        <option value="{{ value }}" {% if relevamiento.acceso_alimentos == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Recibe Asistencia Alimentaria</label>
+                    <select name="asistencia_alimentaria" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                        <option value="False" {% if not relevamiento.asistencia_alimentaria %}selected{% endif %}>No</option>
+                        <option value="True" {% if relevamiento.asistencia_alimentaria %}selected{% endif %}>Sí</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Educación -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">6. Educación</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Menores Escolarizados</label>
+                    <input type="number" name="menores_escolarizados" value="{{ relevamiento.menores_escolarizados }}" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#8C8C8C] mb-2">Problemas de Escolarización</label>
+                    <select name="problemas_escolarizacion" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2">
+                        <option value="False" {% if not relevamiento.problemas_escolarizacion %}selected{% endif %}>No</option>
+                        <option value="True" {% if relevamiento.problemas_escolarizacion %}selected{% endif %}>Sí</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Observaciones -->
+        <div class="bg-white rounded-xl border border-[#E5E7EB] p-6">
+            <h3 class="text-lg font-bold text-[#252F40] mb-4">7. Observaciones Generales</h3>
+            <textarea name="observaciones_relevamiento" rows="4" class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2" placeholder="Observaciones adicionales del relevamiento...">{{ relevamiento.observaciones_relevamiento }}</textarea>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-4">
+            <button type="submit" name="accion" value="guardar" class="flex-1 bg-[#3B82F6] text-white px-6 py-3 rounded-lg hover:bg-[#2563EB] font-semibold">
+                <i class="fas fa-save mr-2"></i>Guardar Borrador
+            </button>
+            <button type="submit" name="accion" value="completar" class="flex-1 bg-[#10B981] text-white px-6 py-3 rounded-lg hover:bg-[#059669] font-semibold">
+                <i class="fas fa-check mr-2"></i>Completar Relevamiento
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

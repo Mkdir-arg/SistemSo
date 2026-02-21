@@ -1,0 +1,86 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de Asignación - Ñachec{% endblock %}
+
+{% block main-content %}
+<div class="max-w-full mx-4 lg:mx-8">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-[#252F40]">Casos para Asignar</h2>
+        <p class="text-[#8C8C8C]">Asignar territoriales a casos en revisión</p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-[#E5E7EB]">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Caso</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Municipio</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Prioridad</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Operador</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E5E7EB]">
+                    {% for caso in casos %}
+                    <tr class="hover:bg-[#F9FAFB]">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#252F40]">#{{ caso.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.ciudadano_titular.nombre_completo }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.municipio }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if caso.prioridad == 'URGENTE' %}bg-red-100 text-red-800{% elif caso.prioridad == 'ALTA' %}bg-orange-100 text-orange-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ caso.get_prioridad_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ caso.operador_admision.get_full_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button onclick="abrirModalAsignar({{ caso.id }})" class="text-[#3B82F6] hover:underline">
+                                <i class="fas fa-user-plus mr-1"></i>Asignar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-[#8C8C8C]">No hay casos para asignar</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Asignar -->
+<div id="modalAsignar" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-bold text-[#252F40] mb-4">Asignar Territorial</h3>
+        <form method="post" id="formAsignar">
+            {% csrf_token %}
+            <select name="territorial_id" required class="w-full border border-[#E5E7EB] rounded-lg px-4 py-2 mb-4">
+                <option value="">Seleccionar territorial...</option>
+                {% for territorial in territoriales %}
+                <option value="{{ territorial.id }}">{{ territorial.get_full_name }} ({{ territorial.casos_activos }} casos)</option>
+                {% endfor %}
+            </select>
+            <div class="flex gap-3">
+                <button type="button" onclick="document.getElementById('modalAsignar').classList.add('hidden')" class="flex-1 bg-white text-[#4A5565] px-4 py-2 rounded-lg border border-[#E5E7EB] hover:bg-[#F9FAFB]">
+                    Cancelar
+                </button>
+                <button type="submit" class="flex-1 bg-[#3B82F6] text-white px-4 py-2 rounded-lg hover:bg-[#2563EB]">
+                    Asignar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function abrirModalAsignar(casoId) {
+    const form = document.getElementById('formAsignar');
+    form.action = `/nachec/asignar-territorial/${casoId}/`;
+    document.getElementById('modalAsignar').classList.remove('hidden');
+}
+</script>
+{% endblock %}

@@ -18,7 +18,7 @@ class Programa(TimeStamped):
         NACHEC = "NACHEC", "ÑACHEC"
         ECONOMICO = "ECONOMICO", "Acompañamiento Económico"
         FAMILIAR = "FAMILIAR", "Acompañamiento Familiar"
-        PREVENCION_UNIVERSAL = "PREVENCION_UNIVERSAL", "Prevención Universal"
+        ÑACHEC = "ÑACHEC", " ÑACHEC"
         REDUCCION_DANOS = "REDUCCION_DANOS", "Reducción de Daños"
         REINSERCION_SOCIAL = "REINSERCION_SOCIAL", "Reinserción Social"
         CAPACITACION_COMUNITARIA = "CAPACITACION_COMUNITARIA", "Capacitación Comunitaria"

@@ -1,0 +1,50 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de Evaluación - Ñachec{% endblock %}
+
+{% block main-content %}
+<div class="max-w-full mx-4 lg:mx-8">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-[#252F40]">Casos para Evaluar</h2>
+        <p class="text-[#8C8C8C]">Evaluación de vulnerabilidad y dictamen técnico</p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-[#E5E7EB]">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Caso</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Municipio</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Territorial</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Relevado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E5E7EB]">
+                    {% for caso in casos %}
+                    <tr class="hover:bg-[#F9FAFB]">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#252F40]">#{{ caso.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.ciudadano_titular.nombre_completo }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.municipio }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ caso.territorial.get_full_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ caso.fecha_relevamiento|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{% url 'nachec:formulario_evaluacion' caso.pk %}" class="text-[#3B82F6] hover:underline">
+                                <i class="fas fa-clipboard-check mr-1"></i>Evaluar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-[#8C8C8C]">No hay casos para evaluar</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

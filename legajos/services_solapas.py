@@ -191,7 +191,7 @@ class SolapasService:
         """
         url_map = {
             'ACOMPANAMIENTO_SEDRONAR': 'legajos:detalle',
-            'NACHEC': 'programas:nachec_detalle',
+            'NACHEC': 'nachec:detalle_caso_ciudadano',
             'ECONOMICO': 'programas:economico_detalle',
             'FAMILIAR': 'programas:familiar_detalle',
         }

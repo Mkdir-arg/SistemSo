@@ -1,0 +1,103 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Mis Casos - Ñachec{% endblock %}
+
+{% block main-content %}
+<div class="max-w-full mx-4 lg:mx-8">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-[#252F40]">Mis Casos Asignados</h2>
+        <p class="text-[#8C8C8C]">Casos bajo tu responsabilidad territorial</p>
+    </div>
+
+    <!-- Métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-clipboard-list text-[#3B82F6] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Total</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.total }}</p>
+            <p class="text-sm text-[#8C8C8C]">Casos asignados</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-clock text-[#F59E0B] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Pendientes</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.pendientes }}</p>
+            <p class="text-sm text-[#8C8C8C]">Por relevar</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-tasks text-[#10B981] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Tareas</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.tareas_pendientes }}</p>
+            <p class="text-sm text-[#8C8C8C]">Pendientes</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
+            <div class="flex items-center justify-between mb-2">
+                <i class="fas fa-exclamation-triangle text-[#EF4444] text-2xl"></i>
+                <span class="text-xs text-[#8C8C8C]">Urgentes</span>
+            </div>
+            <p class="text-3xl font-bold text-[#252F40]">{{ stats.urgentes }}</p>
+            <p class="text-sm text-[#8C8C8C]">Alta prioridad</p>
+        </div>
+    </div>
+
+    <!-- Tabla de Casos -->
+    <div class="bg-white rounded-xl border border-[#E5E7EB]">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Caso</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Localidad</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Prioridad</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Asignado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#E5E7EB]">
+                    {% for caso in casos %}
+                    <tr class="hover:bg-[#F9FAFB]">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#252F40]">#{{ caso.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.ciudadano_titular.nombre_completo }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ caso.localidad }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if caso.estado == 'ASIGNADO' %}bg-blue-100 text-blue-800{% elif caso.estado == 'EN_RELEVAMIENTO' %}bg-purple-100 text-purple-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ caso.get_estado_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if caso.prioridad == 'URGENTE' %}bg-red-100 text-red-800{% elif caso.prioridad == 'ALTA' %}bg-orange-100 text-orange-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ caso.get_prioridad_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ caso.fecha_asignacion|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            {% if caso.estado == 'ASIGNADO' %}
+                            <a href="{% url 'nachec:formulario_relevamiento' caso.pk %}" class="text-[#3B82F6] hover:underline">
+                                <i class="fas fa-clipboard-check mr-1"></i>Relevar
+                            </a>
+                            {% else %}
+                            <a href="{% url 'nachec:formulario_relevamiento' caso.pk %}" class="text-[#8C8C8C] hover:underline">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-[#8C8C8C]">No tienes casos asignados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
