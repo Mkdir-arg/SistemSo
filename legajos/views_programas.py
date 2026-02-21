@@ -101,7 +101,7 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
         ).count()
         
         # BANDEJA DE DERIVACIONES (ciudadanos)
-        from .models_programas import DerivacionPrograma
+        from .models_programas import DerivacionPrograma, InscripcionPrograma
         
         # Derivaciones de ciudadanos al mismo programa
         context['derivaciones_ciudadanos'] = DerivacionPrograma.objects.filter(
@@ -131,6 +131,55 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
             institucion_programa__programa=programa,
             estado__in=[EstadoCaso.ACTIVO, EstadoCaso.EN_SEGUIMIENTO]
         ).select_related('ciudadano', 'institucion_programa__institucion', 'responsable').order_by('-fecha_apertura')[:20]
+        
+        # ACOMPAÑAMIENTOS
+        acompanamientos = InscripcionPrograma.objects.filter(
+            programa=programa
+        ).select_related('ciudadano', 'responsable').order_by('-fecha_inscripcion')
+        
+        # Anotar institución desde CasoInstitucional si existe
+        acompanamientos_list = []
+        for insc in acompanamientos:
+            caso = CasoInstitucional.objects.filter(
+                ciudadano=insc.ciudadano,
+                institucion_programa__programa=programa
+            ).select_related('institucion_programa__institucion').first()
+            
+            insc.institucion_nombre = caso.institucion_programa.institucion.nombre if caso else None
+            acompanamientos_list.append(insc)
+        
+        context['acompanamientos'] = acompanamientos_list
+        context['total_acompanamientos_activos'] = InscripcionPrograma.objects.filter(
+            programa=programa,
+            estado__in=['ACTIVO', 'EN_SEGUIMIENTO']
+        ).count()
+        
+        context['stats_acompanamientos'] = {
+            'activos': InscripcionPrograma.objects.filter(programa=programa, estado='ACTIVO').count(),
+            'seguimiento': InscripcionPrograma.objects.filter(programa=programa, estado='EN_SEGUIMIENTO').count(),
+            'cerrados': InscripcionPrograma.objects.filter(programa=programa, estado='CERRADO').count(),
+        }
+        
+        # DASHBOARD
+        total_derivaciones = context['stats_ciudadanos']['pendientes'] + context['stats_ciudadanos']['aceptadas'] + context['stats_ciudadanos']['rechazadas']
+        context['total_derivaciones'] = total_derivaciones if total_derivaciones > 0 else 1
+        context['tasa_aceptacion'] = round((context['stats_ciudadanos']['aceptadas'] / context['total_derivaciones']) * 100) if context['total_derivaciones'] > 1 else 0
+        
+        # Top instituciones
+        top_inst = instituciones_habilitadas.annotate(
+            casos_activos=Count('casos', filter=Q(casos__estado__in=[EstadoCaso.ACTIVO, EstadoCaso.EN_SEGUIMIENTO]))
+        ).order_by('-casos_activos')[:5]
+        context['top_instituciones'] = top_inst
+        context['max_casos_institucion'] = top_inst.first().casos_activos if top_inst.exists() and top_inst.first().casos_activos > 0 else 1
+        
+        # Últimas derivaciones
+        context['ultimas_derivaciones'] = DerivacionPrograma.objects.filter(
+            programa_destino=programa
+        ).select_related('ciudadano').order_by('-creado')[:5]
+        
+        # INDICADORES
+        context['promedio_casos_institucion'] = round(context['total_casos_activos'] / context['total_instituciones']) if context['total_instituciones'] > 0 else 0
+        context['total_acompanamientos_totales'] = InscripcionPrograma.objects.filter(programa=programa).count()
         
         context['es_superadmin'] = self.request.user.is_superuser
         

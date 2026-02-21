@@ -104,8 +104,10 @@ services:
     ports:
       - "9000:80"
     depends_on:
-      - sedronar-http
-      - sedronar-ws
+      sedronar-http:
+        condition: service_healthy
+      sedronar-ws:
+        condition: service_started
     volumes:
       - ./nginx.hybrid.conf:/etc/nginx/conf.d/default.conf
       - ./static:/var/www/static:ro

@@ -367,6 +367,16 @@ class AdmisionPaso2View(LoginRequiredMixin, CreateView):
         try:
             response = super().form_valid(form)
             
+            # Actualizar InscripcionPrograma con el legajo_id si existe
+            inscripcion_id = self.request.session.get('inscripcion_programa_id')
+            if inscripcion_id:
+                from .models_programas import InscripcionPrograma
+                inscripcion = InscripcionPrograma.objects.filter(id=inscripcion_id).first()
+                if inscripcion:
+                    inscripcion.legajo_id = self.object.id
+                    inscripcion.save()
+                self.request.session.pop('inscripcion_programa_id', None)
+            
             # Limpiar sesión y guardar ID del legajo para paso 3
             self.request.session.pop('admision_ciudadano_id', None)
             self.request.session['admision_legajo_id'] = str(self.object.id)

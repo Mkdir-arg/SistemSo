@@ -9,6 +9,7 @@ from . import views_api_derivaciones
 from . import views_institucional
 from . import views_programas
 from . import views_derivacion_programa
+from . import views_acompanamiento
 
 app_name = 'legajos'
 
@@ -28,6 +29,7 @@ urlpatterns = [
     
     path('programas/', views_programas.ProgramaListView.as_view(), name='programas'),
     path('programas/<int:pk>/', views_programas.ProgramaDetailView.as_view(), name='programa_detalle'),
+    path('acompanamiento/<int:inscripcion_id>/crear-legajo/', views_acompanamiento.crear_legajo_acompanamiento, name='crear_legajo_acompanamiento'),
     
     # ========================================================================
     # SISTEMA NODO - GESTIÓN PROGRAMÁTICA INSTITUCIONAL
