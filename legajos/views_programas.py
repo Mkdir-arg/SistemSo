@@ -69,6 +69,13 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
     template_name = 'legajos/programas/programa_detail.html'
     context_object_name = 'programa'
     
+    def get_template_names(self):
+        """Usar template específico para Ñachec"""
+        programa = self.get_object()
+        if programa.tipo in ['NACHEC', 'ÑACHEC']:
+            return ['legajos/programas/programa_nachec_detail.html']
+        return ['legajos/programas/programa_detail.html']
+    
     def dispatch(self, request, *args, **kwargs):
         # Permitir acceso a todos los usuarios autenticados temporalmente
         # TODO: Restaurar verificación de permisos cuando se asignen coordinadores
@@ -77,6 +84,88 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         programa = self.get_object()
+        
+        # Si es Ñachec, cargar datos específicos
+        if programa.tipo in ['NACHEC', 'ÑACHEC']:
+            from .models_nachec import CasoNachec
+            from .models_programas import DerivacionPrograma
+            
+            # Filtros
+            estado_filtro = self.request.GET.get('estado')
+            urgencia_filtro = self.request.GET.get('urgencia')
+            busqueda = self.request.GET.get('q')
+            
+            # Derivaciones de ciudadanos (igual que programa 1)
+            derivaciones_qs = DerivacionPrograma.objects.filter(
+                programa_destino=programa
+            ).select_related('ciudadano', 'programa_origen', 'derivado_por')
+            
+            # Aplicar filtros
+            if estado_filtro:
+                derivaciones_qs = derivaciones_qs.filter(estado=estado_filtro)
+            if urgencia_filtro:
+                derivaciones_qs = derivaciones_qs.filter(urgencia=urgencia_filtro)
+            if busqueda:
+                from django.db.models import Q
+                derivaciones_qs = derivaciones_qs.filter(
+                    Q(ciudadano__nombre__icontains=busqueda) |
+                    Q(ciudadano__apellido__icontains=busqueda) |
+                    Q(ciudadano__numero_documento__icontains=busqueda)
+                )
+            
+            context['derivaciones_ciudadanos'] = derivaciones_qs.order_by('-creado')[:50]
+            
+            # Stats de derivaciones ciudadanos (siempre globales)
+            context['stats_ciudadanos'] = {
+                'pendientes': DerivacionPrograma.objects.filter(programa_destino=programa, estado='PENDIENTE').count(),
+                'aceptadas': DerivacionPrograma.objects.filter(programa_destino=programa, estado='ACEPTADA').count(),
+                'rechazadas': DerivacionPrograma.objects.filter(programa_destino=programa, estado='RECHAZADA').count(),
+            }
+            
+            # Filtros activos
+            context['filtros_activos'] = {
+                'estado': estado_filtro,
+                'urgencia': urgencia_filtro,
+                'busqueda': busqueda
+            }
+            
+            # Casos Ñachec para otras pestañas
+            from .models_nachec import TareaNachec
+            casos_nachec = CasoNachec.objects.select_related(
+                'ciudadano_titular', 'operador_admision', 'territorial'
+            ).order_by('-fecha_derivacion')
+            
+            # Agregar información de tarea de validación a cada caso
+            for caso in casos_nachec:
+                tarea = TareaNachec.objects.filter(caso=caso, tipo='VALIDACION', estado='COMPLETADA').first()
+                caso.tarea_validacion_completada = bool(tarea)
+            
+            context['casos_nachec'] = casos_nachec
+            
+            context['stats_nachec'] = {
+                'derivados': CasoNachec.objects.filter(estado='DERIVADO').count(),
+                'en_revision': CasoNachec.objects.filter(estado='EN_REVISION').count(),
+                'asignados': CasoNachec.objects.filter(estado='ASIGNADO').count(),
+                'en_relevamiento': CasoNachec.objects.filter(estado='EN_RELEVAMIENTO').count(),
+                'evaluados': CasoNachec.objects.filter(estado='EVALUADO').count(),
+            }
+            
+            # PASO 8: Prestaciones activas
+            from .models_nachec import PrestacionNachec
+            from django.db.models import Q
+            
+            # Filtrar prestaciones donde el usuario es responsable o coordinador del caso
+            prestaciones_qs = PrestacionNachec.objects.filter(
+                Q(responsable=self.request.user) | Q(caso__coordinador=self.request.user)
+            ).select_related(
+                'caso__ciudadano_titular',
+                'responsable',
+                'plan'
+            ).order_by('-fecha_programada')
+            
+            context['prestaciones_nachec'] = prestaciones_qs
+            
+            return context
         
         # Métricas del dashboard
         instituciones_habilitadas = InstitucionPrograma.objects.filter(

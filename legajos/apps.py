@@ -10,4 +10,5 @@ class LegajosConfig(AppConfig):
         import legajos.signals
         import legajos.signals_alertas
         import legajos.signals_historial
-        import legajos.signals_programas  # Importar signals de programas
+        import legajos.signals_programas
+        import legajos.signals_nachec

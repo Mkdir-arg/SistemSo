@@ -259,44 +259,49 @@ class DerivacionPrograma(TimeStamped):
     def aceptar(self, usuario, responsable=None):
         """Acepta la derivación y crea la inscripción al programa"""
         from django.utils import timezone
+        from django.db import transaction
         
-        if self.estado != 'PENDIENTE':
-            raise ValueError("Solo se pueden aceptar derivaciones pendientes")
-        
-        # Verificar si ya existe una inscripción activa
-        inscripcion_existente = InscripcionPrograma.objects.filter(
-            ciudadano=self.ciudadano,
-            programa=self.programa_destino,
-            estado__in=['ACTIVO', 'EN_SEGUIMIENTO']
-        ).first()
-        
-        if inscripcion_existente:
-            # Si ya existe, solo actualizar la derivación
+        with transaction.atomic():
+            # Refrescar desde DB para evitar race conditions
+            self.refresh_from_db()
+            
+            if self.estado != 'PENDIENTE':
+                raise ValueError("Esta derivación ya fue procesada")
+            
+            # Verificar si ya existe una inscripción activa
+            inscripcion_existente = InscripcionPrograma.objects.filter(
+                ciudadano=self.ciudadano,
+                programa=self.programa_destino,
+                estado__in=['ACTIVO', 'EN_SEGUIMIENTO']
+            ).first()
+            
+            if inscripcion_existente:
+                # Si ya existe, solo actualizar la derivación
+                self.estado = 'ACEPTADA'
+                self.fecha_respuesta = timezone.now()
+                self.respondido_por = usuario
+                self.inscripcion_creada = inscripcion_existente
+                self.save()
+                return inscripcion_existente
+            
+            # Crear inscripción al programa destino
+            inscripcion = InscripcionPrograma.objects.create(
+                ciudadano=self.ciudadano,
+                programa=self.programa_destino,
+                via_ingreso='DERIVACION_INTERNA' if self.programa_origen else 'DERIVACION_EXTERNA',
+                estado='ACTIVO',
+                responsable=responsable or usuario,
+                notas=f"Derivado desde: {self.programa_origen.nombre if self.programa_origen else 'Espontáneo'}\nMotivo: {self.motivo}"
+            )
+            
+            # Actualizar derivación
             self.estado = 'ACEPTADA'
             self.fecha_respuesta = timezone.now()
             self.respondido_por = usuario
-            self.inscripcion_creada = inscripcion_existente
+            self.inscripcion_creada = inscripcion
             self.save()
-            return inscripcion_existente
-        
-        # Crear inscripción al programa destino
-        inscripcion = InscripcionPrograma.objects.create(
-            ciudadano=self.ciudadano,
-            programa=self.programa_destino,
-            via_ingreso='DERIVACION_INTERNA' if self.programa_origen else 'DERIVACION_EXTERNA',
-            estado='ACTIVO',
-            responsable=responsable or usuario,
-            notas=f"Derivado desde: {self.programa_origen.nombre if self.programa_origen else 'Espontáneo'}\nMotivo: {self.motivo}"
-        )
-        
-        # Actualizar derivación
-        self.estado = 'ACEPTADA'
-        self.fecha_respuesta = timezone.now()
-        self.respondido_por = usuario
-        self.inscripcion_creada = inscripcion
-        self.save()
-        
-        return inscripcion
+            
+            return inscripcion
     
     def rechazar(self, usuario, motivo_rechazo):
         """Rechaza la derivación"""

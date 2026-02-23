@@ -116,7 +116,8 @@ class EstadoPrestacion(models.TextChoices):
     """Estados de la prestación"""
     CREADA = "CREADA", "Creada"
     PROGRAMADA = "PROGRAMADA", "Programada"
-    EN_CURSO = "EN_CURSO", "En Curso"
+    EN_PROCESO = "EN_PROCESO", "En Proceso"
+    EN_CURSO = "EN_CURSO", "En Curso"  # DEPRECATED: usar EN_PROCESO
     ENTREGADA = "ENTREGADA", "Entregada"
     COMPLETADA = "COMPLETADA", "Completada"
     CANCELADA = "CANCELADA", "Cancelada"
@@ -236,6 +237,7 @@ class CasoNachec(TimeStamped):
     # Fechas clave
     fecha_derivacion = models.DateField(db_index=True)
     fecha_asignacion = models.DateField(null=True, blank=True)
+    fecha_inicio_relevamiento = models.DateTimeField(null=True, blank=True)
     fecha_relevamiento = models.DateField(null=True, blank=True)
     fecha_evaluacion = models.DateField(null=True, blank=True)
     fecha_cierre = models.DateField(null=True, blank=True)
@@ -245,6 +247,7 @@ class CasoNachec(TimeStamped):
     motivo_rechazo = models.TextField(blank=True)
     motivo_suspension = models.TextField(blank=True)
     motivo_cierre = models.TextField(blank=True)
+    instrucciones_asignacion = models.TextField(null=True, blank=True)
     
     # SLA y alertas
     sla_revision = models.DateField(null=True, blank=True)
@@ -268,6 +271,41 @@ class CasoNachec(TimeStamped):
     
     def __str__(self):
         return f"Caso {self.id} - {self.ciudadano_titular.nombre_completo} ({self.get_estado_display()})"
+    
+    def recalcular_estado_por_prestaciones(self):
+        """Recalcula estado del caso según prestaciones activas del plan vigente"""
+        from .models_nachec import PlanIntervencionNachec, PrestacionNachec
+        
+        # Solo aplica si caso está en EN_EJECUCION o EN_SEGUIMIENTO
+        if self.estado not in ['EN_EJECUCION', 'EN_SEGUIMIENTO']:
+            return False
+        
+        # Obtener plan vigente
+        plan_vigente = PlanIntervencionNachec.objects.filter(caso=self, vigente=True).first()
+        if not plan_vigente:
+            return False
+        
+        # Contar prestaciones activas
+        prestaciones_activas = PrestacionNachec.objects.filter(
+            plan=plan_vigente,
+            estado__in=['PROGRAMADA', 'EN_PROCESO', 'EN_CURSO']
+        ).count()
+        
+        estado_anterior = self.estado
+        cambio = False
+        
+        if prestaciones_activas == 0 and self.estado == 'EN_EJECUCION':
+            self.estado = 'EN_SEGUIMIENTO'
+            cambio = True
+        elif prestaciones_activas > 0 and self.estado == 'EN_SEGUIMIENTO':
+            self.estado = 'EN_EJECUCION'
+            cambio = True
+        
+        if cambio:
+            self.save()
+            return {'cambio': True, 'estado_anterior': estado_anterior, 'estado_nuevo': self.estado, 'prestaciones_activas': prestaciones_activas}
+        
+        return {'cambio': False}
 
 
 class RelevamientoNachec(TimeStamped):
@@ -368,6 +406,13 @@ class RelevamientoNachec(TimeStamped):
     completado = models.BooleanField(default=False)
     fecha_finalizacion = models.DateTimeField(null=True, blank=True)
     observaciones = models.TextField(blank=True)
+    observaciones_cierre = models.TextField(blank=True, help_text="Observaciones al finalizar relevamiento")
+    
+    # Scoring de vulnerabilidad (versionado)
+    score_total = models.PositiveIntegerField(null=True, blank=True, help_text="Score 0-100")
+    score_categoria = models.CharField(max_length=10, blank=True, choices=CategoriaVulnerabilidad.choices)
+    score_detalle = models.JSONField(null=True, blank=True, help_text="Desglose por dimensión")
+    score_version = models.CharField(max_length=10, default="v1", help_text="Versión del algoritmo de scoring")
     
     class Meta:
         verbose_name = "Relevamiento Ñachec"
@@ -375,6 +420,136 @@ class RelevamientoNachec(TimeStamped):
     
     def __str__(self):
         return f"Relevamiento - Caso {self.caso.id}"
+    
+    def calcular_scoring(self):
+        """Calcula scoring de vulnerabilidad v1 (0-100)"""
+        score = 0
+        detalle = {}
+        
+        # Familia (0-15)
+        familia = 0
+        if self.cantidad_convivientes >= 6:
+            familia += 5
+        elif self.cantidad_convivientes >= 4:
+            familia += 3
+        if self.hay_embarazo:
+            familia += 5
+        if self.hay_discapacidad:
+            familia += 5
+        detalle['familia'] = min(familia, 15)
+        
+        # Ingresos (0-25)
+        ingresos = 0
+        if self.ingreso_mensual_rango in ['SIN_INGRESOS', 'HASTA_50K']:
+            ingresos += 15
+        elif self.ingreso_mensual_rango == '50K_100K':
+            ingresos += 10
+        if self.fuente_ingreso in ['NINGUNO', 'PLANES']:
+            ingresos += 5
+        if self.situacion_laboral == 'DESEMPLEADO':
+            ingresos += 5
+        detalle['ingresos'] = min(ingresos, 25)
+        
+        # Vivienda (0-20)
+        vivienda = 0
+        if self.tipo_vivienda in ['PRECARIA', 'CALLE', 'OCUPADA']:
+            vivienda += 10
+        if self.material_predominante in ['CARTON', 'CHAPA']:
+            vivienda += 5
+        servicios = sum([self.tiene_agua, self.tiene_luz, self.tiene_gas, self.tiene_cloaca])
+        if servicios <= 1:
+            vivienda += 5
+        elif servicios == 2:
+            vivienda += 3
+        detalle['vivienda'] = min(vivienda, 20)
+        
+        # Salud/Alimentación (0-25)
+        salud = 0
+        if self.cobertura_salud == 'NINGUNA':
+            salud += 8
+        if self.acceso_alimentos == 'CRITICO':
+            salud += 10
+        elif self.acceso_alimentos == 'INSUFICIENTE':
+            salud += 5
+        if self.frecuencia_comidas < 2:
+            salud += 7
+        elif self.frecuencia_comidas == 2:
+            salud += 3
+        detalle['salud'] = min(salud, 25)
+        
+        # Riesgos (0-15)
+        riesgos = 0
+        if self.hay_violencia:
+            riesgos += 8
+        if self.urgencia_alimentaria:
+            riesgos += 7
+        detalle['riesgos'] = min(riesgos, 15)
+        
+        # Total
+        score = sum(detalle.values())
+        
+        # Categoría
+        if score <= 30:
+            categoria = 'BAJO'
+        elif score <= 60:
+            categoria = 'MEDIO'
+        else:
+            categoria = 'ALTO'
+        
+        return score, categoria, detalle
+    
+    def is_completo(self):
+        """Verifica si el relevamiento está completo"""
+        campos_obligatorios = [
+            self.cantidad_convivientes,
+            self.ingreso_mensual_rango,
+            self.fuente_ingreso,
+            self.situacion_laboral,
+            self.tipo_vivienda,
+            self.material_predominante,
+            self.cobertura_salud,
+            self.acceso_alimentos,
+            self.frecuencia_comidas
+        ]
+        return all(campo for campo in campos_obligatorios)
+    
+    def faltantes_por_seccion(self):
+        """Devuelve dict con campos faltantes por sección del wizard"""
+        faltantes = {
+            'familia': [],
+            'ingresos': [],
+            'vivienda': [],
+            'salud': [],
+            'riesgos': []
+        }
+        
+        # Familia
+        if not self.cantidad_convivientes:
+            faltantes['familia'].append('Cantidad de convivientes')
+        
+        # Ingresos
+        if not self.ingreso_mensual_rango:
+            faltantes['ingresos'].append('Rango de ingreso')
+        if not self.fuente_ingreso:
+            faltantes['ingresos'].append('Fuente de ingreso')
+        if not self.situacion_laboral:
+            faltantes['ingresos'].append('Situación laboral')
+        
+        # Vivienda
+        if not self.tipo_vivienda:
+            faltantes['vivienda'].append('Tipo de vivienda')
+        if not self.material_predominante:
+            faltantes['vivienda'].append('Material predominante')
+        
+        # Salud
+        if not self.cobertura_salud:
+            faltantes['salud'].append('Cobertura de salud')
+        if not self.acceso_alimentos:
+            faltantes['salud'].append('Acceso a alimentos')
+        if not self.frecuencia_comidas:
+            faltantes['salud'].append('Frecuencia de comidas')
+        
+        return faltantes
 
 
 class EvaluacionVulnerabilidad(TimeStamped):
@@ -385,10 +560,10 @@ class EvaluacionVulnerabilidad(TimeStamped):
         on_delete=models.CASCADE,
         related_name="evaluacion"
     )
-    relevamiento = models.OneToOneField(
+    relevamiento = models.ForeignKey(
         RelevamientoNachec,
-        on_delete=models.CASCADE,
-        related_name="evaluacion"
+        on_delete=models.PROTECT,
+        related_name="evaluaciones"
     )
     evaluador = models.ForeignKey(
         User,
@@ -396,23 +571,32 @@ class EvaluacionVulnerabilidad(TimeStamped):
         related_name="evaluaciones_nachec"
     )
     
-    # Scoring automático (0-100)
-    score_total = models.DecimalField(max_digits=5, decimal_places=2)
-    score_composicion_familiar = models.DecimalField(max_digits=5, decimal_places=2)
-    score_ingresos = models.DecimalField(max_digits=5, decimal_places=2)
-    score_vivienda = models.DecimalField(max_digits=5, decimal_places=2)
-    score_salud = models.DecimalField(max_digits=5, decimal_places=2)
-    score_educacion = models.DecimalField(max_digits=5, decimal_places=2)
-    score_alimentacion = models.DecimalField(max_digits=5, decimal_places=2)
-    score_riesgos = models.DecimalField(max_digits=5, decimal_places=2)
+    # Scoring del relevamiento (copiado para trazabilidad)
+    score_total = models.PositiveIntegerField(help_text="Score 0-100")
+    score_version = models.CharField(max_length=10, default="v1")
+    categoria_sugerida = models.CharField(
+        max_length=10,
+        choices=CategoriaVulnerabilidad.choices,
+        help_text="Categoría calculada por scoring"
+    )
     
     # Dictamen profesional
+    dictamen = models.TextField(help_text="Dictamen del evaluador (min 20 caracteres)")
     categoria_final = models.CharField(
         max_length=10,
-        choices=CategoriaVulnerabilidad.choices
+        choices=CategoriaVulnerabilidad.choices,
+        help_text="Categoría final confirmada por evaluador"
     )
-    dictamen = models.TextField()
-    recomendaciones = models.TextField()
+    
+    # Override
+    override_categoria = models.BooleanField(
+        default=False,
+        help_text="True si categoría final difiere de sugerida"
+    )
+    justificacion_override = models.TextField(
+        blank=True,
+        help_text="Justificación obligatoria si hay override"
+    )
     
     fecha_evaluacion = models.DateTimeField(auto_now_add=True)
     
@@ -505,6 +689,11 @@ class PrestacionNachec(TimeStamped):
     # Fechas
     fecha_programada = models.DateField(null=True, blank=True)
     fecha_entregada = models.DateField(null=True, blank=True)
+    sla_hasta = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha límite de cumplimiento (SLA)"
+    )
     
     # Responsable y lugar
     responsable = models.ForeignKey(

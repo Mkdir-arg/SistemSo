@@ -212,6 +212,7 @@ class CiudadanoConfirmarView(LoginRequiredMixin, CreateView):
             'fecha_nacimiento': datos.get('fecha_nacimiento'),
             'genero': datos.get('genero'),
             'domicilio': datos.get('domicilio'),
+            'provincia': datos.get('provincia'),
         }
     
     def get_context_data(self, **kwargs):

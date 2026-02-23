@@ -26,6 +26,30 @@ class Ciudadano(TimeStamped):
     telefono = models.CharField(max_length=40, blank=True, db_index=True)
     email = models.EmailField(blank=True, db_index=True)
     domicilio = models.CharField(max_length=240, blank=True)
+    
+    # Datos territoriales
+    provincia = models.ForeignKey(
+        'core.Provincia',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ciudadanos'
+    )
+    municipio = models.ForeignKey(
+        'core.Municipio',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ciudadanos'
+    )
+    localidad = models.ForeignKey(
+        'core.Localidad',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ciudadanos'
+    )
+    
     activo = models.BooleanField(default=True, db_index=True)
     
     # Historial de cambios
@@ -1208,3 +1232,8 @@ class AlertaAusentismo(TimeStamped):
     
     def __str__(self):
         return f"Alerta {self.get_tipo_display()} - {self.inscripto.ciudadano.nombre_completo}"
+
+
+# Importar modelos modulares al namespace de `legajos.models` para que
+# Django los descubra durante `makemigrations`.
+from .models_nachec import *  # noqa: F401,F403,E402

@@ -1,0 +1,80 @@
+{% load static %}
+
+<div class="modal-header bg-warning">
+    <h5 class="modal-title">
+        <i class="fas fa-calendar-alt"></i> Reprogramar Prestación - {{ prestacion.get_tipo_display }}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<form method="post" action="{% url 'legajos:nachec_reprogramar_prestacion' prestacion.id %}">
+    {% csrf_token %}
+    
+    <div class="modal-body">
+        <!-- Resumen -->
+        <div class="alert alert-info">
+            <strong>Prestación:</strong> {{ prestacion.get_tipo_display }}<br>
+            <strong>Fecha actual:</strong> {{ prestacion.fecha_programada|date:"d/m/Y" }}<br>
+            <strong>Estado:</strong> {{ prestacion.get_estado_display }}
+        </div>
+
+        <!-- Nueva fecha -->
+        <div class="mb-3">
+            <label for="nueva_fecha" class="form-label fw-bold">
+                <i class="fas fa-calendar"></i> Nueva fecha programada <span class="text-danger">*</span>
+            </label>
+            <input 
+                type="date" 
+                name="nueva_fecha" 
+                id="nueva_fecha" 
+                class="form-control" 
+                required
+                min="{{ fecha_minima }}">
+        </div>
+
+        <!-- Motivo -->
+        <div class="mb-3">
+            <label for="motivo" class="form-label fw-bold">
+                <i class="fas fa-question-circle"></i> Motivo <span class="text-danger">*</span>
+            </label>
+            <select name="motivo" id="motivo" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="Solicitud del beneficiario">Solicitud del beneficiario</option>
+                <option value="Falta de disponibilidad">Falta de disponibilidad</option>
+                <option value="Condiciones climáticas">Condiciones climáticas</option>
+                <option value="Falta de recursos">Falta de recursos</option>
+                <option value="Otro">Otro</option>
+            </select>
+        </div>
+
+        <!-- Detalle -->
+        <div class="mb-3">
+            <label for="detalle" class="form-label fw-bold">
+                <i class="fas fa-comment"></i> Detalle <span class="text-danger">*</span>
+            </label>
+            <textarea 
+                name="detalle" 
+                id="detalle" 
+                class="form-control" 
+                rows="3" 
+                required 
+                minlength="10"
+                placeholder="Explique el motivo de la reprogramación (mínimo 10 caracteres)"></textarea>
+            <small class="text-muted">Mínimo 10 caracteres</small>
+        </div>
+
+        <div class="alert alert-warning">
+            <i class="fas fa-info-circle"></i> 
+            Al reprogramar se recalculará automáticamente el SLA según el tipo de prestación y prioridad del caso.
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-warning">
+            <i class="fas fa-calendar-check"></i> Reprogramar
+        </button>
+    </div>
+</form>

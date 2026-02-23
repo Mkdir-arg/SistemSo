@@ -1,0 +1,171 @@
+w{% load static %}
+
+<div class="modal-header bg-dark text-white">
+    <h5 class="modal-title">
+        <i class="fas fa-check-circle"></i> Cerrar Caso - {{ caso.ciudadano_titular.nombre_completo }}
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+
+<form method="post" action="{% url 'legajos:nachec_cerrar_caso' caso.id %}">
+    {% csrf_token %}
+    
+    <div class="modal-body">
+        <!-- Sección A: Resumen -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-primary mb-3">
+                <i class="fas fa-info-circle"></i> Resumen del Caso
+            </h6>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted d-block">Score Final</small>
+                        <strong class="fs-5">
+                            {% if evaluacion %}
+                                {{ evaluacion.score_total }}/100
+                                <span class="badge bg-{{ evaluacion.categoria_final|lower }}">{{ evaluacion.get_categoria_final_display }}</span>
+                            {% else %}
+                                No evaluado
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <small class="text-muted d-block">Prestaciones Entregadas</small>
+                        <strong class="fs-5">{{ prestaciones_entregadas }}</strong>
+                    </div>
+                </div>
+            </div>
+            
+            {% if plan %}
+            <div class="mt-3 p-3 bg-light rounded">
+                <small class="text-muted d-block mb-2">Componentes del Plan</small>
+                <div class="d-flex flex-wrap gap-2">
+                    {% if plan.incluye_alimentacion %}
+                        <span class="badge bg-orange"><i class="fas fa-utensils"></i> Alimentación</span>
+                    {% endif %}
+                    {% if plan.incluye_vivienda %}
+                        <span class="badge bg-blue"><i class="fas fa-home"></i> Vivienda</span>
+                    {% endif %}
+                    {% if plan.incluye_salud %}
+                        <span class="badge bg-red"><i class="fas fa-heartbeat"></i> Salud</span>
+                    {% endif %}
+                    {% if plan.incluye_educacion %}
+                        <span class="badge bg-purple"><i class="fas fa-graduation-cap"></i> Educación</span>
+                    {% endif %}
+                    {% if plan.incluye_empleo %}
+                        <span class="badge bg-green"><i class="fas fa-briefcase"></i> Empleo</span>
+                    {% endif %}
+                    {% if plan.incluye_emprendimiento %}
+                        <span class="badge bg-yellow"><i class="fas fa-lightbulb"></i> Emprendimiento</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if ultima_prestacion %}
+            <div class="mt-3 p-3 bg-light rounded">
+                <small class="text-muted d-block">Última Prestación Entregada</small>
+                <strong>{{ ultima_prestacion.get_tipo_display }}</strong> - {{ ultima_prestacion.fecha_entregada|date:"d/m/Y" }}
+            </div>
+            {% endif %}
+            
+            <div class="mt-3 p-3 bg-info bg-opacity-10 rounded">
+                <small class="text-muted d-block">Motivo de Seguimiento</small>
+                <strong>Sin prestaciones activas</strong>
+            </div>
+        </div>
+
+        <!-- Validación prestaciones activas -->
+        {% if not puede_cerrar %}
+        <div class="alert alert-danger">
+            <i class="fas fa-ban"></i> <strong>No se puede cerrar:</strong> 
+            Existen {{ prestaciones_activas }} prestaciones activas. Debe entregarlas o cancelarlas antes de cerrar el caso.
+        </div>
+        {% endif %}
+
+        <!-- Sección B: Motivo de cierre -->
+        <div class="mb-4">
+            <label for="motivo_cierre" class="form-label fw-bold">
+                <i class="fas fa-question-circle"></i> Motivo de cierre <span class="text-danger">*</span>
+            </label>
+            <select 
+                name="motivo_cierre" 
+                id="motivo_cierre" 
+                class="form-select" 
+                required
+                {% if not puede_cerrar %}disabled{% endif %}>
+                <option value="">Seleccione...</option>
+                <option value="OBJETIVOS_CUMPLIDOS">Objetivos cumplidos</option>
+                <option value="NO_LOCALIZABLE">Beneficiario no localizable</option>
+                <option value="RENUNCIA">Renuncia / Abandono</option>
+                <option value="DERIVADO_OTRO_PROGRAMA">Derivado a otro programa</option>
+                <option value="INELEGIBLE_POSTERIOR">Inelegible posterior</option>
+                <option value="FALLECIMIENTO">Fallecimiento</option>
+                <option value="OTRO">Otro</option>
+            </select>
+        </div>
+
+        <!-- Sección C: Informe de cierre -->
+        <div class="mb-4">
+            <label for="informe_cierre" class="form-label fw-bold">
+                <i class="fas fa-file-alt"></i> Informe de cierre <span class="text-danger">*</span>
+            </label>
+            <textarea 
+                name="informe_cierre" 
+                id="informe_cierre" 
+                class="form-control" 
+                rows="5" 
+                required 
+                minlength="30"
+                {% if not puede_cerrar %}disabled{% endif %}
+                placeholder="Resumen ejecutivo del caso: qué se hizo, resultados obtenidos, situación final del beneficiario... (mínimo 30 caracteres)"></textarea>
+            <small class="text-muted">Mínimo 30 caracteres</small>
+        </div>
+
+        <!-- Sección D: Confirmación -->
+        <div class="form-check mb-3">
+            <input 
+                class="form-check-input" 
+                type="checkbox" 
+                name="confirmacion" 
+                id="confirmacion" 
+                required
+                {% if not puede_cerrar %}disabled{% endif %}>
+            <label class="form-check-label fw-bold" for="confirmacion">
+                Confirmo el cierre definitivo del caso
+            </label>
+        </div>
+
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>Esta acción es irreversible.</strong> El caso quedará cerrado, el plan se desactivará y todas las tareas abiertas serán canceladas.
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button 
+            type="submit" 
+            class="btn btn-dark"
+            {% if not puede_cerrar %}disabled{% endif %}>
+            <i class="fas fa-check-circle"></i> Confirmar Cierre
+        </button>
+    </div>
+</form>
+
+<style>
+.badge.bg-orange { background-color: #ff9800 !important; }
+.badge.bg-blue { background-color: #2196f3 !important; }
+.badge.bg-red { background-color: #f44336 !important; }
+.badge.bg-purple { background-color: #9c27b0 !important; }
+.badge.bg-green { background-color: #4caf50 !important; }
+.badge.bg-yellow { background-color: #ffc107 !important; color: #000 !important; }
+.badge.bg-alto { background-color: #f44336 !important; }
+.badge.bg-medio { background-color: #ff9800 !important; }
+.badge.bg-bajo { background-color: #4caf50 !important; }
+</style>

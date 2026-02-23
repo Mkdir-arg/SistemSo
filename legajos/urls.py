@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from . import views_dashboard_simple as views_simple
 from . import views_simple_contactos as views_contactos_simple
@@ -30,6 +30,9 @@ urlpatterns = [
     path('programas/', views_programas.ProgramaListView.as_view(), name='programas'),
     path('programas/<int:pk>/', views_programas.ProgramaDetailView.as_view(), name='programa_detalle'),
     path('acompanamiento/<int:inscripcion_id>/crear-legajo/', views_acompanamiento.crear_legajo_acompanamiento, name='crear_legajo_acompanamiento'),
+    
+    # Ñachec
+    path('nachec/', include('legajos.urls_nachec')),
     
     # ========================================================================
     # SISTEMA NODO - GESTIÓN PROGRAMÁTICA INSTITUCIONAL

@@ -1,0 +1,107 @@
+{% load static %}
+
+<div class="modal-header bg-success text-white">
+    <h5 class="modal-title">
+        <i class="fas fa-check-circle"></i> Confirmar Entrega - {{ prestacion.get_tipo_display }}
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+
+<form method="post" action="{% url 'legajos:nachec_confirmar_entrega' prestacion.id %}">
+    {% csrf_token %}
+    
+    <div class="modal-body">
+        <!-- Resumen prestación -->
+        <div class="alert alert-info">
+            <strong>Prestación:</strong> {{ prestacion.get_tipo_display }}<br>
+            <strong>Ciudadano:</strong> {{ prestacion.caso.ciudadano_titular.nombre_completo }}<br>
+            <strong>Fecha programada:</strong> {{ prestacion.fecha_programada|date:"d/m/Y" }}<br>
+            <strong>Frecuencia:</strong> {{ prestacion.get_frecuencia_display }}
+        </div>
+
+        <!-- Evidencias -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">
+                <i class="fas fa-paperclip"></i> Evidencias adjuntas
+                {% if prestacion.tipo == 'ALIMENTARIA' %}
+                    <span class="badge bg-danger">OBLIGATORIO</span>
+                {% endif %}
+            </label>
+            
+            {% if adjuntos %}
+                <ul class="list-group mb-2">
+                    {% for adj in adjuntos %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-file"></i> {{ adj.etiqueta|default:"Evidencia" }}
+                            </span>
+                            <a href="{{ adj.archivo.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> No hay evidencias adjuntas
+                    {% if prestacion.tipo == 'ALIMENTARIA' %}
+                        <br><strong>Debe adjuntar evidencia antes de confirmar entrega</strong>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <small class="text-muted">
+                Para agregar evidencias, use el botón "Adjuntar" en la tabla de prestaciones antes de confirmar.
+            </small>
+        </div>
+
+        <!-- Observaciones de entrega -->
+        <div class="mb-3">
+            <label for="observaciones_entrega" class="form-label fw-bold">
+                <i class="fas fa-comment"></i> Observaciones de entrega <span class="text-danger">*</span>
+            </label>
+            <textarea 
+                name="observaciones_entrega" 
+                id="observaciones_entrega" 
+                class="form-control" 
+                rows="4" 
+                required 
+                minlength="10"
+                placeholder="Describa cómo se realizó la entrega, quién recibió, condiciones, etc. (mínimo 10 caracteres)"></textarea>
+            <small class="text-muted">Mínimo 10 caracteres</small>
+        </div>
+
+        <!-- Confirmación -->
+        <div class="form-check mb-3">
+            <input 
+                class="form-check-input" 
+                type="checkbox" 
+                name="confirmacion" 
+                id="confirmacion" 
+                required
+                {% if evidencia_obligatoria %}disabled{% endif %}>
+            <label class="form-check-label fw-bold" for="confirmacion">
+                Confirmo que la prestación fue entregada exitosamente
+            </label>
+        </div>
+
+        {% if evidencia_obligatoria %}
+            <div class="alert alert-danger">
+                <i class="fas fa-ban"></i> <strong>No se puede confirmar:</strong> 
+                Debe adjuntar evidencia para prestaciones de tipo ALIMENTARIA
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button 
+            type="submit" 
+            class="btn btn-success"
+            {% if evidencia_obligatoria %}disabled{% endif %}>
+            <i class="fas fa-check"></i> Confirmar Entrega
+        </button>
+    </div>
+</form>

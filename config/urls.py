@@ -11,7 +11,6 @@ urlpatterns = [
     
     # Specific paths first
     path("legajos/", include("legajos.urls")),
-    path("nachec/", include("legajos.urls_nachec")),
     path("configuracion/", include("configuracion.urls")),
     path("chatbot/", include("chatbot.urls")),
     path("conversaciones/", include("conversaciones.urls")),
