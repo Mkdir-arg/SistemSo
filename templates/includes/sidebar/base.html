@@ -26,13 +26,13 @@
 <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300" :class="sidebarCollapsed ? 'lg:w-20' : 'lg:w-72'">
     <div class="flex grow flex-col bg-white shadow-xl h-full border-r border-[#E5E7EB]">
         <!-- Header -->
-        <div class="py-2 px-3 border-b border-[#E5E7EB] flex justify-center">
+        <div class="py-2 px-4 border-b border-[#E5E7EB]">
             <template x-if="!sidebarCollapsed">
-                <img src="{% static 'custom/img/NODO.png' %}" alt="NODO" class="h-16 w-auto">
+                <img src="{% static 'custom/img/NODO.png' %}" alt="NODO" class="w-full h-auto">
             </template>
             
             <template x-if="sidebarCollapsed">
-                <img src="{% static 'custom/img/NODO.png' %}" alt="NODO" class="h-12 w-auto">
+                <img src="{% static 'custom/img/NODO.png' %}" alt="NODO" class="h-12 w-auto mx-auto">
             </template>
         </div>
         
