@@ -11,10 +11,11 @@ services:
     env_file:
       - .env.production
     environment:
-      - RUN_MIGRATIONS=true
-      - RUN_CREAR_PROGRAMAS=true
+      - RUN_MIGRATIONS=false
+      - RUN_CREAR_PROGRAMAS=false
       - RUN_COLLECTSTATIC=true
-      - RUN_CREAR_SUPERADMIN=true
+      - RUN_CREAR_SUPERADMIN=false
+    entrypoint: ["/app/docker-entrypoint.sh"]
     restart: unless-stopped
     networks:
       - nodo-network
