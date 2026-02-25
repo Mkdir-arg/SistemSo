@@ -107,7 +107,6 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
             if urgencia_filtro:
                 derivaciones_qs = derivaciones_qs.filter(urgencia=urgencia_filtro)
             if busqueda:
-                from django.db.models import Q
                 derivaciones_qs = derivaciones_qs.filter(
                     Q(ciudadano__nombre__icontains=busqueda) |
                     Q(ciudadano__apellido__icontains=busqueda) |
@@ -213,7 +212,6 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
             
             # PASO 8: Prestaciones activas
             from .models_nachec import PrestacionNachec
-            from django.db.models import Q
             
             # Filtrar prestaciones donde el usuario es responsable o coordinador del caso
             prestaciones_qs = PrestacionNachec.objects.filter(
