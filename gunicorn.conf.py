@@ -1,12 +1,12 @@
-# Configuración Gunicorn para 1000+ usuarios
+# Configuración Gunicorn optimizada para recursos limitados
 import multiprocessing
 import os
 
 # Establecer variable de entorno para detección de gevent
 os.environ['GUNICORN_WORKER_CLASS'] = 'gevent'
 
-# Workers optimizados para alta concurrencia
-workers = multiprocessing.cpu_count() * 2 + 1  # Fórmula recomendada
+# Workers optimizados para memoria limitada
+workers = 3  # Reducido para optimizar memoria
 worker_class = "gevent"  # Async workers para I/O intensivo
 worker_connections = 1000  # Conexiones por worker
 
@@ -41,4 +41,4 @@ def worker_int(worker):
     worker.log.info("Worker interrumpido")
 
 def pre_fork(server, worker):
-    server.log.info("Worker %s iniciando", worker.pid)
+    server.log.info("Worker [booting] iniciando")
