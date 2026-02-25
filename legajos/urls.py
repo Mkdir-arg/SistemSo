@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from . import views_dashboard_simple as views_simple
 from . import views_simple_contactos as views_contactos_simple
@@ -9,6 +9,7 @@ from . import views_api_derivaciones
 from . import views_institucional
 from . import views_programas
 from . import views_derivacion_programa
+from . import views_acompanamiento
 
 app_name = 'legajos'
 
@@ -28,6 +29,10 @@ urlpatterns = [
     
     path('programas/', views_programas.ProgramaListView.as_view(), name='programas'),
     path('programas/<int:pk>/', views_programas.ProgramaDetailView.as_view(), name='programa_detalle'),
+    path('acompanamiento/<int:inscripcion_id>/crear-legajo/', views_acompanamiento.crear_legajo_acompanamiento, name='crear_legajo_acompanamiento'),
+    
+    # Ñachec
+    path('nachec/', include('legajos.urls_nachec')),
     
     # ========================================================================
     # SISTEMA NODO - GESTIÓN PROGRAMÁTICA INSTITUCIONAL
@@ -139,6 +144,7 @@ urlpatterns = [
     
     # Subir archivos
     path('<uuid:legajo_id>/subir-archivos/', views_contactos_simple.subir_archivos_legajo, name='subir_archivos'),
+    path('<uuid:legajo_id>/archivos/', views_contactos_simple.archivos_legajo_api, name='archivos_legajo'),
     
     # API Archivos
     path('ciudadanos/<int:ciudadano_id>/archivos/', views_contactos_simple.archivos_ciudadano_api, name='archivos_ciudadano'),
