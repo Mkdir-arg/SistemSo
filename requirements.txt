@@ -25,6 +25,7 @@ debugpy==1.8.5
 requests==2.32.4
 Pillow==10.3.0
 django-filter==23.5
+python-dateutil==2.8.2
 
 # Auditoría
 django-simple-history==3.4.0

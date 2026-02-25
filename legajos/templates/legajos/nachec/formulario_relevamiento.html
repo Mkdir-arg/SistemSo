@@ -44,12 +44,16 @@
                     <div class="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold step-circle">5</div>
                     <span class="text-xs mt-2 font-medium text-gray-500">Riesgos</span>
                 </div>
+                <div class="step-item flex flex-col items-center" data-step="6">
+                    <div class="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-bold step-circle">6</div>
+                    <span class="text-xs mt-2 font-medium text-gray-500">Evidencias</span>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="bg-white rounded-b-2xl shadow-lg border border-[#E5E7EB] p-8">
-        <form method="post" id="relevamientoForm">
+        <form method="post" id="relevamientoForm" enctype="multipart/form-data">
             {% csrf_token %}
             
             <div class="form-step active" data-step="1">
@@ -250,6 +254,43 @@
                 </div>
             </div>
 
+            <div class="form-step" data-step="6" style="display: none;">
+                <h3 class="text-xl font-bold text-[#252F40] mb-6 flex items-center">
+                    <span class="w-8 h-8 bg-[#3B82F6] text-white rounded-full flex items-center justify-center mr-3 text-sm">6</span>
+                    Evidencias Fotográficas
+                </h3>
+                <div class="space-y-6">
+                    <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
+                            <div class="text-sm text-yellow-800">
+                                <span class="font-semibold">Importante:</span> Si marcó riesgo crítico (violencia, urgencia alimentaria o vivienda precaria/calle), debe adjuntar al menos 1 evidencia.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-camera text-5xl text-gray-400 mb-3"></i>
+                            <h4 class="font-semibold text-[#252F40] mb-2">Adjuntar Evidencias</h4>
+                            <p class="text-sm text-[#8C8C8C]">Seleccione archivos de imagen (JPG, PNG) o PDF</p>
+                        </div>
+                        
+                        <div id="evidencias-container" class="space-y-3 mb-4"></div>
+                        
+                        <button type="button" onclick="agregarEvidencia()" class="w-full px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all font-medium">
+                            <i class="fas fa-plus mr-2"></i>Agregar Evidencia
+                        </button>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
+                        <div class="text-sm text-blue-800">
+                            <span class="font-semibold">Recomendación:</span> Fotografíe fachada, interior, servicios básicos y situaciones de riesgo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
                 <button type="button" id="prevBtn" class="px-6 py-3 bg-gray-200 text-[#252F40] rounded-lg hover:bg-gray-300 transition-all font-medium" style="display: none;">
                     <i class="fas fa-arrow-left mr-2"></i>Anterior
@@ -258,7 +299,7 @@
                 <button type="button" id="nextBtn" class="px-8 py-3 bg-[#3B82F6] text-white rounded-lg hover:bg-[#2563EB] transition-all font-medium shadow-lg">
                     Siguiente<i class="fas fa-arrow-right ml-2"></i>
                 </button>
-                <button type="submit" id="submitBtn" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-lg" style="display: none;">
+                <button type="submit" id="submitBtn" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-lg">
                     <i class="fas fa-save mr-2"></i>Guardar Relevamiento
                 </button>
             </div>
@@ -268,7 +309,24 @@
 
 <script>
 let currentStep = 1;
-const totalSteps = 5;
+const totalSteps = 6;
+let evidenciaCount = 0;
+
+function agregarEvidencia() {
+    evidenciaCount++;
+    const container = document.getElementById('evidencias-container');
+    const div = document.createElement('div');
+    div.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200';
+    div.innerHTML = `
+        <div class="flex items-center gap-3">
+            <input type="file" name="evidencia_${evidenciaCount}" accept="image/*,application/pdf" class="flex-1 text-sm">
+            <button type="button" onclick="this.parentElement.parentElement.remove()" class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(div);
+}
 
 function showStep(step) {
     document.querySelectorAll('.form-step').forEach(el => {

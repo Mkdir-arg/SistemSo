@@ -61,42 +61,199 @@
 
     <!-- Tab: Dashboard -->
     <div id="tab-dashboard" class="tab-content">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
+        <!-- Hero Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white shadow-xl">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                        <i class="fas fa-inbox text-yellow-600 text-xl"></i>
-                    </div>
+                    <i class="fas fa-inbox text-4xl opacity-80"></i>
+                    <span class="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">Captación</span>
                 </div>
-                <h3 class="text-3xl font-bold text-[#252F40] mb-1">{{ stats_nachec.derivados }}</h3>
-                <p class="text-sm text-[#8C8C8C]">Derivados</p>
+                <p class="text-5xl font-bold mb-2">{{ dashboard_metricas.derivaciones_totales }}</p>
+                <p class="text-yellow-100">Derivaciones Totales</p>
+                <div class="mt-4 flex items-center text-sm">
+                    <i class="fas fa-arrow-up mr-2"></i>
+                    <span>{{ dashboard_metricas.tasa_aceptacion }}% aceptadas</span>
+                </div>
             </div>
-            <div class="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
+            
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                        <i class="fas fa-user-check text-blue-600 text-xl"></i>
-                    </div>
+                    <i class="fas fa-user-check text-4xl opacity-80"></i>
+                    <span class="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">Asignación</span>
                 </div>
-                <h3 class="text-3xl font-bold text-[#252F40] mb-1">{{ stats_nachec.asignados }}</h3>
-                <p class="text-sm text-[#8C8C8C]">Asignados</p>
+                <p class="text-5xl font-bold mb-2">{{ dashboard_metricas.relevamientos_completados }}</p>
+                <p class="text-blue-100">Relevamientos Completos</p>
+                <div class="mt-4 flex items-center text-sm">
+                    <i class="fas fa-clock mr-2"></i>
+                    <span>{{ dashboard_metricas.casos_sin_asignar }} sin asignar</span>
+                </div>
             </div>
-            <div class="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
+            
+            <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-xl">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                        <i class="fas fa-clipboard-list text-purple-600 text-xl"></i>
-                    </div>
+                    <i class="fas fa-chart-line text-4xl opacity-80"></i>
+                    <span class="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">Evaluación</span>
                 </div>
-                <h3 class="text-3xl font-bold text-[#252F40] mb-1">{{ stats_nachec.en_relevamiento }}</h3>
-                <p class="text-sm text-[#8C8C8C]">En Relevamiento</p>
+                <p class="text-5xl font-bold mb-2">{{ dashboard_metricas.score_promedio }}</p>
+                <p class="text-purple-100">Score Promedio</p>
+                <div class="mt-4 flex items-center text-sm">
+                    <i class="fas fa-tasks mr-2"></i>
+                    <span>{{ dashboard_metricas.planes_activos }} planes activos</span>
+                </div>
             </div>
-            <div class="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
+            
+            <div class="bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl p-6 text-white shadow-xl">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    <i class="fas fa-hand-holding-heart text-4xl opacity-80"></i>
+                    <span class="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">Impacto</span>
+                </div>
+                <p class="text-5xl font-bold mb-2">{{ dashboard_metricas.familias_asistidas }}</p>
+                <p class="text-green-100">Familias Asistidas</p>
+                <div class="mt-4 flex items-center text-sm">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>{{ dashboard_metricas.prestaciones_entregadas }} prestaciones</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flujo del Proceso -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-project-diagram text-nodo-purple mr-3"></i>
+                Flujo del Ciclo de Atención
+            </h3>
+            <div class="grid grid-cols-6 gap-4">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-3 shadow-md">
+                        <i class="fas fa-inbox text-yellow-600 text-2xl"></i>
+                    </div>
+                    <p class="font-bold text-2xl text-gray-800">{{ stats_nachec.derivados }}</p>
+                    <p class="text-sm text-gray-600">Derivados</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3 shadow-md">
+                        <i class="fas fa-search text-blue-600 text-2xl"></i>
+                    </div>
+                    <p class="font-bold text-2xl text-gray-800">{{ stats_nachec.en_revision }}</p>
+                    <p class="text-sm text-gray-600">En Revisión</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-3 shadow-md">
+                        <i class="fas fa-user-check text-purple-600 text-2xl"></i>
+                    </div>
+                    <p class="font-bold text-2xl text-gray-800">{{ stats_nachec.asignados }}</p>
+                    <p class="text-sm text-gray-600">Asignados</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-cyan-100 rounded-full flex items-center justify-center mb-3 shadow-md">
+                        <i class="fas fa-clipboard-list text-cyan-600 text-2xl"></i>
+                    </div>
+                    <p class="font-bold text-2xl text-gray-800">{{ stats_nachec.en_relevamiento }}</p>
+                    <p class="text-sm text-gray-600">Relevamiento</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-3 shadow-md">
+                        <i class="fas fa-clipboard-check text-indigo-600 text-2xl"></i>
+                    </div>
+                    <p class="font-bold text-2xl text-gray-800">{{ stats_nachec.evaluados }}</p>
+                    <p class="text-sm text-gray-600">Evaluados</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto bg-teal-100 rounded-full flex items-center justify-center mb-3 shadow-md">
+                        <i class="fas fa-eye text-teal-600 text-2xl"></i>
+                    </div>
+                    <p class="font-bold text-2xl text-gray-800">{{ stats_nachec.en_seguimiento }}</p>
+                    <p class="text-sm text-gray-600">Seguimiento</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Vulnerabilidad -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                    Distribución por Vulnerabilidad
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Alta</span>
+                            <span class="text-sm font-bold text-red-600">{{ dashboard_metricas.scoring_alto }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full" style="width: {% widthratio dashboard_metricas.scoring_alto dashboard_metricas.derivaciones_totales 100 %}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Media</span>
+                            <span class="text-sm font-bold text-yellow-600">{{ dashboard_metricas.scoring_medio }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 h-3 rounded-full" style="width: {% widthratio dashboard_metricas.scoring_medio dashboard_metricas.derivaciones_totales 100 %}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Baja</span>
+                            <span class="text-sm font-bold text-green-600">{{ dashboard_metricas.scoring_bajo }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full" style="width: {% widthratio dashboard_metricas.scoring_bajo dashboard_metricas.derivaciones_totales 100 %}%"></div>
+                        </div>
                     </div>
                 </div>
-                <h3 class="text-3xl font-bold text-[#252F40] mb-1">{{ stats_nachec.evaluados }}</h3>
-                <p class="text-sm text-[#8C8C8C]">Evaluados</p>
+            </div>
+
+            <!-- Prestaciones -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-hand-holding-heart text-green-500 mr-3"></i>
+                    Estado de Prestaciones
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-green-50 rounded-xl p-4 border-l-4 border-green-500">
+                        <p class="text-3xl font-bold text-green-700">{{ dashboard_metricas.prestaciones_entregadas }}</p>
+                        <p class="text-sm text-green-600 mt-1">Entregadas</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500">
+                        <p class="text-3xl font-bold text-blue-700">{{ dashboard_metricas.prestaciones_programadas }}</p>
+                        <p class="text-sm text-blue-600 mt-1">Programadas</p>
+                    </div>
+                </div>
+                <div class="mt-6 bg-purple-50 rounded-xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-purple-600 mb-1">Cumplimiento SLA</p>
+                            <p class="text-3xl font-bold text-purple-700">{{ dashboard_metricas.cumplimiento_sla }}%</p>
+                        </div>
+                        <div class="w-20 h-20 bg-purple-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-clock text-purple-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen Final -->
+        <div class="bg-gradient-to-r from-nodo-purple to-magenta rounded-2xl shadow-xl p-8 text-white">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <i class="fas fa-home text-5xl mb-4 opacity-80"></i>
+                    <p class="text-4xl font-bold mb-2">{{ dashboard_metricas.familias_asistidas }}</p>
+                    <p class="text-purple-100">Familias Asistidas</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-check-circle text-5xl mb-4 opacity-80"></i>
+                    <p class="text-4xl font-bold mb-2">{{ dashboard_metricas.casos_cerrados }}</p>
+                    <p class="text-purple-100">Casos Cerrados</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-chart-line text-5xl mb-4 opacity-80"></i>
+                    <p class="text-4xl font-bold mb-2">{{ dashboard_metricas.cumplimiento_sla }}%</p>
+                    <p class="text-purple-100">Cumplimiento Global</p>
+                </div>
             </div>
         </div>
     </div>
@@ -370,6 +527,8 @@
                                     {% if caso.estado == 'ASIGNADO' %}
                                         {% if request.user.id == caso.territorial_id %}
                                         <a href="{% url 'legajos:nachec_iniciar_relevamiento' caso.id %}" class="text-purple-600 hover:underline">Iniciar Relevamiento</a>
+                                        {% elif request.user.is_superuser %}
+                                        <a href="{% url 'legajos:nachec_reasignar_territorial' caso.id %}" class="text-orange-600 hover:underline">Reasignar</a>
                                         {% else %}
                                         <span class="text-gray-400 text-xs" title="Solo el territorial asignado puede iniciar">Asignado a otro</span>
                                         {% endif %}
@@ -377,6 +536,8 @@
                                         {% if request.user.id == caso.territorial_id %}
                                         <a href="{% url 'legajos:nachec_formulario_relevamiento' caso.id %}" class="text-blue-600 hover:underline mr-3">Continuar</a>
                                         <a href="{% url 'legajos:nachec_finalizar_relevamiento' caso.id %}" class="text-green-600 hover:underline">Finalizar</a>
+                                        {% elif request.user.is_superuser %}
+                                        <a href="{% url 'legajos:nachec_reasignar_territorial' caso.id %}" class="text-orange-600 hover:underline">Reasignar</a>
                                         {% else %}
                                         <span class="text-gray-400 text-xs">Asignado a otro</span>
                                         {% endif %}
@@ -724,6 +885,8 @@
 </div>
 
 <script>
+const STORAGE_KEY = 'nachec_programa_tab';
+
 function cambiarTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.add('hidden');
@@ -739,9 +902,18 @@ function cambiarTab(tabName) {
     const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
     activeButton.classList.add('border-blue-500', 'text-blue-600');
     activeButton.classList.remove('border-transparent', 'text-gray-500');
+    
+    // Guardar solapa activa
+    localStorage.setItem(STORAGE_KEY, tabName);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Restaurar solapa activa
+    const savedTab = localStorage.getItem(STORAGE_KEY);
+    if (savedTab && document.getElementById(`tab-${savedTab}`)) {
+        cambiarTab(savedTab);
+    }
+    
     const tbody = document.getElementById('tbody-asignacion');
     if (tbody) {
         const dataRows = tbody.querySelectorAll('.caso-row');

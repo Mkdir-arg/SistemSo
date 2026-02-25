@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
 from django.db.models import Count, Q
 from django.contrib import messages
+from django.utils import timezone
 
 from .models_programas import Programa
 from .models_institucional import (
@@ -142,12 +143,72 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
             
             context['casos_nachec'] = casos_nachec
             
+            # Métricas del dashboard analítico
+            from django.db.models import Avg
+            from .models_nachec import PrestacionNachec, PlanIntervencionNachec, EvaluacionVulnerabilidad, RelevamientoNachec
+            from datetime import timedelta
+            
+            hoy = timezone.now().date()
+            
+            # Fase 1: Captación
+            derivaciones_totales = casos_nachec.count()
+            derivaciones_aceptadas = casos_nachec.exclude(estado='RECHAZADO').count()
+            tasa_aceptacion = round((derivaciones_aceptadas / derivaciones_totales * 100) if derivaciones_totales > 0 else 0, 1)
+            
+            # Fase 2: Asignación
+            relevamientos_completados = RelevamientoNachec.objects.filter(caso__in=casos_nachec, completado=True).count()
+            casos_sin_asignar = casos_nachec.filter(estado='A_ASIGNAR').count()
+            
+            # Fase 3: Evaluación
+            evaluaciones = EvaluacionVulnerabilidad.objects.filter(caso__in=casos_nachec)
+            scoring_alto = evaluaciones.filter(categoria_final='ALTO').count()
+            scoring_medio = evaluaciones.filter(categoria_final='MEDIO').count()
+            scoring_bajo = evaluaciones.filter(categoria_final='BAJO').count()
+            planes_activos = PlanIntervencionNachec.objects.filter(caso__in=casos_nachec, vigente=True).count()
+            
+            # Fase 4: Ejecución
+            prestaciones_qs = PrestacionNachec.objects.filter(caso__in=casos_nachec)
+            prestaciones_entregadas = prestaciones_qs.filter(estado='ENTREGADA').count()
+            prestaciones_programadas = prestaciones_qs.filter(estado='PROGRAMADA').count()
+            
+            # Cumplimiento SLA
+            prestaciones_con_sla = prestaciones_qs.filter(estado='ENTREGADA', sla_hasta__isnull=False, fecha_entregada__isnull=False)
+            cumplidas = sum(1 for p in prestaciones_con_sla if p.fecha_entregada and p.sla_hasta and 
+                            timezone.make_aware(timezone.datetime.combine(p.fecha_entregada, timezone.datetime.min.time())) <= p.sla_hasta)
+            cumplimiento_sla = round((cumplidas / prestaciones_con_sla.count() * 100) if prestaciones_con_sla.count() > 0 else 0, 1)
+            
+            # Fase 5: Seguimiento
+            casos_cerrados = casos_nachec.filter(estado='CERRADO').count()
+            
+            # Impacto
+            familias_asistidas = casos_nachec.filter(estado__in=['EN_EJECUCION', 'EN_SEGUIMIENTO', 'CERRADO']).count()
+            score_promedio = round(evaluaciones.aggregate(Avg('score_total'))['score_total__avg'] or 0, 1)
+            
             context['stats_nachec'] = {
                 'derivados': CasoNachec.objects.filter(estado='DERIVADO').count(),
                 'en_revision': CasoNachec.objects.filter(estado='EN_REVISION').count(),
                 'asignados': CasoNachec.objects.filter(estado='ASIGNADO').count(),
                 'en_relevamiento': CasoNachec.objects.filter(estado='EN_RELEVAMIENTO').count(),
                 'evaluados': CasoNachec.objects.filter(estado='EVALUADO').count(),
+                'en_seguimiento': CasoNachec.objects.filter(estado='EN_SEGUIMIENTO').count(),
+            }
+            
+            # Dashboard analítico
+            context['dashboard_metricas'] = {
+                'derivaciones_totales': derivaciones_totales,
+                'tasa_aceptacion': tasa_aceptacion,
+                'relevamientos_completados': relevamientos_completados,
+                'casos_sin_asignar': casos_sin_asignar,
+                'scoring_alto': scoring_alto,
+                'scoring_medio': scoring_medio,
+                'scoring_bajo': scoring_bajo,
+                'planes_activos': planes_activos,
+                'prestaciones_entregadas': prestaciones_entregadas,
+                'prestaciones_programadas': prestaciones_programadas,
+                'cumplimiento_sla': cumplimiento_sla,
+                'casos_cerrados': casos_cerrados,
+                'familias_asistidas': familias_asistidas,
+                'score_promedio': score_promedio
             }
             
             # PASO 8: Prestaciones activas

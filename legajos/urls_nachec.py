@@ -5,13 +5,18 @@ from django.urls import path
 from . import views_nachec
 
 urlpatterns = [
+    # Dashboard
+    path('dashboard/', views_nachec.dashboard_nachec, name='nachec_dashboard'),
+    # Tareas y validaciones
     path('tarea/<int:tarea_id>/completar/', views_nachec.completar_tarea, name='nachec_completar_tarea'),
     path('caso/<int:caso_id>/tarea-validacion/', views_nachec.ver_tarea_validacion, name='nachec_ver_tarea_validacion'),
     path('caso/<int:caso_id>/completar-validacion/', views_nachec.completar_validacion, name='nachec_completar_validacion'),
     path('caso/<int:caso_id>/enviar-asignacion/', views_nachec.enviar_a_asignacion, name='nachec_enviar_asignacion'),
     path('caso/<int:caso_id>/asignar-territorial/', views_nachec.asignar_territorial, name='nachec_asignar_territorial'),
+    path('caso/<int:caso_id>/reasignar-territorial/', views_nachec.reasignar_territorial, name='nachec_reasignar_territorial'),
     path('caso/<int:caso_id>/iniciar-relevamiento/', views_nachec.iniciar_relevamiento, name='nachec_iniciar_relevamiento'),
     path('caso/<int:caso_id>/relevamiento/', views_nachec.formulario_relevamiento, name='nachec_formulario_relevamiento'),
+    path('caso/<int:caso_id>/adjuntar-evidencias/', views_nachec.adjuntar_evidencias, name='nachec_adjuntar_evidencias'),
     path('caso/<int:caso_id>/finalizar-relevamiento/', views_nachec.finalizar_relevamiento, name='nachec_finalizar_relevamiento'),
     path('caso/<int:caso_id>/evaluar/', views_nachec.evaluar_caso, name='nachec_evaluar_caso'),
     path('caso/<int:caso_id>/activar-plan/', views_nachec.activar_plan, name='nachec_activar_plan'),

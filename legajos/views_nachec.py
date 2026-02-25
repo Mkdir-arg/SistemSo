@@ -1,7 +1,7 @@
 """
 Vistas para transiciones de estado en Ñachec
 """
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import timedelta
@@ -222,7 +222,6 @@ Observaciones: {observaciones}"""
 
 
 @login_required
-@login_required
 def asignar_territorial(request, caso_id):
     """A_ASIGNAR → ASIGNADO con modal mejorado"""
     from django.contrib.auth.models import User
@@ -402,13 +401,87 @@ Instrucciones: {instrucciones[:100]}..."""
     # Sugerir territoriales con menor carga
     territoriales_sugeridos = sorted(territoriales, key=lambda x: x.casos_activos)[:3]
     
-    return render(request, 'legajos/nachec/modal_asignar_territorial.html', {
+    return render(request, 'legajos/nachec/asignar_territorial.html', {
         'caso': caso,
         'territoriales': territoriales,
         'territoriales_sugeridos': territoriales_sugeridos,
         'sla_asignacion_texto': sla_texto,
         'fecha_limite_default': fecha_limite_default.strftime('%Y-%m-%d'),
         'fecha_minima': timezone.now().date().strftime('%Y-%m-%d')
+    })
+
+
+@login_required
+def reasignar_territorial(request, caso_id):
+    """Reasignar territorial (solo superadmin)"""
+    from django.contrib.auth.models import User
+    from django.utils import timezone
+    from django.db import transaction
+    from django.http import HttpResponseForbidden
+    
+    if not request.user.is_superuser:
+        messages.error(request, 'Solo superadmin puede reasignar casos')
+        return HttpResponseForbidden('Acceso denegado')
+    
+    caso = get_object_or_404(CasoNachec, id=caso_id)
+    
+    if request.method == 'POST':
+        territorial_id = request.POST.get('territorial_id')
+        motivo = request.POST.get('motivo', '').strip()
+        
+        if not territorial_id:
+            messages.error(request, 'Debe seleccionar un territorial')
+            return redirect('legajos:nachec_reasignar_territorial', caso_id=caso.id)
+        
+        if len(motivo) < 10:
+            messages.error(request, 'El motivo debe tener al menos 10 caracteres')
+            return redirect('legajos:nachec_reasignar_territorial', caso_id=caso.id)
+        
+        try:
+            territorial = User.objects.get(id=territorial_id, is_active=True)
+        except User.DoesNotExist:
+            messages.error(request, 'Territorial no válido')
+            return redirect('legajos:nachec_reasignar_territorial', caso_id=caso.id)
+        
+        with transaction.atomic():
+            territorial_anterior = caso.territorial
+            caso.territorial = territorial
+            caso.save()
+            
+            # Actualizar tareas pendientes
+            TareaNachec.objects.filter(
+                caso=caso,
+                asignado_a=territorial_anterior,
+                estado__in=['PENDIENTE', 'EN_PROCESO']
+            ).update(asignado_a=territorial)
+            
+            # Auditoría
+            HistorialEstadoCaso.objects.create(
+                caso=caso,
+                estado_anterior=caso.estado,
+                estado_nuevo=caso.estado,
+                usuario=request.user,
+                observacion=f"""Reasignación por superadmin
+De: {territorial_anterior.get_full_name() if territorial_anterior else 'Sin asignar'}
+A: {territorial.get_full_name()}
+Motivo: {motivo}"""
+            )
+        
+        messages.success(request, f'Caso reasignado a {territorial.get_full_name()}')
+        return redirect('legajos:programa_detalle', pk=2)
+    
+    # GET
+    territoriales = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    for t in territoriales:
+        t.casos_activos = CasoNachec.objects.filter(
+            territorial=t,
+            estado__in=['ASIGNADO', 'EN_RELEVAMIENTO', 'EN_EJECUCION', 'EN_SEGUIMIENTO']
+        ).count()
+    
+    return render(request, 'legajos/nachec/reasignar_territorial.html', {
+        'caso': caso,
+        'territoriales': territoriales,
+        'territorial_actual': caso.territorial
     })
 
 
@@ -509,7 +582,7 @@ Municipio: {caso.municipio}"""
     else:
         sla_texto = "No definido"
     
-    return render(request, 'legajos/nachec/modal_iniciar_relevamiento.html', {
+    return render(request, 'legajos/nachec/iniciar_relevamiento.html', {
         'caso': caso,
         'sla_texto': sla_texto,
         'sla_vencido': sla_vencido
@@ -542,8 +615,8 @@ def finalizar_relevamiento(request, caso_id):
     try:
         relevamiento = RelevamientoNachec.objects.filter(caso=caso, completado=False).latest('creado')
     except RelevamientoNachec.DoesNotExist:
-        messages.error(request, 'No existe relevamiento activo para este caso')
-        return redirect('legajos:programa_detalle', pk=2)
+        messages.error(request, 'No existe relevamiento sin completar para este caso. Debe completar el formulario de relevamiento primero.')
+        return redirect('legajos:nachec_formulario_relevamiento', caso_id=caso.id)
     
     if request.method == 'GET':
         # Validaciones para modal
@@ -1418,24 +1491,122 @@ def formulario_relevamiento(request, caso_id):
         relevamiento.hay_violencia = request.POST.get('hay_violencia') == 'on'
         relevamiento.urgencia_alimentaria = request.POST.get('urgencia_alimentaria') == 'on'
         relevamiento.observaciones = request.POST.get('observaciones', '')
-        relevamiento.completado = True
         
         from django.utils import timezone
-        relevamiento.fecha_finalizacion = timezone.now()
         relevamiento.save()
         
-        messages.success(request, 'Relevamiento guardado exitosamente')
+        # Procesar evidencias
+        from django.contrib.contenttypes.models import ContentType
+        from legajos.models import Adjunto
+        content_type = ContentType.objects.get_for_model(RelevamientoNachec)
+        
+        evidencias_subidas = 0
+        for key in request.FILES:
+            if key.startswith('evidencia_'):
+                archivo = request.FILES[key]
+                Adjunto.objects.create(
+                    content_type=content_type,
+                    object_id=relevamiento.id,
+                    archivo=archivo,
+                    etiqueta=f"Evidencia {key.split('_')[1]}"
+                )
+                evidencias_subidas += 1
+        
+        if evidencias_subidas > 0:
+            messages.success(request, f'Relevamiento guardado con {evidencias_subidas} evidencia(s).')
+        else:
+            messages.success(request, 'Relevamiento guardado exitosamente.')
         return redirect('legajos:programa_detalle', pk=2)
     
     # GET: Mostrar formulario
-    try:
-        relevamiento = RelevamientoNachec.objects.get(caso=caso)
-    except RelevamientoNachec.DoesNotExist:
-        relevamiento = None
+    relevamiento = RelevamientoNachec.objects.filter(caso=caso).order_by('-creado').first()
+    if not relevamiento:
+        relevamiento = RelevamientoNachec.objects.create(
+            caso=caso,
+            territorial=request.user,
+            cantidad_convivientes=0,
+            frecuencia_comidas=0
+        )
     
     return render(request, 'legajos/nachec/formulario_relevamiento.html', {
         'caso': caso,
         'relevamiento': relevamiento
+    })
+
+
+@login_required
+def adjuntar_evidencias(request, caso_id):
+    """Pantalla para adjuntar evidencias al relevamiento"""
+    from django.shortcuts import render
+    from django.contrib.contenttypes.models import ContentType
+    from legajos.models import Adjunto
+    from .models_nachec import RelevamientoNachec
+    from django.http import HttpResponseForbidden
+    
+    caso = get_object_or_404(CasoNachec, id=caso_id)
+    
+    # Control de acceso
+    if request.user.id != caso.territorial_id:
+        messages.error(request, 'Solo el territorial asignado puede adjuntar evidencias')
+        return HttpResponseForbidden('Acceso denegado')
+    
+    # Obtener relevamiento
+    relevamiento = RelevamientoNachec.objects.filter(caso=caso).order_by('-creado').first()
+    if not relevamiento:
+        messages.error(request, 'No existe relevamiento para este caso')
+        return redirect('legajos:programa_detalle', pk=2)
+    
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        
+        if accion == 'subir':
+            # Subir archivo
+            archivo = request.FILES.get('archivo')
+            etiqueta = request.POST.get('etiqueta', '').strip()
+            
+            if not archivo:
+                messages.error(request, 'Debe seleccionar un archivo')
+                return redirect('legajos:nachec_adjuntar_evidencias', caso_id=caso.id)
+            
+            if len(etiqueta) < 3:
+                messages.error(request, 'La etiqueta debe tener al menos 3 caracteres')
+                return redirect('legajos:nachec_adjuntar_evidencias', caso_id=caso.id)
+            
+            # Crear adjunto
+            content_type = ContentType.objects.get_for_model(RelevamientoNachec)
+            Adjunto.objects.create(
+                content_type=content_type,
+                object_id=relevamiento.id,
+                archivo=archivo,
+                etiqueta=etiqueta,
+                subido_por=request.user
+            )
+            
+            messages.success(request, f'Evidencia "{etiqueta}" adjuntada correctamente')
+            return redirect('legajos:nachec_adjuntar_evidencias', caso_id=caso.id)
+        
+        elif accion == 'continuar':
+            # Continuar sin adjuntar más evidencias
+            messages.info(request, 'Puede finalizar el relevamiento cuando esté listo')
+            return redirect('legajos:programa_detalle', pk=2)
+    
+    # GET: Mostrar pantalla
+    content_type = ContentType.objects.get_for_model(RelevamientoNachec)
+    adjuntos = Adjunto.objects.filter(content_type=content_type, object_id=relevamiento.id)
+    
+    # Verificar si hay riesgo crítico
+    riesgo_critico = (
+        relevamiento.urgencia_alimentaria or 
+        relevamiento.hay_violencia or 
+        relevamiento.tipo_vivienda in ['PRECARIA', 'CALLE']
+    )
+    
+    return render(request, 'legajos/nachec/adjuntar_evidencias.html', {
+        'caso': caso,
+        'relevamiento': relevamiento,
+        'adjuntos': adjuntos,
+        'riesgo_critico': riesgo_critico,
+        'puede_continuar': not riesgo_critico or adjuntos.count() > 0
     })
 
 
@@ -1502,7 +1673,7 @@ Fecha programada: {prestacion.fecha_programada.strftime('%d/%m/%Y') if prestacio
 @login_required
 def confirmar_entrega_prestacion(request, prestacion_id):
     """EN_PROCESO → ENTREGADA con generación de próxima si frecuencia != UNICA"""
-    from django.http import HttpResponseForbidden
+    from django.http import HttpResponseForbidden, JsonResponse
     from django.shortcuts import render
     from django.contrib.contenttypes.models import ContentType
     from legajos.models import Adjunto
@@ -1519,6 +1690,20 @@ def confirmar_entrega_prestacion(request, prestacion_id):
     if prestacion.estado not in ['EN_PROCESO', 'EN_CURSO']:
         messages.error(request, 'La prestación no está en proceso')
         return redirect('legajos:programa_detalle', pk=2)
+    
+    # Manejar subida de archivo via AJAX
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        archivo = request.FILES.get('evidencia')
+        if archivo:
+            content_type = ContentType.objects.get_for_model(PrestacionNachec)
+            Adjunto.objects.create(
+                content_type=content_type,
+                object_id=prestacion.id,
+                archivo=archivo,
+                etiqueta=f"Evidencia - {archivo.name}"
+            )
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error': 'No se recibió archivo'})
     
     if request.method == 'GET':
         # Contar evidencias
@@ -2322,3 +2507,206 @@ Detalle:
         
         messages.success(request, f'Caso reabierto exitosamente. Estado: {caso.get_estado_display()}')
         return redirect('legajos:programa_detalle', pk=2)
+
+
+# ============================================================================
+# Dashboard ÑACHEC
+# ============================================================================
+
+@login_required
+def dashboard_nachec(request):
+    """Dashboard integral del programa ÑACHEC"""
+    from django.utils import timezone
+    from django.db.models import Count, Q, Avg
+    from datetime import timedelta
+    from .models_nachec import PrestacionNachec, PlanIntervencionNachec, EvaluacionVulnerabilidad
+    from core.models import Municipio
+    
+    # Filtros
+    periodo = request.GET.get('periodo', 'semana')
+    municipio_id = request.GET.get('municipio')
+    
+    # Calcular rango de fechas
+    hoy = timezone.now().date()
+    if periodo == 'dia':
+        fecha_desde = hoy
+    elif periodo == 'semana':
+        fecha_desde = hoy - timedelta(days=7)
+    elif periodo == 'mes':
+        fecha_desde = hoy - timedelta(days=30)
+    elif periodo == 'trimestre':
+        fecha_desde = hoy - timedelta(days=90)
+    else:
+        fecha_desde = hoy - timedelta(days=7)
+    
+    # Base queryset
+    casos_qs = CasoNachec.objects.all()
+    if municipio_id:
+        casos_qs = casos_qs.filter(municipio=municipio_id)
+    
+    # 🟢 FASE 1: Captación y Admisión
+    derivaciones_totales = casos_qs.count()
+    derivaciones_nuevas = casos_qs.filter(creado__gte=fecha_desde).count()
+    derivaciones_aceptadas = casos_qs.exclude(estado='RECHAZADO').count()
+    derivaciones_pendientes = casos_qs.filter(estado='EN_REVISION').count()
+    tasa_aceptacion = round((derivaciones_aceptadas / derivaciones_totales * 100) if derivaciones_totales > 0 else 0, 1)
+    casos_incompletos = casos_qs.filter(
+        Q(ciudadano_titular__dni__isnull=True) | 
+        Q(ciudadano_titular__telefono__isnull=True) |
+        Q(direccion__isnull=True)
+    ).count()
+    
+    # 🔵 FASE 2: Asignación y Relevamiento
+    relevamientos_completados = RelevamientoNachec.objects.filter(caso__in=casos_qs, completado=True).count()
+    relevamientos_en_curso = casos_qs.filter(estado='EN_RELEVAMIENTO').count()
+    relevamientos_sla_vencer = casos_qs.filter(
+        estado__in=['ASIGNADO', 'EN_RELEVAMIENTO'],
+        sla_relevamiento__lte=hoy + timedelta(days=2),
+        sla_relevamiento__gte=hoy
+    ).count()
+    casos_sin_asignar = casos_qs.filter(estado='A_ASIGNAR').count()
+    
+    # Distribución territorial
+    por_territorio = casos_qs.values('municipio').annotate(
+        casos_total=Count('id'),
+        relevamientos_completados=Count('id', filter=Q(estado__in=['EVALUADO', 'PLAN_DEFINIDO', 'EN_EJECUCION', 'EN_SEGUIMIENTO', 'CERRADO']))
+    ).order_by('-casos_total')[:5]
+    
+    for t in por_territorio:
+        t['nombre'] = t['municipio'] or 'Sin especificar'
+    
+    # 🟡 FASE 3: Evaluación y Planificación
+    casos_evaluados = casos_qs.filter(estado__in=['PLAN_DEFINIDO', 'EN_EJECUCION', 'EN_SEGUIMIENTO', 'CERRADO']).count()
+    casos_sin_evaluar = casos_qs.filter(estado='EVALUADO').count()
+    
+    evaluaciones = EvaluacionVulnerabilidad.objects.filter(caso__in=casos_qs)
+    scoring_alto = evaluaciones.filter(categoria_final='ALTO').count()
+    scoring_medio = evaluaciones.filter(categoria_final='MEDIO').count()
+    scoring_bajo = evaluaciones.filter(categoria_final='BAJO').count()
+    
+    planes_activos = PlanIntervencionNachec.objects.filter(caso__in=casos_qs, vigente=True).count()
+    planes_pendientes = casos_qs.filter(estado='PLAN_DEFINIDO').count()
+    
+    # 🟠 FASE 4: Ejecución de Prestaciones
+    prestaciones_qs = PrestacionNachec.objects.filter(caso__in=casos_qs)
+    prestaciones_programadas = prestaciones_qs.filter(estado='PROGRAMADA').count()
+    prestaciones_en_proceso = prestaciones_qs.filter(estado__in=['EN_PROCESO', 'EN_CURSO']).count()
+    prestaciones_entregadas = prestaciones_qs.filter(estado='ENTREGADA', fecha_entregada__gte=fecha_desde).count()
+    prestaciones_vencidas = prestaciones_qs.filter(
+        estado__in=['PROGRAMADA', 'EN_PROCESO'],
+        sla_hasta__lt=timezone.now()
+    ).count()
+    
+    # Cumplimiento SLA
+    prestaciones_con_sla = prestaciones_qs.filter(estado='ENTREGADA', sla_hasta__isnull=False, fecha_entregada__isnull=False)
+    cumplidas = sum(1 for p in prestaciones_con_sla if p.fecha_entregada and p.sla_hasta and 
+                    timezone.make_aware(timezone.datetime.combine(p.fecha_entregada, timezone.datetime.min.time())) <= p.sla_hasta)
+    cumplimiento_sla = round((cumplidas / prestaciones_con_sla.count() * 100) if prestaciones_con_sla.count() > 0 else 0, 1)
+    
+    # Por tipo
+    prestaciones_alimentaria = prestaciones_qs.filter(tipo='ALIMENTARIA').count()
+    prestaciones_vivienda = prestaciones_qs.filter(tipo='VIVIENDA').count()
+    prestaciones_salud = prestaciones_qs.filter(tipo='SALUD').count()
+    prestaciones_educacion = prestaciones_qs.filter(tipo='EDUCACION').count()
+    prestaciones_empleo = prestaciones_qs.filter(tipo='EMPLEO').count()
+    prestaciones_emprendimiento = prestaciones_qs.filter(tipo='EMPRENDIMIENTO').count()
+    
+    # 🔴 FASE 5: Seguimiento y Cierre
+    casos_en_seguimiento = casos_qs.filter(estado='EN_SEGUIMIENTO').count()
+    casos_cerrados = casos_qs.filter(estado='CERRADO', fecha_cierre__gte=fecha_desde).count()
+    casos_reabiertos = casos_qs.filter(
+        historialestadocaso__estado_nuevo__in=['EN_SEGUIMIENTO', 'EVALUADO', 'PLAN_DEFINIDO'],
+        historialestadocaso__estado_anterior='CERRADO',
+        historialestadocaso__fecha__gte=fecha_desde
+    ).distinct().count()
+    cierres_vencidos = TareaNachec.objects.filter(
+        caso__in=casos_qs,
+        tipo='OTRO',
+        titulo__icontains='Cerrar caso',
+        estado__in=['PENDIENTE', 'EN_PROCESO'],
+        fecha_vencimiento__lt=hoy
+    ).count()
+    
+    # 📍 Alertas
+    alertas_sla_vencido = TareaNachec.objects.filter(
+        caso__in=casos_qs,
+        estado__in=['PENDIENTE', 'EN_PROCESO'],
+        fecha_vencimiento__lt=hoy
+    ).count()
+    casos_sin_relevamiento = casos_qs.filter(estado='ASIGNADO').count()
+    cerrados_sin_evidencias = casos_qs.filter(
+        estado='CERRADO',
+        prestacionnachec__estado='ENTREGADA'
+    ).annotate(
+        evidencias=Count('prestacionnachec__adjunto')
+    ).filter(evidencias=0).distinct().count()
+    
+    # 🎯 Impacto Social
+    familias_asistidas = casos_qs.filter(estado__in=['EN_EJECUCION', 'EN_SEGUIMIENTO', 'CERRADO']).count()
+    mejoras_vivienda = prestaciones_qs.filter(tipo='VIVIENDA', estado='ENTREGADA').count()
+    capacitaciones = prestaciones_qs.filter(tipo__in=['EMPLEO', 'EMPRENDIMIENTO'], estado='ENTREGADA').count()
+    score_promedio = round(evaluaciones.aggregate(Avg('score_total'))['score_total__avg'] or 0, 1)
+    
+    # Municipios
+    municipios = Municipio.objects.all().order_by('nombre')
+    
+    metricas = {
+        # Fase 1
+        'derivaciones_totales': derivaciones_totales,
+        'derivaciones_nuevas': derivaciones_nuevas,
+        'derivaciones_aceptadas': derivaciones_aceptadas,
+        'derivaciones_pendientes': derivaciones_pendientes,
+        'tasa_aceptacion': tasa_aceptacion,
+        'casos_incompletos': casos_incompletos,
+        
+        # Fase 2
+        'por_territorio': por_territorio,
+        'relevamientos_completados': relevamientos_completados,
+        'relevamientos_en_curso': relevamientos_en_curso,
+        'relevamientos_sla_vencer': relevamientos_sla_vencer,
+        'casos_sin_asignar': casos_sin_asignar,
+        
+        # Fase 3
+        'casos_evaluados': casos_evaluados,
+        'casos_sin_evaluar': casos_sin_evaluar,
+        'scoring_alto': scoring_alto,
+        'scoring_medio': scoring_medio,
+        'scoring_bajo': scoring_bajo,
+        'planes_activos': planes_activos,
+        'planes_pendientes': planes_pendientes,
+        
+        # Fase 4
+        'prestaciones_programadas': prestaciones_programadas,
+        'prestaciones_en_proceso': prestaciones_en_proceso,
+        'prestaciones_entregadas': prestaciones_entregadas,
+        'prestaciones_vencidas': prestaciones_vencidas,
+        'cumplimiento_sla': cumplimiento_sla,
+        'prestaciones_alimentaria': prestaciones_alimentaria,
+        'prestaciones_vivienda': prestaciones_vivienda,
+        'prestaciones_salud': prestaciones_salud,
+        'prestaciones_educacion': prestaciones_educacion,
+        'prestaciones_empleo': prestaciones_empleo,
+        'prestaciones_emprendimiento': prestaciones_emprendimiento,
+        
+        # Fase 5
+        'casos_en_seguimiento': casos_en_seguimiento,
+        'casos_cerrados': casos_cerrados,
+        'casos_reabiertos': casos_reabiertos,
+        'cierres_vencidos': cierres_vencidos,
+        
+        # Alertas
+        'alertas_sla_vencido': alertas_sla_vencido,
+        'casos_sin_relevamiento': casos_sin_relevamiento,
+        'cerrados_sin_evidencias': cerrados_sin_evidencias,
+        
+        # Impacto
+        'familias_asistidas': familias_asistidas,
+        'mejoras_vivienda': mejoras_vivienda,
+        'capacitaciones': capacitaciones,
+        'score_promedio': score_promedio
+    }
+    
+    return render(request, 'legajos/nachec/dashboard.html', {
+        'metricas': metricas,
+        'municipios': municipios
+    })
