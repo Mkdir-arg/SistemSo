@@ -14,16 +14,16 @@
 {% block main-content %}
 <div class="max-w-full mx-4 lg:mx-8" x-data="dashboard()">
     <!-- Header Dinámico -->
-    <div class="bg-[#7928CA] rounded-2xl p-8 mb-8 text-white shadow-lg">
+    <div class="bg-[#F9FAFB] rounded-2xl p-8 mb-8 text-[#252F40]" style="box-shadow: 0 4px 8px 0 rgba(249, 250, 251, 0.1); border-radius: 12px;">
         <div class="flex justify-between items-start">
             <div>
-                <h1 class="text-3xl font-bold mb-2" x-text="saludo"></h1>
-                <p class="text-purple-100" x-text="fechaHora"></p>
+                <h1 class="text-[30px] font-bold mb-2" style="font-family: Inter, sans-serif; background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" x-text="saludo"></h1>
+                <p class="text-[20px] text-[#000000]" style="font-family: Inter, sans-serif;" x-text="fechaHora"></p>
             </div>
             <div class="flex items-center gap-3">
-                <div class="px-4 py-2 bg-white/20 rounded-xl flex items-center gap-2">
-                    <div class="w-2 h-2 bg-[#08B8CC] rounded-full animate-pulse"></div>
-                    <span class="text-sm font-medium">Sistema Activo</span>
+                <div class="px-4 py-2 bg-[#ECFDF5] border border-[#A4F4CF] rounded-xl flex items-center gap-2">
+                    <div class="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
+                    <span class="text-sm font-bold text-[#006045]">Sistema Activo</span>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
                        class="w-full pl-12 pr-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#101828] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#FF0080] focus:border-transparent transition-all"
                        x-model="busqueda" @input="buscarCiudadano()">
             </div>
-            <button class="btn-nodo btn-brand btn-base">
+            <button class="px-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#4A5565] font-medium transition-all hover:bg-[#F3F4F6] hover:text-[#101828] focus:bg-[#F3F4F6] focus:text-[#101828] focus:shadow-[0_1px_0_2px_#F3F4F6] disabled:bg-[#F3F4F6] disabled:border-[#E5E7E8] disabled:text-[#99A1AF] flex items-center gap-2">
                 <i class="fas fa-plus"></i>
                 <span>Nuevo Legajo</span>
             </button>
@@ -54,24 +54,27 @@
     </div>
 
     <!-- Alertas Críticas -->
-    <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-8" x-show="alertasCriticas.length > 0">
+    <div class="bg-[#FEF0F2] border border-[#FFCCD3] rounded-xl p-6 mb-8" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); border-radius: 12px;" x-show="alertasCriticas.length > 0">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-red-800 flex items-center">
-                <i class="fas fa-exclamation-triangle mr-2 animate-pulse"></i>
+            <h3 class="text-[18px] font-semibold text-[#000000] flex items-center" style="font-family: Inter, sans-serif;">
+                <i class="fas fa-exclamation-triangle mr-2 animate-pulse text-[#D03801]"></i>
                 Alertas Críticas
             </h3>
-            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium" x-text="alertasCriticas.length + ' alertas'"></span>
+            <span class="bg-[#FEF0F2] border border-[#FFCCD3] text-[#8B0836] px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                <span x-text="alertasCriticas.length + ' alertas'"></span>
+                <i class="fas fa-times text-xs"></i>
+            </span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <template x-for="alerta in alertasCriticas">
-                <div class="bg-white border border-red-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="bg-[#FFFFFF] border border-[#FFCCD3] rounded-xl p-4 hover:shadow-md transition-shadow" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); border-radius: 12px;">
                     <div class="flex items-start justify-between">
                         <div>
-                            <div class="font-medium text-gray-900" x-text="alerta.ciudadano"></div>
-                            <div class="text-sm text-red-600" x-text="alerta.tipo"></div>
-                            <div class="text-xs text-gray-500" x-text="alerta.fecha"></div>
+                            <div class="font-semibold text-[#000000] text-[16px]" style="font-family: Inter, sans-serif;" x-text="alerta.ciudadano"></div>
+                            <div class="text-[14px] font-bold text-[#D03801]" style="font-family: Inter, sans-serif;" x-text="alerta.tipo"></div>
+                            <div class="text-[14px] font-semibold text-[#6A7282]" style="font-family: Inter, sans-serif;" x-text="alerta.fecha"></div>
                         </div>
-                        <button class="text-red-600 hover:text-red-800">
+                        <button class="text-[#D03801] hover:text-red-800">
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
@@ -84,7 +87,7 @@
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-user-friends text-xl text-[#10B981]"></i>
+                <i class="fas fa-user-friends text-3xl" style="background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
             </div>
             <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.ciudadanos"></p>
             <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Total Ciudadanos</p>
@@ -92,7 +95,7 @@
 
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-folder-open text-xl text-[#3B82F6]"></i>
+                <i class="fas fa-folder-open text-3xl" style="background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
             </div>
             <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.legajos"></p>
             <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Legajos Activos</p>
@@ -100,7 +103,7 @@
 
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-calendar-check text-xl text-[#F59E0B]"></i>
+                <i class="fas fa-calendar-check text-3xl" style="background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
             </div>
             <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.seguimientos"></p>
             <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Seguimientos Hoy</p>
@@ -108,7 +111,7 @@
 
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-exclamation-triangle text-xl text-[#EF4444]"></i>
+                <i class="fas fa-exclamation-triangle text-3xl" style="background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
             </div>
             <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.alertas"></p>
             <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Alertas Activas</p>
