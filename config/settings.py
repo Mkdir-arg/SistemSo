@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 # --- Paths y .env (en este orden) ---
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.production")
 
 # --- Entorno ---
 DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
@@ -50,6 +50,8 @@ DEFAULT_SCHEME = "https" if ENVIRONMENT == "prd" else "http"
 # CSRF_TRUSTED_ORIGINS requiere esquema. Para PA siempre https.
 CSRF_TRUSTED_ORIGINS = [
     "https://mlepera.pythonanywhere.com",
+    "https://54.172.163.63",
+    "https://ec2-54-172-163-63.compute-1.amazonaws.com",
     "http://54.172.163.63",
     "http://ec2-54-172-163-63.compute-1.amazonaws.com"
 ]
@@ -86,35 +88,19 @@ INSTALLED_APPS = [
     "portal",
     "tramites",
     "healthcheck",
-    "drf_spectacular",
+    # "drf_spectacular",  # Desactivado temporalmente
 ]
 
 # --- Middleware ---
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",  # Seguridad primero
-    "core.middleware_concurrency.ConcurrencyLimitMiddleware",  # Limitar antes de medir
-    "silk.middleware.SilkyMiddleware",  # Performance profiling
-    "django.middleware.gzip.GZipMiddleware",
-    "core.middleware_concurrency.RequestMetricsMiddleware",    # Métricas en tiempo real
-    "core.monitoring.MonitoringMiddleware",  # Sistema de monitoreo avanzado
-    "config.middlewares.performance.PerformanceMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.middleware.gzip.GZipMiddleware", 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.contrib.admindocs.middleware.XViewMiddleware",
-    "config.middlewares.xss_protection.XSSProtectionMiddleware",
-    "config.middlewares.threadlocals.ThreadLocalMiddleware",
-    # Nuevos middleware de auditoría
-    "core.middleware_auditoria.AuditoriaMiddleware",
-    "core.middleware_auditoria.AccesoSensibleMiddleware",
-    "core.middleware_auditoria.DescargaArchivoMiddleware",
-    "core.middleware_auditoria.SesionUsuarioMiddleware",
-    "config.middlewares.query_counter.QueryCountMiddleware",
-    # Middleware de redirección para usuarios institución
-    "config.middlewares.institucion_redirect.InstitucionRedirectMiddleware",
 ]
 
 # --- URLs / WSGI / ASGI ---
@@ -217,56 +203,22 @@ REDIS_SSL = os.environ.get("REDIS_SSL", "False") == "True"
 
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 200,
-            },
-            "REDIS_CLIENT_KWARGS": {
-                "ssl_cert_reqs": ssl.CERT_NONE,
-            } if REDIS_SSL else {},
-        },
-        "KEY_PREFIX": "sedronar",
-        "TIMEOUT": 300,
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     },
     "sessions": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 100,
-            },
-            "REDIS_CLIENT_KWARGS": {
-                "ssl_cert_reqs": ssl.CERT_NONE,
-            } if REDIS_SSL else {},
-        },
-        "KEY_PREFIX": "session",
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
 }
 
 # --- Sessions ---
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "sessions"
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+# SESSION_CACHE_ALIAS = "sessions"
 SESSION_COOKIE_AGE = 86400  # 24 horas
 
 # --- Channels ---
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [
-                {
-                    "address": (REDIS_HOST, int(REDIS_PORT)),
-                    "ssl_cert_reqs": ssl.CERT_NONE if REDIS_SSL else None,
-                }
-            ] if REDIS_SSL else [(REDIS_HOST, int(REDIS_PORT))],
-            "capacity": 1500,
-            "expiry": 60,
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
 
