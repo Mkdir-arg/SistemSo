@@ -248,6 +248,7 @@ RENAPER_API_URL = os.getenv("RENAPER_API_URL", "").strip().strip('"').strip("'")
 RENAPER_TEST_MODE = os.getenv("RENAPER_TEST_MODE", "False") == "True"
 RENAPER_CONNECT_TIMEOUT = int(os.getenv("RENAPER_CONNECT_TIMEOUT", "10"))
 RENAPER_TIMEOUT = int(os.getenv("RENAPER_TIMEOUT", "20"))
+RENAPER_RETRIES = int(os.getenv("RENAPER_RETRIES", "0"))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", os.getenv("SUPABASE_KEY", ""))

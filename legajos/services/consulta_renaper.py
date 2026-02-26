@@ -60,10 +60,11 @@ class APIClient:
         self.token = None
         self.token_expiration = None
         self.session = requests.Session()
+        retry_count = _parse_positive_int(getattr(settings, "RENAPER_RETRIES", 0), 0)
         retries = Retry(
-            total=2,
-            connect=2,
-            read=2,
+            total=retry_count,
+            connect=retry_count,
+            read=retry_count,
             backoff_factor=0.8,
             status_forcelist=(429, 500, 502, 503, 504),
             allowed_methods=frozenset(["GET", "POST"]),
