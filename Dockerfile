@@ -27,8 +27,8 @@ COPY . .
 # Crear directorio para logs
 RUN mkdir -p logs
 
-# Hacer ejecutable el script de entrada
-RUN chmod +x docker-entrypoint.sh
+# Normalizar fin de linea en Windows y hacer ejecutable el script de entrada
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
 
 # Exponer puertos
 EXPOSE 8000 8001
