@@ -10,6 +10,7 @@ from .serializers import (
     ConversationSerializer, MessageSerializer, ChatbotKnowledgeSerializer,
     ChatbotFeedbackSerializer, SendMessageSerializer
 )
+from .ai_service_enhanced import EnhancedChatbotService
 
 
 @extend_schema_view(
@@ -69,14 +70,21 @@ class ConversationViewSet(viewsets.ModelViewSet):
                 content=message_content
             )
             
-            # Aquí iría la lógica del chatbot para generar respuesta
-            # Por ahora retornamos una respuesta simple
-            bot_response = "Esta es una respuesta automática del chatbot."
+            # Usar el servicio mejorado con Function Calling
+            ai_service = EnhancedChatbotService()
+            conversation_history = conversation.messages.all()
             
+            ai_response = ai_service.generate_response(
+                message=message_content,
+                conversation_history=conversation_history
+            )
+            
+            # Crear mensaje del bot
             bot_message = Message.objects.create(
                 conversation=conversation,
                 role='assistant',
-                content=bot_response
+                content=ai_response.get('content', 'Error generando respuesta'),
+                tokens_used=ai_response.get('tokens_used', 0)
             )
             
             # Actualizar timestamp de la conversación
@@ -84,7 +92,9 @@ class ConversationViewSet(viewsets.ModelViewSet):
             
             return Response({
                 'user_message': MessageSerializer(user_message).data,
-                'bot_message': MessageSerializer(bot_message).data
+                'bot_message': MessageSerializer(bot_message).data,
+                'used_functions': ai_response.get('used_functions', False),
+                'tokens_used': ai_response.get('tokens_used', 0)
             })
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

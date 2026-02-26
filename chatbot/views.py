@@ -8,7 +8,7 @@ from django.db import models
 import json
 from datetime import datetime
 from .models import Conversation, Message, ChatbotKnowledge, ChatbotFeedback
-from .ai_service import ChatbotAIService
+from .ai_service_enhanced import EnhancedChatbotService
 
 
 @login_required
@@ -52,7 +52,7 @@ def send_message(request):
         )
         
         # Generar respuesta con IA
-        ai_service = ChatbotAIService()
+        ai_service = EnhancedChatbotService()
         response_data = ai_service.generate_response(message_content, [])
         
         # Guardar respuesta del asistente
@@ -271,7 +271,7 @@ def test_api_key(request):
         return JsonResponse({'error': 'Sin permisos'}, status=403)
     
     try:
-        ai_service = ChatbotAIService()
+        ai_service = EnhancedChatbotService()
         response = ai_service.generate_response('test', [])
         
         if 'error' in response:

@@ -62,7 +62,7 @@ class ChatInterface {
         }
 
         try {
-            const response = await fetch('/chatbot/send/', {
+            const response = await fetch('/chatbot/api/send-message/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

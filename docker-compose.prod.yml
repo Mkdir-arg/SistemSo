@@ -43,6 +43,46 @@ services:
     mem_limit: 300m
     memswap_limit: 500m
 
+  # Celery worker para AI Squad y tareas asíncronas
+  celery:
+    build: .
+    container_name: nodo-celery
+    volumes:
+      - ./media:/app/media
+      - ./logs:/app/logs
+    env_file:
+      - .env.production
+    command: celery -A config worker -l INFO --concurrency=2
+    restart: unless-stopped
+    networks:
+      - nodo-network
+    mem_limit: 400m
+    memswap_limit: 600m
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A config inspect ping -d celery@$$HOSTNAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - redis
+
+  # Redis para Celery, cache y WebSocket
+  redis:
+    image: redis:7-alpine
+    container_name: nodo-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - nodo-network
+    mem_limit: 300m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   nginx:
     image: nginx:alpine
     container_name: nodo-nginx
@@ -64,3 +104,6 @@ services:
 networks:
   nodo-network:
     driver: bridge
+
+volumes:
+  redis_data:

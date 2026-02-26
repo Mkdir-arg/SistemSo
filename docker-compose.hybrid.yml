@@ -100,6 +100,28 @@ services:
         daphne -b 0.0.0.0 -p 8001 config.asgi:application
       "
 
+  # Celery worker para AI Squad
+  sedronar-celery:
+    build: .
+    command: celery -A config worker -l INFO
+    depends_on:
+      sedronar-mysql:
+        condition: service_healthy
+      sedronar-redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_NAME=sedronar
+      - DATABASE_USER=sedronar
+      - DATABASE_PASSWORD=sedronar123
+      - DATABASE_HOST=sedronar-mysql
+      - DATABASE_PORT=3306
+      - REDIS_HOST=sedronar-redis
+      - REDIS_PORT=6379
+      - REDIS_SSL=False
+    restart: unless-stopped
+
   # Nginx proxy
   nginx:
     image: nginx:alpine

@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "tramites",
     "healthcheck",
     "drf_spectacular",
+    "ai_squad",
 ]
 
 # --- Middleware ---
@@ -299,6 +300,14 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", os.getenv("SUPABASE_KEY", ""))
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 SUPABASE_TIMEOUT_SECONDS = int(os.getenv("SUPABASE_TIMEOUT_SECONDS", "12"))
+
+# --- Celery ---
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://sedronar-redis:6379/1")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://sedronar-redis:6379/2")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "America/Argentina/Buenos_Aires"
 
 # --- Logging ---
 LOG_DIR = BASE_DIR / "logs"
