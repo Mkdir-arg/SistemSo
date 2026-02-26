@@ -6,8 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Avg, Sum, F
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from datetime import timedelta
+import json
 
 from core.models import Institucion
 from .models import LegajoInstitucional
@@ -97,6 +100,96 @@ def institucion_detalle_programatico(request, pk):
     total_casos_activos = sum(s.get('badge_casos', 0) for s in solapas if s['tipo'] == 'programa')
     total_programas_activos = len([s for s in solapas if s['tipo'] == 'programa'])
     
+    # Métricas adicionales para dashboard
+    hoy = timezone.now().date()
+    hace_30_dias = hoy - timedelta(days=30)
+    hace_7_dias = hoy - timedelta(days=7)
+    
+    # Derivaciones por estado
+    derivaciones_stats = DerivacionInstitucional.objects.filter(
+        institucion=institucion
+    ).aggregate(
+        total=Count('id'),
+        pendientes=Count('id', filter=Q(estado=EstadoDerivacion.PENDIENTE)),
+        aceptadas=Count('id', filter=Q(estado=EstadoDerivacion.ACEPTADA)),
+        rechazadas=Count('id', filter=Q(estado=EstadoDerivacion.RECHAZADA)),
+        ultimos_30_dias=Count('id', filter=Q(creado__gte=hace_30_dias)),
+        ultimos_7_dias=Count('id', filter=Q(creado__gte=hace_7_dias))
+    )
+    
+    # Casos por estado
+    casos_stats = CasoInstitucional.objects.filter(
+        institucion_programa__institucion=institucion
+    ).aggregate(
+        total=Count('id'),
+        activos=Count('id', filter=Q(estado=EstadoCaso.ACTIVO)),
+        seguimiento=Count('id', filter=Q(estado=EstadoCaso.EN_SEGUIMIENTO)),
+        egresados=Count('id', filter=Q(estado=EstadoCaso.EGRESADO)),
+        cerrados=Count('id', filter=Q(estado=EstadoCaso.CERRADO)),
+        suspendidos=Count('id', filter=Q(estado=EstadoCaso.SUSPENDIDO))
+    )
+    
+    # Casos por programa
+    casos_por_programa = CasoInstitucional.objects.filter(
+        institucion_programa__institucion=institucion,
+        estado__in=[EstadoCaso.ACTIVO, EstadoCaso.EN_SEGUIMIENTO]
+    ).values(
+        'institucion_programa__programa__nombre'
+    ).annotate(
+        cantidad=Count('id')
+    ).order_by('-cantidad')[:5]
+    
+    # Derivaciones por urgencia
+    derivaciones_urgencia = DerivacionInstitucional.objects.filter(
+        institucion=institucion,
+        estado=EstadoDerivacion.PENDIENTE
+    ).values('urgencia').annotate(
+        cantidad=Count('id')
+    )
+    
+    # Tendencia de derivaciones (últimos 6 meses)
+    meses_atras = [hoy - timedelta(days=30*i) for i in range(6)]
+    derivaciones_tendencia = []
+    for mes in reversed(meses_atras):
+        mes_siguiente = mes + timedelta(days=30)
+        count = DerivacionInstitucional.objects.filter(
+            institucion=institucion,
+            creado__gte=mes,
+            creado__lt=mes_siguiente
+        ).count()
+        derivaciones_tendencia.append({
+            'mes': mes.strftime('%b'),
+            'cantidad': count
+        })
+    
+    # Tasa de aceptación
+    total_respondidas = derivaciones_stats['aceptadas'] + derivaciones_stats['rechazadas']
+    tasa_aceptacion = round((derivaciones_stats['aceptadas'] / total_respondidas * 100) if total_respondidas > 0 else 0, 1)
+    
+    # Tiempo promedio de respuesta (últimas 30 derivaciones respondidas)
+    derivaciones_recientes = DerivacionInstitucional.objects.filter(
+        institucion=institucion,
+        estado__in=[EstadoDerivacion.ACEPTADA, EstadoDerivacion.RECHAZADA],
+        fecha_respuesta__isnull=False
+    ).order_by('-fecha_respuesta')[:30]
+    
+    tiempos_respuesta = []
+    for d in derivaciones_recientes:
+        if d.fecha_respuesta:
+            delta = d.fecha_respuesta - d.creado
+            tiempos_respuesta.append(delta.total_seconds() / 3600)  # en horas
+    
+    tiempo_promedio_respuesta = round(sum(tiempos_respuesta) / len(tiempos_respuesta), 1) if tiempos_respuesta else 0
+    
+    # Documentos institucionales (simulados por ahora)
+    documentos = {
+        'convenios': [],
+        'habilitaciones': [],
+        'evaluaciones': [],
+        'otros': [],
+        'todos': []
+    }
+    
     context = {
         'institucion': institucion,
         'legajo': legajo,
@@ -104,6 +197,15 @@ def institucion_detalle_programatico(request, pk):
         'total_derivaciones_pendientes': total_derivaciones_pendientes,
         'total_casos_activos': total_casos_activos,
         'total_programas_activos': total_programas_activos,
+        # Nuevas métricas
+        'derivaciones_stats': derivaciones_stats,
+        'casos_stats': casos_stats,
+        'casos_por_programa': json.dumps(list(casos_por_programa)),
+        'derivaciones_urgencia': list(derivaciones_urgencia),
+        'derivaciones_tendencia': json.dumps(derivaciones_tendencia),
+        'tasa_aceptacion': tasa_aceptacion,
+        'tiempo_promedio_respuesta': tiempo_promedio_respuesta,
+        'documentos': documentos,
     }
     
     return render(request, 'configuracion/institucion_detail.html', context)

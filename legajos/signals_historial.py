@@ -41,10 +41,11 @@ def guardar_estado_anterior_actividad(sender, instance, **kwargs):
 @receiver(post_save, sender=StaffActividad)
 def crear_historial_staff(sender, instance, created, **kwargs):
     if created:
+        nombre_completo = f"{instance.personal.nombre} {instance.personal.apellido}"
         HistorialStaff.objects.create(
             staff=instance,
             accion='ASIGNACION',
-            descripcion=f'{instance.personal.nombre_completo} asignado como {instance.rol_en_actividad}'
+            descripcion=f'{nombre_completo} asignado como {instance.rol_en_actividad}'
         )
 
 
