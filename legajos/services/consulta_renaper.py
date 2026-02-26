@@ -1,5 +1,7 @@
 import datetime
 import logging
+import random
+import time
 import unicodedata
 
 import requests
@@ -177,24 +179,42 @@ def normalizar(texto):
 
 def consultar_datos_renaper(dni, sexo):
     if getattr(settings, "RENAPER_TEST_MODE", False):
+        # Simular delay de API real
+        time.sleep(2)
+        
+        # Generar datos aleatorios diferentes cada vez
+        nombres = ["Juan Carlos", "María Elena", "Roberto", "Ana Sofía", "Carlos Alberto", "Lucía", "Fernando", "Valentina"]
+        apellidos = ["Pérez", "González", "Rodríguez", "López", "Martínez", "García", "Fernández", "Morales"]
+        calles = ["Av. Corrientes", "Av. Santa Fe", "Rivadavia", "San Martín", "Belgrano", "Mitre", "9 de Julio"]
+        provincias = ["Buenos Aires", "Córdoba", "Santa Fe", "Mendoza", "Tucumán"]
+        
+        nombre_random = random.choice(nombres)
+        apellido_random = random.choice(apellidos)
+        calle_random = random.choice(calles)
+        numero_random = random.randint(100, 9999)
+        provincia_random = random.choice(provincias)
+        año_random = random.randint(1970, 2000)
+        mes_random = random.randint(1, 12)
+        dia_random = random.randint(1, 28)
+        
         return {
             "success": True,
             "data": {
                 "dni": dni,
-                "nombre": "Juan Carlos",
-                "apellido": "Pérez",
-                "fecha_nacimiento": "1990-01-01",
+                "nombre": nombre_random,
+                "apellido": apellido_random,
+                "fecha_nacimiento": f"{año_random}-{mes_random:02d}-{dia_random:02d}",
                 "genero": _normalizar_sexo(sexo),
-                "domicilio": "Av. Corrientes 1234",
-                "provincia": 1,
+                "domicilio": f"{calle_random} {numero_random}",
+                "provincia": random.randint(1, 24),
             },
             "datos_api": {
-                "nombres": "Juan Carlos",
-                "apellido": "Pérez",
-                "fechaNacimiento": "1990-01-01",
-                "provincia": "Buenos Aires",
-                "calle": "Av. Corrientes",
-                "numero": "1234",
+                "nombres": nombre_random,
+                "apellido": apellido_random,
+                "fechaNacimiento": f"{año_random}-{mes_random:02d}-{dia_random:02d}",
+                "provincia": provincia_random,
+                "calle": calle_random,
+                "numero": str(numero_random),
             },
         }
 
