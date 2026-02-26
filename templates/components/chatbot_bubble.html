@@ -138,7 +138,8 @@ function chatbotBubble() {
                 messageDiv.className = 'bg-gray-100 rounded-lg p-3 mb-3 mr-8';
             }
             
-            messageDiv.innerHTML = `<p class="text-sm">${text}</p>`;
+            messageDiv.innerHTML = `<p class="text-sm whitespace-pre-line"></p>`;
+            messageDiv.querySelector('p').textContent = text;
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }

@@ -39,10 +39,24 @@ def send_message(request):
             return JsonResponse({'error': 'Mensaje vacío'}, status=400)
         
         # Crear conversación temporal para la burbuja
-        conversation = Conversation.objects.create(
-            user=request.user,
-            title=f"Chat {message_content[:30]}..."
-        )
+        session_key = 'chatbot_bubble_conversation_id'
+        conversation_id = request.session.get(session_key)
+        conversation = None
+        if conversation_id:
+            conversation = Conversation.objects.filter(
+                id=conversation_id,
+                user=request.user,
+                is_active=True,
+            ).first()
+
+        if not conversation:
+            conversation = Conversation.objects.create(
+                user=request.user,
+                title=f"Chat {message_content[:30]}..."
+            )
+            request.session[session_key] = conversation.id
+
+        history = list(conversation.messages.only('role', 'content').order_by('timestamp')[:20])
         
         # Guardar mensaje del usuario
         Message.objects.create(
@@ -53,7 +67,7 @@ def send_message(request):
         
         # Generar respuesta con IA
         ai_service = EnhancedChatbotService()
-        response_data = ai_service.generate_response(message_content, [])
+        response_data = ai_service.generate_response(message_content, history)
         
         # Guardar respuesta del asistente
         Message.objects.create(
