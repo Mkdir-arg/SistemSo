@@ -244,8 +244,10 @@ REST_FRAMEWORK = {
 DOMINIO = os.environ.get("DOMINIO", "localhost:8001")
 RENAPER_API_USERNAME = os.getenv("RENAPER_API_USERNAME")
 RENAPER_API_PASSWORD = os.getenv("RENAPER_API_PASSWORD")
-RENAPER_API_URL = os.getenv("RENAPER_API_URL")
+RENAPER_API_URL = os.getenv("RENAPER_API_URL", "").strip().strip('"').strip("'").rstrip("/")
 RENAPER_TEST_MODE = os.getenv("RENAPER_TEST_MODE", "False") == "True"
+RENAPER_CONNECT_TIMEOUT = int(os.getenv("RENAPER_CONNECT_TIMEOUT", "10"))
+RENAPER_TIMEOUT = int(os.getenv("RENAPER_TIMEOUT", "20"))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", os.getenv("SUPABASE_KEY", ""))
