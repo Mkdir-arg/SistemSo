@@ -3,6 +3,7 @@ import logging
 import random
 import time
 import unicodedata
+import urllib3
 
 import requests
 from django.conf import settings
@@ -11,6 +12,9 @@ from requests.exceptions import ConnectionError, RequestException
 from urllib3.util.retry import Retry
 
 from core.models import Provincia
+
+# Suprimir warnings de SSL
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
