@@ -1,4 +1,4 @@
-import datetime
+﻿import datetime
 import logging
 import random
 import time
@@ -51,9 +51,14 @@ class APIClient:
     def __init__(self):
         self.username = settings.RENAPER_API_USERNAME
         self.password = settings.RENAPER_API_PASSWORD
+        self.api_key = (getattr(settings, "RENAPER_API_KEY", "") or "").strip()
+        self.api_key_header = (getattr(settings, "RENAPER_API_KEY_HEADER", "X-API-Key") or "X-API-Key").strip()
+        self.api_key_prefix = (getattr(settings, "RENAPER_API_KEY_PREFIX", "") or "").strip()
+        self.auth_mode = (getattr(settings, "RENAPER_AUTH_MODE", "auto") or "auto").strip().lower()
+
         self.api_base = _clean_api_base(settings.RENAPER_API_URL)
         self.login_url = f"{self.api_base}/auth/login"
-        self.consulta_url = f"{self.api_base}/consultarenaper"
+        self.consulta_url = self._build_consulta_url(self.api_base)
 
         connect_timeout = _parse_positive_int(getattr(settings, "RENAPER_CONNECT_TIMEOUT", 10), 10)
         read_timeout = _parse_positive_int(getattr(settings, "RENAPER_TIMEOUT", 20), 20)
@@ -75,13 +80,31 @@ class APIClient:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 
+    def _build_consulta_url(self, api_base):
+        if not api_base:
+            return ""
+        lower_base = api_base.lower()
+        if lower_base.endswith("/consultarenaper") or lower_base.endswith("/renaper"):
+            return api_base
+        return f"{api_base}/consultarenaper"
+
+    def _use_api_key_mode(self):
+        if self.auth_mode == "api_key":
+            return True
+        if self.auth_mode == "credentials":
+            return False
+        return bool(self.api_key)
+
     def login(self):
+        if self._use_api_key_mode():
+            return
+
         try:
             response = self.session.post(
                 self.login_url, json={"username": self.username, "password": self.password}, timeout=self.timeout
             )
         except ConnectionError:
-            raise Exception("Error de conexión con el servicio.")
+            raise Exception("Error de conexion con el servicio.")
         except RequestException as e:
             raise Exception(f"No se pudo conectar al servicio de login: {str(e)}")
 
@@ -90,26 +113,33 @@ class APIClient:
 
         data = response.json()
         self.token = data.get("token")
-        self.token_expiration = datetime.datetime.fromisoformat(
-            data["expiration"].replace("Z", "+00:00")
-        )
+        self.token_expiration = datetime.datetime.fromisoformat(data["expiration"].replace("Z", "+00:00"))
 
     def get_token(self):
-        if (
-            not self.token
-            or datetime.datetime.now(datetime.timezone.utc) >= self.token_expiration
-        ):
+        if self._use_api_key_mode():
+            return None
+
+        if not self.token or datetime.datetime.now(datetime.timezone.utc) >= self.token_expiration:
             self.login()
         return self.token
 
     def consultar_ciudadano(self, dni, sexo):
-        try:
-            token = self.get_token()
-        except Exception:
-            logger.exception("Error al obtener token RENAPER")
-            return {"success": False, "error": "Error interno al obtener token"}
+        headers = {}
+        if self._use_api_key_mode():
+            if not self.api_key:
+                return {"success": False, "error": "Falta RENAPER_API_KEY para autenticar con API Key."}
 
-        headers = {"Authorization": f"Bearer {token}"}
+            api_key_value = f"{self.api_key_prefix} {self.api_key}".strip()
+            headers[self.api_key_header] = api_key_value
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        else:
+            try:
+                token = self.get_token()
+            except Exception:
+                logger.exception("Error al obtener token RENAPER")
+                return {"success": False, "error": "Error interno al obtener token"}
+            headers["Authorization"] = f"Bearer {token}"
+
         params = {"dni": dni, "sexo": _normalizar_sexo(sexo)}
 
         try:
@@ -120,23 +150,19 @@ class APIClient:
                 timeout=self.timeout,
             )
         except ConnectionError:
-            return {"success": False, "error": "Error de conexión al servicio."}
+            return {"success": False, "error": "Error de conexion al servicio."}
         except RequestException:
             logger.exception("RequestException al conectar con RENAPER")
             return {
                 "success": False,
-                "error": "Error interno de conexión al servicio.",
+                "error": "Error interno de conexion al servicio.",
             }
 
         if response.status_code != 200:
             try:
                 error_data = response.json()
             except Exception:
-                error_data = (
-                    response.text[:500]
-                    if hasattr(response, "text")
-                    else "Sin contenido"
-                )
+                error_data = response.text[:500] if hasattr(response, "text") else "Sin contenido"
             return {
                 "success": False,
                 "error": f"Error HTTP {response.status_code}: Error en la respuesta del servicio.",
@@ -147,20 +173,18 @@ class APIClient:
         try:
             data = response.json()
         except Exception:
-            logger.exception("Respuesta RENAPER no es JSON válido")
-            raw_text = (
-                response.text[:500] if hasattr(response, "text") else "No response text"
-            )
+            logger.exception("Respuesta RENAPER no es JSON valido")
+            raw_text = response.text[:500] if hasattr(response, "text") else "No response text"
             return {
                 "success": False,
-                "error": "Error interno: respuesta no es JSON válido.",
+                "error": "Error interno: respuesta no es JSON valido.",
                 "raw_response": raw_text,
             }
 
         if not data.get("isSuccess", False):
             return {
                 "success": False,
-                "error": "Respuesta de Renaper no indica éxito.",
+                "error": "Respuesta de Renaper no indica exito.",
                 "raw_response": data,
             }
 
@@ -171,39 +195,35 @@ def normalizar(texto):
     if not texto:
         return ""
     texto = texto.lower().replace("_", " ")
-    texto = (
-        unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("utf-8")
-    )
+    texto = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("utf-8")
     return texto.strip()
 
 
 def consultar_datos_renaper(dni, sexo):
     if getattr(settings, "RENAPER_TEST_MODE", False):
-        # Simular delay de API real
         time.sleep(2)
-        
-        # Generar datos aleatorios diferentes cada vez
-        nombres = ["Juan Carlos", "María Elena", "Roberto", "Ana Sofía", "Carlos Alberto", "Lucía", "Fernando", "Valentina"]
-        apellidos = ["Pérez", "González", "Rodríguez", "López", "Martínez", "García", "Fernández", "Morales"]
-        calles = ["Av. Corrientes", "Av. Santa Fe", "Rivadavia", "San Martín", "Belgrano", "Mitre", "9 de Julio"]
-        provincias = ["Buenos Aires", "Córdoba", "Santa Fe", "Mendoza", "Tucumán"]
-        
+
+        nombres = ["Juan Carlos", "Maria Elena", "Roberto", "Ana Sofia", "Carlos Alberto", "Lucia", "Fernando", "Valentina"]
+        apellidos = ["Perez", "Gonzalez", "Rodriguez", "Lopez", "Martinez", "Garcia", "Fernandez", "Morales"]
+        calles = ["Av. Corrientes", "Av. Santa Fe", "Rivadavia", "San Martin", "Belgrano", "Mitre", "9 de Julio"]
+        provincias = ["Buenos Aires", "Cordoba", "Santa Fe", "Mendoza", "Tucuman"]
+
         nombre_random = random.choice(nombres)
         apellido_random = random.choice(apellidos)
         calle_random = random.choice(calles)
         numero_random = random.randint(100, 9999)
         provincia_random = random.choice(provincias)
-        año_random = random.randint(1970, 2000)
+        anio_random = random.randint(1970, 2000)
         mes_random = random.randint(1, 12)
         dia_random = random.randint(1, 28)
-        
+
         return {
             "success": True,
             "data": {
                 "dni": dni,
                 "nombre": nombre_random,
                 "apellido": apellido_random,
-                "fecha_nacimiento": f"{año_random}-{mes_random:02d}-{dia_random:02d}",
+                "fecha_nacimiento": f"{anio_random}-{mes_random:02d}-{dia_random:02d}",
                 "genero": _normalizar_sexo(sexo),
                 "domicilio": f"{calle_random} {numero_random}",
                 "provincia": random.randint(1, 24),
@@ -211,21 +231,28 @@ def consultar_datos_renaper(dni, sexo):
             "datos_api": {
                 "nombres": nombre_random,
                 "apellido": apellido_random,
-                "fechaNacimiento": f"{año_random}-{mes_random:02d}-{dia_random:02d}",
+                "fechaNacimiento": f"{anio_random}-{mes_random:02d}-{dia_random:02d}",
                 "provincia": provincia_random,
                 "calle": calle_random,
                 "numero": str(numero_random),
             },
         }
 
-    if not all([
-        _clean_api_base(getattr(settings, "RENAPER_API_URL", None)),
-        getattr(settings, "RENAPER_API_USERNAME", None),
-        getattr(settings, "RENAPER_API_PASSWORD", None),
-    ]):
+    api_url = _clean_api_base(getattr(settings, "RENAPER_API_URL", None))
+    api_key = (getattr(settings, "RENAPER_API_KEY", None) or "").strip()
+    username = getattr(settings, "RENAPER_API_USERNAME", None)
+    password = getattr(settings, "RENAPER_API_PASSWORD", None)
+
+    if not api_url:
         return {
             "success": False,
-            "error": "Configuración RENAPER incompleta (URL/usuario/password).",
+            "error": "Configuracion RENAPER incompleta (URL).",
+        }
+
+    if not api_key and not (username and password):
+        return {
+            "success": False,
+            "error": "Configuracion RENAPER incompleta (API key o usuario/password).",
         }
 
     try:
@@ -245,7 +272,7 @@ def consultar_datos_renaper(dni, sexo):
         if datos.get("mensaf") == "FALLECIDO":
             return {"success": False, "fallecido": True}
 
-        EQUIVALENCIAS_PROVINCIAS = {
+        equivalencias_provincias = {
             "ciudad de buenos aires": "ciudad autonoma de buenos aires",
             "caba": "ciudad autonoma de buenos aires",
             "ciudad autonoma de buenos aires": "ciudad autonoma de buenos aires",
@@ -255,9 +282,7 @@ def consultar_datos_renaper(dni, sexo):
 
         provincia_api = datos.get("provincia", "")
         provincia_api_norm = normalizar(provincia_api)
-        provincia_api_norm = EQUIVALENCIAS_PROVINCIAS.get(
-            provincia_api_norm, provincia_api_norm
-        )
+        provincia_api_norm = equivalencias_provincias.get(provincia_api_norm, provincia_api_norm)
 
         provincia = None
         for prov in Provincia.objects.all():

@@ -266,6 +266,10 @@ DOMINIO = os.environ.get("DOMINIO", "localhost:8000")
 RENAPER_API_USERNAME = os.getenv("RENAPER_API_USERNAME")
 RENAPER_API_PASSWORD = os.getenv("RENAPER_API_PASSWORD")
 RENAPER_API_URL = os.getenv("RENAPER_API_URL", "").strip().strip('"').strip("'").rstrip("/")
+RENAPER_API_KEY = os.getenv("RENAPER_API_KEY", "").strip().strip('"').strip("'")
+RENAPER_API_KEY_HEADER = os.getenv("RENAPER_API_KEY_HEADER", "X-API-Key")
+RENAPER_API_KEY_PREFIX = os.getenv("RENAPER_API_KEY_PREFIX", "").strip()
+RENAPER_AUTH_MODE = os.getenv("RENAPER_AUTH_MODE", "auto").strip().lower()  # auto|api_key|credentials
 RENAPER_TEST_MODE = os.getenv("RENAPER_TEST_MODE", "False") == "True"
 RENAPER_CONNECT_TIMEOUT = int(os.getenv("RENAPER_CONNECT_TIMEOUT", "10"))
 RENAPER_TIMEOUT = int(os.getenv("RENAPER_TIMEOUT", "20"))
