@@ -1,68 +1,20 @@
 from .settings import *
 import os
 
-# Configuración para 1000+ usuarios concurrentes
+ENVIRONMENT = "prd"
 DEBUG = False
-ALLOWED_HOSTS = ['*']  # Configurar dominios específicos en producción
 
-# Base de datos con replicación
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DATABASE_NAME'),
-        'USER': os.environ.get('DATABASE_USER'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'HOST': 'sedronar-mysql-master',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
-        },
-        'CONN_MAX_AGE': 3600,  # 1 hora
-        'CONN_HEALTH_CHECKS': True,
-    },
-    'replica': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DATABASE_NAME'),
-        'USER': os.environ.get('DATABASE_USER'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'HOST': 'sedronar-mysql-slave',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
-        },
-        'CONN_MAX_AGE': 3600,
-    }
-}
+# Refuerza hosts solo desde variable de entorno en producción.
+hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [h.strip() for h in hosts_env.split(",") if h.strip()]
+if not ALLOWED_HOSTS:
+    raise ValueError("DJANGO_ALLOWED_HOSTS debe configurarse en producción")
 
-# Router para lectura/escritura
-DATABASE_ROUTERS = ['config.db_router.DatabaseRouter']
-
-# Cache distribuido
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://sedronar-redis-cluster:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'CONNECTION_POOL_KWARGS': {'max_connections': 100},
-        },
-        'TIMEOUT': 3600,
-    }
-}
-
-# Configuración de workers
-GUNICORN_WORKERS = 8
-GUNICORN_WORKER_CLASS = 'gevent'
-GUNICORN_WORKER_CONNECTIONS = 1000
-
-# Logging para producción
-LOGGING['handlers']['file'] = {
-    'level': 'INFO',
-    'class': 'logging.handlers.RotatingFileHandler',
-    'filename': '/var/log/sedronar/app.log',
-    'maxBytes': 50*1024*1024,  # 50MB
-    'backupCount': 5,
-    'formatter': 'verbose',
-}
+# Refuerzos de seguridad en producción
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "True") == "True"
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "31536000"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get("SECURE_HSTS_INCLUDE_SUBDOMAINS", "True") == "True"
+SECURE_HSTS_PRELOAD = os.environ.get("SECURE_HSTS_PRELOAD", "True") == "True"

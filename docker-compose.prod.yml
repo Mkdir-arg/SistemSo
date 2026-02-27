@@ -1,27 +1,55 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: nodo-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - nodo-network
+    mem_limit: 200m
+    memswap_limit: 300m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
   web:
     build: .
     container_name: nodo-web
     volumes:
       - ./staticfiles:/app/staticfiles
       - ./media:/app/media
-    ports:
-      - "8000:8001"
+      - ./logs:/app/logs
+    expose:
+      - "8001"
     env_file:
       - .env.production
     environment:
+      - ENVIRONMENT=prd
+      - DJANGO_ENV_FILE=.env.production
+      - DJANGO_SETTINGS_MODULE=config.settings_production
       - RUN_MIGRATIONS=true
       - RUN_CREAR_PROGRAMAS=true
       - RUN_COLLECTSTATIC=true
       - RUN_CREAR_SUPERADMIN=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_SSL=False
     command: ["/app/docker-entrypoint.sh"]
     restart: unless-stopped
     networks:
       - nodo-network
+    depends_on:
+      redis:
+        condition: service_healthy
     mem_limit: 350m
     memswap_limit: 500m
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health/"]
+      interval: 30s
       timeout: 10s
       retries: 3
 
@@ -31,16 +59,31 @@ services:
     volumes:
       - ./media:/app/media
       - ./logs:/app/logs
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     env_file:
       - .env.production
+    environment:
+      - ENVIRONMENT=prd
+      - DJANGO_ENV_FILE=.env.production
+      - DJANGO_SETTINGS_MODULE=config.settings_production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_SSL=False
     command: daphne -b 0.0.0.0 -p 8001 config.asgi:application
     restart: unless-stopped
     networks:
       - nodo-network
+    depends_on:
+      redis:
+        condition: service_healthy
     mem_limit: 300m
     memswap_limit: 500m
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import socket; s=socket.socket(); s.connect((\"localhost\", 8001)); s.close()'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     image: nginx:alpine
@@ -55,7 +98,10 @@ services:
       - ./nginx-selfsigned.crt:/etc/nginx/ssl/nginx-selfsigned.crt:ro
       - ./nginx-selfsigned.key:/etc/nginx/ssl/nginx-selfsigned.key:ro
     depends_on:
-      - web
+      web:
+        condition: service_healthy
+      websocket:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - nodo-network
@@ -63,3 +109,6 @@ services:
 networks:
   nodo-network:
     driver: bridge
+
+volumes:
+  redis_data:
