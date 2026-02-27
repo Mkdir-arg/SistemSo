@@ -270,6 +270,7 @@ RENAPER_API_KEY = os.getenv("RENAPER_API_KEY", "").strip().strip('"').strip("'")
 RENAPER_API_KEY_HEADER = os.getenv("RENAPER_API_KEY_HEADER", "X-API-Key")
 RENAPER_API_KEY_PREFIX = os.getenv("RENAPER_API_KEY_PREFIX", "").strip()
 RENAPER_AUTH_MODE = os.getenv("RENAPER_AUTH_MODE", "auto").strip().lower()  # auto|api_key|credentials
+RENAPER_HTTP_METHOD = os.getenv("RENAPER_HTTP_METHOD", "auto").strip().lower()  # auto|get|post
 RENAPER_TEST_MODE = os.getenv("RENAPER_TEST_MODE", "False") == "True"
 RENAPER_CONNECT_TIMEOUT = int(os.getenv("RENAPER_CONNECT_TIMEOUT", "10"))
 RENAPER_TIMEOUT = int(os.getenv("RENAPER_TIMEOUT", "20"))

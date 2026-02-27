@@ -55,6 +55,7 @@ class APIClient:
         self.api_key_header = (getattr(settings, "RENAPER_API_KEY_HEADER", "X-API-Key") or "X-API-Key").strip()
         self.api_key_prefix = (getattr(settings, "RENAPER_API_KEY_PREFIX", "") or "").strip()
         self.auth_mode = (getattr(settings, "RENAPER_AUTH_MODE", "auto") or "auto").strip().lower()
+        self.http_method = (getattr(settings, "RENAPER_HTTP_METHOD", "auto") or "auto").strip().lower()
 
         self.api_base = _clean_api_base(settings.RENAPER_API_URL)
         self.login_url = f"{self.api_base}/auth/login"
@@ -84,8 +85,13 @@ class APIClient:
         if not api_base:
             return ""
         lower_base = api_base.lower()
-        if lower_base.endswith("/consultarenaper") or lower_base.endswith("/renaper"):
+        if (
+            lower_base.endswith("/consultarenaper")
+            or lower_base.endswith("/consultar")
+        ):
             return api_base
+        if self._use_api_key_mode() and lower_base.endswith("/renaper"):
+            return f"{api_base}/consultar"
         return f"{api_base}/consultarenaper"
 
     def _use_api_key_mode(self):
@@ -94,6 +100,12 @@ class APIClient:
         if self.auth_mode == "credentials":
             return False
         return bool(self.api_key)
+
+    def _resolve_http_method(self):
+        if self.http_method in ("get", "post"):
+            return self.http_method
+        # En modo API key para SISOC priorizamos POST.
+        return "post" if self._use_api_key_mode() else "get"
 
     def login(self):
         if self._use_api_key_mode():
@@ -131,7 +143,6 @@ class APIClient:
 
             api_key_value = f"{self.api_key_prefix} {self.api_key}".strip()
             headers[self.api_key_header] = api_key_value
-            headers["Authorization"] = f"Bearer {self.api_key}"
         else:
             try:
                 token = self.get_token()
@@ -140,15 +151,24 @@ class APIClient:
                 return {"success": False, "error": "Error interno al obtener token"}
             headers["Authorization"] = f"Bearer {token}"
 
-        params = {"dni": dni, "sexo": _normalizar_sexo(sexo)}
+        payload = {"dni": dni, "sexo": _normalizar_sexo(sexo)}
+        method = self._resolve_http_method()
 
         try:
-            response = self.session.get(
-                self.consulta_url,
-                headers=headers,
-                params=params,
-                timeout=self.timeout,
-            )
+            if method == "post":
+                response = self.session.post(
+                    self.consulta_url,
+                    headers=headers,
+                    json=payload,
+                    timeout=self.timeout,
+                )
+            else:
+                response = self.session.get(
+                    self.consulta_url,
+                    headers=headers,
+                    params=payload,
+                    timeout=self.timeout,
+                )
         except ConnectionError:
             return {"success": False, "error": "Error de conexion al servicio."}
         except RequestException:
