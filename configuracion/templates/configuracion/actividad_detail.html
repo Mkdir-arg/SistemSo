@@ -6,49 +6,47 @@
 {% block main-content %}
 <div class="mb-8">
     <!-- Header con información principal -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-        <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center">
-                    <a href="{% url 'configuracion:institucion_detalle' actividad.legajo_institucional.institucion.pk %}" class="text-white hover:text-green-100 mr-4">
-                        <i class="fas fa-arrow-left text-xl"></i>
-                    </a>
-                    <div class="bg-white bg-opacity-20 rounded-full p-3 mr-4">
-                        <i class="fas fa-tasks text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold mb-1">{{ actividad.nombre }}</h1>
-                        <p class="text-green-100">{{ actividad.get_tipo_display }} - {{ actividad.get_subtipo_display }}</p>
-                        <p class="text-green-100 text-sm mt-1">{{ actividad.legajo_institucional.institucion.nombre }}</p>
-                    </div>
-                </div>
-                <div class="flex space-x-3">
-                    <a href="{% url 'configuracion:staff_crear' actividad.pk %}" 
-                       class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-user-plus mr-2"></i>Asignar Staff
-                    </a>
-                    <a href="{% url 'configuracion:actividad_editar' actividad.pk %}" 
-                       class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-edit mr-2"></i>Editar
-                    </a>
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="{% url 'configuracion:institucion_detalle' actividad.legajo_institucional.institucion.pk %}" class="text-gray-600 hover:text-gray-900 mr-4">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </a>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        {{ actividad.nombre }}
+                    </h1>
+                    <p class="text-gray-500 mt-1">{{ actividad.get_tipo_display }} - {{ actividad.get_subtipo_display }}</p>
+                    <p class="text-gray-500 text-sm">{{ actividad.legajo_institucional.institucion.nombre }}</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <span class="px-3 py-1 rounded-full text-sm font-medium bg-white bg-opacity-20 text-white">
-                    {{ actividad.get_estado_display }}
-                </span>
-                <span class="text-green-100 text-sm">
-                    <i class="fas fa-users mr-1"></i>{{ nomina.count }}/{{ actividad.cupo_ciudadanos }} inscritos
-                </span>
-                <span class="text-green-100 text-sm">
-                    <i class="fas fa-user-tie mr-1"></i>{{ staff.count }} staff
-                </span>
+            <div class="flex gap-3">
+                <a href="{% url 'configuracion:staff_crear' actividad.pk %}" 
+                   class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-user-plus mr-2"></i>Asignar Staff
+                </a>
+                <a href="{% url 'configuracion:actividad_editar' actividad.pk %}" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Editar
+                </a>
             </div>
         </div>
+        <div class="flex items-center gap-4 mt-4">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                {{ actividad.get_estado_display }}
+            </span>
+            <span class="text-gray-600 text-sm">
+                <i class="fas fa-users mr-1"></i>{{ nomina.count }}/{{ actividad.cupo_ciudadanos }} inscritos
+            </span>
+            <span class="text-gray-600 text-sm">
+                <i class="fas fa-user-tie mr-1"></i>{{ staff.count }} staff
+            </span>
+        </div>
+    </div>
 
-        <div class="p-6">
+        <div class="p-6 bg-gray-50">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Información General</h3>
                     <div class="space-y-3">
                         <div>
@@ -75,7 +73,7 @@
                     </div>
                 </div>
 
-                <div>
+                <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Fechas</h3>
                     <div class="space-y-3">
                         <div>
@@ -97,7 +95,7 @@
             </div>
 
             {% if actividad.descripcion %}
-            <div class="mt-6">
+            <div class="mt-6 bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Descripción</h3>
                 <p class="text-gray-700 leading-relaxed">{{ actividad.descripcion }}</p>
             </div>
@@ -345,18 +343,26 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             {% if derivacion.estado == 'PENDIENTE' %}
-                                {% if nomina.count < actividad.cupo_ciudadanos %}
-                                    <form method="post" action="{% url 'configuracion:derivacion_aceptar' derivacion.pk %}" class="inline mr-2">
+                                <div class="flex gap-2">
+                                    {% if nomina.count < actividad.cupo_ciudadanos %}
+                                        <form method="post" action="{% url 'configuracion:derivacion_aceptar' derivacion.pk %}" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="px-3 py-1.5 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-all shadow-md hover:shadow-lg text-xs font-medium flex items-center gap-1">
+                                                <i class="fas fa-check"></i>
+                                                <span>Aceptar</span>
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="px-3 py-1.5 bg-gray-100 text-gray-400 rounded-lg text-xs font-medium">Cupo completo</span>
+                                    {% endif %}
+                                    <form method="post" action="{% url 'configuracion:derivacion_rechazar' derivacion.pk %}" class="inline">
                                         {% csrf_token %}
-                                        <button type="submit" class="text-green-600 hover:text-green-900">Aceptar</button>
+                                        <button type="submit" class="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-700 text-white rounded-lg hover:from-red-700 hover:to-rose-800 transition-all shadow-md hover:shadow-lg text-xs font-medium flex items-center gap-1">
+                                            <i class="fas fa-times"></i>
+                                            <span>Rechazar</span>
+                                        </button>
                                     </form>
-                                {% else %}
-                                    <span class="text-gray-400">Cupo completo</span>
-                                {% endif %}
-                                <form method="post" action="{% url 'configuracion:derivacion_rechazar' derivacion.pk %}" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Rechazar</button>
-                                </form>
+                                </div>
                             {% endif %}
                         </td>
                     </tr>

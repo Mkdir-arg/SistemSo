@@ -463,6 +463,7 @@ class StaffActividadCreateView(LoginRequiredMixin, CreateView):
         
         logger = logging.getLogger(__name__)
         actividad = get_object_or_404(PlanFortalecimiento, pk=self.kwargs['actividad_pk'])
+        self.object = None  # Inicializar object para CreateView
         
         staff_form = StaffActividadForm(request.POST, legajo_institucional=actividad.legajo_institucional)
         personal_form = PersonalInstitucionForm(request.POST)
@@ -506,6 +507,16 @@ class StaffActividadCreateView(LoginRequiredMixin, CreateView):
                     return redirect('configuracion:actividad_detalle', pk=actividad.pk)
             else:
                 if staff_form.cleaned_data.get('personal'):
+                    personal = staff_form.cleaned_data['personal']
+                    
+                    # Verificar si ya existe
+                    if StaffActividad.objects.filter(actividad=actividad, personal=personal).exists():
+                        messages.error(request, f'El personal {personal.nombre} {personal.apellido} ya está asignado a esta actividad')
+                        context = self.get_context_data()
+                        context['form'] = staff_form
+                        context['personal_form'] = personal_form
+                        return self.render_to_response(context)
+                    
                     staff = staff_form.save(commit=False)
                     staff.actividad = actividad
                     staff.save()
@@ -713,5 +724,12 @@ def buscar_personal_ajax(request, actividad_pk):
     } for p in personal.order_by('apellido', 'nombre')]
     
     return JsonResponse({'results': resultados})
+
+
+def documento_subir(request, pk):
+    from django.contrib import messages
+    if request.method == 'POST':
+        messages.info(request, 'La funcionalidad de documentos estará disponible próximamente')
+    return redirect('configuracion:institucion_detalle', pk=pk)
 
 

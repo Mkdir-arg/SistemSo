@@ -63,6 +63,21 @@
 </div>
 
 <script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function chatbotBubble() {
     return {
         isOpen: false,
@@ -84,23 +99,29 @@ function chatbotBubble() {
             this.addMessage(userMessage, 'user');
             
             try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                                 document.querySelector('meta[name="csrf-token"]')?.content || 
+                                 getCookie('csrftoken');
+                
                 const response = await fetch('/chatbot/api/send-message/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        'X-CSRFToken': csrfToken
                     },
                     body: JSON.stringify({ message: userMessage })
                 });
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (response.ok && data.success) {
                     this.addMessage(data.response, 'bot');
                 } else {
-                    this.addMessage('Lo siento, ocurrió un error. Intenta nuevamente.', 'bot');
+                    console.error('Error del servidor:', data);
+                    this.addMessage(data.error || 'Lo siento, ocurrió un error. Intenta nuevamente.', 'bot');
                 }
             } catch (error) {
+                console.error('Error de conexión:', error);
                 this.addMessage('Error de conexión. Verifica tu conexión a internet.', 'bot');
             }
             
@@ -117,7 +138,8 @@ function chatbotBubble() {
                 messageDiv.className = 'bg-gray-100 rounded-lg p-3 mb-3 mr-8';
             }
             
-            messageDiv.innerHTML = `<p class="text-sm">${text}</p>`;
+            messageDiv.innerHTML = `<p class="text-sm whitespace-pre-line"></p>`;
+            messageDiv.querySelector('p').textContent = text;
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }

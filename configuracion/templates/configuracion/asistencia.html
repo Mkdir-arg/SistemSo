@@ -36,10 +36,8 @@
         </div>
 
         {% if inscritos %}
-        <form method="post" action="{% url 'configuracion:registrar_asistencia' %}">
+        <form method="post">
             {% csrf_token %}
-            <input type="hidden" name="fecha" value="{{ fecha_actual|date:'Y-m-d' }}">
-            <input type="hidden" name="actividad_id" value="{{ actividad.pk }}">
             
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
