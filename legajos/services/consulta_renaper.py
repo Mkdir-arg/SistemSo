@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 def _clean_api_base(raw_url):
     if not raw_url:
         return ""
-    return str(raw_url).strip().strip('"').strip("'").rstrip("/")
+    # No quitar el slash final si la URL ya incluye el endpoint completo
+    return str(raw_url).strip().strip('"').strip("'")
 
 
 def _parse_positive_int(raw_value, default):
@@ -84,15 +85,8 @@ class APIClient:
     def _build_consulta_url(self, api_base):
         if not api_base:
             return ""
-        lower_base = api_base.lower()
-        if (
-            lower_base.endswith("/consultarenaper")
-            or lower_base.endswith("/consultar")
-        ):
-            return api_base
-        if self._use_api_key_mode() and lower_base.endswith("/renaper"):
-            return f"{api_base}/consultar"
-        return f"{api_base}/consultarenaper"
+        # Si la URL ya incluye el endpoint completo, usarla tal cual
+        return api_base
 
     def _use_api_key_mode(self):
         if self.auth_mode == "api_key":
@@ -136,7 +130,7 @@ class APIClient:
         return self.token
 
     def consultar_ciudadano(self, dni, sexo):
-        headers = {}
+        headers = {"Content-Type": "application/json"}
         if self._use_api_key_mode():
             if not self.api_key:
                 return {"success": False, "error": "Falta RENAPER_API_KEY para autenticar con API Key."}
@@ -161,6 +155,7 @@ class APIClient:
                     headers=headers,
                     json=payload,
                     timeout=self.timeout,
+                    verify=False,
                 )
             else:
                 response = self.session.get(
@@ -168,6 +163,7 @@ class APIClient:
                     headers=headers,
                     params=payload,
                     timeout=self.timeout,
+                    verify=False,
                 )
         except ConnectionError:
             return {"success": False, "error": "Error de conexion al servicio."}
@@ -201,14 +197,14 @@ class APIClient:
                 "raw_response": raw_text,
             }
 
-        if not data.get("isSuccess", False):
+        if not data.get("success", False):
             return {
                 "success": False,
                 "error": "Respuesta de Renaper no indica exito.",
                 "raw_response": data,
             }
 
-        return {"success": True, "data": data["result"]}
+        return {"success": True, "data": data["data"]}
 
 
 def normalizar(texto):
