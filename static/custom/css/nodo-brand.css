@@ -118,6 +118,14 @@ button[type="submit"]:not(.btn-secondary):not(.btn-tertiary):focus {
     border: 1px solid #FFCCD3 !important;
 }
 
+.badge-sm {
+    padding: 0.25rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    font-weight: 500 !important;
+    border-radius: 9999px !important;
+}
+
 /* Badges cyan */
 .bg-blue-100,
 .bg-cyan-100 {

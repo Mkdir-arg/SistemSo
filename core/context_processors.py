@@ -1,3 +1,5 @@
+from config.branding import get_branding_profile
+
 from .models import DispositivoRed
 
 def dispositivos_context(request):
@@ -8,4 +10,11 @@ def dispositivos_context(request):
         }
     return {
         'todos_dispositivos': []
+    }
+
+
+def branding_context(request):
+    """Expone el branding activo para templates globales."""
+    return {
+        "branding": get_branding_profile(),
     }

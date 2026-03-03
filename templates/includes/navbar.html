@@ -1,4 +1,21 @@
 {% load static %}
+<style>
+    .navbar-accent {
+        color: var(--nav-active-color) !important;
+    }
+
+    .navbar-accent-hover:hover {
+        color: var(--nav-active-hover-color) !important;
+    }
+
+    .navbar-accent-bg {
+        background-color: var(--nav-active-color) !important;
+    }
+
+    .navbar-accent-bg:hover {
+        background-color: var(--nav-active-hover-color) !important;
+    }
+</style>
 <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
     <!-- Mobile menu button -->
     <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebarOpen = true">
@@ -14,7 +31,7 @@
         <div class="flex items-center gap-x-4 lg:gap-x-6">
             <!-- Indicador de alertas -->
             <div class="relative" x-data="{ showDropdown: false }">
-                <button @click="showDropdown = !showDropdown" class="text-gray-700 hover:text-magenta transition-colors relative">
+                <button @click="showDropdown = !showDropdown" class="text-gray-700 navbar-accent-hover transition-colors relative">
                     <i class="fas fa-bell text-lg"></i>
                     <span id="alertas-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center hidden">0</span>
                 </button>
@@ -32,7 +49,7 @@
                     <div class="p-4 border-b border-gray-200">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-medium text-gray-900">Alertas Activas</h3>
-                            <a href="{% url 'legajos:alertas_dashboard' %}" class="text-magenta hover:text-nodo-purple text-sm">
+                            <a href="{% url 'legajos:alertas_dashboard' %}" class="navbar-accent navbar-accent-hover text-sm">
                                 Ver todas
                             </a>
                         </div>
@@ -46,7 +63,7 @@
                     </div>
                     
                     <div class="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-                        <a href="{% url 'legajos:alertas_dashboard' %}" class="block w-full text-center bg-magenta text-white py-2 px-4 rounded hover:bg-nodo-purple transition-colors">
+                        <a href="{% url 'legajos:alertas_dashboard' %}" class="block w-full text-center navbar-accent-bg text-white py-2 px-4 rounded transition-colors">
                             <i class="fas fa-external-link-alt mr-2"></i>Dashboard de Alertas
                         </a>
                     </div>
@@ -61,7 +78,7 @@
             <div class="relative" x-data="{ open: false }">
                 <button type="button" class="-m-1.5 flex items-center p-1.5" @click="open = !open">
                     <span class="sr-only">Abrir menú de usuario</span>
-                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-nodo-purple to-magenta flex items-center justify-center">
+                    <div class="h-8 w-8 rounded-full flex items-center justify-center" style="{% if branding.active_profile == 'chaco' %}background: linear-gradient(90deg, {{ branding.colors.color_acento_oscuro }} 0%, {{ branding.colors.color_acento_oscuro }} 100%);{% else %}background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%);{% endif %}">
                         <span class="text-sm font-medium text-white">{{ user.username|first|upper }}</span>
                     </div>
                     <span class="hidden lg:flex lg:items-center">
