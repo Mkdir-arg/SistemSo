@@ -8,6 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import ValidationError
 from django.core.cache import cache
+from django.conf import settings
 from django.utils.decorators import method_decorator
 from core.cache_decorators import cache_view, cache_queryset, invalidate_cache_pattern
 import csv
@@ -195,8 +196,27 @@ class CiudadanoConfirmarView(LoginRequiredMixin, CreateView):
     form_class = CiudadanoForm
     template_name = 'legajos/ciudadano_confirmar_form.html'
     success_url = reverse_lazy('legajos:ciudadanos')
+
+    def _enable_preview_data(self, request):
+        if not settings.DEBUG or request.GET.get('preview') != '1':
+            return
+        request.session['datos_renaper'] = {
+            'dni': '12345678',
+            'nombre': 'Juan',
+            'apellido': 'Perez',
+            'fecha_nacimiento': '1990-05-15',
+            'genero': 'M',
+            'domicilio': 'Av. Demo 123',
+            'provincia': 'Chaco',
+        }
+        request.session['datos_api_renaper'] = {
+            'cuit': '20-12345678-3',
+            'estado_civil': 'SOLTERO/A',
+            'nacionalidad': 'ARGENTINA',
+        }
     
     def dispatch(self, request, *args, **kwargs):
+        self._enable_preview_data(request)
         if 'datos_renaper' not in request.session:
             messages.error(request, 'No hay datos de RENAPER disponibles. Inicie el proceso nuevamente.')
             return redirect('legajos:ciudadano_nuevo')

@@ -3,10 +3,13 @@
     <!-- Bubble Button -->
     <button 
         @click="toggleChat()"
-        class="bg-arg-azul hover:bg-arg-secundario text-white rounded-full p-4 shadow-lg transition-all duration-300 transform hover:scale-110"
+        class="rounded-full flex items-center justify-center shadow-lg transition-all duration-300 transform hover:scale-110"
+        style="width: {{ branding.chatbot_bubble.size }}; height: {{ branding.chatbot_bubble.size }}; background: {{ branding.chatbot_bubble.background }}; color: {{ branding.chatbot_bubble.icon_color }};"
+        onmouseover="this.style.background='{{ branding.chatbot_bubble.hover_background }}'"
+        onmouseout="this.style.background='{{ branding.chatbot_bubble.background }}'"
         :class="{ 'hidden': isOpen }"
     >
-        <i class="fas fa-robot text-xl"></i>
+        <i class="fas fa-robot" style="font-size: {{ branding.chatbot_bubble.icon_size }}; color: {{ branding.chatbot_bubble.icon_color }};"></i>
     </button>
 
     <!-- Chat Window -->
@@ -22,10 +25,10 @@
         style="display: none;"
     >
         <!-- Header -->
-        <div class="bg-arg-azul text-white p-4 rounded-t-lg flex justify-between items-center">
+        <div class="text-white p-4 rounded-t-lg flex justify-between items-center" style="background: {{ branding.chatbot_window.header_background }};">
             <div class="flex items-center gap-2">
                 <i class="fas fa-robot"></i>
-                <span class="font-semibold">Asistente NODO</span>
+                <span class="font-semibold">{{ branding.chatbot_window.title }}</span>
             </div>
             <button @click="toggleChat()" class="hover:bg-white/20 rounded p-1">
                 <i class="fas fa-times"></i>
@@ -35,7 +38,7 @@
         <!-- Messages -->
         <div class="flex-1 p-4 overflow-y-auto" id="chat-messages">
             <div class="bg-gray-100 rounded-lg p-3 mb-3">
-                <p class="text-sm">¡Hola! Soy tu asistente virtual de NODO. ¿En qué puedo ayudarte?</p>
+                <p class="text-sm">{{ branding.chatbot_window.welcome_message }}</p>
             </div>
         </div>
 
@@ -46,12 +49,16 @@
                     type="text" 
                     x-model="message"
                     placeholder="Escribe tu mensaje..."
-                    class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul"
+                    class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                    style="--tw-ring-color: {{ branding.chatbot_window.input_focus_ring }};"
                     :disabled="isLoading"
                 >
                 <button 
                     type="submit"
-                    class="bg-arg-azul text-white px-3 py-2 rounded-lg hover:bg-arg-secundario transition-colors disabled:opacity-50"
+                    class="text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
+                    style="background: {{ branding.chatbot_window.submit_background }};"
+                    onmouseover="this.style.background='{{ branding.chatbot_window.submit_hover_background }}'"
+                    onmouseout="this.style.background='{{ branding.chatbot_window.submit_background }}'"
                     :disabled="isLoading || !message.trim()"
                 >
                     <i class="fas fa-paper-plane" x-show="!isLoading"></i>
