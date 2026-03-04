@@ -13,14 +13,14 @@
                 <p class="text-gray-600 mt-1">Gestiona las conversaciones con ciudadanos</p>
             </div>
             <div class="flex gap-2">
-                <a href="{% url 'conversaciones:metricas' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                <a href="{% url 'conversaciones:metricas' %}" class="text-white px-4 py-2 rounded-lg transition-colors text-sm" style="background: {{ branding.conversations.list.metrics_button_bg }};" onmouseover="this.style.background='{{ branding.conversations.list.metrics_button_hover_bg }}'" onmouseout="this.style.background='{{ branding.conversations.list.metrics_button_bg }}'">
                     <i class="fas fa-chart-bar mr-2"></i>Métricas
                 </a>
                 {% if not es_operador_charla %}
-                <a href="{% url 'conversaciones:configurar_cola' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+                <a href="{% url 'conversaciones:configurar_cola' %}" class="text-white px-4 py-2 rounded-lg transition-colors text-sm" style="background: {{ branding.conversations.list.config_button_bg }};" onmouseover="this.style.background='{{ branding.conversations.list.config_button_hover_bg }}'" onmouseout="this.style.background='{{ branding.conversations.list.config_button_bg }}'">
                     <i class="fas fa-cog mr-2"></i>Configurar
                 </a>
-                <a href="{% url 'conversaciones:asignacion_automatica' %}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                <a href="{% url 'conversaciones:asignacion_automatica' %}" class="text-white px-4 py-2 rounded-lg transition-colors text-sm" style="background: {{ branding.conversations.list.auto_assign_button_bg }};" onmouseover="this.style.background='{{ branding.conversations.list.auto_assign_button_hover_bg }}'" onmouseout="this.style.background='{{ branding.conversations.list.auto_assign_button_bg }}'">
                     <i class="fas fa-robot mr-2"></i>Auto-asignar
                 </a>
                 {% endif %}
@@ -34,8 +34,8 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ branding.conversations.list.stat_alert_bg }};">
+                        <i class="fas fa-exclamation-triangle" style="color: {{ branding.conversations.list.stat_alert_icon }};"></i>
                     </div>
                 </div>
                 <div class="ml-4">
@@ -49,8 +49,8 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-check-circle text-green-600"></i>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ branding.conversations.list.stat_success_bg }};">
+                        <i class="fas fa-check-circle" style="color: {{ branding.conversations.list.stat_success_icon }};"></i>
                     </div>
                 </div>
                 <div class="ml-4">
@@ -64,8 +64,8 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-clock text-blue-600"></i>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ branding.conversations.list.stat_time_bg }};">
+                        <i class="fas fa-clock" style="color: {{ branding.conversations.list.stat_time_icon }};"></i>
                     </div>
                 </div>
                 <div class="ml-4">
@@ -117,7 +117,7 @@
                 <input type="date" name="fecha_desde" value="{{ filtros.fecha_desde }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="flex items-end sm:col-span-2 lg:col-span-1">
-                <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                <button type="submit" class="w-full text-white px-4 py-2 rounded-md transition-colors" style="background: {{ branding.conversations.list.filter_button_bg }};" onmouseover="this.style.background='{{ branding.conversations.list.filter_button_hover_bg }}'" onmouseout="this.style.background='{{ branding.conversations.list.filter_button_bg }}'">
                     <i class="fas fa-search mr-2"></i>Filtrar
                 </button>
             </div>

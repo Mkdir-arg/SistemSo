@@ -550,6 +550,7 @@ function dashboard() {
         inicializarGraficos() {
             const rootStyles = getComputedStyle(document.documentElement);
             const highlightColor = rootStyles.getPropertyValue('--ui-highlight-color').trim() || '#FF0080';
+            const trendLineColor = '{{ branding.dashboard.trend_line_color }}';
             const legajoStatesChartColors = {
                 abiertos: '{{ branding.dashboard.legajo_states_chart.abiertos }}',
                 seguimiento: '{{ branding.dashboard.legajo_states_chart.seguimiento }}',
@@ -575,8 +576,8 @@ function dashboard() {
                     datasets: [{
                         label: 'Nuevos Legajos',
                         data: [12, 19, 15, 25, 22, 30],
-                        borderColor: highlightColor,
-                        backgroundColor: hexToRgba(highlightColor, 0.1),
+                        borderColor: trendLineColor,
+                        backgroundColor: hexToRgba(trendLineColor, 0.1),
                         tension: 0.4
                     }]
                 },

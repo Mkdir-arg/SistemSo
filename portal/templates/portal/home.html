@@ -1,11 +1,16 @@
 {% extends 'portal/base.html' %}
 
 {% block content %}
+<style>
+    .portal-steps > div:last-child > div:first-child {
+        background: {{ branding.portal.home.steps_complete_bg }} !important;
+    }
+</style>
 <div class="max-w-6xl mx-auto">
     <!-- Hero Section -->
     <div class="text-center mb-16">
-        <div class="inline-flex items-center space-x-2 bg-[#F0F9FF] border border-[#BAE6FD] text-[#0369A1] px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <div class="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
+        <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium mb-6" style="background: {{ branding.portal.home.status_badge_bg }}; border: 1px solid {{ branding.portal.home.status_badge_border }}; color: {{ branding.portal.home.status_badge_text }};">
+            <div class="w-2 h-2 rounded-full animate-pulse" style="background: {{ branding.portal.home.status_badge_dot }};"></div>
             <span>Sistema Disponible</span>
         </div>
         <h2 class="text-4xl font-bold text-[#252F40] mb-4">
@@ -17,12 +22,16 @@
     </div>
 
     <!-- Main Actions -->
-    <div class="grid md:grid-cols-2 gap-8 mb-16">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
         <!-- Iniciar Trámite -->
         <div class="group bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] rounded-xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div class="{% if branding.portal.home.primary_icon_mode == 'badge' %}inline-flex items-center justify-center w-16 h-16 rounded-xl{% else %}inline-flex items-center justify-center{% endif %} mb-6 group-hover:scale-110 transition-transform duration-300" {% if branding.portal.home.primary_icon_mode == 'badge' %}style="background: linear-gradient(135deg, {{ branding.portal.home.primary_icon_gradient_start }} 0%, {{ branding.portal.home.primary_icon_gradient_end }} 100%);"{% endif %}>
+                    {% if branding.portal.home.primary_icon_mode == 'text_gradient' %}
+                    <i class="fas fa-rocket text-4xl text-transparent" style="background-image: linear-gradient(180deg, {{ branding.portal.home.primary_icon_gradient_start }} 0%, {{ branding.portal.home.primary_icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    {% else %}
                     <i class="fas fa-rocket text-2xl text-white"></i>
+                    {% endif %}
                 </div>
                 <h3 class="text-2xl font-bold text-[#252F40] mb-4">
                     Iniciar Trámite
@@ -32,7 +41,10 @@
                     Proceso guiado paso a paso.
                 </p>
                 <a href="{% url 'portal:crear_usuario' %}" 
-                   class="inline-flex items-center bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl">
+                   class="inline-flex items-center text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl"
+                   style="background: linear-gradient(90deg, {{ branding.portal.home.primary_button_gradient_start }} 0%, {{ branding.portal.home.primary_button_gradient_end }} 100%);"
+                   onmouseover="this.style.background='linear-gradient(90deg, {{ branding.portal.home.primary_button_hover_start }} 0%, {{ branding.portal.home.primary_button_hover_end }} 100%)'"
+                   onmouseout="this.style.background='linear-gradient(90deg, {{ branding.portal.home.primary_button_gradient_start }} 0%, {{ branding.portal.home.primary_button_gradient_end }} 100%)'">
                     <i class="fas fa-user-plus mr-2"></i>
                     Crear Usuario e Iniciar
                 </a>
@@ -42,8 +54,12 @@
         <!-- Consultar Trámite -->
         <div class="group bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#10B981] to-[#059669] rounded-xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div class="{% if branding.portal.home.secondary_icon_mode == 'badge' %}inline-flex items-center justify-center w-16 h-16 rounded-xl{% else %}inline-flex items-center justify-center{% endif %} mb-6 group-hover:scale-110 transition-transform duration-300" {% if branding.portal.home.secondary_icon_mode == 'badge' %}style="background: linear-gradient(135deg, {{ branding.portal.home.secondary_icon_gradient_start }} 0%, {{ branding.portal.home.secondary_icon_gradient_end }} 100%);"{% endif %}>
+                    {% if branding.portal.home.secondary_icon_mode == 'text_gradient' %}
+                    <i class="fas fa-search-plus text-4xl text-transparent" style="background-image: linear-gradient(180deg, {{ branding.portal.home.secondary_icon_gradient_start }} 0%, {{ branding.portal.home.secondary_icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    {% else %}
                     <i class="fas fa-search-plus text-2xl text-white"></i>
+                    {% endif %}
                 </div>
                 <h3 class="text-2xl font-bold text-[#252F40] mb-4">
                     Consultar Trámite
@@ -53,9 +69,39 @@
                     ingresando el email con el que se registró.
                 </p>
                 <a href="{% url 'portal:consultar_tramite' %}" 
-                   class="inline-flex items-center bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl">
+                   class="inline-flex items-center text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl"
+                   style="background: linear-gradient(90deg, {{ branding.portal.home.secondary_button_gradient_start }} 0%, {{ branding.portal.home.secondary_button_gradient_end }} 100%);"
+                   onmouseover="this.style.background='linear-gradient(90deg, {{ branding.portal.home.secondary_button_hover_start }} 0%, {{ branding.portal.home.secondary_button_hover_end }} 100%)'"
+                   onmouseout="this.style.background='linear-gradient(90deg, {{ branding.portal.home.secondary_button_gradient_start }} 0%, {{ branding.portal.home.secondary_button_gradient_end }} 100%)'">
                     <i class="fas fa-clipboard-check mr-2"></i>
                     Consultar Estado
+                </a>
+            </div>
+        </div>
+
+        <!-- Chatea con Nosotros -->
+        <div class="group bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="text-center">
+                <div class="{% if branding.portal.home.tertiary_icon_mode == 'badge' %}inline-flex items-center justify-center w-16 h-16 rounded-xl{% else %}inline-flex items-center justify-center{% endif %} mb-6 group-hover:scale-110 transition-transform duration-300" {% if branding.portal.home.tertiary_icon_mode == 'badge' %}style="background: linear-gradient(135deg, {{ branding.portal.home.tertiary_icon_gradient_start }} 0%, {{ branding.portal.home.tertiary_icon_gradient_end }} 100%);"{% endif %}>
+                    {% if branding.portal.home.tertiary_icon_mode == 'text_gradient' %}
+                    <i class="fas fa-comments text-4xl text-transparent" style="background-image: linear-gradient(180deg, {{ branding.portal.home.tertiary_icon_gradient_start }} 0%, {{ branding.portal.home.tertiary_icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    {% else %}
+                    <i class="fas fa-comments text-2xl text-white"></i>
+                    {% endif %}
+                </div>
+                <h3 class="text-2xl font-bold text-[#252F40] mb-4">
+                    Chateá con Nosotros
+                </h3>
+                <p class="text-[#8C8C8C] mb-6 leading-relaxed">
+                    Iniciá una conversación directa para recibir ayuda y resolver dudas en tiempo real.
+                </p>
+                <a href="../conversaciones/chat"
+                   class="inline-flex items-center text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl"
+                   style="background: linear-gradient(90deg, {{ branding.portal.home.tertiary_button_gradient_start }} 0%, {{ branding.portal.home.tertiary_button_gradient_end }} 100%);"
+                   onmouseover="this.style.background='linear-gradient(90deg, {{ branding.portal.home.tertiary_button_hover_start }} 0%, {{ branding.portal.home.tertiary_button_hover_end }} 100%)'"
+                   onmouseout="this.style.background='linear-gradient(90deg, {{ branding.portal.home.tertiary_button_gradient_start }} 0%, {{ branding.portal.home.tertiary_button_gradient_end }} 100%)'">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Ir al Chat
                 </a>
             </div>
         </div>
@@ -65,8 +111,12 @@
     <div class="mb-16">
         <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 max-w-3xl mx-auto">
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl mb-6">
-                    <i class="fas fa-headset text-2xl text-[#64748B]"></i>
+                <div class="{% if branding.portal.home.support_icon_mode == 'badge' %}inline-flex items-center justify-center w-16 h-16 rounded-xl{% else %}inline-flex items-center justify-center{% endif %} mb-6" {% if branding.portal.home.support_icon_mode == 'badge' %}style="background: {{ branding.portal.home.support_icon_bg }}; border: 1px solid {{ branding.portal.home.support_icon_border }};"{% endif %}>
+                    {% if branding.portal.home.support_icon_mode == 'text_gradient' %}
+                    <i class="fas fa-headset text-4xl text-transparent" style="background-image: linear-gradient(180deg, {{ branding.portal.home.support_icon_gradient_start }} 0%, {{ branding.portal.home.support_icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    {% else %}
+                    <i class="fas fa-headset text-2xl" style="color: {{ branding.portal.home.support_icon_color }};"></i>
+                    {% endif %}
                 </div>
                 <h3 class="text-2xl font-bold text-[#252F40] mb-4">
                     ¿Necesita Asistencia?
@@ -77,12 +127,15 @@
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <button onclick="document.getElementById('chat-button').click()" 
-                            class="inline-flex items-center bg-[#64748B] hover:bg-[#475569] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300">
+                            class="inline-flex items-center text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
+                            style="background: {{ branding.portal.home.support_button_bg }};"
+                            onmouseover="this.style.background='{{ branding.portal.home.support_button_hover_bg }}'"
+                            onmouseout="this.style.background='{{ branding.portal.home.support_button_bg }}'">
                         <i class="fas fa-comments mr-2"></i>
                         Mesa de Ayuda
                     </button>
                     <div class="flex items-center text-[#252F40] bg-[#F9FAFB] px-6 py-3 rounded-xl border border-[#E5E7EB]">
-                        <i class="fas fa-phone mr-2 text-[#3B82F6]"></i>
+                        <i class="fas fa-phone mr-2" style="color: {{ branding.portal.home.contact_icon_color }};"></i>
                         <span class="font-semibold">0800-222-1133</span>
                     </div>
                 </div>
@@ -94,7 +147,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8">
         <div class="text-center mb-8">
             <h3 class="text-2xl font-bold text-[#252F40] mb-3 flex items-center justify-center">
-                <div class="bg-[#3B82F6] rounded-lg p-2 mr-3">
+                <div class="rounded-lg p-2 mr-3" style="background: {{ branding.portal.home.process_title_icon_bg }};">
                     <i class="fas fa-info-circle text-white"></i>
                 </div>
                 Información del Proceso
@@ -105,38 +158,38 @@
         <div class="grid md:grid-cols-2 gap-8">
             <div class="bg-[#F9FAFB] rounded-xl p-6 border border-[#E5E7EB]">
                 <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 bg-[#F59E0B] rounded-lg flex items-center justify-center mr-3">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background: {{ branding.portal.home.docs_icon_bg }};">
                         <i class="fas fa-file-alt text-white"></i>
                     </div>
                     <h4 class="font-bold text-[#252F40]">Documentación Requerida</h4>
                 </div>
                 <ul class="space-y-3 text-sm text-[#252F40]">
                     <li class="flex items-center">
-                        <div class="w-5 h-5 bg-[#10B981] rounded-full flex items-center justify-center mr-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3" style="background: {{ branding.portal.home.docs_check_bg }};">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
                         <span>Personería Jurídica</span>
                     </li>
                     <li class="flex items-center">
-                        <div class="w-5 h-5 bg-[#10B981] rounded-full flex items-center justify-center mr-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3" style="background: {{ branding.portal.home.docs_check_bg }};">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
                         <span>Estatuto vigente</span>
                     </li>
                     <li class="flex items-center">
-                        <div class="w-5 h-5 bg-[#10B981] rounded-full flex items-center justify-center mr-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3" style="background: {{ branding.portal.home.docs_check_bg }};">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
                         <span>Habilitación Municipal</span>
                     </li>
                     <li class="flex items-center">
-                        <div class="w-5 h-5 bg-[#10B981] rounded-full flex items-center justify-center mr-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3" style="background: {{ branding.portal.home.docs_check_bg }};">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
                         <span>Constancia AFIP</span>
                     </li>
                     <li class="flex items-center">
-                        <div class="w-5 h-5 bg-[#10B981] rounded-full flex items-center justify-center mr-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center mr-3" style="background: {{ branding.portal.home.docs_check_bg }};">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
                         <span>Seguros de Responsabilidad Civil</span>
@@ -146,30 +199,30 @@
             
             <div class="bg-[#F9FAFB] rounded-xl p-6 border border-[#E5E7EB]">
                 <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 bg-[#3B82F6] rounded-lg flex items-center justify-center mr-3">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background: {{ branding.portal.home.steps_icon_bg }};">
                         <i class="fas fa-list-ol text-white"></i>
                     </div>
                     <h4 class="font-bold text-[#252F40]">Pasos del Proceso</h4>
                 </div>
-                <div class="space-y-3 text-sm">
+                <div class="space-y-3 text-sm portal-steps">
                     <div class="flex items-center text-[#252F40]">
-                        <div class="w-6 h-6 bg-[#3B82F6] text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">1</div>
+                        <div class="w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3" style="background: {{ branding.portal.home.steps_icon_bg }};">1</div>
                         <span>Creación de usuario</span>
                     </div>
                     <div class="flex items-center text-[#252F40]">
-                        <div class="w-6 h-6 bg-[#3B82F6] text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">2</div>
+                        <div class="w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3" style="background: {{ branding.portal.home.steps_icon_bg }};">2</div>
                         <span>Completar formulario</span>
                     </div>
                     <div class="flex items-center text-[#252F40]">
-                        <div class="w-6 h-6 bg-[#3B82F6] text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">3</div>
+                        <div class="w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3" style="background: {{ branding.portal.home.steps_icon_bg }};">3</div>
                         <span>Carga de documentación</span>
                     </div>
                     <div class="flex items-center text-[#252F40]">
-                        <div class="w-6 h-6 bg-[#3B82F6] text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">4</div>
+                        <div class="w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3" style="background: {{ branding.portal.home.steps_icon_bg }};">4</div>
                         <span>Revisión por NODO</span>
                     </div>
                     <div class="flex items-center text-[#252F40]">
-                        <div class="w-6 h-6 bg-[#10B981] text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">✓</div>
+                        <div class="w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3" style="background: {{ branding.portal.home.steps_complete_bg }};">✓</div>
                         <span>Aprobación final</span>
                     </div>
                 </div>
@@ -177,7 +230,7 @@
         </div>
         
         <div class="mt-8 text-center">
-            <div class="inline-flex items-center bg-[#F0F9FF] border border-[#BAE6FD] text-[#0369A1] px-6 py-3 rounded-xl text-sm font-medium">
+            <div class="inline-flex items-center px-6 py-3 rounded-xl text-sm font-medium" style="background: {{ branding.portal.home.notice_bg }}; border: 1px solid {{ branding.portal.home.notice_border }}; color: {{ branding.portal.home.notice_text }};">
                 <i class="fas fa-clock mr-2"></i>
                 <span>Tiempo estimado: 15-20 días hábiles</span>
             </div>
