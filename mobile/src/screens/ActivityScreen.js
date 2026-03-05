@@ -5,9 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import StaggeredItem from '../components/StaggeredItem';
 
 const RECENT_ACTIVITY = [
-    { id: '1', user: 'Juana Sierra', action: 'sincronizó evidencias georreferenciadas', time: 'Hace 5 min', icon: 'cloud-done', color: '#7928CA' },
-    { id: '2', user: 'Carlos Paez', action: 'registró firma electrónica en acta', time: 'Hace 1 hora', icon: 'create', color: '#2DCE89' },
-    { id: '3', user: 'Admin', action: 'actualizó legajo 360 de beneficiario', time: 'Hace 3 horas', icon: 'people', color: '#FF0080' },
+    { id: '1', user: 'Juana Sierra', action: 'sincronizo evidencias georreferenciadas', time: 'Hace 5 min', icon: 'cloud-done', colorKey: 'secondary' },
+    { id: '2', user: 'Carlos Paez', action: 'registro firma electronica en acta', time: 'Hace 1 hora', icon: 'create', colorKey: 'success' },
+    { id: '3', user: 'Admin', action: 'actualizo legajo 360 de beneficiario', time: 'Hace 3 horas', icon: 'people', colorKey: 'primary' },
 ];
 
 export default function ActivityScreen() {
@@ -26,7 +26,7 @@ export default function ActivityScreen() {
                     <StaggeredItem key={item.id} index={index + 1}>
                         <View style={styles.itemContainer}>
                             <View style={styles.iconColumn}>
-                                <View style={[styles.iconWrapper, { backgroundColor: item.color }]}>
+                                <View style={[styles.iconWrapper, { backgroundColor: theme.colors[item.colorKey] || theme.colors.primary }]}>
                                     <Ionicons name={item.icon} size={18} color="#FFF" />
                                 </View>
                                 {index < RECENT_ACTIVITY.length - 1 && <View style={[styles.line, { backgroundColor: theme.colors.border }]} />}

@@ -1,31 +1,33 @@
+import { activeBranding } from '../config/branding';
+
 export const palette = {
     // Brand Colors
-    magenta: '#FF0080',
-    purple: '#7928CA',
-    violet: '#8908CC',
-    cyan: '#08B8CC',
-    fuchsia: '#CC0884',
-    lime: '#A0D800',
+    magenta: activeBranding.colors.primary,
+    purple: activeBranding.colors.secondary,
+    violet: activeBranding.colors.secondary,
+    cyan: activeBranding.colors.accent,
+    fuchsia: activeBranding.colors.secondary,
+    lime: activeBranding.colors.success,
 
     // Neutrals Light
-    text: '#252F40',
-    textMuted: '#67748E',
-    textSoft: '#8392AB',
-    border: '#E9ECEF',
-    background: '#F8F9FA',
-    surface: '#FFFFFF',
+    text: activeBranding.colors.text,
+    textMuted: activeBranding.colors.textMuted,
+    textSoft: activeBranding.colors.textSoft,
+    border: activeBranding.colors.border,
+    background: activeBranding.colors.background,
+    surface: activeBranding.colors.surface,
 
     // Neutrals Dark
-    darkBackground: '#0B1020',
-    darkSurface: '#141B2D',
-    darkSurfaceAlt: '#1B2438',
-    darkText: '#E6EAF2',
-    darkTextMuted: '#B7C0D0',
-    darkBorder: '#24324A',
+    darkBackground: activeBranding.colors.darkBackground,
+    darkSurface: activeBranding.colors.darkSurface,
+    darkSurfaceAlt: activeBranding.colors.darkSurfaceAlt,
+    darkText: activeBranding.colors.darkText,
+    darkTextMuted: activeBranding.colors.darkTextMuted,
+    darkBorder: activeBranding.colors.darkBorder,
 
     // System
     error: '#EA0606',
-    success: '#2DCE89',
+    success: activeBranding.colors.success,
     white: '#FFFFFF',
     black: '#000000',
 };
@@ -36,7 +38,7 @@ export const lightTheme = {
         primary: palette.magenta,
         secondary: palette.purple,
         accent: palette.cyan,
-        success: palette.fuchsia,
+        success: palette.success,
         background: palette.background,
         surface: palette.surface,
         surfaceAlt: '#F1F3F7',
@@ -44,26 +46,96 @@ export const lightTheme = {
         textMuted: palette.textMuted,
         textSoft: palette.textSoft,
         border: palette.border,
-        icon: '#56606A',
+        icon: activeBranding.colors.icon,
         shadow: '#000000', // Use solid black for shadow color
+        gradients: activeBranding.gradients,
+        auth: {
+            glow: activeBranding.colors.authGlow,
+            networkLine: activeBranding.colors.authNetworkLine,
+            nodeOuter: activeBranding.colors.authNodeOuter,
+            nodeInner: activeBranding.colors.authNodeInner,
+            grid: activeBranding.colors.authGrid,
+            blobA: activeBranding.colors.authBlobA,
+            blobB: activeBranding.colors.authBlobB,
+            blobC: activeBranding.colors.authBlobC,
+        },
+        button: {
+            secondary: {
+                text: activeBranding.colors.buttonSecondaryText,
+                bg: activeBranding.colors.buttonSecondaryBg,
+                border: activeBranding.colors.buttonSecondaryBorder,
+                hoverBg: activeBranding.colors.buttonSecondaryHoverBg,
+            },
+            tertiary: {
+                text: activeBranding.colors.buttonTertiaryText,
+                bg: activeBranding.colors.buttonTertiaryBg,
+                border: activeBranding.colors.buttonTertiaryBorder,
+                hoverText: activeBranding.colors.buttonTertiaryHoverText,
+                hoverBg: activeBranding.colors.buttonTertiaryHoverBg,
+                hoverBorder: activeBranding.colors.buttonTertiaryHoverBorder,
+                focusText: activeBranding.colors.buttonTertiaryFocusText,
+                focusBg: activeBranding.colors.buttonTertiaryFocusBg,
+                focusBorder: activeBranding.colors.buttonTertiaryFocusBorder,
+            },
+            disabled: {
+                bg: activeBranding.colors.buttonDisabledBg,
+                border: activeBranding.colors.buttonDisabledBorder,
+                text: activeBranding.colors.buttonDisabledText,
+            },
+        },
     }
 };
 
 export const darkTheme = {
     mode: 'dark',
     colors: {
-        primary: palette.magenta,
-        secondary: palette.purple,
-        accent: palette.cyan,
-        success: palette.fuchsia,
-        background: '#101828', // Dropdown y similares de colores2
-        surface: '#1C293A',    // Slightly lighter for definition
-        surfaceAlt: '#252F40', // Titulo modulo de colores2
-        text: '#FFFFFF',       // Fondo modulos de colores2
-        textMuted: '#E5E7EB',  // Borde de modulos de colores2
-        textSoft: '#8C8C8C',   // Subtitulo de legajo de colores2
-        border: '#4A5565',     // Texto general menu lateral de colores2
-        icon: '#56606A',       // Iconos de colores2
+        primary: activeBranding.colors.primary,
+        secondary: activeBranding.colors.secondary,
+        accent: activeBranding.colors.accent,
+        success: activeBranding.colors.success,
+        background: activeBranding.colors.darkBackground,
+        surface: activeBranding.colors.darkSurface,
+        surfaceAlt: activeBranding.colors.darkSurfaceAlt,
+        text: activeBranding.colors.darkText,
+        textMuted: activeBranding.colors.darkTextMuted,
+        textSoft: activeBranding.colors.darkTextSoft,
+        border: activeBranding.colors.darkBorder,
+        icon: activeBranding.colors.icon,
         shadow: '#000000',
+        gradients: activeBranding.gradients,
+        auth: {
+            glow: activeBranding.colors.authGlow,
+            networkLine: activeBranding.colors.authNetworkLine,
+            nodeOuter: activeBranding.colors.authNodeOuter,
+            nodeInner: activeBranding.colors.authNodeInner,
+            grid: activeBranding.colors.authGrid,
+            blobA: activeBranding.colors.authBlobA,
+            blobB: activeBranding.colors.authBlobB,
+            blobC: activeBranding.colors.authBlobC,
+        },
+        button: {
+            secondary: {
+                text: activeBranding.colors.buttonSecondaryText,
+                bg: activeBranding.colors.buttonSecondaryBg,
+                border: activeBranding.colors.buttonSecondaryBorder,
+                hoverBg: activeBranding.colors.buttonSecondaryHoverBg,
+            },
+            tertiary: {
+                text: activeBranding.colors.buttonTertiaryText,
+                bg: activeBranding.colors.buttonTertiaryBg,
+                border: activeBranding.colors.buttonTertiaryBorder,
+                hoverText: activeBranding.colors.buttonTertiaryHoverText,
+                hoverBg: activeBranding.colors.buttonTertiaryHoverBg,
+                hoverBorder: activeBranding.colors.buttonTertiaryHoverBorder,
+                focusText: activeBranding.colors.buttonTertiaryFocusText,
+                focusBg: activeBranding.colors.buttonTertiaryFocusBg,
+                focusBorder: activeBranding.colors.buttonTertiaryFocusBorder,
+            },
+            disabled: {
+                bg: activeBranding.colors.buttonDisabledBg,
+                border: activeBranding.colors.buttonDisabledBorder,
+                text: activeBranding.colors.buttonDisabledText,
+            },
+        },
     }
 };

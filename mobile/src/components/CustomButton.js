@@ -44,23 +44,23 @@ const CustomButton = ({
             switch (variant) {
                 case 'secondary':
                     return {
-                        bg: '#F3F4F6',
-                        text: '#99A1AF',
-                        stroke: '#E5E7E8',
+                        bg: theme.colors.button?.disabled?.bg || '#F3F4F6',
+                        text: theme.colors.button?.disabled?.text || '#99A1AF',
+                        stroke: theme.colors.button?.disabled?.border || '#E5E7E8',
                         strokeWidth: 1
                     };
                 case 'tertiary':
                     return {
-                        bg: 'rgba(199, 160, 180, 0.2)', // #C7A0B4 20%
-                        text: '#D4006A',
-                        stroke: '#C7A0B4',
+                        bg: theme.colors.button?.disabled?.bg || '#F3F4F6',
+                        text: theme.colors.button?.disabled?.text || '#99A1AF',
+                        stroke: theme.colors.button?.disabled?.border || '#E5E7E8',
                         strokeWidth: 1
                     };
                 default: // primary
                     return {
-                        bg: '#F3F4F6',
-                        text: '#99A1AF',
-                        stroke: '#E5E7E8',
+                        bg: theme.colors.button?.disabled?.bg || '#F3F4F6',
+                        text: theme.colors.button?.disabled?.text || '#99A1AF',
+                        stroke: theme.colors.button?.disabled?.border || '#E5E7E8',
                         strokeWidth: 1
                     };
             }
@@ -70,17 +70,17 @@ const CustomButton = ({
             switch (variant) {
                 case 'secondary':
                     return {
-                        bg: '#F3F4F6',
-                        text: '#101828',
-                        stroke: '#E5E7EB',
+                        bg: theme.colors.button?.secondary?.hoverBg || '#F3F4F6',
+                        text: theme.colors.button?.secondary?.text || '#101828',
+                        stroke: theme.colors.button?.secondary?.border || '#E5E7EB',
                         strokeWidth: 1,
                         shadow: '#F3F4F6'
                     };
                 case 'tertiary':
                     return {
-                        bg: 'rgba(255, 0, 128, 0.1)', // #FF0080 10%
-                        text: '#D4006A',
-                        stroke: '#D4006A',
+                        bg: theme.colors.button?.tertiary?.hoverBg || 'rgba(255, 0, 128, 0.1)',
+                        text: theme.colors.button?.tertiary?.hoverText || '#D4006A',
+                        stroke: theme.colors.button?.tertiary?.hoverBorder || '#D4006A',
                         strokeWidth: 1,
                         shadow: '#F3F4F6'
                     };
@@ -88,7 +88,7 @@ const CustomButton = ({
                     return {
                         isGradient: true,
                         text: '#FFFFFF',
-                        stroke: '#7828CA',
+                        stroke: theme.colors.primary,
                         strokeWidth: 2,
                         shadow: '#E5E7EB'
                     };
@@ -99,16 +99,16 @@ const CustomButton = ({
         switch (variant) {
             case 'secondary':
                 return {
-                    bg: '#F9FAFB',
-                    text: '#4A5565',
-                    stroke: '#E5E7EB',
+                    bg: theme.colors.button?.secondary?.bg || '#F9FAFB',
+                    text: theme.colors.button?.secondary?.text || '#4A5565',
+                    stroke: theme.colors.button?.secondary?.border || '#E5E7EB',
                     strokeWidth: 1
                 };
             case 'tertiary':
                 return {
-                    bg: '#FFFFFF',
-                    text: '#FF0080',
-                    stroke: '#FF0080',
+                    bg: theme.colors.button?.tertiary?.bg || '#FFFFFF',
+                    text: theme.colors.button?.tertiary?.text || '#FF0080',
+                    stroke: theme.colors.button?.tertiary?.border || '#FF0080',
                     strokeWidth: 1
                 };
             default: // primary
@@ -209,12 +209,12 @@ const CustomButton = ({
                     if (v.isGradient && !disabled) {
                         return (
                             <LinearGradient
-                                colors={['#7828CA', '#FF0080']}
+                                colors={theme.colors.gradients?.buttonPrimary || ['#7828CA', '#FF0080']}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 1 }}
                                 style={styles.gradient}
                             >
-                                {pressed && <View style={styles.hoverOverlay} />}
+                                {pressed && <View style={[styles.hoverOverlay, { backgroundColor: theme.colors.gradients?.buttonPrimaryPressedOverlay || 'rgba(0, 0, 0, 0.2)' }]} />}
                                 {content}
                             </LinearGradient>
                         );
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     },
     hoverOverlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        backgroundColor: 'transparent',
     },
     contentRow: {
         flexDirection: 'row',

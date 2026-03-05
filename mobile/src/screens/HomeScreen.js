@@ -19,7 +19,7 @@ const GradientIcon = ({ name, size = 24, style }) => {
                 }
             >
                 <LinearGradient
-                    colors={['#FF0080', '#7928CA']}
+                    colors={theme.colors.gradients?.brand || ['#FF0080', '#7928CA']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 0, y: 1 }}
                     style={{ flex: 1 }}
@@ -65,10 +65,10 @@ export default function HomeScreen({ onOpenRelevamientos, onSyncPress, onOpenMen
                                 style={({ pressed }) => [styles.cardWrap, { opacity: pressed ? 0.92 : 1 }]}
                             >
                                 <LinearGradient
-                                    colors={['#FF0080', '#7928CA']}
+                                    colors={theme.colors.gradients?.brand || ['#FF0080', '#7928CA']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 1 }}
-                                    style={styles.card}
+                                    style={[styles.card, { shadowColor: theme.colors.secondary }]}
                                 >
                                     <View style={styles.iconBadge}>
                                         <Ionicons name={task.icon} size={26} color="#FFFFFF" />
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
         borderRadius: 22,
         alignItems: 'flex-start',
         justifyContent: 'space-between',
-        shadowColor: '#7928CA',
+        shadowColor: '#000000',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.2,
         shadowRadius: 12,

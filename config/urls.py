@@ -5,9 +5,13 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from config.branding import get_branding_profile
 
 urlpatterns = [
-    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'custom/branding/default/favicon.png')),
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url=f"{settings.STATIC_URL}{get_branding_profile()['favicon_path']}", permanent=True),
+    ),
     path("admin/doc/", include("django.contrib.admindocs.urls")),
     path("admin/", admin.site.urls),
     
