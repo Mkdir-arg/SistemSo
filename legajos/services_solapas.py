@@ -1,6 +1,9 @@
 """
 Servicio para gestionar solapas dinámicas de programas
 """
+import re
+import unicodedata
+
 from django.db.models import Q
 from .models_programas import Programa, InscripcionPrograma, DerivacionPrograma
 
@@ -69,12 +72,13 @@ class SolapasService:
         # 3. Agregar solapas dinámicas de programas (entre Resumen y Cursos)
         for inscripcion in inscripciones_activas:
             programa = inscripcion.programa
+            tipo_normalizado = cls._normalizar_tipo_programa(programa.tipo)
             solapa = {
-                'id': f'programa_{programa.tipo}',
+                'id': f'programa_{tipo_normalizado}',
                 'nombre': programa.nombre,
                 'icono': programa.icono or 'assignment',
                 'color': programa.color,
-                'url_name': cls._obtener_url_programa(programa.tipo),
+                'url_name': cls._obtener_url_programa(tipo_normalizado),
                 'url_params': {'ciudadano_id': ciudadano.id, 'inscripcion_id': inscripcion.id},
                 'orden': 100 + programa.orden,  # Orden entre 100-899 para programas dinámicos
                 'estatica': False,
@@ -196,6 +200,22 @@ class SolapasService:
             'FAMILIAR': 'programas:familiar_detalle',
         }
         return url_map.get(tipo_programa, 'legajos:programa_detalle')
+
+    @classmethod
+    def _normalizar_tipo_programa(cls, tipo_programa):
+        """
+        Normaliza tipos de programa para usarlos como IDs estables en tabs.
+        Ej: 'ÑACHEC' o variantes con codificación rota -> 'NACHEC'
+        """
+        valor = (tipo_programa or "").upper().strip()
+
+        # Compatibilidad con variantes históricas de NACHEC.
+        if "NACHEC" in valor or "ÑACHEC" in valor or "ACHEC" in valor:
+            return "NACHEC"
+
+        ascii_valor = unicodedata.normalize("NFKD", valor).encode("ascii", "ignore").decode("ascii")
+        ascii_valor = re.sub(r"[^A-Z0-9]+", "_", ascii_valor).strip("_")
+        return ascii_valor or "PROGRAMA"
     
     @classmethod
     def _obtener_badge_programa(cls, inscripcion):
