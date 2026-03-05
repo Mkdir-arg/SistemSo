@@ -8,6 +8,7 @@
 | Funcionalidad | Carpeta | Version actual | Ultima actualizacion |
 |--------------|---------|---------------|---------------------|
 | Confirmar Ciudadano RENAPER | `confirmar-ciudadano-renaper/` | v1.0 | 2026-03-04 |
+| Mejora de Logging | `mejora-logging/` | v1.0 | 2026-03-05 |
 
 ---
 

@@ -14,6 +14,21 @@
 
 ---
 
+## 2026-03-05 — Mejora de logging detallado
+
+**User Story:** Como desarrollador, quiero logs detallados en tiempo real del backend, requests HTTP y nginx para diagnosticar problemas en producción.
+
+**Archivos creados:**
+- `core/middleware.py` — `RequestLoggingMiddleware`
+
+**Archivos modificados:**
+- `config/settings.py` — `console` handler en LOGGING, `django.request` a WARNING, middleware registrado
+- `nginx.conf` — `log_format detailed` con `$request_time` y `$upstream_response_time`
+
+**Descripcion:** Tres mejoras de observabilidad: (A) console handler para ver logs con `docker logs nodo-web`; (B) middleware que loguea cada request con método, URL, usuario, IP, status y duración; (D) formato de access log en nginx con tiempos de respuesta totales y de upstream.
+
+---
+
 ## 2026-03-05 — [HOTFIX] Redis OOM causa WSDISCONNECT en WebSocket
 
 **Archivos modificados:**
