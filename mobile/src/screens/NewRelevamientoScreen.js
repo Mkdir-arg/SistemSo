@@ -1218,7 +1218,7 @@ export default function NewRelevamientoScreen({ onCancel, onSave }) {
                                 <View style={styles.sigModalHeader}>
                                     <Text style={{ fontFamily: typography.bold, fontSize: 18, color: '#000' }}>FIRMA DIGITAL</Text>
                                     <TouchableOpacity onPress={() => setShowSigModal(false)} style={styles.closeButton}>
-                                        <Ionicons name="close" size={36} color="#FF0080" />
+                                        <Ionicons name="close" size={36} color={theme.colors.primary} />
                                     </TouchableOpacity>
                                 </View>
 

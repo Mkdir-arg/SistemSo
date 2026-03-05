@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { Image, StyleSheet, Animated, Easing } from 'react-native';
-import AuthVisualBackground from '../components/AuthVisualBackground';
-
-const logo = require('../../assets/brand/logo-nodo.png');
+import { Image, StyleSheet, Animated, Easing, View } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SplashScreen() {
+    const { branding } = useTheme();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.96)).current;
     const exitTranslateX = useRef(new Animated.Value(0)).current;
@@ -51,7 +50,7 @@ export default function SplashScreen() {
     }, []);
 
     return (
-        <AuthVisualBackground>
+        <View style={styles.container}>
             <Animated.View
                 style={{
                     opacity: fadeAnim,
@@ -61,13 +60,17 @@ export default function SplashScreen() {
                     flex: 1,
                 }}
             >
-                <Image source={logo} style={styles.logo} resizeMode="contain" />
+                <Image source={branding.assets.logo} style={styles.logo} resizeMode="contain" />
             </Animated.View>
-        </AuthVisualBackground>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F3F4F6',
+    },
     logo: {
         width: 300,
         height: 300,

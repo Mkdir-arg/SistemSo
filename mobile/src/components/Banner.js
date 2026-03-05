@@ -1,10 +1,7 @@
-import { View, Text, StyleSheet, Platform, Dimensions, Pressable, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Platform, Pressable, ImageBackground, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
-
-const { width } = Dimensions.get('window');
-const lightBannerImage = require('../../assets/images/back_banner.jpg');
 
 export default function Banner({
     title,
@@ -14,64 +11,91 @@ export default function Banner({
     showBackButton = false,
     onBackPress,
 }) {
-    const { theme, typography, isDark } = useTheme();
+    const { theme, typography, branding } = useTheme();
     const isSynced = syncStatus === 'synced';
     const isSyncing = syncStatus === 'syncing';
+    const useSolidBanner = branding.banner?.mode === 'solid';
+
+    const bannerContent = (
+        <SafeAreaView>
+            <View style={styles.content}>
+                <View style={styles.headerRow}>
+                    <View style={styles.leftHeaderGroup}>
+                        {showBackButton ? (
+                            <TouchableOpacity onPress={onBackPress} style={styles.backBtn}>
+                                <Ionicons name="chevron-back" size={22} color="#FFF" />
+                            </TouchableOpacity>
+                        ) : null}
+                        <Text style={[styles.title, { color: '#FFF', fontFamily: typography.extrabold }]}>
+                            {title.toUpperCase()}
+                        </Text>
+                    </View>
+
+                    <View style={styles.iconGroup}>
+                        <Pressable style={styles.iconButton} onPress={onSyncPress}>
+                            <Ionicons
+                                name={isSyncing ? 'sync' : (isSynced ? 'cloud-done' : 'cloud-upload')}
+                                size={28}
+                                color={isSyncing ? theme.colors.accent : (isSynced ? theme.colors.success : theme.colors.warning)}
+                            />
+                            {syncPendingCount > 0 ? (
+                                <View style={[styles.syncBadge, { borderColor: '#FFF', backgroundColor: theme.colors.primary }]}>
+                                    <Text style={[styles.syncBadgeText, { fontFamily: typography.bold }]}>
+                                        {syncPendingCount > 99 ? '99+' : syncPendingCount}
+                                    </Text>
+                                </View>
+                            ) : null}
+                        </Pressable>
+
+                        <Pressable style={styles.notificationContainer}>
+                            <Ionicons name="notifications-outline" size={26} color="#FFF" />
+                            <View style={[
+                                styles.badge,
+                                {
+                                    borderColor: '#FFF',
+                                    backgroundColor: '#EA0606',
+                                }
+                            ]}>
+                                <Text style={[styles.badgeText, { fontFamily: typography.bold }]}>2</Text>
+                            </View>
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
+        </SafeAreaView>
+    );
 
     return (
         <View style={styles.shadowContainer}>
-            <ImageBackground
-                source={lightBannerImage}
-                style={styles.container}
-                imageStyle={{ opacity: 1 }}
-                resizeMode="cover"
-            >
-                <SafeAreaView>
-                    <View style={styles.content}>
-                        <View style={styles.headerRow}>
-                            <View style={styles.leftHeaderGroup}>
-                                {showBackButton ? (
-                                    <TouchableOpacity onPress={onBackPress} style={styles.backBtn}>
-                                        <Ionicons name="chevron-back" size={22} color="#FFF" />
-                                    </TouchableOpacity>
-                                ) : null}
-                                <Text style={[styles.title, { color: '#FFF', fontFamily: typography.extrabold }]}>
-                                    {title.toUpperCase()}
-                                </Text>
-                            </View>
-
-                            <View style={styles.iconGroup}>
-                                <Pressable style={styles.iconButton} onPress={onSyncPress}>
-                                    <Ionicons
-                                        name={isSyncing ? 'sync' : (isSynced ? 'cloud-done' : 'cloud-upload')}
-                                        size={28}
-                                        color={isSyncing ? '#08B8CC' : (isSynced ? '#2DCE89' : '#FFB020')}
-                                    />
-                                    {syncPendingCount > 0 ? (
-                                        <View style={[styles.syncBadge, { borderColor: '#FFF' }]}>
-                                            <Text style={[styles.syncBadgeText, { fontFamily: typography.bold }]}>
-                                                {syncPendingCount > 99 ? '99+' : syncPendingCount}
-                                            </Text>
-                                        </View>
-                                    ) : null}
-                                </Pressable>
-
-                                <Pressable style={styles.notificationContainer}>
-                                    <Ionicons name="notifications-outline" size={26} color="#FFF" />
-                                    <View style={[
-                                        styles.badge,
-                                        {
-                                            borderColor: '#FFF'
-                                        }
-                                    ]}>
-                                        <Text style={[styles.badgeText, { fontFamily: typography.bold }]}>2</Text>
-                                    </View>
-                                </Pressable>
-                            </View>
-                        </View>
-                    </View>
-                </SafeAreaView>
-            </ImageBackground>
+            {useSolidBanner ? (
+                <View
+                    style={[
+                        styles.container,
+                        {
+                            backgroundColor: branding.banner?.color || theme.colors.primary,
+                            borderBottomWidth: 1,
+                            borderBottomColor: theme.colors.border,
+                        },
+                    ]}
+                >
+                    {bannerContent}
+                </View>
+            ) : (
+                <ImageBackground
+                    source={branding.assets.bannerBackground}
+                    style={[
+                        styles.container,
+                        {
+                            borderBottomWidth: 1,
+                            borderBottomColor: theme.colors.border,
+                        },
+                    ]}
+                    imageStyle={{ opacity: 1 }}
+                    resizeMode="cover"
+                >
+                    {bannerContent}
+                </ImageBackground>
+            )}
         </View>
     );
 }
@@ -86,8 +110,8 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     container: {
-        paddingTop: Platform.OS === 'android' ? 40 : 10,
-        paddingBottom: 25,
+        paddingTop: Platform.OS === 'android' ? 28 : 6,
+        paddingBottom: 14,
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
         overflow: 'hidden',
@@ -138,7 +162,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: -2,
         right: -4,
-        backgroundColor: '#FF0080',
         minWidth: 16,
         height: 16,
         borderRadius: 8,
@@ -156,7 +179,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         right: 0,
-        backgroundColor: '#FF0080',
         minWidth: 18,
         height: 18,
         borderRadius: 9,

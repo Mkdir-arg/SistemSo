@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightTheme, darkTheme, typography } from '../theme';
+import { activeBranding, activeBrandProfile } from '../config/branding';
 
 const ThemeContext = createContext();
 
@@ -32,6 +33,8 @@ export const ThemeProvider = ({ children }) => {
         isDark: themeMode === 'dark',
         toggleTheme,
         typography,
+        branding: activeBranding,
+        brandProfile: activeBrandProfile,
     };
 
     return (

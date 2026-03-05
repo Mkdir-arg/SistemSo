@@ -6,10 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
 import { supabase } from '../context/AuthContext';
 
-const logo = require('../../assets/brand/logo-nodo.png');
-
 export default function RegisterScreen({ onBackToLogin }) {
-    const { theme, typography, isDark } = useTheme();
+    const { theme, typography, isDark, branding } = useTheme();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -124,7 +122,7 @@ export default function RegisterScreen({ onBackToLogin }) {
                             Crear Cuenta
                         </Text>
                         <Text style={[styles.subtitle, { fontFamily: typography.regular, color: theme.colors.textMuted }]}>
-                            Únete a NODO
+                            {branding.registerSubtitle}
                         </Text>
                     </View>
 
@@ -263,7 +261,7 @@ export default function RegisterScreen({ onBackToLogin }) {
                                 ¿Ya tienes cuenta?{' '}
                             </Text>
                             <Pressable onPress={onBackToLogin}>
-                                <Text style={[styles.loginLink, { fontFamily: typography.semibold, color: '#007AFF' }]}>
+                                <Text style={[styles.loginLink, { fontFamily: typography.semibold, color: theme.colors.primary }]}>
                                     Inicia sesión
                                 </Text>
                             </Pressable>
