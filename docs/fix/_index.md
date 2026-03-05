@@ -7,6 +7,7 @@
 
 | Funcionalidad afectada | Carpeta | Tipo | Fecha | Titulo |
 |-----------------------|---------|------|-------|--------|
+| WebSocket alertas y conversaciones | `websocket-alertas/` | HOTFIX | 2026-03-05 | Redis OOM causa WSDISCONNECT inmediato |
 | Confirmar Ciudadano RENAPER | `confirmar-ciudadano-renaper/` | HOTFIX | 2026-03-04 | Error 400 al confirmar ciudadano |
 
 ---

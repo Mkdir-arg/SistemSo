@@ -14,6 +14,15 @@
 
 ---
 
+## 2026-03-05 — [HOTFIX] Redis OOM causa WSDISCONNECT en WebSocket
+
+**Archivos modificados:**
+- `docker-compose.prod.yml` — Redis mem_limit 200m→400m, agregado maxmemory 350mb + allkeys-lru
+
+**Descripcion:** WebSockets de alertas y conversaciones conectaban y desconectaban en 1-2 segundos. Causa: Redis sin `maxmemory-policy` se quedaba sin memoria y fallaba `channel_layer.group_add()`. Fix: aumentar limite y configurar eviccion LRU.
+
+---
+
 ## 2026-03-04 — [HOTFIX] Error 400 al confirmar ciudadano via RENAPER
 
 **Archivos modificados:**

@@ -2,14 +2,14 @@ services:
   redis:
     image: redis:7-alpine
     container_name: nodo-redis
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "350mb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
       - redis_data:/data
     restart: unless-stopped
     networks:
       - nodo-network
-    mem_limit: 200m
-    memswap_limit: 300m
+    mem_limit: 400m
+    memswap_limit: 500m
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 15s
