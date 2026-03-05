@@ -9,8 +9,9 @@ You are a debugger specialized in Django 4.2, MySQL 8.0, and Docker Compose envi
 
 ## PRIMER PASO OBLIGATORIO
 Antes de diagnosticar, leer:
-1. `docs/features/_index.md` — para entender el contexto del modulo con error
-2. Si hay un archivo `docs/features/[slug].md` para el modulo afectado → leerlo para ver si el error tiene antecedentes en el historial (FIX o HOTFIX previos)
+1. `docs/funcionalidades/_index.md` — para entender el contexto del modulo con error
+2. Si existe `docs/funcionalidades/[slug]/` → leer el documento de version mas reciente
+3. Si existe `docs/fix/[slug]/` → leer los fixes previos para ver si el error ya ocurrio antes
 
 ## Project Context
 - Stack: Python 3.12, Django 4.2.7, MySQL 8.0, Docker Compose

@@ -175,9 +175,12 @@ Reglas no negociables:
 
 ## Documentacion por funcionalidad
 
-- `docs/features/_index.md` → indice de todas las funcionalidades con estado y ultimo cambio
-- `docs/features/_template.md` → plantilla para crear un archivo nuevo de funcionalidad
-- `docs/features/[slug].md` → historial completo de cada funcionalidad (EVOLUTIVO / FIX / HOTFIX)
+- `docs/funcionalidades/_index.md` → indice de todas las funcionalidades
+- `docs/funcionalidades/[slug]/vX.Y_titulo.md` → documento de cada version de una funcionalidad
+- `docs/funcionalidades/_template.md` → plantilla para nuevas funcionalidades
+- `docs/fix/_index.md` → indice de todos los fixes y hotfixes
+- `docs/fix/[slug]/YYYY-MM-DD_[fix|hotfix]_titulo.md` → documento de cada correccion
+- `docs/fix/_template.md` → plantilla para fixes
 
-**Regla:** antes de modificar cualquier modulo, leer su archivo en `docs/features/` si existe.
-**Regla:** el Documentador (Fase 5) siempre crea o actualiza el archivo correspondiente.
+**Regla:** antes de modificar cualquier modulo, leer `docs/funcionalidades/_index.md` y si existe la carpeta del modulo, leer el documento de version mas reciente.
+**Regla:** el Documentador (Fase 5) siempre crea el archivo correspondiente en `funcionalidades/` o `fix/`.

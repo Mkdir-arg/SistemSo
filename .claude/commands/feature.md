@@ -144,36 +144,21 @@ Activar `django-developer` para corregir los puntos fallidos, luego repetir Fase
 
 Ejecutar automaticamente sin necesidad de aprobacion previa (Fase 4 ya fue aprobada):
 
-### 5A — Archivo de funcionalidad en docs/features/
+### 5A — Documentacion de funcionalidad
 
-Determinar el nombre de la funcionalidad (slug en minusculas-con-guiones, ej: `exportacion-pdf`, `registro-ciudadanos`).
+Determinar el slug de la funcionalidad (minusculas-con-guiones, ej: `exportacion-pdf`, `registro-ciudadanos`).
 
-**Si el archivo `docs/features/[slug].md` NO existe:**
-- Crearlo usando `docs/features/_template.md` como base
-- Completar "Estado actual", "Archivos principales" y "Dependencias" con lo implementado
-- Agregar la entrada al indice en `docs/features/_index.md`
+**Crear el archivo de version en `docs/funcionalidades/[slug]/`:**
 
-**Si el archivo YA existe:**
-- Actualizar la seccion "Estado actual" si cambio algo
-- Actualizar la tabla "Archivos principales" si se agregaron/modificaron archivos
+- Si la carpeta no existe → crearla
+- Determinar la version: si no hay versiones previas → `v1.0`, si ya existe → incrementar el menor (`v1.1`, `v1.2`, etc.)
+- Usar `docs/funcionalidades/_template.md` como base
+- Nombre del archivo: `v[X.Y]_[titulo-breve].md`
+- Completar todos los campos del template con lo implementado
 
-En ambos casos, agregar una nueva entrada al historial:
-
-```
-### [fecha hoy] — [EVOLUTIVO / FIX / HOTFIX]: [titulo de la user story]
-
-**User Story / Problema:**
-[descripcion breve]
-
-**Cambios realizados:**
-- `archivo:linea` — descripcion
-
-**Migraciones generadas:** (si aplica)
-**Decisiones tecnicas:** (si aplica)
-**Riesgos conocidos / deuda tecnica:** (si aplica)
-```
-
-Regla: entradas mas recientes van ARRIBA del historial.
+**Actualizar el indice `docs/funcionalidades/_index.md`:**
+- Si la funcionalidad es nueva → agregar fila a la tabla
+- Si ya existe → actualizar version actual y fecha
 
 ### 5B — Documentacion del equipo
 
@@ -185,7 +170,7 @@ Regla: entradas mas recientes van ARRIBA del historial.
 6. Si hay algo util para futuras sesiones → actualizar `memory/MEMORY.md`
 
 Terminar SIEMPRE con:
-> "Feature completada. Documentacion actualizada. Ver historial en docs/features/[slug].md"
+> "Feature completada. Documentacion en docs/funcionalidades/[slug]/v[X.Y]_[titulo].md"
 
 ---
 

@@ -85,31 +85,16 @@ Si hay FAILs → volver a Fase 2 automaticamente sin consultar.
 
 Sin necesidad de aprobacion previa.
 
-1. Buscar o crear el archivo `docs/features/[slug-del-modulo-afectado].md`
-2. Agregar entrada en el historial como **FIX** (mas reciente primero):
-
-```
-### [fecha hoy] — FIX: [titulo del bug corregido]
-
-**Problema:**
-[descripcion del bug tal como se manifesto]
-
-**Causa raiz:**
-[lo que identifico el debugger]
-
-**Cambios realizados:**
-- `archivo:linea` — descripcion
-
-**Migraciones generadas:** (si aplica)
-**Riesgo residual:** (si quedo algo pendiente)
-```
-
-3. Actualizar la tabla del historial en el encabezado del archivo
-4. Actualizar `docs/features/_index.md` con la fecha del ultimo cambio
-5. Agregar entrada en `docs/team/changelog.md`
+1. Determinar el slug de la funcionalidad afectada (minusculas-con-guiones)
+2. Crear el archivo en `docs/fix/[slug]/[YYYY-MM-DD]_fix_[titulo-breve].md`
+   - Si la carpeta no existe → crearla
+   - Usar `docs/fix/_template.md` como base
+   - Completar todos los campos
+3. Actualizar `docs/fix/_index.md` agregando la fila
+4. Agregar entrada en `docs/team/changelog.md`
 
 Terminar con:
-> "Fix completado. Documentado en docs/features/[slug].md"
+> "Fix completado. Documentado en docs/fix/[slug]/[fecha]_fix_[titulo].md"
 
 ---
 

@@ -95,32 +95,17 @@ Presentar al usuario el resumen completo con los archivos modificados y el check
 
 ## FASE 3 — Documentacion (ejecutar inmediatamente)
 
-1. Buscar o crear `docs/features/[slug-del-modulo-afectado].md`
-2. Agregar entrada como **HOTFIX** (mas reciente primero):
-
-```
-### [fecha y hora] — HOTFIX: [titulo del problema]
-
-**Impacto en produccion:**
-[cuantos usuarios afectados, que funcionalidad no andaba]
-
-**Causa raiz:**
-[lo identificado en el triaje]
-
-**Fix aplicado:**
-- `archivo:linea` — descripcion del cambio
-
-**Workaround aplicado antes del fix:** (si hubo)
-**Deuda tecnica generada:** (si el fix es un parche y no la solucion real)
-**Checklist de deploy:** completado Si/No
-```
-
-3. Actualizar `docs/features/_index.md`
+1. Determinar el slug de la funcionalidad afectada (minusculas-con-guiones)
+2. Crear el archivo en `docs/fix/[slug]/[YYYY-MM-DD]_hotfix_[titulo-breve].md`
+   - Si la carpeta no existe → crearla
+   - Usar `docs/fix/_template.md` como base
+   - Completar todos los campos incluyendo checklist de deploy
+3. Actualizar `docs/fix/_index.md` agregando la fila
 4. Agregar entrada urgente en `docs/team/changelog.md`
 5. Si el hotfix fue un parche temporal → agregar item en `docs/team/backlog.md` para el fix definitivo
 
 Terminar con:
-> "Hotfix completado. Documentado en docs/features/[slug].md
+> "Hotfix completado. Documentado en docs/fix/[slug]/[fecha]_hotfix_[titulo].md
 > IMPORTANTE: Seguir el checklist de deploy antes de aplicar en produccion."
 
 ---

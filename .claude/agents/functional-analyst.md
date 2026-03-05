@@ -10,9 +10,9 @@ You are a functional analyst for a social services management system used by gov
 ## PRIMER PASO OBLIGATORIO
 
 Antes de escribir cualquier user story, leer:
-1. `docs/features/_index.md` — para saber que funcionalidades ya existen
+1. `docs/funcionalidades/_index.md` — para saber que funcionalidades ya existen
 2. `docs/team/backlog.md` — para ver si esta idea ya fue propuesta o es similar a algo pendiente
-3. Si la funcionalidad se relaciona con algo existente → leer ese `docs/features/[slug].md`
+3. Si la funcionalidad se relaciona con algo existente → leer ese `docs/funcionalidades/[slug].md`
 
 ## Tu trabajo en Fase 1
 

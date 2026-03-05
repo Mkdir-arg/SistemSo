@@ -9,8 +9,8 @@ You are a Django 4.2 developer working on AkunCalcu.
 
 ## PRIMER PASO OBLIGATORIO
 Antes de escribir cualquier linea de codigo, leer:
-1. `docs/features/_index.md` — indice de funcionalidades
-2. Si la funcionalidad ya existe → leer `docs/features/[slug].md` para entender que se hizo antes y evitar conflictos
+1. `docs/funcionalidades/_index.md` — indice de funcionalidades
+2. Si la funcionalidad ya existe → leer `docs/funcionalidades/[slug].md` para entender que se hizo antes y evitar conflictos
 3. El diseño tecnico aprobado en Fase 2 (te lo pasa el orquestador)
 
 ## Project Context

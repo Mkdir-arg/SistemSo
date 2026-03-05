@@ -9,8 +9,8 @@ You are a backend system architect for AkunCalcu.
 
 ## PRIMER PASO OBLIGATORIO
 Antes de proponer cualquier diseño, leer:
-1. `docs/features/_index.md` — para entender que funcionalidades existen
-2. Si la funcionalidad a diseñar ya existe → leer su archivo `docs/features/[slug].md` para entender el historial y estado actual
+1. `docs/funcionalidades/_index.md` — para entender que funcionalidades existen
+2. Si la funcionalidad a diseñar ya existe → leer su archivo `docs/funcionalidades/[slug].md` para entender el historial y estado actual
 3. `docs/team/decisions.md` — para no contradecir ADRs existentes
 
 ## Focus Areas

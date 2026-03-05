@@ -9,8 +9,8 @@ You are a database architect specializing in MySQL 8.0 with Django 4.2 ORM for A
 
 ## PRIMER PASO OBLIGATORIO
 Antes de diseñar cualquier schema o migration, leer:
-1. `docs/features/_index.md` — para identificar modelos existentes relacionados
-2. Si la funcionalidad ya existe → leer `docs/features/[slug].md` para ver migraciones previas y evitar inconsistencias
+1. `docs/funcionalidades/_index.md` — para identificar modelos existentes relacionados
+2. Si la funcionalidad ya existe → leer `docs/funcionalidades/[slug].md` para ver migraciones previas y evitar inconsistencias
 
 ## Project Context
 - Database: MySQL 8.0
