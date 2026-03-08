@@ -12,6 +12,36 @@ from core.forms import InstitucionForm
 class PortalHomeView(TemplateView):
     template_name = 'portal/home.html'
 
+    def get_context_data(self, **kwargs):
+        from legajos.models_programas import Programa, InscripcionPrograma
+        from legajos.models import Ciudadano
+        from portal.models import RecursoTurnos
+        from core.models import Institucion
+
+        ctx = super().get_context_data(**kwargs)
+        ctx['programas'] = Programa.objects.filter(activo=True).order_by('orden')
+        ctx['instituciones'] = Institucion.objects.all()[:6]
+        ctx['recursos_turnos'] = RecursoTurnos.objects.filter(activo=True)[:6]
+        ctx['stats'] = {
+            'ciudadanos': Ciudadano.objects.count(),
+            'instituciones': Institucion.objects.count(),
+            'programas': Programa.objects.filter(activo=True).count(),
+            'inscripciones_activas': InscripcionPrograma.objects.filter(estado__in=['ACTIVO', 'EN_SEGUIMIENTO']).count(),
+        }
+        ctx['ciudadano_items'] = [
+            'Mis programas sociales e inscripciones',
+            'Solicitar y gestionar turnos online',
+            'Consultas y reclamos municipales',
+            'Mis datos personales y contraseña',
+        ]
+        ctx['institucion_items'] = [
+            'Registro guiado paso a paso',
+            'Seguimiento del estado del trámite',
+            'Articulación con programas municipales',
+            'Mesa de ayuda especializada',
+        ]
+        return ctx
+
 
 @csrf_exempt
 def crear_usuario_institucion(request):

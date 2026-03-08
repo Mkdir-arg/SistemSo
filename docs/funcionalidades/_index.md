@@ -9,6 +9,7 @@
 |--------------|---------|---------------|---------------------|
 | Confirmar Ciudadano RENAPER | `confirmar-ciudadano-renaper/` | v1.0 | 2026-03-04 |
 | Mejora de Logging | `mejora-logging/` | v1.0 | 2026-03-05 |
+| Portal Ciudadano — Autenticacion y Registro | `portal-ciudadano/` | v1.0 | 2026-03-08 |
 
 ---
 

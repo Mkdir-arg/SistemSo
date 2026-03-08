@@ -1,7 +1,30 @@
 import logging
 import time
 
+from django.shortcuts import redirect
+
 logger = logging.getLogger("core.requests")
+
+
+class PortalCiudadanoMiddleware:
+    """
+    Impide que usuarios del grupo Ciudadanos accedan al backoffice.
+    Si un ciudadano autenticado accede a una URL fuera de /portal/, se lo redirige.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if (
+            request.user.is_authenticated
+            and request.user.groups.filter(name='Ciudadanos').exists()
+            and not request.path.startswith('/portal/')
+            and not request.path.startswith('/static/')
+            and not request.path.startswith('/media/')
+        ):
+            return redirect('portal:ciudadano_mi_perfil')
+        return self.get_response(request)
 
 
 class RequestLoggingMiddleware:

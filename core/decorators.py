@@ -25,3 +25,17 @@ def group_required(group_names):
         return _wrapped_view
 
     return decorator
+
+
+def ciudadano_required(view_func):
+    """Permite acceso solo a usuarios del grupo Ciudadanos. Redirige al login del portal."""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect
+            return redirect('portal:ciudadano_login')
+        if not request.user.groups.filter(name='Ciudadanos').exists():
+            from django.shortcuts import redirect
+            return redirect('portal:ciudadano_login')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -51,10 +52,19 @@ class Ciudadano(TimeStamped):
     )
     
     activo = models.BooleanField(default=True, db_index=True)
-    
+
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ciudadano_perfil',
+        verbose_name='Usuario del portal',
+    )
+
     # Historial de cambios
     # history = HistoricalRecords()  # Comentado temporalmente
-    
+
     class Meta:
         verbose_name = "Ciudadano"
         verbose_name_plural = "Ciudadanos"

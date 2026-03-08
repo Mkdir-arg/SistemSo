@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -33,6 +34,15 @@ class Conversacion(models.Model):
     fecha_primera_respuesta = models.DateTimeField(blank=True, null=True)
     fecha_cierre = models.DateTimeField(blank=True, null=True, db_index=True)
     operador_asignado = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, db_index=True)
+    ciudadano_usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='conversaciones_ciudadano',
+        verbose_name='Usuario ciudadano',
+        db_index=True,
+    )
     tiempo_espera_segundos = models.IntegerField(default=0)
     tiempo_respuesta_segundos = models.IntegerField(blank=True, null=True, db_index=True)
     satisfaccion = models.IntegerField(blank=True, null=True, choices=[(i, i) for i in range(1, 6)], db_index=True)
