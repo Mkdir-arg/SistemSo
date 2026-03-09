@@ -10,6 +10,20 @@
 | Confirmar Ciudadano RENAPER | `confirmar-ciudadano-renaper/` | v1.0 | 2026-03-04 |
 | Mejora de Logging | `mejora-logging/` | v1.0 | 2026-03-05 |
 | Portal Ciudadano — Autenticacion y Registro | `portal-ciudadano/` | v1.0 | 2026-03-08 |
+| Gestión de Ciudadanos | `gestion-ciudadanos/` | v1.0 | 2026-03-09 |
+| Legajo de Atención | `legajo-atencion/` | v1.0 | 2026-03-09 |
+| Programas Sociales | `programas-sociales/` | v1.0 | 2026-03-09 |
+| ÑACHEC | `nachec/` | v1.0 | 2026-03-09 |
+| Instituciones | `instituciones/` | v1.0 | 2026-03-09 |
+| Alertas | `alertas/` | v1.0 | 2026-03-09 |
+| Sistema de Turnos — Backoffice | `turnos-backoffice/` | v1.0 | 2026-03-09 |
+| Conversaciones — Chat Interno | `conversaciones-chat/` | v1.0 | 2026-03-09 |
+| Chatbot IA | `chatbot-ia/` | v1.0 | 2026-03-09 |
+| Contactos y Red de Vínculos | `contactos-red/` | v1.0 | 2026-03-09 |
+| Usuarios y Permisos | `usuarios-permisos/` | v1.0 | 2026-03-09 |
+| Dashboard | `dashboard/` | v1.0 | 2026-03-09 |
+| Auditoría | `auditoria/` | v1.0 | 2026-03-09 |
+| Configuración del Sistema | `configuracion-sistema/` | v1.0 | 2026-03-09 |
 
 ---
 
@@ -30,17 +44,12 @@ El archivo mas reciente es el estado actual.
 
 | App | Descripcion |
 |-----|------------|
-| `apps/ciudadanos` | Gestion de ciudadanos |
-| `apps/contactos` | Contactos y comunicaciones |
-| `apps/derivaciones` | Derivaciones entre areas |
-| `apps/institucional` | Datos institucionales |
-| `apps/legajos` | Legajos y expedientes |
-| `apps/nachec` | Modulo nachec |
-| `apps/programas` | Programas y planes |
-| `core` | Base, autenticacion, utilidades compartidas |
+| `legajos` | Ciudadanos, legajos de atencion, programas, NACHEC, contactos, institucional |
+| `core` | Modelos base, institucion, auditoria, configuracion geografica |
+| `portal` | Portal ciudadano, turnos (modelo), registro instituciones |
+| `turnos` | Backoffice de turnos configurables |
+| `conversaciones` | Sistema de chat ciudadano-operador |
+| `chatbot` | Bot de asistencia con IA |
+| `configuracion` | Vistas de configuracion del sistema (geografía, instituciones) |
+| `users` | Usuarios del backoffice y permisos |
 | `dashboard` | Panel principal |
-| `chatbot` | Bot de asistencia |
-| `configuracion` | Configuracion del sistema |
-| `tramites` | Gestion de tramites |
-| `users` | Usuarios y permisos |
-| `portal` | Portal publico |

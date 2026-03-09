@@ -45,18 +45,27 @@ Si Fase 4 falla → vuelve a Fase 3 automáticamente sin consultar.
 El usuario nunca necesita saber qué agente está activo.
 
 ### Paso 1 — Product Owner activa
-1. Leer `docs/team/backlog.md` y `docs/team/current-sprint.md`
-2. Escribir **User Story** con formato:
+1. Leer **obligatoriamente** (en este orden):
+   - `docs/team/contexto-funcional.md` → reglas de negocio, preguntas abiertas, glosario
+   - `docs/team/backlog.md` y `docs/team/current-sprint.md`
+   - `docs/funcionalidades/_index.md` → verificar si la funcionalidad ya existe
+2. **Antes de escribir la user story**, identificar y responder las preguntas abiertas relevantes de `contexto-funcional.md` que apliquen a esta feature.
+3. Si la feature toca una funcionalidad ya documentada → leer su `vX.Y_*.md` más reciente.
+4. Escribir **User Story** con formato:
    ```
    Como [usuario] quiero [funcionalidad] para [beneficio]
    ```
-3. Definir **Criterios de Aceptación** (checklist)
-4. Estimar complejidad: Pequeño / Mediano / Grande
-5. **PAUSAR y mostrar al usuario. Esperar aprobación.**
+5. Definir **Criterios de Aceptación** (checklist)
+6. Estimar complejidad: Pequeño / Mediano / Grande
+7. **PAUSAR y mostrar al usuario. Esperar aprobación.**
 
 ### Paso 2 — Arquitecto + Análisis de Impacto (solo si Paso 1 aprobado)
 
-**Primero leer el código antes de proponer nada.** Leer:
+**Primero leer documentación antes de leer código.** Leer obligatoriamente:
+- `docs/team/arquitectura.md` → principios establecidos, decisiones tomadas, deudas técnicas
+- `docs/funcionalidades/_index.md` → qué módulos existen y en qué app viven
+
+**Luego leer el código de las apps afectadas:**
 - Los models de las apps afectadas
 - Las views y urls relacionadas
 - Los templates que usan los datos involucrados
@@ -128,9 +137,18 @@ Si hay problemas → reportar exactamente qué falló y volver al Paso 3.
 ### Paso 5 — Documentador activa (solo si Paso 4 aprobado)
 1. Agregar entrada a `docs/team/changelog.md`
 2. Marcar ítem como completado en `docs/team/current-sprint.md`
-3. Si hubo decisión técnica importante → agregar ADR en `docs/team/decisions.md`
+3. Si hubo decisión técnica importante → agregar en `docs/team/arquitectura.md` (sección "Decisiones técnicas tomadas") Y en `docs/team/decisions.md`
 4. Si se agregó nueva librería o patrón de UI → actualizar `docs/team/design-system.md`
-5. Actualizar `memory/MEMORY.md` si hay algo relevante para futuras sesiones
+5. Actualizar `docs/team/contexto-funcional.md`:
+   - Agregar nuevas reglas de negocio confirmadas
+   - Tachar preguntas abiertas que se respondieron
+   - Agregar al historial de sesiones un resumen de lo implementado
+6. Actualizar `docs/team/arquitectura.md`:
+   - Si se agregó una app → actualizar el mapa de dependencias
+   - Si se detectó una deuda técnica → agregarla a la tabla
+   - Si se estableció un nuevo principio → documentarlo
+7. Crear o actualizar el documento en `docs/funcionalidades/[slug]/vX.Y_*.md`
+8. Actualizar `memory/MEMORY.md` si hay algo relevante para futuras sesiones
 
 ---
 
@@ -167,11 +185,83 @@ Reglas no negociables:
 
 ## Archivos clave de memoria
 
+- `docs/team/contexto-funcional.md` → **LEER PRIMERO** — reglas de negocio, actores, preguntas abiertas, glosario, historial de sesiones
+- `docs/team/arquitectura.md` → **LEER ANTES DE DISEÑAR** — principios, decisiones técnicas, deudas, mapa de apps
 - `docs/team/backlog.md` → todas las ideas/features pendientes
 - `docs/team/current-sprint.md` → sprint activo
 - `docs/team/decisions.md` → decisiones técnicas tomadas (ADRs)
 - `docs/team/changelog.md` → historial de cambios
 - `memory/MEMORY.md` → contexto rápido del proyecto (auto-cargado)
+- `docs/errores/` → errores reportados (loop de mejora automática)
+- `docs/requerimientos/` → requerimientos pendientes (loop de mejora automática)
+
+## Burbuja de Mejora Automática
+
+El sistema tiene un loop de mejora continua que se activa **al inicio de cada conversación** y **al finalizar cualquier tarea**. No requiere intervención del usuario.
+
+### Cómo funciona
+
+```
+INICIO DE SESIÓN
+      ↓
+Escanear docs/errores/     → ¿hay ítems ABIERTOS? → activar debugger → fix → cerrar ítem
+Escanear docs/requerimientos/ → ¿hay ítems ABIERTOS? → agregar al backlog o iniciar /feature
+      ↓
+Continuar con la tarea del usuario
+      ↓
+FIN DE TAREA → volver a escanear → si hay ítems nuevos, procesar antes de cerrar
+```
+
+### Convención de archivos
+
+**Errores** → `docs/errores/YYYY-MM-DD_titulo-del-error.md`
+
+```markdown
+# [Titulo del error]
+> Estado: ABIERTO | EN_PROCESO | CERRADO
+> Fecha: YYYY-MM-DD
+> Severidad: CRITICO | ALTO | MEDIO | BAJO
+
+## Descripción
+[Qué pasó, cuándo, en qué contexto]
+
+## Pasos para reproducir
+1. ...
+
+## Comportamiento esperado vs actual
+- Esperado: ...
+- Actual: ...
+
+## Archivos sospechosos
+- `app/archivo.py`
+```
+
+**Requerimientos** → `docs/requerimientos/YYYY-MM-DD_titulo-del-requerimiento.md`
+
+```markdown
+# [Titulo del requerimiento]
+> Estado: ABIERTO | EN_PROCESO | CERRADO
+> Fecha: YYYY-MM-DD
+> Prioridad: ALTA | MEDIA | BAJA
+> Tipo: FEATURE | MEJORA | CONFIGURACION
+
+## Descripción
+[Qué se necesita y por qué]
+
+## Criterios de éxito
+- [ ] criterio 1
+- [ ] criterio 2
+```
+
+### Reglas del loop
+
+- **Al detectar un error ABIERTO** → cambiar estado a `EN_PROCESO`, activar `debugger`, aplicar fix, cambiar estado a `CERRADO` y registrar en `docs/fix/`.
+- **Al detectar un requerimiento ABIERTO** → cambiar estado a `EN_PROCESO`, evaluar complejidad: si es pequeño ejecutar directamente con el workflow de feature; si es mediano/grande agregar al backlog y notificar al usuario.
+- **Un ítem CERRADO nunca se reabre** — se crea uno nuevo si el problema regresa.
+- **Si hay múltiples ítems ABIERTOS** → procesar errores primero (por severidad), luego requerimientos (por prioridad).
+- **Si el usuario está en medio de una tarea** → terminar la tarea primero, luego procesar el loop.
+
+---
 
 ## Documentacion por funcionalidad
 
