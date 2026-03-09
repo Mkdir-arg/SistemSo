@@ -33,6 +33,22 @@ El equipo opera en modo **auto-orquestado**. Los agentes se activan automáticam
 
 ## Workflow de una Feature (Auto-Orquestado)
 
+### Comandos disponibles
+
+| Comando | Cuándo usarlo |
+|---------|--------------|
+| `/definir [tema]` | Antes de implementar — clarificar reglas de negocio, debatir opciones, documentar sin codear |
+| `/feature [idea]` | Cuando ya está claro qué se quiere — implementación completa en 5 fases |
+| `/fix [problema]` | Bug o comportamiento incorrecto en producción/desarrollo |
+| `/hotfix [problema]` | Bug crítico urgente |
+| `/sprint-plan` | Planificar el sprint de la semana |
+| `/sprint-review` | Revisar qué se completó en el sprint |
+| `/status` | Estado actual del proyecto |
+
+**Flujo recomendado:** `/definir` → (acuerdo) → `/feature` → (implementación)
+
+---
+
 Cuando el usuario ejecuta `/feature [idea]`, seguir SIEMPRE este flujo. Los agentes se activan automáticamente. **El usuario solo aprueba o rechaza entre fases.**
 
 ```

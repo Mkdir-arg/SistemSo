@@ -23,6 +23,22 @@ Los agentes se activan automaticamente. Solo se te consulta para aprobar cada fa
 
 ---
 
+### /definir
+Sesion de definicion con el equipo funcional. **Sin codigo. Sin implementacion.**
+Clarifica reglas de negocio, debate decisiones, documenta antes de comprometerse a construir.
+Carga el contexto existente automaticamente y conduce la conversacion con preguntas dirigidas.
+
+**Cuando usarlo:** antes de pedir una feature, cuando hay dudas sobre como debe funcionar algo, cuando hay preguntas de negocio sin resolver.
+
+**Ejemplo:**
+```
+/definir como manejar feriados en el sistema de turnos
+/definir que pasa cuando un ciudadano falta a un turno
+/definir quien puede ver los legajos de un ciudadano
+```
+
+---
+
 ### /fix
 Corrige un bug encontrado en desarrollo o staging. Flujo corto: Diagnostico → Fix → Revision → Documentacion.
 Sin user story, directo al problema.
@@ -99,7 +115,8 @@ Muestra esta lista.
 
 ```
 Lunes    → /sprint-plan
-Martes   → /feature [nueva funcionalidad]
+Martes   → /definir [si hay algo por clarificar antes de arrancar]
+           /feature [nueva funcionalidad]
 Miercoles→ /fix [bug encontrado durante desarrollo]
 Viernes  → /sprint-review
 ```
