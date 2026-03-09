@@ -21,6 +21,7 @@ urlpatterns = [
     path("chatbot/", include("chatbot.urls")),
     path("conversaciones/", include("conversaciones.urls")),
     path("portal/", include("portal.urls")),
+    path("turnos/", include("turnos.urls")),
     path("tramites/", include("tramites.urls")),
     path("auditoria/", include("core.urls_auditoria")),
     

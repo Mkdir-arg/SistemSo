@@ -1,6 +1,7 @@
 import random
 import string
 
+from django.conf import settings
 from django.db import models
 
 
@@ -23,6 +24,15 @@ class RecursoTurnos(models.Model):
         default=False,
         verbose_name='Requiere aprobación',
         help_text='Si está activo, el turno queda pendiente hasta ser confirmado por el backoffice.',
+    )
+    # Vínculo a la nueva configuración genérica (migración gradual)
+    configuracion_turnos = models.OneToOneField(
+        'turnos.ConfiguracionTurnos',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='recursoturnos',
+        verbose_name='Configuración de turnos',
     )
 
     class Meta:
@@ -85,6 +95,12 @@ class TurnoCiudadano(models.Model):
         CANCELADO_SISTEMA = 'CANCELADO_SIS', 'Cancelado por el sistema'
         COMPLETADO = 'COMPLETADO', 'Completado'
 
+    class ContextoTipo(models.TextChoices):
+        PROGRAMA = 'PROGRAMA', 'Programa social'
+        INSTITUCION = 'INSTITUCION', 'Institución'
+        ACTIVIDAD = 'ACTIVIDAD', 'Actividad institucional'
+        GENERICO = 'GENERICO', 'Genérico'
+
     ciudadano = models.ForeignKey(
         'legajos.Ciudadano',
         on_delete=models.PROTECT,
@@ -95,7 +111,28 @@ class TurnoCiudadano(models.Model):
         RecursoTurnos,
         on_delete=models.PROTECT,
         related_name='turnos',
-        verbose_name='Recurso',
+        verbose_name='Recurso (legacy)',
+        null=True,
+        blank=True,
+    )
+    configuracion = models.ForeignKey(
+        'turnos.ConfiguracionTurnos',
+        on_delete=models.PROTECT,
+        related_name='turnos',
+        verbose_name='Configuración de turnos',
+        null=True,
+        blank=True,
+    )
+    contexto_tipo = models.CharField(
+        max_length=20,
+        choices=ContextoTipo.choices,
+        default=ContextoTipo.GENERICO,
+        verbose_name='Tipo de contexto',
+    )
+    contexto_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='ID de la entidad origen',
     )
     fecha = models.DateField(verbose_name='Fecha')
     hora_inicio = models.TimeField(verbose_name='Hora de inicio')
@@ -123,6 +160,23 @@ class TurnoCiudadano(models.Model):
         verbose_name='Código de turno',
     )
     recordatorio_enviado = models.BooleanField(default=False, verbose_name='Recordatorio enviado')
+    # Auditoría de aprobación
+    aprobado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='turnos_aprobados',
+        verbose_name='Aprobado por',
+    )
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de aprobación')
+    # Tracking de emails
+    email_confirmacion_enviado = models.BooleanField(
+        default=False, verbose_name='Email de confirmación enviado'
+    )
+    email_cancelacion_enviado = models.BooleanField(
+        default=False, verbose_name='Email de cancelación enviado'
+    )
     creado = models.DateTimeField(auto_now_add=True)
     modificado = models.DateTimeField(auto_now=True)
 
@@ -134,6 +188,8 @@ class TurnoCiudadano(models.Model):
             models.Index(fields=['ciudadano', 'estado']),
             models.Index(fields=['recurso', 'fecha']),
             models.Index(fields=['fecha', 'hora_inicio']),
+            models.Index(fields=['configuracion', 'fecha']),
+            models.Index(fields=['configuracion', 'estado']),
         ]
 
     def save(self, *args, **kwargs):
@@ -145,3 +201,21 @@ class TurnoCiudadano(models.Model):
 
     def __str__(self):
         return f'Turno {self.codigo_turno} — {self.ciudadano} — {self.fecha} {self.hora_inicio}'
+
+    @property
+    def config_efectiva(self):
+        """Retorna la ConfiguracionTurnos activa, con fallback al recurso legacy."""
+        if self.configuracion_id:
+            return self.configuracion
+        if self.recurso_id and self.recurso.configuracion_turnos_id:
+            return self.recurso.configuracion_turnos
+        return None
+
+    @property
+    def nombre_entidad(self):
+        """Nombre legible de la entidad que ofrece el turno."""
+        if self.configuracion_id:
+            return self.configuracion.nombre
+        if self.recurso_id:
+            return self.recurso.nombre
+        return '—'

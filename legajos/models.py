@@ -952,6 +952,16 @@ class PlanFortalecimiento(TimeStamped):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True, blank=True)
     estado = models.CharField(max_length=15, choices=Estado.choices, default=Estado.ACTIVO)
+
+    # Configuración de turnos (opcional)
+    configuracion_turnos = models.OneToOneField(
+        'turnos.ConfiguracionTurnos',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='planfortalecimiento',
+        verbose_name='Configuración de turnos',
+    )
     
     class Meta:
         verbose_name = "Actividad Institucional"
