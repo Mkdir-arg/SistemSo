@@ -2,7 +2,7 @@
 
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
-> Última actualización: 2026-03-09 (sesión de estructura general y programas)
+> Última actualización: 2026-03-09 (sesión 4 — roles y permisos, mapa completo del sistema)
 
 ---
 
@@ -174,6 +174,57 @@ Hay dos caminos para que un ciudadano ingrese a un programa. Ambos son equivalen
 - Las **tareas territoriales** son un tipo de nodo dentro del flujo (formulario que se completa en app móvil y vuelve vinculado al ciudadano/caso)
 - El motor de flujos se adapta del sistema NODO (backend Django, editor visual React — pendiente de implementación)
 
+### Roles y permisos del sistema
+
+Todos los roles son grupos Django independientes — no existe jerarquía entre ellos. Un usuario puede tener múltiples roles simultáneamente. El Administrador (`is_staff`) puede asignar y quitar roles en cualquier momento.
+
+#### Mapa completo de roles
+
+| Módulo | Rol | Qué permite |
+|--------|-----|------------|
+| **Ciudadanos** | `ciudadanoVer` | Ver ficha del ciudadano (sin campos sensibles) |
+| | `ciudadanoCrear` | Crear y editar ciudadanos |
+| | `ciudadanoSensible` | Ver campos de salud, documentación migratoria y campos marcados como sensibles |
+| **Instituciones** | `institucionVer` | Ver el catálogo de instituciones y sus datos |
+| | `institucionAdministrar` | Crear, editar, aprobar/rechazar instituciones |
+| **Programas — configuración** | `secretariaConfigurar` | Crear y editar Secretarías y Subsecretarías |
+| | `programaConfigurar` | Crear y configurar programas (wizard, flujo, capacidades) |
+| **Programas — operativa** | `programaOperar` | Gestionar inscripciones, derivaciones, seguimiento de ciudadanos en programas |
+| **Turnos — configuración** | `turnoConfigurar` | Crear y configurar `ConfiguracionTurnos` (horarios, modos, disponibilidades) |
+| **Turnos — operativa** | `turnoOperar` | Gestionar agenda: confirmar, rechazar, cancelar turnos de ciudadanos |
+| **Conversaciones** | `conversacionOperar` | Acceder a la bandeja de conversaciones, responder ciudadanos via chat |
+| **Dashboard** | `dashboardVer` | Ver el panel de control con métricas e indicadores |
+| **Configuración sistema** | `sistemaConfigurar` | Gestionar parámetros globales (email, integraciones, etc.) |
+| **Usuarios y roles** | `usuarioAdministrar` | Crear usuarios, asignar y revocar roles |
+| **Reportes** | `reportesVer` | Ver y exportar reportes del sistema |
+
+#### Roles especiales (no son grupos Django)
+
+| Rol especial | Naturaleza | Qué permite |
+|-------------|-----------|------------|
+| `is_superuser` | Flag Django | Acceso total sin restricciones — solo para DevOps/soporte técnico |
+| `Ciudadanos` (grupo portal) | Grupo Django | Identifica a los usuarios del portal ciudadano — no acceden al backoffice |
+| `EncargadoInstitucion` | Grupo Django | Usuario externo representante de una ONG/organismo — acceso limitado a su institución |
+
+#### Roles renombrados respecto al código existente
+
+| Nombre viejo (en código) | Nombre nuevo (acordado) | Módulo |
+|--------------------------|------------------------|--------|
+| `configurarSecretaria` | `secretariaConfigurar` | Programas — configuración |
+| `ConfiguracionPrograma` | `programaConfigurar` | Programas — configuración |
+| `Administradores de Turnos` | `turnoConfigurar` | Turnos — configuración |
+
+> **Nota técnica:** los nombres viejos están en el código actualmente. La migración de nombres se hace como parte de US-011 (data migration de grupos Django).
+
+#### Reglas de acceso
+
+- Un usuario sin ningún rol en el backoffice no puede acceder a ninguna sección
+- El portal ciudadano es completamente separado — los usuarios del portal pertenecen al grupo `Ciudadanos`
+- `EncargadoInstitucion` accede solo a la vista de su institución — no al backoffice general
+- `is_superuser` no es un rol operativo, solo para mantenimiento técnico
+
+---
+
 ### Turnos
 - Los turnos son configurables por entidad (Programa, Institución, Actividad)
 - `ConfiguracionTurnos` es el modelo nuevo (v2). `RecursoTurnos` es legacy (v1) — coexisten
@@ -287,6 +338,14 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se estableció deuda planificada: `LegajoAtencion` migra al motor de flujos en el futuro
 - Se resolvió que el DNI único previene duplicados — no hay proceso de deduplicación manual
 
+### 2026-03-09 (sesión 4 — /definir roles y permisos, mapa completo del sistema)
+- Se cerró el mapa completo de roles del sistema: 14 roles operativos + 3 roles especiales
+- Roles organizados por módulo: Ciudadanos, Instituciones, Programas (configuración/operativa), Turnos (configuración/operativa), Conversaciones, Dashboard, Configuración sistema, Usuarios y roles, Reportes
+- Se acordaron los nombres definitivos en español-técnico (ej: `secretariaConfigurar`, `programaConfigurar`, `turnoConfigurar`) — rompiendo con los nombres mixtos anteriores
+- Se confirmó que todos los roles son grupos Django independientes (sin jerarquía entre ellos)
+- Se clarificó que el portal ciudadano usa el grupo `Ciudadanos` separado del backoffice
+- Se agregó US-011 como prerequisito de todos los features de permisos
+
 ---
 
 ## Glosario del negocio
@@ -309,7 +368,11 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 | **Tarea territorial** | Formulario asignado a un operador de campo, completado en app móvil, vinculado al ciudadano/caso |
 | **Flujo de programa** | Secuencia de pasos configurables que define el comportamiento completo de un programa |
 | **Secretaría / Subsecretaría** | Jerarquía organizacional a la que pertenece un programa (dos niveles fijos) |
-| **ConfiguracionPrograma** | Rol de usuario que permite crear y configurar programas |
+| **programaConfigurar** | Rol (antes `ConfiguracionPrograma`) — permite crear y configurar programas |
+| **secretariaConfigurar** | Rol (antes `configurarSecretaria`) — permite crear y editar Secretarías y Subsecretarías |
+| **turnoConfigurar** | Rol (antes `Administradores de Turnos`) — permite configurar turnos |
+| **programaOperar** | Rol — gestiona inscripciones, derivaciones y seguimiento en programas |
+| **turnoOperar** | Rol — gestiona la agenda de turnos (confirmar, rechazar, cancelar) |
 | **ciudadanoVer** | Rol que permite ver la ficha del ciudadano (sin campos sensibles) |
 | **ciudadanoCrear** | Rol que permite crear y editar ciudadanos |
 | **ciudadanoSensible** | Rol que permite acceder a campos de salud, documentación migratoria y campos sensibles |

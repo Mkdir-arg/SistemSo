@@ -1,6 +1,6 @@
 # Product Backlog — SistemSo
 
-> Actualizado: 2026-03-09
+> Actualizado: 2026-03-09 (sesión 4 — roles y permisos cerrados)
 
 ## Leyenda
 - 🟡 Pendiente
@@ -12,14 +12,14 @@
 
 | ID | User Story | Complejidad | Notas |
 |----|-----------|-------------|-------|
-| US-004 | Como usuario con rol `configurarSecretaria` quiero gestionar el catálogo de Secretarías y Subsecretarías y vincular Programas a una Subsecretaría para organizar los programas dentro de la jerarquía organizacional | Mediano 🟡 | Diseño técnico completo aprobado. Ver `docs/requerimientos/2026-03-09_estructura-programas-y-flujos.md`. Paso 1 de 4. |
-| US-005 | Como usuario con rol `ConfiguracionPrograma` quiero configurar un programa mediante un wizard (datos básicos, jerarquía, naturaleza, capacidades activables) para poder dar de alta programas correctamente tipificados | Grande 🟡 | Requiere US-004 completada primero. Paso 2 de 4. |
+| US-004 | Como usuario con rol `secretariaConfigurar` quiero gestionar el catálogo de Secretarías y Subsecretarías y vincular Programas a una Subsecretaría para organizar los programas dentro de la jerarquía organizacional | Mediano 🟡 | Diseño técnico completo aprobado. Ver `docs/requerimientos/2026-03-09_estructura-programas-y-flujos.md`. Paso 1 de 4. |
+| US-005 | Como usuario con rol `programaConfigurar` quiero configurar un programa mediante un wizard (datos básicos, jerarquía, naturaleza, capacidades activables) para poder dar de alta programas correctamente tipificados | Grande 🟡 | Requiere US-004 completada primero. Paso 2 de 4. |
 | US-006 | Como desarrollador quiero un motor de flujos backend (app `flujos/`) con modelos, runtime y tipos de nodo para que los programas puedan tener flujos configurables | Grande 🟡 | Adaptar backend del sistema NODO (referencia documentada). Requiere US-005. Paso 3 de 4. |
-| US-007 | Como usuario con rol `ConfiguracionPrograma` quiero un editor visual de flujos para diseñar el flujo de un programa mediante drag & drop | Grande 🟡 | Requiere decisión de stack (React para editor). Requiere US-006. Paso 4 de 4. |
+| US-007 | Como usuario con rol `programaConfigurar` quiero un editor visual de flujos para diseñar el flujo de un programa mediante drag & drop | Grande 🟡 | Requiere decisión de stack (React para editor). Requiere US-006. Paso 4 de 4. |
 | US-008 | Como operador quiero que la ficha del ciudadano incluya situación habitacional, laboral, educativa, médica, documentación migratoria, notas y foto para tener toda la información social centralizada | Mediano 🟡 | Ver `docs/requerimientos/2026-03-09_ciudadano-hub-y-roles.md` |
 | US-009 | Como operador quiero ver el hub del ciudadano con solapas estáticas y dinámicas con badge behavior para acceder a toda su información desde un solo lugar | Mediano 🟡 | Requiere US-008. Solapas dinámicas: Programas, Turnos, Instituciones, Conversaciones, Derivaciones, Alertas, Línea de tiempo |
 | US-010 | Como administrador quiero gestionar los roles `ciudadanoVer`, `ciudadanoCrear` y `ciudadanoSensible` para controlar quién accede a qué información del ciudadano | Pequeño 🟡 | Incluye filtro por ámbito (institución vs. backoffice) |
-| US-011 | Como administrador quiero que todos los roles del sistema (`configurarSecretaria`, `ConfiguracionPrograma`, `ciudadanoVer`, `ciudadanoCrear`, `ciudadanoSensible`) existan como grupos Django desde el inicio | Pequeño 🟡 | Data migration o management command. Prerequisito para todos los features de permisos |
+| US-011 | Como administrador quiero que todos los roles del sistema existan como grupos Django desde el inicio, con los nombres definitivos acordados | Pequeño 🟡 | Data migration o management command. 15 roles + migración de 3 nombres viejos. Prerequisito para todos los features de permisos. Ver `docs/requerimientos/2026-03-09_roles-y-permisos.md` |
 | US-012 | Como operador quiero ingresar un ciudadano a un programa (via derivación o inscripción directa) e iniciar su flujo obligatorio para gestionar su proceso de admisión hasta el cierre | Grande 🟡 | Dos caminos de entrada: derivación (cualquier operador) o inscripción directa (solo gestores del programa). Ambos inician el flujo completo. Pendiente `/definir derivacion-e-inscripcion` antes de estimar |
 | US-013 | Como operador quiero poder buscar un ciudadano por nombre o DNI de forma rápida para atender consultas telefónicas sin demoras | Pequeño 🟡 | Búsqueda por nombre parcial y DNI exacto |
 | US-014 | Como usuario con rol `ConfiguracionPrograma` quiero configurar cupo máximo y lista de espera en un programa para controlar la capacidad de inscripciones simultáneas | Pequeño 🟡 | Campo `cupo_maximo` (opcional) y `tiene_lista_espera` en la config del programa. Incluir en US-005 (wizard) |

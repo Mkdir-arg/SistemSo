@@ -39,6 +39,32 @@ Carga el contexto existente automaticamente y conduce la conversacion con pregun
 
 ---
 
+### /planificar
+Ejecuta solo las Fases 1 y 2 del workflow de feature: user story + diseño técnico completo. Se detiene antes del código.
+Ideal cuando ya sabés qué querés construir pero no querés arrancar la implementación todavía.
+
+**Cuando usarlo:** después de un `/definir`, cuando querés dejar el diseño aprobado listo para el sprint.
+
+**Ejemplo:**
+```
+/planificar ABM de Secretaría y Subsecretaría con FK en Programa
+/planificar wizard de configuración de programa
+```
+
+---
+
+### /roadmap
+Genera el mapa de dependencias del backlog: qué bloquea qué, camino crítico, items listos para arrancar y dominios que necesitan `/definir`.
+
+**Cuando usarlo:** antes de planificar un sprint, cuando el backlog creció y querés entender el orden lógico.
+
+**Ejemplo:**
+```
+/roadmap
+```
+
+---
+
 ### /fix
 Corrige un bug encontrado en desarrollo o staging. Flujo corto: Diagnostico → Fix → Revision → Documentacion.
 Sin user story, directo al problema.
@@ -114,9 +140,11 @@ Muestra esta lista.
 ## Flujo tipico de una semana
 
 ```
-Lunes    → /sprint-plan
+Lunes    → /roadmap        (ver panorama y elegir qué entra al sprint)
+           /sprint-plan    (formalizar el sprint)
 Martes   → /definir [si hay algo por clarificar antes de arrancar]
-           /feature [nueva funcionalidad]
+           /planificar [diseño técnico sin código, si querés revisarlo primero]
+           /feature [nueva funcionalidad, cuando el diseño ya está aprobado]
 Miercoles→ /fix [bug encontrado durante desarrollo]
 Viernes  → /sprint-review
 ```
@@ -124,4 +152,12 @@ Viernes  → /sprint-review
 Si hay una urgencia en produccion en cualquier momento:
 ```
            /hotfix [descripcion del problema]
+```
+
+## Flujo de diseño antes de codear
+
+```
+/definir [tema]    → cierra reglas de negocio, genera requerimiento
+/planificar [idea] → genera user story + diseño técnico, espera aprobación
+/feature [idea]    → arranca desde Fase 3 (código) con el diseño ya aprobado
 ```
