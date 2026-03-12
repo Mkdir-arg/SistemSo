@@ -1,28 +1,26 @@
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.utils import timezone
-from datetime import timedelta
-from .models import Conversacion, Mensaje
+from .models import Conversacion
+from .selectors_conversaciones import (
+    get_alertas_conversaciones_count,
+    get_alertas_preview_mensajes,
+    get_alertas_preview_nuevas_conversaciones,
+    get_conversacion_asignada_a_operador,
+    usuario_tiene_permiso_conversaciones,
+)
+from .services_chat import marcar_mensajes_ciudadano_leidos
 
 
 @login_required
 @api_view(['GET'])
 def alertas_conversaciones_count(request):
     """Contador de conversaciones con mensajes no leídos"""
-    if not request.user.groups.filter(name__in=['Conversaciones', 'OperadorCharla']).exists():
+    if not usuario_tiene_permiso_conversaciones(request.user):
         return JsonResponse({'count': 0})
-    
-    # Contar alertas no vistas en el historial
-    from .models import HistorialAlertaConversacion
-    total_alertas = HistorialAlertaConversacion.objects.filter(
-        operador=request.user,
-        vista=False
-    ).count()
-    
+
     return JsonResponse({
-        'count': total_alertas,
+        'count': get_alertas_conversaciones_count(request.user),
         'tipo': 'conversaciones'
     })
 
@@ -31,19 +29,11 @@ def alertas_conversaciones_count(request):
 @api_view(['GET'])
 def alertas_conversaciones_preview(request):
     """Preview de mensajes no leídos para el dropdown"""
-    if not request.user.groups.filter(name__in=['Conversaciones', 'OperadorCharla']).exists():
+    if not usuario_tiene_permiso_conversaciones(request.user):
         return JsonResponse({'results': []})
-    
-    # Obtener últimos mensajes no leídos
-    mensajes = Mensaje.objects.filter(
-        conversacion__operador_asignado=request.user,
-        conversacion__estado='activa',
-        remitente='ciudadano',
-        leido=False
-    ).select_related('conversacion').order_by('-fecha_envio')[:5]
-    
+
     results = []
-    for mensaje in mensajes:
+    for mensaje in get_alertas_preview_mensajes(request.user):
         results.append({
             'id': f'conv_{mensaje.conversacion.id}_{mensaje.id}',
             'conversacion_id': mensaje.conversacion.id,
@@ -53,16 +43,8 @@ def alertas_conversaciones_preview(request):
             'prioridad': 'MEDIA',
             'ciudadano_nombre': f'Conversación #{mensaje.conversacion.id}'
         })
-    
-    # Agregar nuevas conversaciones sin asignar
-    from .models import NuevaConversacionAlerta
-    nuevas = NuevaConversacionAlerta.objects.filter(
-        operador=request.user,
-        vista=False,
-        conversacion__estado='pendiente'
-    ).select_related('conversacion').order_by('-creado')[:3]
-    
-    for nueva in nuevas:
+
+    for nueva in get_alertas_preview_nuevas_conversaciones(request.user):
         results.append({
             'id': f'nueva_conv_{nueva.conversacion.id}',
             'conversacion_id': nueva.conversacion.id,
@@ -81,18 +63,8 @@ def alertas_conversaciones_preview(request):
 def marcar_mensajes_leidos(request, conversacion_id):
     """Marcar mensajes como leídos cuando se abre la conversación"""
     try:
-        conversacion = Conversacion.objects.get(
-            id=conversacion_id,
-            operador_asignado=request.user
-        )
-        
-        # Marcar mensajes del ciudadano como leídos
-        Mensaje.objects.filter(
-            conversacion=conversacion,
-            remitente='ciudadano',
-            leido=False
-        ).update(leido=True)
-        
+        conversacion = get_conversacion_asignada_a_operador(conversacion_id, request.user)
+        marcar_mensajes_ciudadano_leidos(conversacion)
         return JsonResponse({'success': True})
     except Conversacion.DoesNotExist:
         return JsonResponse({'error': 'Conversación no encontrada'}, status=404)

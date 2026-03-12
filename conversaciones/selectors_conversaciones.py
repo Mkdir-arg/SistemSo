@@ -8,6 +8,10 @@ from django.utils import timezone
 from .models import ColaAsignacion, Conversacion, MetricasOperador
 
 
+def usuario_tiene_permiso_conversaciones(user):
+    return user.groups.filter(name__in=['Conversaciones', 'OperadorCharla']).exists() or user.is_superuser
+
+
 def get_conversaciones_queryset_para_lista(user, filtros):
     if user.groups.filter(name='OperadorCharla').exists() and not user.is_superuser:
         queryset = Conversacion.objects.select_related('operador_asignado').annotate(
@@ -146,3 +150,40 @@ def get_estadisticas_tiempo_real():
         ).count(),
         'tiempo_promedio': round(tiempo_promedio / 60, 1),
     }
+
+
+def get_alertas_conversaciones_count(user):
+    from .models import HistorialAlertaConversacion
+
+    return HistorialAlertaConversacion.objects.filter(
+        operador=user,
+        vista=False,
+    ).count()
+
+
+def get_alertas_preview_mensajes(user):
+    from .models import Mensaje
+
+    return Mensaje.objects.filter(
+        conversacion__operador_asignado=user,
+        conversacion__estado='activa',
+        remitente='ciudadano',
+        leido=False,
+    ).select_related('conversacion').order_by('-fecha_envio')[:5]
+
+
+def get_alertas_preview_nuevas_conversaciones(user):
+    from .models import NuevaConversacionAlerta
+
+    return NuevaConversacionAlerta.objects.filter(
+        operador=user,
+        vista=False,
+        conversacion__estado='pendiente',
+    ).select_related('conversacion').order_by('-creado')[:3]
+
+
+def get_conversacion_asignada_a_operador(conversacion_id, operador):
+    return Conversacion.objects.get(
+        id=conversacion_id,
+        operador_asignado=operador,
+    )

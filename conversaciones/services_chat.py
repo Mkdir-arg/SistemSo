@@ -186,3 +186,11 @@ def evaluar_conversacion(conversacion, satisfaccion):
     if conversacion.operador_asignado:
         MetricasService.actualizar_metricas_operador(conversacion.operador_asignado)
     return conversacion
+
+
+def marcar_mensajes_ciudadano_leidos(conversacion):
+    return Mensaje.objects.filter(
+        conversacion=conversacion,
+        remitente='ciudadano',
+        leido=False,
+    ).update(leido=True)

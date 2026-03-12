@@ -4,8 +4,13 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from conversaciones.forms_chat import IniciarConversacionForm, MensajeConversacionForm
-from conversaciones.models import Conversacion, Mensaje
-from conversaciones.services_chat import crear_mensaje_operador, iniciar_conversacion_publica
+from conversaciones.models import Conversacion, HistorialAlertaConversacion, Mensaje
+from conversaciones.selectors_conversaciones import get_alertas_conversaciones_count
+from conversaciones.services_chat import (
+    crear_mensaje_operador,
+    iniciar_conversacion_publica,
+    marcar_mensajes_ciudadano_leidos,
+)
 
 
 class IniciarConversacionFormTests(TestCase):
@@ -71,3 +76,46 @@ class ChatServicesTests(TestCase):
 
         with self.assertRaises(PermissionError):
             crear_mensaje_operador(conversacion, self.operador, 'respuesta')
+
+    def test_marcar_mensajes_ciudadano_leidos_actualiza_solo_no_leidos(self):
+        conversacion = Conversacion.objects.create(
+            tipo='anonima',
+            prioridad='normal',
+            estado='activa',
+            operador_asignado=self.operador,
+        )
+        Mensaje.objects.create(conversacion=conversacion, remitente='ciudadano', contenido='uno', leido=False)
+        Mensaje.objects.create(conversacion=conversacion, remitente='ciudadano', contenido='dos', leido=True)
+        Mensaje.objects.create(conversacion=conversacion, remitente='operador', contenido='tres', leido=False)
+
+        actualizados = marcar_mensajes_ciudadano_leidos(conversacion)
+
+        self.assertEqual(actualizados, 1)
+        self.assertEqual(
+            Mensaje.objects.filter(conversacion=conversacion, remitente='ciudadano', leido=False).count(),
+            0,
+        )
+
+    def test_selector_alertas_count_devuelve_solo_no_vistas_del_operador(self):
+        conversacion = Conversacion.objects.create(
+            tipo='anonima',
+            prioridad='normal',
+            estado='activa',
+            operador_asignado=self.operador,
+        )
+        HistorialAlertaConversacion.objects.create(
+            conversacion=conversacion,
+            operador=self.operador,
+            tipo='NUEVO_MENSAJE',
+            mensaje='alerta 1',
+            vista=False,
+        )
+        HistorialAlertaConversacion.objects.create(
+            conversacion=conversacion,
+            operador=self.operador,
+            tipo='NUEVA_CONVERSACION',
+            mensaje='alerta 2',
+            vista=True,
+        )
+
+        self.assertEqual(get_alertas_conversaciones_count(self.operador), 1)
