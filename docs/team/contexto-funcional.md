@@ -2,7 +2,7 @@
 
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
-> Última actualización: 2026-03-09 (sesión 4 — roles y permisos, mapa completo del sistema)
+> Última actualización: 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
 
 ---
 
@@ -93,6 +93,99 @@ El perfil del ciudadano es el centro de toda su información. Tiene solapas est�
 - Solo instituciones APROBADAS pueden ofrecer servicios activos
 - Tipos: DTC, CAAC, CCC, CAI, IC, CT (según clasificación SEDRONAR)
 - Una institución puede tener múltiples encargados (ManyToMany con User)
+- Una institución puede tener su propia `ConfiguracionTurnos` (OneToOne)
+- Cada institución tiene un **legajo institucional** con: personal, evaluaciones periódicas, planes de fortalecimiento (actividades) e indicadores de monitoreo
+- Una institución puede estar habilitada para ejecutar múltiples programas (`InstitucionPrograma`)
+
+#### Roles de institución
+| Rol | Qué permite |
+|-----|------------|
+| `institucionVer` | Ver el catálogo de instituciones y sus datos |
+| `institucionAdministrar` | Crear, editar, aprobar/rechazar instituciones |
+| `EncargadoInstitucion` | Rol especial — representante externo de una institución, acceso limitado a su propia institución |
+
+### Actividades institucionales
+
+- Una actividad **siempre pertenece a una institución** — no existen actividades sin institución
+- Las actividades viven en el legajo institucional como `PlanFortalecimiento`
+- Tipos: PREVENCION, TRATAMIENTO, REDUCCION_RIESGO, REINSERCION, CAPACITACION
+- Una actividad puede tener su propia `ConfiguracionTurnos` para ofrecer turnos propios
+
+#### Tipos de acceso a una actividad
+
+| Tipo | Descripción | Quién puede inscribirse |
+|------|-------------|------------------------|
+| **Libre** | Actividad abierta | Cualquier ciudadano puede inscribirse directamente |
+| **Requiere programa** | Actividad asociada a un programa específico | Solo ciudadanos que ya están inscriptos en ese programa |
+
+**Campo a agregar en `PlanFortalecimiento`:** `tipo_acceso = LIBRE | REQUIERE_PROGRAMA`. Si es `REQUIERE_PROGRAMA`, FK al `Programa` asociado.
+
+#### Inscripción a una actividad
+- El ciudadano queda en `InscriptoActividad` con estados: INSCRITO → ACTIVO → FINALIZADO / ABANDONADO
+- Se registra asistencia por fecha: PRESENTE / AUSENTE / JUSTIFICADO / TARDANZA
+- El staff de la actividad se asigna desde el personal de la institución
+
+### Derivaciones
+
+Actualmente existen dos modelos de derivación en el sistema que **se unificarán** (US-021):
+
+| Modelo | Estado | Origen | Destino |
+|--------|--------|--------|---------|
+| `Derivacion` | Legacy — deprecar | `LegajoAtencion` SEDRONAR | Institución + Actividad opcional |
+| `DerivacionInstitucional` | Nuevo | `Ciudadano` | `InstitucionPrograma` (institución + programa) |
+
+**Decisión tomada:** unificar en un solo modelo que sale desde `Ciudadano`. La `Derivacion` legacy se depreca cuando `LegajoAtencion` migre al motor de flujos (US-006).
+
+El modelo unificado tendrá:
+- Origen: `Ciudadano`
+- Destino: puede ser `InstitucionPrograma` (ciudadano va a programa en institución) o `PlanFortalecimiento` (ciudadano va a actividad específica)
+- `tipo_inicio`: `DERIVACION` (cualquier operador) | `INSCRIPCION_DIRECTA` (solo gestores del programa destino)
+- Estados: `PENDIENTE` → `ACEPTADA` / `RECHAZADA`
+- Urgencia: `BAJA` / `MEDIA` / `ALTA`
+- Campos: motivo, respuesta, quién deriva, quién responde, fecha respuesta
+- Sin vencimiento: las derivaciones PENDIENTE quedan indefinidamente hasta que el operador destino actúe
+
+#### Quién acepta una derivación
+El **operador del programa destino** acepta o rechaza manualmente. No hay aceptación automática.
+
+#### Notificaciones
+- **Operador destino:** recibe badge + alerta en bandeja cuando llega una derivación nueva
+- **Ciudadano:** no recibe notificación activa. Lo puede ver en su portal, sección Programas
+
+#### Reglas de validación (se verifican antes de crear la derivación)
+- ✅ Se puede derivar si la derivación anterior al mismo programa fue RECHAZADA (o el flujo fue rechazado)
+- ❌ No se puede derivar si ya existe una derivación PENDIENTE al mismo programa → aviso al operador
+- ❌ No se puede derivar si el ciudadano ya está ACTIVO en ese programa → aviso al operador
+- ✅ Un ciudadano puede tener derivaciones PENDIENTE a **distintos programas** simultáneamente
+
+#### Ciclo de vida completo
+```
+[Operador crea derivación — desde perfil ciudadano o desde dashboard de programa]
+        ↓
+  Derivacion → PENDIENTE
+  Operador del programa destino recibe badge + alerta en bandeja
+        ↓
+  [RECHAZA] → Derivacion = RECHAZADA
+              InscripcionPrograma NO se crea
+  [ACEPTA]  → Derivacion = ACEPTADA
+              InscripcionPrograma creado (estado PENDIENTE)
+                    ↓
+              Flujo inicia (InstanciaFlujo creada)
+                    ↓
+              [Si el flujo tiene paso "rechazar" configurado y se rechaza]
+              → InstanciaFlujo = RECHAZADO
+              → InscripcionPrograma = INACTIVO
+              [Si el flujo completa sin rechazo]
+              → InscripcionPrograma = ACTIVO
+                    ↓
+              Cierre automático (un solo acto) | Baja manual (persistente)
+```
+
+#### Puntos de entrada en la UI
+| Desde | Quién | Comportamiento |
+|-------|-------|----------------|
+| Perfil del ciudadano `/legajos/ciudadanos/<id>/` | Cualquier operador | Elige destino (programa/institución/actividad) libremente |
+| Dashboard del programa | Gestor del programa | Busca ciudadano; origen queda registrado automáticamente como el programa actual |
 
 ### Programas sociales
 - Catálogo unificado: sirve tanto para ciudadanos como para instituciones
@@ -137,28 +230,17 @@ Los programas tienen dos naturalezas con distinto ciclo de vida post-flujo:
 - Si no tiene cupo configurado, el programa acepta ingresos sin límite
 
 #### Puntos de entrada de un ciudadano a un programa
-Hay dos caminos para que un ciudadano ingrese a un programa. Ambos son equivalentes — la diferencia es quién inicia el proceso:
+Hay dos caminos para que un ciudadano ingrese a un programa. Son la **misma acción** con la misma estructura de datos — la diferencia es solo de permiso y punto de origen:
 
-| Camino | Quién lo hace | Condición |
+| Camino | Quién lo hace | `tipo_inicio` |
 |--------|--------------|-----------|
-| **Derivación** | Cualquier operador del backoffice | El ciudadano viene referenciado desde otro programa, institución o punto externo |
-| **Inscripción directa** | Solo operadores que gestionan ese programa | El operador inicia el proceso de ingreso desde dentro del programa |
+| **Derivación** | Cualquier operador del backoffice | `DERIVACION` |
+| **Inscripción directa** | Solo gestores del programa destino | `INSCRIPCION_DIRECTA` |
 
-**Regla absoluta:** en ambos casos el ciudadano SIEMPRE debe completar el flujo completo. No existe aprobación automática ni salto de pasos. Un ciudadano no puede estar ACTIVO en un programa sin haber pasado por el flujo.
+**Regla absoluta:** en ambos casos el ciudadano SIEMPRE debe completar el flujo completo. No existe aprobación automática ni salto de pasos.
 
-#### Cadena completa del flujo de un ciudadano en un programa
-```
-[Derivación | Inscripción directa]
-           ↓
-     Flujo inicia (InstanciaFlujo creada)
-           ↓
-  Pasos del flujo (cada uno con su rol asignado)
-           ↓
-  [Si hay paso de aceptación y NO es aceptado] → Flujo cierra → sin inscripción activa
-  [Si es aceptado] → InscripcionPrograma ACTIVO → continúa el flujo
-           ↓
-  Cierre automático (un solo acto) | Baja manual (persistente)
-```
+#### Momento de creación de InscripcionPrograma
+`InscripcionPrograma` se crea **al momento de ACEPTAR la derivación** (no al completar el flujo). El flujo corre sobre una inscripción ya existente en estado PENDIENTE.
 
 #### Estados de un ciudadano en un programa — dos capas
 1. **Estado general** (de la inscripción): `ACTIVO` / `INACTIVO` / `DADO_DE_BAJA`
@@ -277,15 +359,15 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 
 - [ ] ¿Un turno puede reprogramarse o solo cancelarse y crear uno nuevo?
 - [ ] ¿Qué pasa con los turnos si se desactiva una institución? ¿Se cancelan en cascada?
-- [ ] ¿El ciudadano recibe notificación cuando es derivado a otro programa?
+- ~~¿El ciudadano recibe notificación cuando es derivado a otro programa?~~ → Resuelto: no recibe notificación activa, lo ve en su portal sección Programas
 - ~~¿Los operadores pueden ver legajos de cualquier ciudadano o solo los asignados a su institución?~~ → Resuelto: depende del ámbito (institución vs. programa)
 - [ ] ¿Existe un concepto de "guardia" o atención urgente fuera del sistema de turnos?
 - [ ] ¿El operador que marca un campo de ciudadano como "sensible" puede también desmarcarlo, o requiere un rol especial?
 - [ ] ¿La foto del ciudadano requiere `ciudadanoSensible` o la ve cualquiera con `ciudadanoVer`?
 - [ ] ¿Qué muestra exactamente la solapa "Resumen" del hub ciudadano?
 - [ ] ¿El toggle "requiere turno" en un programa persistente — lo activa solo `ConfiguracionPrograma` o también el Operador?
-- [ ] ¿Las actividades son parte de un programa o son entidades independientes?
-- [ ] ¿La asignación de profesionales a actividades — es uno por actividad o muchos?
+- ~~¿Las actividades son parte de un programa o son entidades independientes?~~ → Resuelto: siempre pertenecen a una institución. Tienen tipo de acceso LIBRE o REQUIERE_PROGRAMA.
+- ~~¿La asignación de profesionales a actividades — es uno por muchos?~~ → Resuelto: muchos (StaffActividad con rol_en_actividad)
 
 ---
 
@@ -337,6 +419,24 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se definió el acceso por ámbito: institución ve sus ciudadanos, backoffice ve todos
 - Se estableció deuda planificada: `LegajoAtencion` migra al motor de flujos en el futuro
 - Se resolvió que el DNI único previene duplicados — no hay proceso de deduplicación manual
+
+### 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
+- Se cerró el modelo completo de derivación e inscripción directa: son la misma acción, diferente permiso y punto de entrada
+- Se definió que `InscripcionPrograma` se crea al ACEPTAR la derivación (no al completar el flujo)
+- Se definió que el operador del programa destino acepta/rechaza manualmente (sin automatismo)
+- Se definieron las reglas de validación: no si hay PENDIENTE al mismo programa, no si ya está ACTIVO
+- Se definieron los dos puntos de entrada UI: perfil ciudadano (cualquier operador) + dashboard del programa (origen automático)
+- Se definió que el ciudadano ve sus derivaciones en el portal sección Programas (sin notificación activa)
+- Se definió que el operador destino recibe badge + alerta en bandeja al recibir derivación nueva
+- Se definió que la cancelación no existe como acción directa — el rechazo ocurre dentro del flujo si se configura
+
+### 2026-03-11 (sesión 5 — análisis instituciones, actividades y derivaciones)
+- Confirmado: actividades siempre pertenecen a una institución, nunca son flotantes
+- Confirmado: actividades tienen dos tipos de acceso — LIBRE (inscripción directa) y REQUIERE_PROGRAMA (debe estar inscripto en el programa primero)
+- Confirmado: los dos modelos de derivación (`Derivacion` legacy y `DerivacionInstitucional`) se unifican en uno solo que sale desde `Ciudadano`
+- Detectados bugs de permisos en turnos: `turnoConfigurar` usa nombre viejo, `turnoOperar` no aplicado (documentados en `docs/errores/`)
+- Detectado: portal ciudadano de turnos funciona solo con modelo legacy `RecursoTurnos` (documentado en `docs/requerimientos/`)
+- Agregadas US-018 a US-021 al backlog: permisos instituciones, panel encargado, tipo_acceso en actividades, unificación derivaciones
 
 ### 2026-03-09 (sesión 4 — /definir roles y permisos, mapa completo del sistema)
 - Se cerró el mapa completo de roles del sistema: 14 roles operativos + 3 roles especiales

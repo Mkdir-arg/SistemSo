@@ -1,6 +1,6 @@
 # Product Backlog — SistemSo
 
-> Actualizado: 2026-03-09 (sesión 4 — roles y permisos cerrados)
+> Actualizado: 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
 
 ## Leyenda
 - 🟡 Pendiente
@@ -20,12 +20,16 @@
 | US-009 | Como operador quiero ver el hub del ciudadano con solapas estáticas y dinámicas con badge behavior para acceder a toda su información desde un solo lugar | Mediano 🟡 | Requiere US-008. Solapas dinámicas: Programas, Turnos, Instituciones, Conversaciones, Derivaciones, Alertas, Línea de tiempo |
 | US-010 | Como administrador quiero gestionar los roles `ciudadanoVer`, `ciudadanoCrear` y `ciudadanoSensible` para controlar quién accede a qué información del ciudadano | Pequeño 🟡 | Incluye filtro por ámbito (institución vs. backoffice) |
 | US-011 | Como administrador quiero que todos los roles del sistema existan como grupos Django desde el inicio, con los nombres definitivos acordados | Pequeño 🟡 | Data migration o management command. 15 roles + migración de 3 nombres viejos. Prerequisito para todos los features de permisos. Ver `docs/requerimientos/2026-03-09_roles-y-permisos.md` |
-| US-012 | Como operador quiero ingresar un ciudadano a un programa (via derivación o inscripción directa) e iniciar su flujo obligatorio para gestionar su proceso de admisión hasta el cierre | Grande 🟡 | Dos caminos de entrada: derivación (cualquier operador) o inscripción directa (solo gestores del programa). Ambos inician el flujo completo. Pendiente `/definir derivacion-e-inscripcion` antes de estimar |
+| US-012 | Como operador quiero ingresar un ciudadano a un programa (via derivación o inscripción directa) e iniciar su flujo obligatorio para gestionar su proceso de admisión hasta el cierre | Grande 🟡 | Definido en sesión 2026-03-12. Ver `docs/requerimientos/2026-03-12_derivacion-e-inscripcion.md`. Requiere US-021 + US-006 + US-011. |
 | US-013 | Como operador quiero poder buscar un ciudadano por nombre o DNI de forma rápida para atender consultas telefónicas sin demoras | Pequeño 🟡 | Búsqueda por nombre parcial y DNI exacto |
 | US-014 | Como usuario con rol `ConfiguracionPrograma` quiero configurar cupo máximo y lista de espera en un programa para controlar la capacidad de inscripciones simultáneas | Pequeño 🟡 | Campo `cupo_maximo` (opcional) y `tiene_lista_espera` en la config del programa. Incluir en US-005 (wizard) |
 | US-015 | Como ciudadano quiero ver mis programas, inscribirme, solicitar turnos y chatear con un operador desde el portal | Grande 🟡 | Iteraciones 2-6 del portal ciudadano (ya planificadas). Ver `docs/funcionalidades/portal-ciudadano/v1.0` |
 | US-016 | Como organismo quiero que todas las acciones del sistema queden trazadas (quién hizo qué, cuándo y sobre qué entidad) para cumplir con los requisitos de auditoría estatal | Grande 🟡 | Auditoría transversal — aplica a inscripciones, derivaciones, cambios de estado, turnos, configuraciones |
 | US-017 | Como operador quiero dar de baja a un ciudadano de un programa persistente registrando motivo y fecha para cerrar su caso formalmente | Pequeño 🟡 | Botón de baja con campo motivo obligatorio. Cancela turnos pendientes y suspende flujo activo |
+| US-018 | Como administrador quiero que las vistas de instituciones estén protegidas por los roles `institucionVer` e `institucionAdministrar` para controlar el acceso al módulo | Pequeño 🟡 | Hoy todas las vistas usan solo `LoginRequiredMixin`. Fix junto con US-011. |
+| US-019 | Como encargado de institución quiero tener un panel propio donde ver mi institución, su legajo, actividades y agenda de turnos | Mediano 🟡 | `EncargadoInstitucion` no tiene panel — solo ve el portal. Requiere diseño de superficie separada o sección en backoffice con acceso restringido. |
+| US-020 | Como administrador quiero configurar el tipo de acceso de una actividad (libre o requiere programa) para controlar quién puede inscribirse | Pequeño 🟡 | Agregar campo `tipo_acceso = LIBRE / REQUIERE_PROGRAMA` y FK opcional a `Programa` en `PlanFortalecimiento`. Migración requerida. |
+| US-021 | Como desarrollador quiero unificar los dos modelos de derivación en uno solo que salga desde Ciudadano para eliminar la duplicación de lógica | Grande 🟡 | Deprecar `Derivacion` legacy (desde `LegajoAtencion`). El modelo unificado reemplaza a `DerivacionInstitucional` con soporte para destino institución+programa o actividad. Ejecutar junto con o antes de US-006 (motor de flujos). |
 
 ---
 
@@ -48,7 +52,7 @@
 | Instituciones | Solo definidas a nivel flujo de aprobación. Falta definir qué gestiona internamente |
 | Actividades | Completamente indefinidas — ¿son parte de instituciones o de programas? Bloquea US-009 |
 | Roles y permisos | Mapa completo del sistema sin cerrar — hay roles sueltos definidos por dominio |
-| Derivación e inscripción | Flujo completo definido conceptualmente pero sin criterios de aceptación |
+| ~~Derivación e inscripción~~ | ~~Flujo completo definido conceptualmente pero sin criterios de aceptación~~ → **Resuelto 2026-03-12** — ver US-012 |
 | App móvil | Existe pero sin documentar — cómo se conecta, auth, usuarios propios |
 | Alertas | Sistema general sin definir — qué las genera, quién las recibe, cómo se resuelven |
 
