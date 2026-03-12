@@ -134,6 +134,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el octavo slice del refactor DX sobre `conversaciones`, enfocado en separar chat público, backoffice, métricas y orquestación
 - El módulo dejó de concentrar parsing manual de payloads y queries repetidas en un solo `views.py`; ahora usa selectors, services y forms livianos sin cambiar las URLs
 - Se mantuvo explícitamente el contrato actual del chat y los endpoints AJAX/WebSocket legacy para no introducir regresiones funcionales en el frontend
+- Se ejecutó el noveno slice del refactor DX sobre `conversaciones`, enfocado en alinear la API auxiliar de alertas y detalle en vivo
+- Las APIs internas del chat ya no repiten permisos, queries ni marcado de mensajes leídos por fuera de la nueva capa del módulo
+- El comportamiento visible no cambió; el beneficio fue coherencia interna y menor costo de mantenimiento
 
 ---
 

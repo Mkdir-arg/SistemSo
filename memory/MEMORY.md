@@ -24,6 +24,8 @@
 - `legajos/views.py` quedó como fachada pura y la operativa institucional/actividades vive en `legajos/views_operativa.py`.
 - Se completó el octavo slice sobre `conversaciones`, enfocado en modularización del chat.
 - `conversaciones/views.py` quedó como fachada compatible y el módulo ahora usa `views_public.py`, `views_backoffice.py`, `selectors_conversaciones.py`, `services_chat.py` y `forms_chat.py`.
+- Se completó el noveno slice sobre `conversaciones`, enfocado en la API auxiliar.
+- `conversaciones/api_views.py` y `api_extra.py` ya reutilizan selectors/services en lugar de repetir lógica inline.
 
 ## Próxima etapa sugerida
 

@@ -165,6 +165,13 @@ SistemSo/
 
 **Consecuencia:** El módulo queda mucho más mantenible y testeable sin asumir un rediseño del chat. La deuda restante sobre CSRF y polling/WebSocket queda documentada y aislada.
 
+### DT-016 — la API auxiliar de `conversaciones` debe reutilizar la misma capa de lectura y workflow (2026-03-13)
+**Contexto:** Después del slice 8, `api_views.py` y `api_extra.py` seguían resolviendo permisos, consultas y marcado de mensajes por fuera del patrón nuevo, manteniendo duplicación dentro del mismo módulo.
+
+**Decisión:** El slice 9 alineó esas APIs con `selectors_conversaciones.py` y `services_chat.py`, reutilizando permisos, queries y el marcado de mensajes leídos en lugar de repetir implementación.
+
+**Consecuencia:** `conversaciones` queda mucho más coherente internamente y el próximo corte puede enfocarse en deuda funcional real del chat en lugar de seguir ordenando plumbing repetido.
+
 ---
 
 ## Deudas técnicas documentadas

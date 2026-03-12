@@ -57,3 +57,10 @@
 - Decisión: el slice 8 extrajo selectors, services y forms livianos, separó `views_public.py` y `views_backoffice.py` y dejó `views.py` como fachada compatible.
 - Regla derivada: en módulos con transporte AJAX/WebSocket legacy, primero conviene separar responsabilidades y validar payloads sin cambiar rutas ni el contrato del frontend.
 - Consecuencia: el módulo ya puede seguir evolucionando con menor riesgo y la deuda específica de CSRF/polling queda aislada para un corte posterior.
+
+## 2026-03-13 — alinear la API auxiliar del chat con la misma capa de dominio
+
+- Contexto: aun con `views.py` modularizado, `api_views.py` y `api_extra.py` seguían resolviendo permisos, previews y marcado de leídos con queries inline.
+- Decisión: el slice 9 reusó selectors y services del módulo para alertas, detalle en vivo y marcado de mensajes leídos.
+- Regla derivada: cuando una app expone HTML y APIs sobre el mismo dominio, ambas superficies deben consumir la misma capa de lectura/orquestación.
+- Consecuencia: baja la duplicación interna y se reduce el riesgo de divergencia entre la UI principal y sus APIs auxiliares.

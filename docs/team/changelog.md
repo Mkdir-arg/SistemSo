@@ -14,6 +14,19 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 9: `conversaciones` API auxiliar alineada
+
+**User Story:** Como equipo de desarrollo quiero alinear las APIs auxiliares de `conversaciones` con el patrón de selectors y services para que el módulo no mantenga dos estilos arquitectónicos distintos.
+
+**Archivos modificados:**
+- `conversaciones/api_views.py`
+- `conversaciones/api_extra.py`
+- `conversaciones/selectors_conversaciones.py`
+- `conversaciones/services_chat.py`
+- `conversaciones/tests/test_chat_services.py`
+
+**Descripcion:** Se implementó el noveno slice del refactor DX, cerrando la capa API auxiliar del chat. Las alertas, previews, marcado de leídos y el detalle mínimo en vivo ahora reutilizan selectors y services ya introducidos en el slice 8, en lugar de repetir queries y permisos inline. No hubo cambios de rutas, modelos ni migraciones.
+
 ## 2026-03-13 — Refactor DX slice 8: `conversaciones` modularización y selectors
 
 **User Story:** Como equipo de desarrollo quiero desacoplar el módulo `conversaciones` separando vistas públicas y de backoffice, extrayendo queries reutilizables y validación de payloads para reducir lógica en `views.py` sin cambiar las URLs.
