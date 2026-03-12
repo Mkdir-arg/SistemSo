@@ -1,4 +1,4 @@
-# Changelog — AkunCalcu
+# Changelog — SistemSo
 
 > Registro cronológico de todos los cambios implementados por el equipo.
 
@@ -13,6 +13,38 @@
 ```
 
 ---
+
+## 2026-03-13 — Refactor DX Slice 1: users, portal institucional y turnos
+
+**User Story:** Como equipo de desarrollo quiero estandarizar la arquitectura interna con services, selectors, forms y views más delgadas para reducir costo de cambio y mejorar testabilidad sin alterar el comportamiento funcional del sistema.
+
+**Archivos creados:**
+- `core/mixins.py`
+- `core/selectors_geografia.py`
+- `users/selectors_usuarios.py`
+- `users/services_admin.py`
+- `users/views_admin.py`
+- `users/views_auth.py`
+- `portal/forms_public.py`
+- `portal/selectors_public.py`
+- `portal/services_registro.py`
+- `portal/views_public.py`
+- `turnos/selectors_turnos.py`
+- `turnos/services_turnos.py`
+- `users/tests/test_user_admin_services.py`
+- `portal/tests/test_registro_institucion.py`
+- `turnos/tests/test_turno_actions.py`
+
+**Archivos modificados:**
+- `core/views.py`
+- `users/forms.py`
+- `users/services.py`
+- `users/views.py`
+- `portal/views.py`
+- `portal/urls.py`
+- `turnos/views_backoffice.py`
+
+**Descripcion:** Se implementó el primer slice del refactor estructural de DX. `users` movió persistencia de grupos/profile a services; `portal` institucional pasó de FBVs con POST raw a `FormView` + services/selectors y dejó de usar `@csrf_exempt` en ese flujo; `turnos` extrajo queries de backoffice a selectors y acciones de estado a services transaccionales. No hubo cambios de modelos ni migraciones.
 
 ## 2026-03-05 — Mejora de logging detallado
 

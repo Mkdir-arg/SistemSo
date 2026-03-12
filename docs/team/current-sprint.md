@@ -1,4 +1,4 @@
-# Sprint Actual — AkunCalcu
+# Sprint Actual — SistemSo
 
 > Estado: Sin sprint activo
 > Inicio: —
@@ -12,7 +12,7 @@ _Se define en el sprint planning._
 
 | ID | User Story | Estado | Notas |
 |----|-----------|--------|-------|
-| — | — | — | — |
+| DX-001 | Como equipo de desarrollo quiero estandarizar `users`, `portal` institucional y `turnos` con services/selectors/views delgadas para mejorar DX y testabilidad | ✅ Completado | Trabajo técnico ejecutado fuera de sprint formal el 2026-03-13 |
 
 ## Impedimentos
 

@@ -2,7 +2,7 @@
 
 > **Regla:** El Arquitecto lee este documento ANTES de proponer cualquier diseño técnico.
 > **Regla:** El Arquitecto actualiza este documento cuando toma una decisión técnica relevante.
-> Última actualización: 2026-03-09
+> Última actualización: 2026-03-13
 
 ---
 
@@ -67,6 +67,13 @@ SistemSo/
 - Vistas de administración de turnos: `group_required(['Administradores de Turnos'])`.
 - CSRF en todos los forms POST sin excepción. Las vistas con `@csrf_exempt` son deuda técnica.
 
+### Modularización interna
+- En apps existentes, preferir modularización incremental por dominio: `views_<dominio>.py`, `forms_<dominio>.py`, `services_<dominio>.py`, `selectors_<dominio>.py`.
+- No convertir masivamente `views.py/forms.py/urls.py` en paquetes si eso obliga a un package-flip con alto churn de imports.
+- Las views deben quedar delgadas: permisos, parseo HTTP, invocación de service/selector y render/redirect.
+- Los selectors son solo lectura y no tienen side effects.
+- Los services orquestan reglas, transacciones, invalidación de cache y notificaciones.
+
 ### Frontend
 - Tailwind CSS via CDN (configurado en `includes/base.html`).
 - Alpine.js para interactividad sin build step.
@@ -102,6 +109,15 @@ SistemSo/
 
 ---
 
+### DT-008 — Refactor DX incremental por slices y módulos por dominio (2026-03-13)
+**Contexto:** El proyecto tiene views y forms monolíticos en varias apps. Un refactor big-bang para introducir service layer, selectors y convenciones homogéneas tiene demasiado riesgo por falta de cobertura automática y por el volumen de imports cruzados.
+
+**Decisión:** Aplicar el refactor en slices incrementales. En apps existentes se estandariza primero con módulos por dominio (`views_public.py`, `views_backoffice.py`, `services_turnos.py`, `selectors_public.py`, etc.) y no con package-flip masivo de `views/` o `forms/`.
+
+**Consecuencia:** El primer slice se implementó en `users`, `portal` institucional y `turnos`, dejando `legajos`, `configuracion` y `conversaciones` para etapas posteriores con el patrón ya validado.
+
+---
+
 ## Deudas técnicas documentadas
 
 | ID | Descripción | Severidad | Cuándo surgió |
@@ -109,10 +125,11 @@ SistemSo/
 | DT-001 | `legajos/` mezcla 4 dominios (ciudadanos, programas, ÑACHEC, institucional) | Alta | Desde el inicio |
 | DT-002 | `simple_history` comentado en `legajos/models.py` — sin historial de cambios | Media | Desde el inicio |
 | DT-003 | `TipoPrograma` tiene entrada duplicada `NACHEC`/`ÑACHEC` | Baja | Detectada 2026-03-09 |
-| DT-004 | `portal/views.py` usa `@csrf_exempt` en vistas de institución | Alta | Detectada 2026-03-09 |
+| DT-004 | Deuda mitigada parcialmente: el flujo institucional público dejó de usar `@csrf_exempt`; quedan flujos públicos/AJAX legacy por revisar | Media | Actualizada 2026-03-13 |
 | DT-005 | `RecursoTurnos` es legacy — migrar a `ConfiguracionTurnos` en v2 | Media | 2026-03-09 |
 | DT-006 | Recordatorios automáticos de turnos requieren Celery (no implementado) | Media | 2026-03-09 |
 | DT-007 | `configuracion/` no tiene modelos propios — es solo una capa de UI sobre `core` y `legajos` | Baja | Detectada 2026-03-09 |
+| DT-008 | Faltan namespaces consistentes en `users`, `core` y `healthcheck`; normalizarlo requiere barrido de `reverse()` y templates | Media | Detectada 2026-03-13 |
 
 ---
 

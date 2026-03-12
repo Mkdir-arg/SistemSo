@@ -2,7 +2,7 @@
 
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
-> Última actualización: 2026-03-09
+> Última actualización: 2026-03-13
 
 ---
 
@@ -106,6 +106,13 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se creó la app `turnos/` separada de `portal/` por razones de separación de responsabilidades
 - Se documentaron 17 funcionalidades del sistema en `docs/funcionalidades/`
 - Se agregó la burbuja de mejora automática al CLAUDE.md
+
+### 2026-03-13
+- Se ejecutó el primer slice del refactor interno de DX sobre `users`, `portal` institucional y `turnos`
+- El registro institucional público dejó de depender de FBVs con POST raw y se migró a `FormView` + services/selectors
+- La administración de usuarios movió persistencia de grupos y `Profile` fuera de los forms
+- El backoffice de turnos separó lecturas reutilizables (`selectors_turnos`) y acciones de negocio (`services_turnos`)
+- No se modificaron reglas de negocio ni modelos; el objetivo fue reducir acoplamiento y preparar una base más testeable para siguientes features
 
 ---
 
