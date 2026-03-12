@@ -14,6 +14,18 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 7: `legajos` fachada pura de views
+
+**User Story:** Como equipo de desarrollo quiero completar la separación física de `legajos/views.py` para que el archivo quede como una fachada pura y el dominio operativo/institucional tenga su propio módulo mantenible.
+
+**Archivos creados:**
+- `legajos/views_operativa.py`
+
+**Archivos modificados:**
+- `legajos/views.py`
+
+**Descripcion:** Se implementó el séptimo slice del refactor DX sobre `legajos`, completando la modularización física del módulo de views. El bloque operativo e institucional se movió a `views_operativa.py` y `views.py` quedó como fachada de reexportación compatible para ciudadanía/admisión, clínica, contactos y operativa. No hubo cambios funcionales, de modelos, URLs ni migraciones; el objetivo fue reducir el tamaño cognitivo del módulo y dejar una base más predecible para seguir refactorizando.
+
 ## 2026-03-13 — Refactor DX Slice 3: legajos ciudadanos y admisión
 
 **User Story:** Como equipo de desarrollo quiero refactorizar el flujo de ciudadanos y admisión en `legajos` para reducir lógica en views, ordenar el manejo de sesión y dejar una base más mantenible para el resto del módulo.

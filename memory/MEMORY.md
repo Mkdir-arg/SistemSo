@@ -20,8 +20,10 @@
 - Se corrigieron templates clínicos que todavía dependían de campos inexistentes del modelo actual.
 - Se completó el sexto slice sobre `legajos`, enfocado en modularización física de views.
 - `legajos/views.py` ahora funciona como fachada compatible y el código de ciudadanía/admisión y clínica vive en módulos separados.
+- Se completó el séptimo slice sobre `legajos`, enfocado en terminar la modularización física de views.
+- `legajos/views.py` quedó como fachada pura y la operativa institucional/actividades vive en `legajos/views_operativa.py`.
 
 ## Próxima etapa sugerida
 
-- Seguir con la separación física restante de `legajos/views.py` para institucional/programas/actividades y revisar la política de responsables.
-- Luego entrar en `conversaciones`, que sigue concentrando lógica de lifecycle en views.
+- Revisar el siguiente hotspot real: `conversaciones`, que sigue concentrando lifecycle, queries y endpoints mixtos en un archivo grande.
+- En paralelo, definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

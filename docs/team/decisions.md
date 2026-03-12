@@ -43,3 +43,10 @@
 - Decisión: el slice 6 separó ciudadanía/admisión y clínica en `views_ciudadanos.py` y `views_clinico.py`, dejando `views.py` como fachada compatible.
 - Regla derivada: cuando la deuda es física/organizacional, primero conviene introducir fachadas compatibles antes de forzar cambios de imports/URLs en cascada.
 - Consecuencia: se reduce el tamaño cognitivo del módulo y queda allanado el próximo paso de separar institucional/programas/actividades.
+
+## 2026-03-13 — completar la fachada de `legajos/views.py`
+
+- Contexto: después del slice 6, `legajos/views.py` todavía mezclaba fachada e implementación real del bloque institucional/operativo.
+- Decisión: el slice 7 movió ese bloque a `views_operativa.py` y dejó `views.py` como un punto de reexportación sin lógica propia.
+- Regla derivada: si una fachada temporal todavía conserva implementación, el siguiente corte debe convertirla en fachada real antes de abrir más submódulos.
+- Consecuencia: el contrato de imports se mantiene estable, pero la app ya puede seguir modularizándose por dominios con menos fricción.

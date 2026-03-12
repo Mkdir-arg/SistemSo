@@ -151,6 +151,13 @@ SistemSo/
 
 **Consecuencia:** Se gana modularidad real sin romper la API interna del módulo. Los siguientes cortes pueden seguir moviendo dominios fuera de `views.py` sin tocar rutas ni imports consumidores.
 
+### DT-014 — `legajos/views.py` pasa a ser fachada pura y la operativa vive en su propio módulo (2026-03-13)
+**Contexto:** Tras el slice 6, `legajos/views.py` todavía conservaba institucional, actividades y acciones operativas, por lo que la fachada compatible seguía cargando lógica real y no solo reexportaciones.
+
+**Decisión:** El slice 7 movió ese bloque a `views_operativa.py` y dejó `views.py` como un módulo de compatibilidad que solo reexporta vistas y endpoints divididos por dominio.
+
+**Consecuencia:** El costo de navegación baja de forma material y el próximo refactor puede atacar subdominios concretos sin volver a abrir un archivo monolítico ni tocar las URLs existentes.
+
 ---
 
 ## Deudas técnicas documentadas
@@ -165,7 +172,7 @@ SistemSo/
 | DT-006 | Recordatorios automáticos de turnos requieren Celery (no implementado) | Media | 2026-03-09 |
 | DT-007 | `configuracion/` no tiene modelos propios — es solo una capa de UI sobre `core` y `legajos` | Baja | Detectada 2026-03-09 |
 | DT-008 | Faltan namespaces consistentes en `users`, `core` y `healthcheck`; normalizarlo requiere barrido de `reverse()` y templates | Media | Detectada 2026-03-13 |
-| DT-009 | `legajos/views.py` ya dejó de concentrar ciudadanía y clínica, pero todavía conserva institucional, programas y actividades; resta completar esa separación | Media | Actualizada 2026-03-13 |
+| DT-009 | `legajos/views.py` ya quedó como fachada pura, pero la app `legajos` sigue mezclando dominios ciudadanos, clínicos, institucionales y de contactos en una misma app | Media | Actualizada 2026-03-13 |
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 
 ---
