@@ -1,6 +1,12 @@
 from django import forms
-from core.models import Provincia, Municipio, Localidad, Institucion
-from legajos.models import PersonalInstitucion, StaffActividad, PlanFortalecimiento
+
+from core.models import Institucion, Localidad, Municipio, Provincia
+from legajos.models import (
+    InscriptoActividad,
+    PersonalInstitucion,
+    PlanFortalecimiento,
+    StaffActividad,
+)
 
 # Alias para compatibilidad
 DispositivoRed = Institucion
@@ -236,3 +242,108 @@ class PlanFortalecimientoForm(forms.ModelForm):
                 'type': 'date'
             }),
         }
+
+
+class InscriptoEstadoForm(forms.ModelForm):
+    class Meta:
+        model = InscriptoActividad
+        fields = ["estado", "observaciones"]
+        widgets = {
+            "estado": forms.Select(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                }
+            ),
+            "observaciones": forms.Textarea(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "rows": 4,
+                    "placeholder": "Agregar observaciones sobre el cambio de estado...",
+                }
+            ),
+        }
+
+
+class ActividadEditarForm(forms.ModelForm):
+    class Meta:
+        model = PlanFortalecimiento
+        fields = [
+            "nombre",
+            "descripcion",
+            "cupo_ciudadanos",
+            "fecha_inicio",
+            "fecha_fin",
+            "estado",
+        ]
+        widgets = {
+            "nombre": forms.TextInput(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "placeholder": "Nombre de la actividad",
+                }
+            ),
+            "descripcion": forms.Textarea(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "rows": 4,
+                }
+            ),
+            "cupo_ciudadanos": forms.NumberInput(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "min": 0,
+                }
+            ),
+            "fecha_inicio": forms.DateInput(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "type": "date",
+                }
+            ),
+            "fecha_fin": forms.DateInput(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "type": "date",
+                }
+            ),
+            "estado": forms.Select(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                }
+            ),
+        }
+
+
+class StaffActividadUpdateForm(forms.ModelForm):
+    class Meta:
+        model = StaffActividad
+        fields = ["rol_en_actividad", "activo"]
+        widgets = {
+            "rol_en_actividad": forms.TextInput(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "placeholder": "Ej: Coordinador, Terapeuta, Operador",
+                }
+            ),
+            "activo": forms.CheckboxInput(
+                attrs={
+                    "class": "h-4 w-4 text-blue-600 border-gray-300 rounded",
+                }
+            ),
+        }
+
+
+class DerivacionRechazoForm(forms.Form):
+    motivo = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "w-full p-3 border border-gray-300 rounded-lg",
+                "rows": 3,
+                "placeholder": "Motivo del rechazo",
+            }
+        ),
+    )
+
+    def clean_motivo(self):
+        return self.cleaned_data.get("motivo") or "Rechazada"
