@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from .models import Ciudadano, LegajoAtencion, Consentimiento, EvaluacionInicial, Objetivo, PlanIntervencion, SeguimientoContacto, Derivacion, EventoCritico, InscriptoActividad, PlanFortalecimiento
 from core.models import DispositivoRed
 
@@ -270,31 +271,28 @@ class EvaluacionInicialForm(forms.ModelForm):
             if 'PHQ9' in tamizajes:
                 self.fields['phq9_puntaje'].initial = tamizajes['PHQ9'].get('puntaje')
     
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-        # Construir JSON de tamizajes
+    def build_tamizajes_payload(self):
+        """Mapea los campos del formulario al JSON persistido en el modelo."""
         tamizajes = {}
-        
+        fecha_base = timezone.localdate().isoformat()
+        if self.instance and self.instance.pk and getattr(self.instance, 'modificado', None):
+            fecha_base = self.instance.modificado.date().isoformat()
+
         assist_puntaje = self.cleaned_data.get('assist_puntaje')
         if assist_puntaje is not None:
             tamizajes['ASSIST'] = {
                 'puntaje': assist_puntaje,
-                'fecha': self.cleaned_data.get('fecha_assist') or str(instance.modificado.date() if instance.pk else instance.creado.date())
+                'fecha': fecha_base,
             }
-        
+
         phq9_puntaje = self.cleaned_data.get('phq9_puntaje')
         if phq9_puntaje is not None:
             tamizajes['PHQ9'] = {
                 'puntaje': phq9_puntaje,
-                'fecha': self.cleaned_data.get('fecha_phq9') or str(instance.modificado.date() if instance.pk else instance.creado.date())
+                'fecha': fecha_base,
             }
-        
-        instance.tamizajes = tamizajes if tamizajes else None
-        
-        if commit:
-            instance.save()
-        return instance
+
+        return tamizajes if tamizajes else None
 
 
 class PlanIntervencionForm(forms.ModelForm):
@@ -303,11 +301,11 @@ class PlanIntervencionForm(forms.ModelForm):
     actividad_1 = forms.CharField(max_length=100, required=False, label="Actividad 1")
     frecuencia_1 = forms.CharField(max_length=50, required=False, label="Frecuencia 1")
     responsable_1 = forms.CharField(max_length=50, required=False, label="Responsable 1")
-    
+
     actividad_2 = forms.CharField(max_length=100, required=False, label="Actividad 2")
     frecuencia_2 = forms.CharField(max_length=50, required=False, label="Frecuencia 2")
     responsable_2 = forms.CharField(max_length=50, required=False, label="Responsable 2")
-    
+
     actividad_3 = forms.CharField(max_length=100, required=False, label="Actividad 3")
     frecuencia_3 = forms.CharField(max_length=50, required=False, label="Frecuencia 3")
     responsable_3 = forms.CharField(max_length=50, required=False, label="Responsable 3")
@@ -323,20 +321,58 @@ class PlanIntervencionForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for index in range(1, 4):
+            self.fields[f'actividad_{index}'].widget.attrs.update({
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                'placeholder': 'Ej: Entrevista individual',
+            })
+            self.fields[f'frecuencia_{index}'].widget.attrs.update({
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                'placeholder': 'Ej: Semanal',
+            })
+            self.fields[f'responsable_{index}'].widget.attrs.update({
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                'placeholder': 'Ej: Operador',
+            })
+
         if self.instance and self.instance.actividades:
             for i, actividad in enumerate(self.instance.actividades[:3], 1):
                 self.fields[f'actividad_{i}'].initial = actividad.get('accion')
                 self.fields[f'frecuencia_{i}'].initial = actividad.get('freq')
                 self.fields[f'responsable_{i}'].initial = actividad.get('responsable')
-    
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-        # No procesar actividades aquí, se hace en la vista
-        
-        if commit:
-            instance.save()
-        return instance
+
+    def get_actividades_payload(self):
+        actividades = []
+        index = 1
+        while True:
+            if self.is_bound:
+                has_activity_slot = any(
+                    field_name in self.data
+                    for field_name in (
+                        f'actividad_{index}',
+                        f'frecuencia_{index}',
+                        f'responsable_{index}',
+                    )
+                )
+                if not has_activity_slot:
+                    break
+                accion = (self.data.get(f'actividad_{index}') or '').strip()
+                frecuencia = (self.data.get(f'frecuencia_{index}') or '').strip()
+                responsable = (self.data.get(f'responsable_{index}') or '').strip()
+            else:
+                if index > 3:
+                    break
+                accion = (self.cleaned_data.get(f'actividad_{index}') or '').strip()
+                frecuencia = (self.cleaned_data.get(f'frecuencia_{index}') or '').strip()
+                responsable = (self.cleaned_data.get(f'responsable_{index}') or '').strip()
+            if accion:
+                actividades.append({
+                    'accion': accion,
+                    'freq': frecuencia,
+                    'responsable': responsable,
+                })
+            index += 1
+        return actividades or None
 
 
 class SeguimientoForm(forms.ModelForm):
@@ -466,6 +502,21 @@ class LegajoCerrarForm(forms.Form):
             'rows': 3,
             'placeholder': 'Motivo del cierre (opcional)'
         })
+    )
+
+
+class LegajoReabrirForm(forms.Form):
+    """Formulario para reabrir legajo."""
+
+    motivo_reapertura = forms.CharField(
+        max_length=500,
+        required=True,
+        label='Motivo de reapertura',
+        widget=forms.Textarea(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent',
+            'rows': 4,
+            'placeholder': 'Describa el motivo para reabrir el legajo...',
+        }),
     )
 
 

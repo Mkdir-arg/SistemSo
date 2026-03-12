@@ -15,19 +15,52 @@ import json
 from datetime import datetime
 from .models import Ciudadano, LegajoAtencion, EvaluacionInicial, PlanIntervencion, SeguimientoContacto, Profesional, Derivacion, EventoCritico, AlertaEventoCritico, LegajoInstitucional, InscriptoActividad, PlanFortalecimiento
 from core.models import DispositivoRed
-from .forms import ConsultaRenaperForm, CiudadanoConfirmarForm, CiudadanoManualForm, CiudadanoUpdateForm, BuscarCiudadanoForm, AdmisionLegajoForm, ConsentimientoForm, EvaluacionInicialForm, PlanIntervencionForm, SeguimientoForm, DerivacionForm, EventoCriticoForm, LegajoCerrarForm, InscribirActividadForm
+from .forms import ConsultaRenaperForm, CiudadanoConfirmarForm, CiudadanoManualForm, CiudadanoUpdateForm, BuscarCiudadanoForm, AdmisionLegajoForm, ConsentimientoForm, EvaluacionInicialForm, PlanIntervencionForm, SeguimientoForm, DerivacionForm, EventoCriticoForm, LegajoCerrarForm, LegajoReabrirForm, InscribirActividadForm
 from .selectors_ciudadanos import (
     build_ciudadano_detail_context,
     get_ciudadanos_dashboard_metrics,
     get_ciudadanos_queryset,
 )
+from .selectors_legajos import (
+    get_derivaciones_queryset,
+    get_legajo_detail_queryset,
+    get_legajos_queryset,
+    get_plan_vigente,
+    get_planes_queryset,
+    get_seguimientos_dashboard_metrics,
+    get_seguimientos_queryset,
+)
 from .services_admision import AdmisionSessionService
 from .services_ciudadanos import CiudadanosService
+from .services_legajos import LegajoWorkflowService
 
 # Importar views de contactos
 from .views_dashboard_contactos import dashboard_contactos, metricas_contactos_api, metricas_red_contactos_api, exportar_reporte_contactos
 from .views_historial_contactos import historial_contactos_view, contactos_api, crear_contacto, detalle_contacto, editar_contacto, eliminar_contacto
 from .views_red_contactos import red_contactos_view, vinculos_api, profesionales_api, dispositivos_api, emergencias_api, buscar_ciudadanos_api, buscar_usuarios_api, crear_vinculo, crear_profesional, crear_contacto_emergencia
+
+
+def _build_actividades_extra_context(request, actividades_base=None):
+    actividades_base = actividades_base or []
+    if request.method == 'POST':
+        actividades = []
+        index = 4
+        while any(
+            field_name in request.POST
+            for field_name in (
+                f'actividad_{index}',
+                f'frecuencia_{index}',
+                f'responsable_{index}',
+            )
+        ):
+            actividades.append({
+                'accion': request.POST.get(f'actividad_{index}', ''),
+                'freq': request.POST.get(f'frecuencia_{index}', ''),
+                'responsable': request.POST.get(f'responsable_{index}', ''),
+            })
+            index += 1
+        return actividades
+    return actividades_base[3:]
 
 
 @method_decorator(cache_view(timeout=300), name='dispatch')
@@ -186,19 +219,16 @@ class LegajoListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     
     def get_queryset(self):
-        estado = self.request.GET.get('estado', '')
-        queryset = LegajoAtencion.objects.select_related('ciudadano', 'dispositivo')
-        
-        if estado:
-            queryset = queryset.filter(estado=estado)
-        
-        return queryset.order_by('-fecha_apertura')
+        return get_legajos_queryset(self.request.GET.get('estado', ''))
 
 
 class LegajoDetailView(LoginRequiredMixin, DetailView):
     model = LegajoAtencion
     template_name = 'legajos/legajo_detail.html'
     context_object_name = 'legajo'
+
+    def get_queryset(self):
+        return get_legajo_detail_queryset()
 
 
 class LegajoCreateView(LoginRequiredMixin, CreateView):
@@ -350,21 +380,22 @@ class EvaluacionInicialView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         legajo_id = self.kwargs.get('legajo_id')
         legajo = get_object_or_404(LegajoAtencion, id=legajo_id)
-        
-        # Crear evaluación si no existe (OneToOne)
-        evaluacion, created = EvaluacionInicial.objects.get_or_create(
-            legajo=legajo,
-            defaults={}
-        )
-        return evaluacion
+        return LegajoWorkflowService.get_or_create_evaluacion(legajo)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['legajo'] = self.object.legajo
         return context
+
+    def form_valid(self, form):
+        self.object = LegajoWorkflowService.save_evaluacion_from_form(
+            form,
+            self.object.legajo,
+        )
+        messages.success(self.request, 'Evaluación inicial guardada exitosamente.')
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
-        messages.success(self.request, 'Evaluación inicial guardada exitosamente.')
         return reverse_lazy('legajos:detalle', kwargs={'pk': self.object.legajo.id})
 
 
@@ -384,37 +415,15 @@ class PlanIntervencionView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['legajo'] = self.legajo
+        context['actividades_extra'] = _build_actividades_extra_context(self.request)
         return context
     
     def form_valid(self, form):
-        # Crear el plan sin guardar aún
-        plan = form.save(commit=False)
-        plan.legajo = self.legajo
-        profesional, created = Profesional.objects.get_or_create(
-            usuario=self.request.user,
-            defaults={'rol': 'Operador'}
+        self.object = LegajoWorkflowService.save_plan_from_form(
+            form,
+            self.legajo,
+            self.request.user,
         )
-        plan.profesional = profesional
-        
-        # Procesar actividades dinámicas
-        actividades = []
-        i = 1
-        while f'actividad_{i}' in self.request.POST:
-            accion = self.request.POST.get(f'actividad_{i}')
-            freq = self.request.POST.get(f'frecuencia_{i}')
-            responsable = self.request.POST.get(f'responsable_{i}')
-            
-            if accion:
-                actividades.append({
-                    'accion': accion,
-                    'freq': freq or '',
-                    'responsable': responsable or ''
-                })
-            i += 1
-        
-        plan.actividades = actividades if actividades else None
-        plan.save()
-        
         messages.success(self.request, 'Plan de intervención creado exitosamente.')
         return redirect(self.get_success_url())
     
@@ -438,15 +447,13 @@ class SeguimientoCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.legajo = self.legajo
-        profesional, created = Profesional.objects.get_or_create(
-            usuario=self.request.user,
-            defaults={'rol': 'Operador'}
+        self.object = LegajoWorkflowService.save_seguimiento_from_form(
+            form,
+            self.legajo,
+            self.request.user,
         )
-        form.instance.profesional = profesional
-        response = super().form_valid(form)
         messages.success(self.request, 'Seguimiento registrado exitosamente.')
-        return response
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
         return reverse_lazy('legajos:seguimientos', kwargs={'legajo_id': self.legajo.id})
@@ -464,20 +471,13 @@ class SeguimientoListView(LoginRequiredMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
-        queryset = self.legajo.seguimientos.select_related('profesional__usuario')
-        tipo = self.request.GET.get('tipo')
-        if tipo:
-            queryset = queryset.filter(tipo=tipo)
-        return queryset
+        return get_seguimientos_queryset(self.legajo, self.request.GET.get('tipo', ''))
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['legajo'] = self.legajo
         context['tipos'] = SeguimientoContacto.TipoContacto.choices
-        context['total_seguimientos'] = self.legajo.seguimientos.count()
-        context['entrevistas_count'] = self.legajo.seguimientos.filter(tipo='ENTREVISTA').count()
-        context['visitas_count'] = self.legajo.seguimientos.filter(tipo='VISITA').count()
-        context['llamadas_count'] = self.legajo.seguimientos.filter(tipo='LLAMADA').count()
+        context.update(get_seguimientos_dashboard_metrics(self.legajo))
         return context
 
 
@@ -502,10 +502,9 @@ class DerivacionCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.legajo = self.legajo
-        response = super().form_valid(form)
+        self.object = LegajoWorkflowService.save_derivacion_from_form(form, self.legajo)
         messages.success(self.request, 'Derivación creada exitosamente.')
-        return response
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
         return reverse_lazy('legajos:derivaciones', kwargs={'legajo_id': self.legajo.id})
@@ -548,11 +547,7 @@ class DerivacionListView(LoginRequiredMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
-        queryset = self.legajo.derivaciones.select_related('destino')
-        estado = self.request.GET.get('estado')
-        if estado:
-            queryset = queryset.filter(estado=estado)
-        return queryset
+        return get_derivaciones_queryset(self.legajo, self.request.GET.get('estado', ''))
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -568,6 +563,17 @@ class LegajoCerrarView(LoginRequiredMixin, FormView):
     
     def get_object(self):
         return get_object_or_404(LegajoAtencion, pk=self.kwargs['pk'])
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        puede_cerrar, _ = self.get_object().puede_cerrar()
+        field = form.fields['motivo_cierre']
+        field.required = not puede_cerrar
+        if not puede_cerrar:
+            field.widget.attrs['required'] = True
+        else:
+            field.widget.attrs.pop('required', None)
+        return form
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -576,6 +582,7 @@ class LegajoCerrarView(LoginRequiredMixin, FormView):
         context['legajo'] = legajo
         context['puede_cerrar'] = puede
         context['mensaje'] = mensaje
+        context['requiere_justificacion'] = not puede
         return context
     
     def form_valid(self, form):
@@ -583,7 +590,11 @@ class LegajoCerrarView(LoginRequiredMixin, FormView):
         motivo = form.cleaned_data.get('motivo_cierre', '')
         
         try:
-            legajo.cerrar(motivo_cierre=motivo, usuario=self.request.user)
+            LegajoWorkflowService.close_legajo(
+                legajo,
+                motivo,
+                self.request.user,
+            )
             messages.success(self.request, f'Legajo {legajo.codigo} cerrado exitosamente.')
             return redirect('legajos:detalle', pk=legajo.pk)
         except ValidationError as e:
@@ -594,6 +605,7 @@ class LegajoCerrarView(LoginRequiredMixin, FormView):
 class LegajoReabrirView(LoginRequiredMixin, FormView):
     """Vista para reabrir legajo"""
     template_name = 'legajos/legajo_reabrir.html'
+    form_class = LegajoReabrirForm
     
     def get_object(self):
         return get_object_or_404(LegajoAtencion, pk=self.kwargs['pk'])
@@ -603,17 +615,19 @@ class LegajoReabrirView(LoginRequiredMixin, FormView):
         context['legajo'] = self.get_object()
         return context
     
-    def post(self, request, *args, **kwargs):
+    def form_valid(self, form):
         legajo = self.get_object()
-        motivo = request.POST.get('motivo_reapertura', '')
-        
         try:
-            legajo.reabrir(motivo_reapertura=motivo, usuario=request.user)
-            messages.success(request, f'Legajo {legajo.codigo} reabierto exitosamente.')
+            LegajoWorkflowService.reopen_legajo(
+                legajo,
+                form.cleaned_data['motivo_reapertura'],
+                self.request.user,
+            )
+            messages.success(self.request, f'Legajo {legajo.codigo} reabierto exitosamente.')
             return redirect('legajos:detalle', pk=legajo.pk)
         except ValidationError as e:
-            messages.error(request, str(e))
-            return self.get(request, *args, **kwargs)
+            messages.error(self.request, str(e))
+            return self.form_invalid(form)
 
 
 @method_decorator(cache_view(timeout=600), name='dispatch')
@@ -916,12 +930,12 @@ class PlanListView(LoginRequiredMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
-        return self.legajo.planes.select_related('profesional__usuario').order_by('-creado')
+        return get_planes_queryset(self.legajo)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['legajo'] = self.legajo
-        context['plan_vigente'] = self.legajo.planes.filter(vigente=True).first()
+        context['plan_vigente'] = get_plan_vigente(self.legajo)
         return context
 
 
@@ -935,10 +949,22 @@ class PlanUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['legajo'] = self.object.legajo
         context['editando'] = True
+        context['actividades_extra'] = _build_actividades_extra_context(
+            self.request,
+            self.object.actividades or [],
+        )
         return context
+
+    def form_valid(self, form):
+        self.object = LegajoWorkflowService.save_plan_from_form(
+            form,
+            self.object.legajo,
+            self.request.user,
+        )
+        messages.success(self.request, 'Plan de intervención actualizado exitosamente.')
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
-        messages.success(self.request, 'Plan de intervención actualizado exitosamente.')
         return reverse_lazy('legajos:planes', kwargs={'legajo_id': self.object.legajo.id})
 
 
@@ -953,9 +979,17 @@ class SeguimientoUpdateView(LoginRequiredMixin, UpdateView):
         context['legajo'] = self.object.legajo
         context['editando'] = True
         return context
+
+    def form_valid(self, form):
+        self.object = LegajoWorkflowService.save_seguimiento_from_form(
+            form,
+            self.object.legajo,
+            self.request.user,
+        )
+        messages.success(self.request, 'Seguimiento actualizado exitosamente.')
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
-        messages.success(self.request, 'Seguimiento actualizado exitosamente.')
         return reverse_lazy('legajos:seguimientos', kwargs={'legajo_id': self.object.legajo.id})
 
 
@@ -975,9 +1009,16 @@ class DerivacionUpdateView(LoginRequiredMixin, UpdateView):
         context['legajo'] = self.object.legajo
         context['editando'] = True
         return context
+
+    def form_valid(self, form):
+        self.object = LegajoWorkflowService.save_derivacion_from_form(
+            form,
+            self.object.legajo,
+        )
+        messages.success(self.request, 'Derivación actualizada exitosamente.')
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
-        messages.success(self.request, 'Derivación actualizada exitosamente.')
         return reverse_lazy('legajos:derivaciones', kwargs={'legajo_id': self.object.legajo.id})
 
 
