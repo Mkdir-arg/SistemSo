@@ -2,11 +2,8 @@ from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from core.decorators import group_required
@@ -19,7 +16,14 @@ from .forms import (
     RechazarTurnoForm,
 )
 from .models import ConfiguracionTurnos, DisponibilidadConfiguracion
-from .services import enviar_email_confirmacion, enviar_email_cancelacion
+from .selectors_turnos import (
+    build_agenda_context,
+    build_bandeja_pendientes_context,
+    get_backoffice_home_context,
+    get_configuraciones_list,
+    get_turno_detalle_queryset,
+)
+from .services_turnos import TurnoActionError, TurnosBackofficeService
 
 
 def _es_operador(user):
@@ -50,32 +54,22 @@ def _admin_turnos_required(view_func):
 
 @_operador_required
 def backoffice_home(request):
-    hoy = date.today()
-    pendientes_count = TurnoCiudadano.objects.filter(estado=TurnoCiudadano.Estado.PENDIENTE).count()
-    hoy_count = TurnoCiudadano.objects.filter(
-        fecha=hoy,
-        estado__in=[TurnoCiudadano.Estado.PENDIENTE, TurnoCiudadano.Estado.CONFIRMADO],
-    ).count()
-    configs_count = ConfiguracionTurnos.objects.filter(activo=True).count()
-
-    context = {
-        'pendientes_count': pendientes_count,
-        'hoy_count': hoy_count,
-        'configs_count': configs_count,
-        'hoy': hoy,
-    }
-    return render(request, 'turnos/backoffice/home.html', context)
+    return render(
+        request,
+        'turnos/backoffice/home.html',
+        get_backoffice_home_context(),
+    )
 
 
 # ─── Configuraciones ─────────────────────────────────────────────────────────
 
 @_operador_required
 def configuracion_lista(request):
-    configs = ConfiguracionTurnos.objects.annotate(
-        total_disponibilidades=Count('disponibilidades', filter=Q(disponibilidades__activo=True)),
-        total_turnos_pendientes=Count('turnos', filter=Q(turnos__estado=TurnoCiudadano.Estado.PENDIENTE)),
-    ).order_by('nombre')
-    return render(request, 'turnos/backoffice/configuracion_lista.html', {'configs': configs})
+    return render(
+        request,
+        'turnos/backoffice/configuracion_lista.html',
+        {'configs': get_configuraciones_list()},
+    )
 
 
 @_admin_turnos_required
@@ -240,89 +234,35 @@ def agenda(request):
     except ValueError:
         fecha = hoy
 
-    # Fecha anterior y siguiente
-    fecha_anterior = fecha - timedelta(days=1)
-    fecha_siguiente = fecha + timedelta(days=1)
-
-    qs = TurnoCiudadano.objects.filter(fecha=fecha).select_related(
-        'ciudadano', 'recurso', 'configuracion', 'aprobado_por'
-    ).order_by('hora_inicio')
-
-    if config_id:
-        qs = qs.filter(configuracion_id=config_id)
-
     estado_filter = request.GET.get('estado')
-    if estado_filter:
-        qs = qs.filter(estado=estado_filter)
-
-    # Contadores por estado
-    contadores = {
-        'pendiente': qs.filter(estado=TurnoCiudadano.Estado.PENDIENTE).count(),
-        'confirmado': qs.filter(estado=TurnoCiudadano.Estado.CONFIRMADO).count(),
-        'completado': qs.filter(estado=TurnoCiudadano.Estado.COMPLETADO).count(),
-        'cancelado': qs.filter(estado__in=[
-            TurnoCiudadano.Estado.CANCELADO_CIUDADANO,
-            TurnoCiudadano.Estado.CANCELADO_SISTEMA,
-        ]).count(),
-    }
-
-    configs = ConfiguracionTurnos.objects.filter(activo=True).order_by('nombre')
-
-    context = {
-        'turnos': qs,
-        'fecha': fecha,
-        'fecha_anterior': fecha_anterior,
-        'fecha_siguiente': fecha_siguiente,
-        'contadores': contadores,
-        'configs': configs,
-        'config_id_actual': config_id,
-        'estado_filter': estado_filter,
-        'estados': TurnoCiudadano.Estado.choices,
-        'hoy': hoy,
-    }
-    return render(request, 'turnos/backoffice/agenda.html', context)
+    return render(
+        request,
+        'turnos/backoffice/agenda.html',
+        build_agenda_context(fecha, config_id=config_id, estado_filter=estado_filter),
+    )
 
 
 # ─── Bandeja de pendientes ────────────────────────────────────────────────────
 
 @_operador_required
 def bandeja_pendientes(request):
-    hoy = date.today()
-    maniana = hoy + timedelta(days=1)
-
-    pendientes = TurnoCiudadano.objects.filter(
-        estado=TurnoCiudadano.Estado.PENDIENTE,
-    ).select_related('ciudadano', 'recurso', 'configuracion').order_by('fecha', 'hora_inicio')
-
-    # Separar urgentes (próximas 24hs) y vencidos (fecha pasada)
-    urgentes = pendientes.filter(fecha__range=[hoy, maniana])
-    vencidos = pendientes.filter(fecha__lt=hoy)
-    normales = pendientes.filter(fecha__gt=maniana)
-
-    context = {
-        'urgentes': urgentes,
-        'vencidos': vencidos,
-        'normales': normales,
-        'total': pendientes.count(),
-        'hoy': hoy,
-    }
-    return render(request, 'turnos/backoffice/bandeja_pendientes.html', context)
+    return render(
+        request,
+        'turnos/backoffice/bandeja_pendientes.html',
+        build_bandeja_pendientes_context(),
+    )
 
 
 # ─── Detalle de turno ─────────────────────────────────────────────────────────
 
 @_operador_required
 def turno_detalle(request, pk):
-    turno = get_object_or_404(
-        TurnoCiudadano.objects.select_related(
-            'ciudadano', 'recurso', 'configuracion', 'aprobado_por'
-        ),
-        pk=pk,
-    )
+    turno = get_object_or_404(get_turno_detalle_queryset(), pk=pk)
 
     if request.method == 'POST' and 'notas_backoffice' in request.POST:
-        turno.notas_backoffice = request.POST.get('notas_backoffice', '').strip()
-        turno.save(update_fields=['notas_backoffice', 'modificado'])
+        TurnosBackofficeService.actualizar_notas(
+            turno, request.POST.get('notas_backoffice', '')
+        )
         messages.success(request, 'Notas actualizadas.')
         return redirect('turnos:turno_detalle', pk=pk)
 
@@ -354,22 +294,13 @@ def turno_aprobar(request, pk):
         messages.error(request, 'Datos inválidos.')
         return redirect('turnos:turno_detalle', pk=pk)
 
-    with transaction.atomic():
-        # Re-verificar estado para evitar doble aprobación
-        turno = TurnoCiudadano.objects.select_for_update().get(pk=pk)
-        if turno.estado != TurnoCiudadano.Estado.PENDIENTE:
-            messages.warning(request, 'Este turno ya fue procesado por otro operador.')
-            return redirect('turnos:turno_detalle', pk=pk)
-
-        notas = form.cleaned_data.get('notas', '')
-        if notas:
-            turno.notas_backoffice = notas
-        turno.estado = TurnoCiudadano.Estado.CONFIRMADO
-        turno.aprobado_por = request.user
-        turno.fecha_aprobacion = timezone.now()
-        turno.save()
-
-    enviar_email_confirmacion(turno)
+    try:
+        turno = TurnosBackofficeService.aprobar_turno(
+            pk, request.user, notas=form.cleaned_data.get('notas', '')
+        )
+    except TurnoActionError as exc:
+        messages.warning(request, str(exc))
+        return redirect('turnos:turno_detalle', pk=pk)
 
     messages.success(
         request,
@@ -392,19 +323,13 @@ def turno_rechazar(request, pk):
         messages.error(request, 'Debe ingresar un motivo de rechazo.')
         return redirect('turnos:turno_detalle', pk=pk)
 
-    with transaction.atomic():
-        turno = TurnoCiudadano.objects.select_for_update().get(pk=pk)
-        if turno.estado != TurnoCiudadano.Estado.PENDIENTE:
-            messages.warning(request, 'Este turno ya fue procesado por otro operador.')
-            return redirect('turnos:turno_detalle', pk=pk)
-
-        turno.estado = TurnoCiudadano.Estado.CANCELADO_SISTEMA
-        turno.notas_backoffice = form.cleaned_data['motivo']
-        turno.aprobado_por = request.user
-        turno.fecha_aprobacion = timezone.now()
-        turno.save()
-
-    enviar_email_cancelacion(turno, motivo=form.cleaned_data['motivo'])
+    try:
+        turno = TurnosBackofficeService.rechazar_turno(
+            pk, request.user, form.cleaned_data['motivo']
+        )
+    except TurnoActionError as exc:
+        messages.warning(request, str(exc))
+        return redirect('turnos:turno_detalle', pk=pk)
 
     messages.success(request, f'Turno {turno.codigo_turno} rechazado. Se notificó al ciudadano.')
     return redirect(request.POST.get('next', 'turnos:bandeja_pendientes'))
@@ -415,20 +340,18 @@ def turno_rechazar(request, pk):
 def turno_cancelar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
 
-    if turno.estado not in [TurnoCiudadano.Estado.PENDIENTE, TurnoCiudadano.Estado.CONFIRMADO]:
-        messages.warning(request, 'Este turno no puede cancelarse.')
-        return redirect('turnos:turno_detalle', pk=pk)
-
     form = CancelarTurnoBackofficeForm(request.POST)
     if not form.is_valid():
         messages.error(request, 'Debe ingresar un motivo de cancelación.')
         return redirect('turnos:turno_detalle', pk=pk)
 
-    turno.estado = TurnoCiudadano.Estado.CANCELADO_SISTEMA
-    turno.notas_backoffice = form.cleaned_data['motivo']
-    turno.save()
-
-    enviar_email_cancelacion(turno, motivo=form.cleaned_data['motivo'])
+    try:
+        turno = TurnosBackofficeService.cancelar_turno(
+            turno, form.cleaned_data['motivo']
+        )
+    except TurnoActionError as exc:
+        messages.warning(request, str(exc))
+        return redirect('turnos:turno_detalle', pk=pk)
 
     messages.success(request, f'Turno {turno.codigo_turno} cancelado. Se notificó al ciudadano.')
     return redirect('turnos:agenda')
@@ -438,13 +361,11 @@ def turno_cancelar(request, pk):
 @require_POST
 def turno_completar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
-
-    if turno.estado != TurnoCiudadano.Estado.CONFIRMADO:
-        messages.warning(request, 'Solo pueden completarse turnos confirmados.')
+    try:
+        turno = TurnosBackofficeService.completar_turno(turno)
+    except TurnoActionError as exc:
+        messages.warning(request, str(exc))
         return redirect('turnos:turno_detalle', pk=pk)
-
-    turno.estado = TurnoCiudadano.Estado.COMPLETADO
-    turno.save(update_fields=['estado', 'modificado'])
     messages.success(request, f'Turno {turno.codigo_turno} marcado como completado.')
     return redirect(request.POST.get('next', 'turnos:agenda'))
 

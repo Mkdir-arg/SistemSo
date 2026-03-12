@@ -1,8 +1,7 @@
 import logging
-from django.contrib.auth.models import User
-from django.db.models import F
 from django.urls import reverse
 from core.services.advanced_filters import AdvancedFilterEngine
+from users.selectors_usuarios import get_usuarios_queryset
 from users.users_filter_config import (
     FIELD_MAP as BENEFICIARIO_FILTER_MAP,
     FIELD_TYPES as BENEFICIARIO_FIELD_TYPES,
@@ -27,19 +26,13 @@ class UsuariosService:
     @staticmethod
     def get_filtered_usuarios(request_or_get):
         """Aplica filtros combinables sobre el listado de usuarios."""
-        base_qs = UsuariosService.get_usuarios_queryset()
+        base_qs = get_usuarios_queryset()
         return BENEFICIARIO_ADVANCED_FILTER.filter_queryset(base_qs, request_or_get)
 
     @staticmethod
     def get_usuarios_queryset():
         """Query optimizada para usuarios"""
-        # Profile tiene FK a User y a Provincia; seleccionar esas relaciones evita consultas N+1
-        return (
-            User.objects.select_related("profile")
-            .prefetch_related("groups", "user_permissions")
-            .annotate(rol=F("profile__rol"))
-            .order_by("-id")
-        )
+        return get_usuarios_queryset()
 
     @staticmethod
     def get_usuarios_list_context():

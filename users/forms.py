@@ -137,44 +137,6 @@ class UserCreationForm(forms.ModelForm):
             self.add_error("provincia", "Seleccione una provincia.")
         return cleaned
 
-    def save(self, commit=True):
-        from django.db import transaction
-        import logging
-        
-        logger = logging.getLogger(__name__)
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password"])
-
-        if commit:
-            with transaction.atomic():
-                user.save()
-                
-                # Asegurar que los grupos se asignen correctamente
-                groups = self.cleaned_data.get("groups", [])
-                logger.info(f"Grupos a asignar: {[g.name for g in groups]}")
-                
-                # Usar set() en lugar de clear() + add() para mayor confiabilidad
-                user.groups.set(groups)
-                
-                # Verificar que se asignaron correctamente
-                assigned_groups = user.groups.all()
-                logger.info(f"Grupos asignados en BD: {[g.name for g in assigned_groups]}")
-
-                # Crear o actualizar perfil
-                profile, created = Profile.objects.get_or_create(user=user)
-                profile.es_usuario_provincial = self.cleaned_data.get(
-                    "es_usuario_provincial", False
-                )
-                profile.provincia = (
-                    self.cleaned_data.get("provincia")
-                    if self.cleaned_data.get("es_usuario_provincial")
-                    else None
-                )
-                profile.rol = self.cleaned_data.get("rol")
-                profile.save()
-
-        return user
-
 
 class CustomUserChangeForm(forms.ModelForm):
     password = forms.CharField(
@@ -274,46 +236,3 @@ class CustomUserChangeForm(forms.ModelForm):
         if cleaned.get("es_usuario_provincial") and not cleaned.get("provincia"):
             self.add_error("provincia", "Seleccione una provincia.")
         return cleaned
-
-    def save(self, commit=True):
-        from django.db import transaction
-        import logging
-        
-        logger = logging.getLogger(__name__)
-        new_pwd = self.cleaned_data.get("password")
-        user = super().save(commit=False)
-
-        if new_pwd:
-            user.set_password(new_pwd)
-        else:
-            user.password = self._original_password_hash
-
-        if commit:
-            with transaction.atomic():
-                user.save()
-                
-                # Asegurar que los grupos se asignen correctamente
-                groups = self.cleaned_data.get("groups", [])
-                logger.info(f"Grupos a asignar: {[g.name for g in groups]}")
-                
-                # Usar set() en lugar de clear() + add() para mayor confiabilidad
-                user.groups.set(groups)
-                
-                # Verificar que se asignaron correctamente
-                assigned_groups = user.groups.all()
-                logger.info(f"Grupos asignados en BD: {[g.name for g in assigned_groups]}")
-
-                # Crear o actualizar perfil
-                profile, created = Profile.objects.get_or_create(user=user)
-                profile.es_usuario_provincial = self.cleaned_data.get(
-                    "es_usuario_provincial", False
-                )
-                profile.provincia = (
-                    self.cleaned_data.get("provincia")
-                    if self.cleaned_data.get("es_usuario_provincial")
-                    else None
-                )
-                profile.rol = self.cleaned_data.get("rol")
-                profile.save()
-
-        return user

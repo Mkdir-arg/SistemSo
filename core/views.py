@@ -8,10 +8,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.timezone import localtime
 from django.views.decorators.http import require_GET
 
-from core.models import (
-    Localidad,
-    Municipio,
-)
+from core.selectors_geografia import get_localidades_values, get_municipios_values
 from core.services.relevamientos_supabase import (
     fetch_adjuntos_counts,
     fetch_instituciones_list,
@@ -28,8 +25,7 @@ from core.services.relevamientos_supabase import (
 def load_municipios(request):
     """Carga municipios filtrados por provincia."""
     provincia_id = request.GET.get("provincia_id")
-    municipios = Municipio.objects.filter(provincia=provincia_id).select_related('provincia')
-    return JsonResponse(list(municipios.values("id", "nombre")), safe=False)
+    return JsonResponse(get_municipios_values(provincia_id), safe=False)
 
 
 @login_required
@@ -37,13 +33,7 @@ def load_municipios(request):
 def load_localidad(request):
     """Carga localidades filtradas por municipio."""
     municipio_id = request.GET.get("municipio_id")
-
-    if municipio_id:
-        localidades = Localidad.objects.filter(municipio=municipio_id).select_related('municipio')
-    else:
-        localidades = Localidad.objects.none()
-
-    return JsonResponse(list(localidades.values("id", "nombre")), safe=False)
+    return JsonResponse(get_localidades_values(municipio_id), safe=False)
 
 
 @login_required
