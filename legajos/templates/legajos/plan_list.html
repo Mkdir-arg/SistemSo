@@ -138,10 +138,10 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">
-                                    {% if plan.objetivos %}
-                                        {{ plan.objetivos|truncatechars:100 }}
+                                    {% if plan.actividades %}
+                                        {{ plan.actividades.0.accion|default:"Sin detalle"|truncatechars:100 }}
                                     {% else %}
-                                        <span class="text-gray-400">Sin objetivos definidos</span>
+                                        <span class="text-gray-400">Sin actividades definidas</span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -157,13 +157,13 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {% if plan.activo %}
+                                {% if plan.vigente %}
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                        Activo
+                                        Vigente
                                     </span>
                                 {% else %}
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        Inactivo
+                                        Histórico
                                     </span>
                                 {% endif %}
                             </td>

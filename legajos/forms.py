@@ -472,10 +472,8 @@ class EventoCriticoForm(forms.ModelForm):
             }),
         }
     
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-        # Construir JSON de notificaciones
+    def get_notificados_payload(self):
+        """Mapea checkboxes del form al JSON persistido en el evento."""
         notificaciones = []
         if self.cleaned_data.get('notificar_familia'):
             notificaciones.append('Familia')
@@ -483,12 +481,8 @@ class EventoCriticoForm(forms.ModelForm):
             notificaciones.append('Autoridades')
         if self.cleaned_data.get('notificar_otros'):
             notificaciones.append(self.cleaned_data['notificar_otros'])
-        
-        instance.notificado_a = notificaciones if notificaciones else None
-        
-        if commit:
-            instance.save()
-        return instance
+
+        return notificaciones if notificaciones else None
 
 
 class LegajoCerrarForm(forms.Form):

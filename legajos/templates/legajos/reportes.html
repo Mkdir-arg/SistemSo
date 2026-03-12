@@ -79,11 +79,11 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <div class="w-4 h-4 rounded-full mr-3
-                            {% if estado.estado == 'ABIERTO' %}bg-green-500
-                            {% elif estado.estado == 'EN_SEGUIMIENTO' %}bg-blue-500
-                            {% elif estado.estado == 'DERIVADO' %}bg-yellow-500
+                            {% if estado.codigo == 'ABIERTO' %}bg-green-500
+                            {% elif estado.codigo == 'EN_SEGUIMIENTO' %}bg-blue-500
+                            {% elif estado.codigo == 'DERIVADO' %}bg-yellow-500
                             {% else %}bg-gray-500{% endif %}"></div>
-                        <span class="text-sm text-gray-700">{{ estado.get_estado_display }}</span>
+                        <span class="text-sm text-gray-700">{{ estado.label }}</span>
                     </div>
                     <span class="text-sm font-semibold text-gray-900">{{ estado.total }}</span>
                 </div>
@@ -101,10 +101,10 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <div class="w-4 h-4 rounded-full mr-3
-                            {% if riesgo.nivel_riesgo == 'ALTO' %}bg-red-500
-                            {% elif riesgo.nivel_riesgo == 'MEDIO' %}bg-orange-500
+                            {% if riesgo.codigo == 'ALTO' %}bg-red-500
+                            {% elif riesgo.codigo == 'MEDIO' %}bg-orange-500
                             {% else %}bg-green-500{% endif %}"></div>
-                        <span class="text-sm text-gray-700">{{ riesgo.get_nivel_riesgo_display }}</span>
+                        <span class="text-sm text-gray-700">{{ riesgo.label }}</span>
                     </div>
                     <span class="text-sm font-semibold text-gray-900">{{ riesgo.total }}</span>
                 </div>
@@ -124,8 +124,8 @@
                 {% for dispositivo in stats.por_dispositivo %}
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">{{ dispositivo.dispositivo__nombre }}</p>
-                        <p class="text-xs text-gray-500">{{ dispositivo.dispositivo__get_tipo_display }}</p>
+                        <p class="text-sm font-medium text-gray-900">{{ dispositivo.nombre }}</p>
+                        <p class="text-xs text-gray-500">{{ dispositivo.tipo_label }}</p>
                     </div>
                     <span class="text-sm font-semibold text-gray-900">{{ dispositivo.total }}</span>
                 </div>

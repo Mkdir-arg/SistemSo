@@ -1,14 +1,15 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from core.models import Institucion, Localidad, Municipio, Provincia
-from legajos.forms import EvaluacionInicialForm, PlanIntervencionForm, SeguimientoForm
-from legajos.models import Ciudadano, LegajoAtencion, SeguimientoContacto
-from legajos.selectors_legajos import get_seguimientos_dashboard_metrics
+from legajos.forms import EvaluacionInicialForm, EventoCriticoForm, PlanIntervencionForm, SeguimientoForm
+from legajos.models import Ciudadano, Derivacion, LegajoAtencion, SeguimientoContacto
+from legajos.selectors_legajos import get_legajos_report_stats, get_seguimientos_dashboard_metrics
 from legajos.services_legajos import LegajoWorkflowService
 
 
@@ -16,6 +17,11 @@ class LegajoWorkflowTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='profesional-legajo',
+            password='clave-segura-123',
+            is_staff=True,
+        )
+        self.other_user = User.objects.create_user(
+            username='responsable-nuevo',
             password='clave-segura-123',
             is_staff=True,
         )
@@ -154,6 +160,82 @@ class LegajoWorkflowTests(TestCase):
         self.assertEqual(metrics['entrevistas_count'], 1)
         self.assertEqual(metrics['visitas_count'], 1)
         self.assertEqual(metrics['llamadas_count'], 1)
+
+    def test_save_evento_from_form_maps_notificados(self):
+        form = EventoCriticoForm(
+            data={
+                'tipo': 'CRISIS',
+                'detalle': 'Se registró una crisis aguda.',
+                'notificar_familia': 'on',
+                'notificar_autoridades': '',
+                'notificar_otros': 'Equipo territorial',
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        evento = LegajoWorkflowService.save_evento_from_form(form, self.legajo)
+
+        self.assertEqual(evento.legajo, self.legajo)
+        self.assertEqual(evento.notificado_a, ['Familia', 'Equipo territorial'])
+
+    def test_change_legajo_responsable_updates_notes(self):
+        legajo = LegajoWorkflowService.change_legajo_responsable(
+            self.legajo,
+            self.other_user,
+            self.user,
+        )
+
+        self.assertEqual(legajo.responsable, self.other_user)
+        self.assertIn('Responsable cambiado de', legajo.notas)
+        self.assertIn(self.other_user.username, legajo.notas)
+
+    def test_change_legajo_responsable_rejects_unauthorized_user(self):
+        actor = User.objects.create_user(
+            username='sin-permisos',
+            password='clave-segura-123',
+            is_staff=True,
+        )
+
+        with self.assertRaises(ValidationError):
+            LegajoWorkflowService.change_legajo_responsable(
+                self.legajo,
+                self.other_user,
+                actor,
+            )
+
+    def test_get_legajos_report_stats_returns_quality_metrics(self):
+        profesional = LegajoWorkflowService.get_or_create_profesional(self.user)
+        SeguimientoContacto.objects.create(
+            legajo=self.legajo,
+            profesional=profesional,
+            tipo=SeguimientoContacto.TipoContacto.ENTREVISTA,
+            descripcion='Seguimiento para métricas',
+            adherencia=SeguimientoContacto.Adherencia.ADECUADA,
+        )
+        Derivacion.objects.create(
+            legajo=self.legajo,
+            destino=self.destino,
+            motivo='Articulación con otro dispositivo',
+            urgencia=Derivacion.Urgencia.MEDIA,
+            estado=Derivacion.Estado.ACEPTADA,
+        )
+        evento_form = EventoCriticoForm(
+            data={
+                'tipo': 'CRISIS',
+                'detalle': 'Evento para reporte',
+            }
+        )
+        self.assertTrue(evento_form.is_valid(), evento_form.errors)
+        LegajoWorkflowService.save_evento_from_form(evento_form, self.legajo)
+
+        stats = get_legajos_report_stats()
+
+        self.assertEqual(stats['total_legajos'], 1)
+        self.assertEqual(stats['legajos_activos'], 1)
+        self.assertGreaterEqual(stats['metricas_calidad']['adherencia_adecuada'], 100.0)
+        self.assertEqual(stats['metricas_calidad']['tasa_derivacion'], 100.0)
+        self.assertGreater(stats['metricas_calidad']['eventos_por_100'], 0)
 
     def test_legajo_reabrir_view_reopens_closed_legajo(self):
         self.client.force_login(self.user)

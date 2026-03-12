@@ -22,11 +22,17 @@ from .selectors_ciudadanos import (
     get_ciudadanos_queryset,
 )
 from .selectors_legajos import (
+    get_dispositivo_derivaciones_queryset,
+    get_eventos_dashboard_metrics,
+    get_eventos_queryset,
     get_derivaciones_queryset,
+    get_export_legajos_queryset,
     get_legajo_detail_queryset,
     get_legajos_queryset,
+    get_legajos_report_stats,
     get_plan_vigente,
     get_planes_queryset,
+    get_responsable_candidates,
     get_seguimientos_dashboard_metrics,
     get_seguimientos_queryset,
 )
@@ -526,10 +532,9 @@ class EventoCriticoCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.legajo = self.legajo
-        response = super().form_valid(form)
-        messages.warning(self.request, f'Evento crítico registrado: {form.instance.get_tipo_display()}')
-        return response
+        self.object = LegajoWorkflowService.save_evento_from_form(form, self.legajo)
+        messages.warning(self.request, f'Evento crítico registrado: {self.object.get_tipo_display()}')
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
         return reverse_lazy('legajos:eventos', kwargs={'legajo_id': self.legajo.id})
@@ -637,100 +642,8 @@ class ReportesView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from django.db.models import Count
-        from datetime import datetime, timedelta
-        
-        # Estadísticas generales
-        stats = {
-            'total_legajos': LegajoAtencion.objects.count(),
-            'legajos_activos': LegajoAtencion.objects.filter(estado__in=['ABIERTO', 'EN_SEGUIMIENTO']).count(),
-            'riesgo_alto': LegajoAtencion.objects.filter(nivel_riesgo='ALTO').count(),
-            'nuevos_semana': LegajoAtencion.objects.filter(
-                fecha_apertura__gte=datetime.now().date() - timedelta(days=7)
-            ).count(),
-        }
-        
-        # Estadísticas por estado
-        stats['por_estado'] = LegajoAtencion.objects.values('estado').annotate(
-            total=Count('id')
-        ).order_by('-total')
-        
-        # Estadísticas por nivel de riesgo
-        stats['por_riesgo'] = LegajoAtencion.objects.values('nivel_riesgo').annotate(
-            total=Count('id')
-        ).order_by('-total')
-        
-        # Estadísticas por dispositivo
-        stats['por_dispositivo'] = LegajoAtencion.objects.select_related('dispositivo').values(
-            'dispositivo__nombre', 'dispositivo__tipo'
-        ).annotate(total=Count('id')).order_by('-total')[:10]
-        
-        # Actividad por mes (últimos 6 meses)
-        from django.db.models import DateTimeField
-        from django.db.models.functions import TruncMonth
-        
-        fecha_limite = datetime.now().date() - timedelta(days=180)
-        stats['por_mes'] = LegajoAtencion.objects.filter(
-            fecha_apertura__gte=fecha_limite
-        ).annotate(
-            mes=TruncMonth('fecha_apertura')
-        ).values('mes').annotate(total=Count('id')).order_by('-mes')[:6]
-        
-        # Métricas de calidad
-        legajos_con_seguimiento = LegajoAtencion.objects.filter(
-            seguimientos__isnull=False
-        ).distinct().count()
-        
-        stats['metricas_calidad'] = {
-            'ttr_promedio': self._calcular_ttr_promedio(),
-            'adherencia_adecuada': self._calcular_adherencia(),
-            'tasa_derivacion': self._calcular_tasa_derivacion(),
-            'eventos_por_100': self._calcular_eventos_por_100(),
-            'cobertura_seguimiento': round((legajos_con_seguimiento / max(stats['total_legajos'], 1)) * 100, 1)
-        }
-        
-        context['stats'] = stats
+        context['stats'] = get_legajos_report_stats()
         return context
-    
-    def _calcular_ttr_promedio(self):
-        """Tiempo promedio admisión → primer seguimiento"""
-        legajos_con_seguimiento = LegajoAtencion.objects.filter(
-            seguimientos__isnull=False
-        ).distinct()
-        
-        tiempos = []
-        for legajo in legajos_con_seguimiento:
-            tiempo = legajo.tiempo_primer_contacto
-            if tiempo is not None:
-                tiempos.append(tiempo)
-        
-        return round(sum(tiempos) / len(tiempos), 1) if tiempos else 0
-    
-    def _calcular_adherencia(self):
-        """Porcentaje de seguimientos con adherencia adecuada"""
-        total_seguimientos = SeguimientoContacto.objects.count()
-        adherencia_adecuada = SeguimientoContacto.objects.filter(
-            adherencia='ADECUADA'
-        ).count()
-        
-        return round((adherencia_adecuada / max(total_seguimientos, 1)) * 100, 1)
-    
-    def _calcular_tasa_derivacion(self):
-        """Porcentaje de derivaciones aceptadas"""
-        total_derivaciones = Derivacion.objects.count()
-        derivaciones_aceptadas = Derivacion.objects.filter(
-            estado='ACEPTADA'
-        ).count()
-        
-        return round((derivaciones_aceptadas / max(total_derivaciones, 1)) * 100, 1)
-    
-    def _calcular_eventos_por_100(self):
-        """Eventos críticos por cada 100 legajos"""
-        from legajos.models import EventoCritico
-        total_legajos = LegajoAtencion.objects.count()
-        total_eventos = EventoCritico.objects.count()
-        
-        return round((total_eventos / max(total_legajos, 1)) * 100, 1)
 
 
 class DispositivoDerivacionesView(LoginRequiredMixin, ListView):
@@ -745,15 +658,10 @@ class DispositivoDerivacionesView(LoginRequiredMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
-        queryset = Derivacion.objects.filter(
-            destino=self.dispositivo
-        ).select_related('legajo__ciudadano')
-        
-        estado = self.request.GET.get('estado')
-        if estado:
-            queryset = queryset.filter(estado=estado)
-        
-        return queryset.order_by('-creado')
+        return get_dispositivo_derivaciones_queryset(
+            self.dispositivo,
+            self.request.GET.get('estado', ''),
+        )
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -776,16 +684,10 @@ class ExportarCSVView(LoginRequiredMixin, View):
             'Fecha_Apertura', 'Fecha_Cierre', 'Dias_Admision', 'Plan_Vigente'
         ])
         
-        # Aplicar filtros de la request
-        queryset = LegajoAtencion.objects.select_related('ciudadano', 'dispositivo')
-        
-        estado = request.GET.get('estado')
-        if estado:
-            queryset = queryset.filter(estado=estado)
-            
-        riesgo = request.GET.get('riesgo')
-        if riesgo:
-            queryset = queryset.filter(nivel_riesgo=riesgo)
+        queryset = get_export_legajos_queryset(
+            request.GET.get('estado', ''),
+            request.GET.get('riesgo', ''),
+        )
         
         for legajo in queryset:
             writer.writerow([
@@ -793,7 +695,7 @@ class ExportarCSVView(LoginRequiredMixin, View):
                 legajo.ciudadano.dni,
                 legajo.ciudadano.nombre,
                 legajo.ciudadano.apellido,
-                legajo.dispositivo.nombre,
+                legajo.dispositivo.nombre if legajo.dispositivo else '',
                 legajo.get_estado_display(),
                 legajo.get_nivel_riesgo_display(),
                 legajo.get_via_ingreso_display(),
@@ -814,21 +716,13 @@ class CerrarAlertaEventoView(LoginRequiredMixin, View):
         
         try:
             evento = EventoCritico.objects.get(id=evento_id)
-            
-            # Verificar que el usuario sea responsable del legajo
-            if evento.legajo.responsable != request.user:
-                return JsonResponse({'success': False, 'error': 'No autorizado'})
-            
-            # Crear registro de alerta vista
-            AlertaEventoCritico.objects.get_or_create(
-                evento=evento,
-                responsable=request.user
-            )
-            
+            LegajoWorkflowService.close_alerta_evento(evento, request.user)
             return JsonResponse({'success': True})
             
         except EventoCritico.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Evento no encontrado'})
+        except ValidationError as e:
+            return JsonResponse({'success': False, 'error': str(e)})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
@@ -837,28 +731,7 @@ class CambiarResponsableView(LoginRequiredMixin, View):
     """Vista AJAX para cambiar responsable del legajo"""
     
     def get(self, request, *args, **kwargs):
-        """Obtener lista de usuarios con rol correspondiente"""
-        from django.contrib.auth.models import User
-        from django.contrib.auth.models import Group
-        
-        # Obtener usuarios del grupo Ciudadanos (que pueden ser responsables)
-        grupo_ciudadanos = Group.objects.get(name='Ciudadanos')
-        usuarios = User.objects.filter(
-            groups=grupo_ciudadanos,
-            is_active=True
-        ).values('id', 'username', 'first_name', 'last_name')
-        
-        usuarios_list = []
-        for usuario in usuarios:
-            nombre_completo = f"{usuario['first_name']} {usuario['last_name']}".strip()
-            if not nombre_completo:
-                nombre_completo = usuario['username']
-            usuarios_list.append({
-                'id': usuario['id'],
-                'nombre': nombre_completo
-            })
-        
-        return JsonResponse({'usuarios': usuarios_list})
+        return JsonResponse({'usuarios': get_responsable_candidates()})
     
     def post(self, request, *args, **kwargs):
         """Cambiar responsable del legajo"""
@@ -867,36 +740,22 @@ class CambiarResponsableView(LoginRequiredMixin, View):
         
         try:
             legajo = get_object_or_404(LegajoAtencion, pk=legajo_id)
-            
-            # Verificar permisos (solo administradores o el responsable actual)
-            if not (request.user.groups.filter(name='Administrador').exists() or 
-                   legajo.responsable == request.user):
-                return JsonResponse({'success': False, 'error': 'No tiene permisos para cambiar el responsable'})
-            
             from django.contrib.auth.models import User
-            nuevo_responsable = get_object_or_404(User, pk=nuevo_responsable_id)
-            
-            # Verificar que el nuevo responsable tenga el rol adecuado
-            if not nuevo_responsable.groups.filter(name='Ciudadanos').exists():
-                return JsonResponse({'success': False, 'error': 'El usuario seleccionado no tiene el rol adecuado'})
-            
-            responsable_anterior = legajo.responsable
-            legajo.responsable = nuevo_responsable
-            legajo.save()
-            
-            # Registrar el cambio en las notas del legajo
-            nota_cambio = f"Responsable cambiado de {responsable_anterior.get_full_name() or responsable_anterior.username} a {nuevo_responsable.get_full_name() or nuevo_responsable.username} por {request.user.get_full_name() or request.user.username}"
-            if legajo.notas:
-                legajo.notas += f"\n\n{nota_cambio}"
-            else:
-                legajo.notas = nota_cambio
-            legajo.save()
+            nuevo_responsable = get_object_or_404(User, pk=nuevo_responsable_id, is_active=True)
+
+            LegajoWorkflowService.change_legajo_responsable(
+                legajo,
+                nuevo_responsable,
+                request.user,
+            )
             
             return JsonResponse({
                 'success': True, 
                 'nuevo_responsable': nuevo_responsable.get_full_name() or nuevo_responsable.username
             })
             
+        except ValidationError as e:
+            return JsonResponse({'success': False, 'error': str(e)})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
@@ -1034,16 +893,13 @@ class EventoListView(LoginRequiredMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
-        queryset = self.legajo.eventos.all()
-        tipo = self.request.GET.get('tipo')
-        if tipo:
-            queryset = queryset.filter(tipo=tipo)
-        return queryset.order_by('-creado')
+        return get_eventos_queryset(self.legajo, self.request.GET.get('tipo', ''))
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['legajo'] = self.legajo
         context['tipos'] = EventoCritico.TipoEvento.choices
+        context.update(get_eventos_dashboard_metrics(self.legajo))
         return context
 
 
@@ -1058,9 +914,13 @@ class EventoUpdateView(LoginRequiredMixin, UpdateView):
         context['legajo'] = self.object.legajo
         context['editando'] = True
         return context
+
+    def form_valid(self, form):
+        self.object = LegajoWorkflowService.save_evento_from_form(form, self.object.legajo)
+        messages.success(self.request, 'Evento crítico actualizado exitosamente.')
+        return redirect(self.get_success_url())
     
     def get_success_url(self):
-        messages.success(self.request, 'Evento crítico actualizado exitosamente.')
         return reverse_lazy('legajos:eventos', kwargs={'legajo_id': self.object.legajo.id})
 
 
