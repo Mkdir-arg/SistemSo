@@ -15,8 +15,14 @@ import json
 from datetime import datetime
 from .models import Ciudadano, LegajoAtencion, EvaluacionInicial, PlanIntervencion, SeguimientoContacto, Profesional, Derivacion, EventoCritico, AlertaEventoCritico, LegajoInstitucional, InscriptoActividad, PlanFortalecimiento
 from core.models import DispositivoRed
-from .forms import ConsultaRenaperForm, CiudadanoForm, BuscarCiudadanoForm, AdmisionLegajoForm, ConsentimientoForm, EvaluacionInicialForm, PlanIntervencionForm, SeguimientoForm, DerivacionForm, EventoCriticoForm, LegajoCerrarForm, InscribirActividadForm
-from .services.consulta_renaper import consultar_datos_renaper
+from .forms import ConsultaRenaperForm, CiudadanoConfirmarForm, CiudadanoManualForm, CiudadanoUpdateForm, BuscarCiudadanoForm, AdmisionLegajoForm, ConsentimientoForm, EvaluacionInicialForm, PlanIntervencionForm, SeguimientoForm, DerivacionForm, EventoCriticoForm, LegajoCerrarForm, InscribirActividadForm
+from .selectors_ciudadanos import (
+    build_ciudadano_detail_context,
+    get_ciudadanos_dashboard_metrics,
+    get_ciudadanos_queryset,
+)
+from .services_admision import AdmisionSessionService
+from .services_ciudadanos import CiudadanosService
 
 # Importar views de contactos
 from .views_dashboard_contactos import dashboard_contactos, metricas_contactos_api, metricas_red_contactos_api, exportar_reporte_contactos
@@ -32,45 +38,11 @@ class CiudadanoListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     
     def get_queryset(self):
-        search = self.request.GET.get('search', '')
-        queryset = Ciudadano.objects.filter(activo=True)
-        
-        if search:
-            queryset = queryset.filter(
-                Q(dni__icontains=search) |
-                Q(nombre__icontains=search) |
-                Q(apellido__icontains=search)
-            )
-        
-        return queryset.order_by('apellido', 'nombre')
+        return get_ciudadanos_queryset(self.request.GET.get('search', ''))
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Métricas del dashboard
-        total_ciudadanos = Ciudadano.objects.filter(activo=True).count()
-        legajos_activos = LegajoAtencion.objects.filter(estado__in=['ABIERTO', 'EN_SEGUIMIENTO']).count()
-        alertas_criticas = EventoCritico.objects.count()
-        
-        from datetime import date
-        seguimientos_hoy = SeguimientoContacto.objects.filter(creado__date=date.today()).count()
-        
-        # Tasa de adherencia
-        total_seguimientos = SeguimientoContacto.objects.count()
-        seguimientos_adecuados = SeguimientoContacto.objects.filter(adherencia='ADECUADA').count()
-        tasa_adherencia = round((seguimientos_adecuados / total_seguimientos * 100) if total_seguimientos > 0 else 0)
-        
-        casos_alto_riesgo = LegajoAtencion.objects.filter(nivel_riesgo='ALTO').count()
-        
-        context['metricas'] = {
-            'total_ciudadanos': total_ciudadanos,
-            'legajos_activos': legajos_activos,
-            'alertas_criticas': alertas_criticas,
-            'seguimientos_hoy': seguimientos_hoy,
-            'tasa_adherencia': tasa_adherencia,
-            'casos_alto_riesgo': casos_alto_riesgo,
-        }
-        
+        context['metricas'] = get_ciudadanos_dashboard_metrics()
         return context
     
 
@@ -83,30 +55,7 @@ class CiudadanoDetailView(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['legajos'] = self.object.legajos.select_related('dispositivo', 'responsable').order_by('-fecha_apertura')
-        
-        # Agregar solapas dinámicas
-        from .services_solapas import SolapasService
-        context['solapas'] = SolapasService.obtener_solapas_ciudadano(self.object)
-        context['programas_activos'] = SolapasService.obtener_programas_activos(self.object)
-        
-        # Agregar datos de ÑACHEC si existe caso activo
-        from .models_nachec import CasoNachec, RelevamientoNachec, EvaluacionVulnerabilidad, PlanIntervencionNachec, PrestacionNachec, HistorialEstadoCaso
-        try:
-            caso_nachec = CasoNachec.objects.filter(ciudadano_titular=self.object).exclude(estado__in=['CERRADO', 'RECHAZADO', 'SUSPENDIDO']).select_related('territorial', 'coordinador', 'operador_admision').order_by('-creado').first()
-            if caso_nachec:
-                context['caso_nachec'] = caso_nachec
-                context['relevamiento'] = RelevamientoNachec.objects.filter(caso=caso_nachec).order_by('-creado').first()
-                try:
-                    context['evaluacion'] = EvaluacionVulnerabilidad.objects.get(caso=caso_nachec)
-                except EvaluacionVulnerabilidad.DoesNotExist:
-                    context['evaluacion'] = None
-                context['plan_vigente'] = PlanIntervencionNachec.objects.filter(caso=caso_nachec, vigente=True).first()
-                context['prestaciones'] = PrestacionNachec.objects.filter(caso=caso_nachec).select_related('responsable').order_by('-creado')[:10]
-                context['historial_estados'] = HistorialEstadoCaso.objects.filter(caso=caso_nachec).select_related('usuario').order_by('-timestamp')[:10]
-        except Exception:
-            pass
-        
+        context.update(build_ciudadano_detail_context(self.object))
         return context
 
 
@@ -114,25 +63,6 @@ class CiudadanoCreateView(LoginRequiredMixin, FormView):
     """Vista para crear ciudadanos con integración RENAPER"""
     template_name = 'legajos/ciudadano_renaper_form.html'
     form_class = ConsultaRenaperForm
-    
-    def extraer_dni_de_cuit(self, cuit):
-        """Extrae el DNI del CUIT (formato XX-XXXXXXXX-X)"""
-        import re
-        # Limpiar el CUIT de guiones y espacios
-        cuit_limpio = re.sub(r'[^0-9]', '', cuit)
-        
-        # Verificar que tenga 11 dígitos
-        if len(cuit_limpio) != 11:
-            return None
-            
-        # Extraer DNI (dígitos 3 al 10)
-        dni = cuit_limpio[2:10]
-        
-        # Verificar que el DNI tenga 8 dígitos
-        if len(dni) != 8:
-            return None
-            
-        return dni
     
     def form_valid(self, form):
         dni = form.cleaned_data['dni']
@@ -143,8 +73,7 @@ class CiudadanoCreateView(LoginRequiredMixin, FormView):
             messages.error(self.request, f'Ya existe un ciudadano con DNI {dni}')
             return self.form_invalid(form)
         
-        # Consultar RENAPER
-        resultado = consultar_datos_renaper(dni, sexo)
+        resultado = CiudadanosService.consultar_renaper(dni, sexo)
         
         if not resultado['success']:
             # Guardar datos para mostrar opción manual
@@ -160,9 +89,7 @@ class CiudadanoCreateView(LoginRequiredMixin, FormView):
             
             return self.render_to_response(context)
         
-        # Guardar datos en sesión para el siguiente paso
-        self.request.session['datos_renaper'] = resultado['data']
-        self.request.session['datos_api_renaper'] = resultado.get('datos_api', {})
+        CiudadanosService.store_renaper_data(self.request.session, resultado)
         
         return redirect('legajos:ciudadano_confirmar')
 
@@ -170,23 +97,21 @@ class CiudadanoCreateView(LoginRequiredMixin, FormView):
 class CiudadanoManualView(LoginRequiredMixin, CreateView):
     """Vista para crear ciudadanos manualmente cuando RENAPER falla"""
     model = Ciudadano
-    form_class = CiudadanoForm
+    form_class = CiudadanoManualForm
     template_name = 'legajos/ciudadano_manual_form.html'
     success_url = reverse_lazy('legajos:ciudadanos')
     
     def get_initial(self):
         """Prellenar DNI y sexo si vienen de RENAPER"""
         initial = super().get_initial()
-        cuit = self.request.GET.get('cuit')
+        cuit = self.request.GET.get('cuit') or self.request.GET.get('dni')
         sexo = self.request.GET.get('sexo')
         
         if cuit:
-            # Extraer DNI del CUIT
-            import re
-            cuit_limpio = re.sub(r'[^0-9]', '', cuit)
-            if len(cuit_limpio) == 11:
-                dni = cuit_limpio[2:10]
-                initial['dni'] = dni
+            initial['dni'] = (
+                CiudadanosService.extract_dni_from_cuit(cuit)
+                or ''.join(filter(str.isdigit, cuit))
+            )
         if sexo:
             initial['genero'] = sexo
             
@@ -194,11 +119,7 @@ class CiudadanoManualView(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         response = super().form_valid(form)
-        
-        invalidate_cache_pattern('ciudadanos_list')
-        from dashboard.utils import invalidate_dashboard_cache
-        invalidate_dashboard_cache()
-        
+        CiudadanosService.invalidate_ciudadanos_cache()
         messages.success(self.request, f'Ciudadano {self.object.nombre} {self.object.apellido} creado exitosamente (carga manual)')
         
         from django.shortcuts import redirect
@@ -209,19 +130,19 @@ class CiudadanoManualView(LoginRequiredMixin, CreateView):
 class CiudadanoConfirmarView(LoginRequiredMixin, CreateView):
     """Vista para confirmar y completar datos del ciudadano"""
     model = Ciudadano
-    form_class = CiudadanoForm
+    form_class = CiudadanoConfirmarForm
     template_name = 'legajos/ciudadano_confirmar_form.html'
     success_url = reverse_lazy('legajos:ciudadanos')
     
     def dispatch(self, request, *args, **kwargs):
-        if 'datos_renaper' not in request.session:
+        if not CiudadanosService.get_renaper_data(request.session):
             messages.error(request, 'No hay datos de RENAPER disponibles. Inicie el proceso nuevamente.')
             return redirect('legajos:ciudadano_nuevo')
         return super().dispatch(request, *args, **kwargs)
     
     def get_initial(self):
         """Prellenar el formulario con datos de RENAPER"""
-        datos = self.request.session.get('datos_renaper', {})
+        datos = CiudadanosService.get_renaper_data(self.request.session)
         return {
             'dni': datos.get('dni'),
             'nombre': datos.get('nombre'),
@@ -234,18 +155,13 @@ class CiudadanoConfirmarView(LoginRequiredMixin, CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['datos_api'] = self.request.session.get('datos_api_renaper', {})
+        context['datos_api'] = CiudadanosService.get_renaper_raw_data(self.request.session)
         return context
     
     def form_valid(self, form):
         response = super().form_valid(form)
-        self.request.session.pop('datos_renaper', None)
-        self.request.session.pop('datos_api_renaper', None)
-        
-        invalidate_cache_pattern('ciudadanos_list')
-        from dashboard.utils import invalidate_dashboard_cache
-        invalidate_dashboard_cache()
-        
+        CiudadanosService.clear_renaper_data(self.request.session)
+        CiudadanosService.invalidate_ciudadanos_cache()
         messages.success(self.request, f'Ciudadano {self.object.nombre} {self.object.apellido} creado exitosamente')
         
         from django.shortcuts import redirect
@@ -255,7 +171,7 @@ class CiudadanoConfirmarView(LoginRequiredMixin, CreateView):
 
 class CiudadanoUpdateView(LoginRequiredMixin, UpdateView):
     model = Ciudadano
-    form_class = CiudadanoForm
+    form_class = CiudadanoUpdateForm
     template_name = 'legajos/ciudadano_edit_form.html'
     
     def get_success_url(self):
@@ -327,7 +243,7 @@ class AdmisionPaso1View(LoginRequiredMixin, FormView):
         if ciudadano_id:
             try:
                 ciudadano = Ciudadano.objects.get(id=ciudadano_id, activo=True)
-                request.session['admision_ciudadano_id'] = ciudadano.id
+                AdmisionSessionService.set_ciudadano_id(request.session, ciudadano.id)
                 return redirect('legajos:admision_paso2')
             except Ciudadano.DoesNotExist:
                 messages.error(request, 'Ciudadano no encontrado')
@@ -338,7 +254,7 @@ class AdmisionPaso1View(LoginRequiredMixin, FormView):
         
         try:
             ciudadano = Ciudadano.objects.get(dni=dni, activo=True)
-            self.request.session['admision_ciudadano_id'] = ciudadano.id
+            AdmisionSessionService.set_ciudadano_id(self.request.session, ciudadano.id)
             return redirect('legajos:admision_paso2')
         except Ciudadano.DoesNotExist:
             messages.error(self.request, f'No se encontró un ciudadano con DNI {dni}. Debe crear el ciudadano primero.')
@@ -352,7 +268,7 @@ class AdmisionPaso2View(LoginRequiredMixin, CreateView):
     template_name = 'legajos/admision_paso2.html'
     
     def dispatch(self, request, *args, **kwargs):
-        if 'admision_ciudadano_id' not in request.session:
+        if not AdmisionSessionService.get_ciudadano_id(request.session):
             messages.error(request, 'Debe seleccionar un ciudadano primero.')
             return redirect('legajos:admision_paso1')
         return super().dispatch(request, *args, **kwargs)
@@ -364,8 +280,9 @@ class AdmisionPaso2View(LoginRequiredMixin, CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        ciudadano_id = self.request.session.get('admision_ciudadano_id')
-        context['ciudadano'] = get_object_or_404(Ciudadano, id=ciudadano_id)
+        context['ciudadano'] = AdmisionSessionService.get_ciudadano_from_session(
+            self.request.session
+        )
         
         # Agregar información de debug para dispositivos disponibles
         if self.request.user.is_superuser:
@@ -375,30 +292,12 @@ class AdmisionPaso2View(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        ciudadano_id = self.request.session.get('admision_ciudadano_id')
-        form.instance.ciudadano_id = ciudadano_id
-        
-        # Si no se especificó responsable, usar el usuario actual
-        if not form.instance.responsable:
-            form.instance.responsable = self.request.user
-        
         try:
-            response = super().form_valid(form)
-            
-            # Actualizar InscripcionPrograma con el legajo_id si existe
-            inscripcion_id = self.request.session.get('inscripcion_programa_id')
-            if inscripcion_id:
-                from .models_programas import InscripcionPrograma
-                inscripcion = InscripcionPrograma.objects.filter(id=inscripcion_id).first()
-                if inscripcion:
-                    inscripcion.legajo_id = self.object.id
-                    inscripcion.save()
-                self.request.session.pop('inscripcion_programa_id', None)
-            
-            # Limpiar sesión y guardar ID del legajo para paso 3
-            self.request.session.pop('admision_ciudadano_id', None)
-            self.request.session['admision_legajo_id'] = str(self.object.id)
-            
+            self.object = AdmisionSessionService.create_legajo_from_form(
+                form,
+                self.request.session,
+                self.request.user,
+            )
             return redirect('legajos:admision_paso3')
         except Exception as e:
             # En caso de error, agregar mensaje y volver a mostrar el formulario
@@ -412,36 +311,30 @@ class AdmisionPaso3View(LoginRequiredMixin, FormView):
     form_class = ConsentimientoForm
     
     def dispatch(self, request, *args, **kwargs):
-        if 'admision_legajo_id' not in request.session:
+        if not AdmisionSessionService.get_legajo_id(request.session):
             messages.error(request, 'Proceso de admisión inválido.')
             return redirect('legajos:admision_paso1')
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        legajo_id = self.request.session.get('admision_legajo_id')
-        context['legajo'] = get_object_or_404(LegajoAtencion, id=legajo_id)
+        context['legajo'] = AdmisionSessionService.get_legajo_from_session(
+            self.request.session
+        )
         return context
     
     def form_valid(self, form):
-        legajo_id = self.request.session.get('admision_legajo_id')
-        legajo = get_object_or_404(LegajoAtencion, id=legajo_id)
-        
-        form.instance.ciudadano = legajo.ciudadano
-        form.save()
-        
-        # Limpiar sesión
-        self.request.session.pop('admision_legajo_id', None)
-        
+        legajo, _ = AdmisionSessionService.create_consentimiento_from_form(
+            form,
+            self.request.session,
+        )
         messages.success(self.request, f'Legajo {legajo.codigo} creado exitosamente con consentimiento.')
         return redirect('legajos:detalle', pk=legajo.id)
     
     def get(self, request, *args, **kwargs):
         # Permitir saltar este paso
         if request.GET.get('skip') == '1':
-            legajo_id = request.session.get('admision_legajo_id')
-            legajo = get_object_or_404(LegajoAtencion, id=legajo_id)
-            request.session.pop('admision_legajo_id', None)
+            legajo = AdmisionSessionService.finalize_without_consent(request.session)
             messages.success(request, f'Legajo {legajo.codigo} creado exitosamente.')
             return redirect('legajos:detalle', pk=legajo.id)
         

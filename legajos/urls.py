@@ -70,16 +70,6 @@ urlpatterns = [
          views_institucional.api_programa_indicadores, 
          name='api_programa_indicadores'),
     
-    # ========================================================================
-    path('', views.LegajoListView.as_view(), name='lista'),
-    path('nuevo/', views.LegajoCreateView.as_view(), name='nuevo'),
-    path('ciudadanos/', views.CiudadanoListView.as_view(), name='ciudadanos'),
-    path('ciudadanos/nuevo/', views.CiudadanoCreateView.as_view(), name='ciudadano_nuevo'),
-    path('ciudadanos/confirmar/', views.CiudadanoConfirmarView.as_view(), name='ciudadano_confirmar'),
-    path('ciudadanos/manual/', views.CiudadanoManualView.as_view(), name='ciudadano_manual'),
-    path('ciudadanos/<int:pk>/', views.CiudadanoDetailView.as_view(), name='ciudadano_detalle'),
-    path('ciudadanos/<int:pk>/editar/', views.CiudadanoUpdateView.as_view(), name='ciudadano_editar'),
-    
     # Derivación a Programas
     path('ciudadanos/<int:ciudadano_id>/derivar-programa/', views_derivacion.derivar_programa_view, name='derivar_programa'),
     

@@ -92,6 +92,25 @@ class CiudadanoForm(forms.ModelForm):
         }
 
 
+class CiudadanoManualForm(CiudadanoForm):
+    class Meta(CiudadanoForm.Meta):
+        widgets = {
+            **CiudadanoForm.Meta.widgets,
+            'dni': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                'placeholder': 'Ingrese el DNI'
+            }),
+        }
+
+
+class CiudadanoConfirmarForm(CiudadanoForm):
+    pass
+
+
+class CiudadanoUpdateForm(CiudadanoForm):
+    pass
+
+
 class BuscarCiudadanoForm(forms.Form):
     """Paso 1: Buscar ciudadano para el legajo"""
     
