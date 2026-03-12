@@ -71,3 +71,10 @@
 - Decisión: el slice 10 separó geografía, institucional y actividades en módulos propios y dejó `views.py` como fachada compatible.
 - Regla derivada: cuando una app ya tiene services/selectors pero conserva una view monolítica, el siguiente paso de DX es modularización física, no más abstracción lógica.
 - Consecuencia: se reduce el costo de navegación del módulo y se homogeniza el patrón con `legajos` y `conversaciones`.
+
+## 2026-03-13 — introducir namespaces sin romper el código legado
+
+- Contexto: `users`, `core` y `healthcheck` seguían sin `app_name` y eso hacía menos predecible el espacio de rutas del proyecto.
+- Decisión: el slice 11 agregó `app_name` y expuso includes namespaced en paralelo a los legacy.
+- Regla derivada: cuando un rename global de URLs es riesgoso, primero conviene habilitar compatibilidad dual y migrar el consumo de forma incremental.
+- Consecuencia: ya se pueden usar namespaces consistentes en código nuevo sin obligar a una migración agresiva del código existente.

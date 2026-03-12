@@ -14,6 +14,21 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 11: namespaces compatibles en `users`, `core` y `healthcheck`
+
+**User Story:** Como equipo de desarrollo quiero estandarizar namespaces en módulos raíz del proyecto sin romper los nombres legacy que todavía usa el código existente.
+
+**Archivos creados:**
+- `core/tests/test_url_namespaces.py`
+
+**Archivos modificados:**
+- `config/urls.py`
+- `users/urls.py`
+- `core/urls.py`
+- `healthcheck/urls.py`
+
+**Descripcion:** Se implementó el slice 11 del refactor DX sobre URLs. Se agregaron `app_name` faltantes en `users`, `core` y `healthcheck`, y `config/urls.py` ahora expone también includes namespaced sin quitar los includes legacy. Esto habilita usar `users:*`, `core:*` y `healthcheck:*` de forma incremental, preservando compatibilidad con los names antiguos mientras el proyecto termina de migrar.
+
 ## 2026-03-13 — Refactor DX slice 10: `configuracion` modularización física de views
 
 **User Story:** Como equipo de desarrollo quiero separar físicamente `configuracion/views.py` por dominios para reducir fricción de navegación y edición sin cambiar URLs ni comportamiento del módulo.

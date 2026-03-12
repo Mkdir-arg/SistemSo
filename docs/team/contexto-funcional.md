@@ -140,6 +140,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el décimo slice del refactor DX sobre `configuracion`, enfocado en modularización física de las views
 - La app dejó de concentrar geografía, institucional y actividades en un solo `views.py`; ahora usa módulos por dominio con una fachada compatible
 - Tampoco hubo cambios funcionales visibles; el valor del corte fue bajar el costo cognitivo y alinear la estructura interna con el resto del refactor
+- Se ejecutó el undécimo slice del refactor DX sobre URLs y namespaces raíz del proyecto
+- `users`, `core` y `healthcheck` ya exponen namespaces consistentes sin retirar todavía los names legacy
+- El cambio fue deliberadamente incremental para evitar una rotura transversal en templates y `reverse()`
 
 ---
 

@@ -179,6 +179,13 @@ SistemSo/
 
 **Consecuencia:** La app queda alineada con el patrón modular del resto del refactor DX y el próximo trabajo en `configuracion` puede hacerse por subdominio en lugar de reabrir un archivo monolítico.
 
+### DT-018 — los namespaces nuevos se exponen en paralelo a los names legacy (2026-03-13)
+**Contexto:** `users`, `core` y `healthcheck` carecían de `app_name`, pero renombrar de golpe todos los `reverse()` y `{% url %}` del proyecto agregaba un riesgo transversal innecesario.
+
+**Decisión:** El slice 11 agregó `app_name` a esos módulos y expuso includes namespaced en `config/urls.py` sin retirar los includes legacy, habilitando una migración progresiva a `users:*`, `core:*` y `healthcheck:*`.
+
+**Consecuencia:** El proyecto gana previsibilidad de URLs y namespaces sin pagar el costo de un big-bang en templates y llamadas a `reverse()`.
+
 ---
 
 ## Deudas técnicas documentadas
@@ -192,7 +199,7 @@ SistemSo/
 | DT-005 | `RecursoTurnos` es legacy — migrar a `ConfiguracionTurnos` en v2 | Media | 2026-03-09 |
 | DT-006 | Recordatorios automáticos de turnos requieren Celery (no implementado) | Media | 2026-03-09 |
 | DT-007 | `configuracion/` no tiene modelos propios — es solo una capa de UI sobre `core` y `legajos` | Baja | Detectada 2026-03-09 |
-| DT-008 | Faltan namespaces consistentes en `users`, `core` y `healthcheck`; normalizarlo requiere barrido de `reverse()` y templates | Media | Detectada 2026-03-13 |
+| DT-008 | Ya se habilitaron namespaces en `users`, `core` y `healthcheck`, pero todavía falta migrar gradualmente `reverse()` y templates al esquema namespaced y luego retirar la compatibilidad dual | Media | Actualizada 2026-03-13 |
 | DT-009 | `legajos/views.py` ya quedó como fachada pura, pero la app `legajos` sigue mezclando dominios ciudadanos, clínicos, institucionales y de contactos en una misma app | Media | Actualizada 2026-03-13 |
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 | DT-011 | `conversaciones` ya no concentra toda la lógica en `views.py`, pero mantiene endpoints legacy con `@csrf_exempt` y mezcla polling HTTP con notificaciones realtime parciales | Media | Actualizada 2026-03-13 |
