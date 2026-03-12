@@ -64,3 +64,10 @@
 - Decisión: el slice 9 reusó selectors y services del módulo para alertas, detalle en vivo y marcado de mensajes leídos.
 - Regla derivada: cuando una app expone HTML y APIs sobre el mismo dominio, ambas superficies deben consumir la misma capa de lectura/orquestación.
 - Consecuencia: baja la duplicación interna y se reduce el riesgo de divergencia entre la UI principal y sus APIs auxiliares.
+
+## 2026-03-13 — `configuracion` adopta fachada compatible de views por dominio
+
+- Contexto: `configuracion` seguía con un `views.py` de más de 500 líneas aun después del slice 2.
+- Decisión: el slice 10 separó geografía, institucional y actividades en módulos propios y dejó `views.py` como fachada compatible.
+- Regla derivada: cuando una app ya tiene services/selectors pero conserva una view monolítica, el siguiente paso de DX es modularización física, no más abstracción lógica.
+- Consecuencia: se reduce el costo de navegación del módulo y se homogeniza el patrón con `legajos` y `conversaciones`.

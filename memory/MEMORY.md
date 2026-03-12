@@ -26,6 +26,8 @@
 - `conversaciones/views.py` quedó como fachada compatible y el módulo ahora usa `views_public.py`, `views_backoffice.py`, `selectors_conversaciones.py`, `services_chat.py` y `forms_chat.py`.
 - Se completó el noveno slice sobre `conversaciones`, enfocado en la API auxiliar.
 - `conversaciones/api_views.py` y `api_extra.py` ya reutilizan selectors/services en lugar de repetir lógica inline.
+- Se completó el décimo slice sobre `configuracion`, enfocado en modularización física.
+- `configuracion/views.py` quedó como fachada compatible y la app ahora reparte geografía, institucional y actividades en módulos separados.
 
 ## Próxima etapa sugerida
 

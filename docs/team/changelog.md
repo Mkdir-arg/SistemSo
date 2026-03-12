@@ -14,6 +14,20 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 10: `configuracion` modularización física de views
+
+**User Story:** Como equipo de desarrollo quiero separar físicamente `configuracion/views.py` por dominios para reducir fricción de navegación y edición sin cambiar URLs ni comportamiento del módulo.
+
+**Archivos creados:**
+- `configuracion/views_geografia.py`
+- `configuracion/views_institucional.py`
+- `configuracion/views_actividades.py`
+
+**Archivos modificados:**
+- `configuracion/views.py`
+
+**Descripcion:** Se implementó el décimo slice del refactor DX, enfocado en modularización física de `configuracion`. El archivo monolítico se dividió en geografía, institucional y actividades, reutilizando además `TimestampedSuccessUrlMixin` donde ya existía el patrón de redirect con query timestamp. `views.py` quedó como fachada compatible y no hubo cambios de rutas, modelos ni templates.
+
 ## 2026-03-13 — Refactor DX slice 9: `conversaciones` API auxiliar alineada
 
 **User Story:** Como equipo de desarrollo quiero alinear las APIs auxiliares de `conversaciones` con el patrón de selectors y services para que el módulo no mantenga dos estilos arquitectónicos distintos.

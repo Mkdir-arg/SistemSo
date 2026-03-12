@@ -172,6 +172,13 @@ SistemSo/
 
 **Consecuencia:** `conversaciones` queda mucho más coherente internamente y el próximo corte puede enfocarse en deuda funcional real del chat en lugar de seguir ordenando plumbing repetido.
 
+### DT-017 — `configuracion/views.py` se modulariza por dominios y mantiene una fachada compatible (2026-03-13)
+**Contexto:** Aunque `configuracion` ya tenía services/selectors para sus workflows principales, `views.py` seguía concentrando geografía, institucional y actividades en más de 500 líneas.
+
+**Decisión:** El slice 10 dividió físicamente el módulo en `views_geografia.py`, `views_institucional.py` y `views_actividades.py`, manteniendo `views.py` como fachada de compatibilidad y reutilizando `TimestampedSuccessUrlMixin` donde la app ya usaba redirects con query timestamp.
+
+**Consecuencia:** La app queda alineada con el patrón modular del resto del refactor DX y el próximo trabajo en `configuracion` puede hacerse por subdominio en lugar de reabrir un archivo monolítico.
+
 ---
 
 ## Deudas técnicas documentadas

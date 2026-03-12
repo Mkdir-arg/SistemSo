@@ -21,6 +21,7 @@ _Se define en el sprint planning._
 | DX-007 | Como equipo de desarrollo quiero completar la modularización de `legajos/views.py` dejando una fachada pura y moviendo la operativa institucional a un módulo propio | ✅ Completado | Slice 7 ejecutado el 2026-03-13 sin cambios de modelo, URLs ni templates |
 | DX-008 | Como equipo de desarrollo quiero modularizar `conversaciones` con selectors, services y views separadas para bajar el acoplamiento del chat sin romper sus endpoints | ✅ Completado | Slice 8 ejecutado el 2026-03-13 manteniendo URLs y contrato AJAX/WebSocket |
 | DX-009 | Como equipo de desarrollo quiero alinear la API auxiliar de `conversaciones` al patrón de selectors/services para eliminar queries y permisos inline duplicados | ✅ Completado | Slice 9 ejecutado el 2026-03-13 sin cambios de rutas ni modelos |
+| DX-010 | Como equipo de desarrollo quiero separar físicamente `configuracion/views.py` por dominios para que la app siga el mismo patrón modular del resto del refactor | ✅ Completado | Slice 10 ejecutado el 2026-03-13 sin cambios de URLs, modelos ni templates |
 
 ## Impedimentos
 
