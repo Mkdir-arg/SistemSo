@@ -95,6 +95,28 @@ SistemSo/
 
 ---
 
+### DT-004 — Editor visual de flujos: React Flow + Vite (2026-03-12)
+**Contexto:** El editor de flujos de programas requiere un canvas drag & drop con nodos conectables — funcionalidad imposible de implementar bien con Alpine.js.
+
+**Decisión:** React (con React Flow) solo para el editor visual. El resto del sistema sigue con Alpine.js. Compilación con Vite. Los assets compilados se sirven desde `static/flujos/dist/` via Django staticfiles. La comunicación con el backend es via API REST (`GET/POST /api/flujos/<programa_id>/`).
+
+**Por qué React Flow:** estándar de industria para grafos en React, maneja el modelo de nodos y conexiones nativamente, JSON listo para persistir, nodos completamente custom, MIT.
+
+**Por qué no todo React:** el resto del sistema no necesita SPA. Introducir React globalmente agregaría complejidad de build sin beneficio. El editor es el único componente que lo justifica.
+
+**Consecuencia:** se agrega `frontend/flow-editor/` a la raíz del proyecto. El pipeline de CI debe compilar el editor antes del deploy. El template `flujos/editor.html` carga los assets compilados.
+
+---
+
+### DT-005 — Tercera superficie: Panel Institución en `/institucion/` (2026-03-12)
+**Contexto:** Las instituciones necesitan una superficie propia para sus usuarios (EncargadoInstitucion, AdministrativoInstitucion, ProfesorInstitucion) que no es el backoffice ni el portal ciudadano.
+
+**Decisión:** Nueva app Django `institucion/` con middleware propio, base template propio y routing separado. Mismo sistema de login Django — el middleware detecta el rol y redirige a `/institucion/`. Patrón idéntico al de `portal/`.
+
+**Por qué no usar el portal ciudadano:** el portal está diseñado para ciudadanos en situación de vulnerabilidad. Compartirlo con representantes institucionales genera disonancia de UX y complica el middleware.
+
+---
+
 ### DT-003 — Emails de notificación de turnos como best-effort (2026-03-09)
 **Decisión:** `enviar_email_confirmacion()` y `enviar_email_cancelacion()` nunca lanzan excepciones al caller. Si el envío falla, se loguea y continúa. La acción del operador (aprobar/rechazar) no depende del email.
 

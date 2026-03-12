@@ -97,33 +97,104 @@ El perfil del ciudadano es el centro de toda su información. Tiene solapas est�
 - Cada institución tiene un **legajo institucional** con: personal, evaluaciones periódicas, planes de fortalecimiento (actividades) e indicadores de monitoreo
 - Una institución puede estar habilitada para ejecutar múltiples programas (`InstitucionPrograma`)
 
-#### Roles de institución
+#### Roles de institución — backoffice
 | Rol | Qué permite |
 |-----|------------|
 | `institucionVer` | Ver el catálogo de instituciones y sus datos |
 | `institucionAdministrar` | Crear, editar, aprobar/rechazar instituciones |
-| `EncargadoInstitucion` | Rol especial — representante externo de una institución, acceso limitado a su propia institución |
+
+#### Roles internos del panel institución
+| Rol | Qué permite |
+|-----|------------|
+| `EncargadoInstitucion` | Acceso total al panel + gestionar usuarios internos (crear/eliminar administrativos y profesores) + único que puede solicitar revisión o reactivación |
+| `AdministrativoInstitucion` | Configura actividades, asigna profesores, ve turnos — no puede gestionar usuarios |
+| `ProfesorInstitucion` | Toma asistencia en actividades, se asigna a actividades — ve nombre, foto y contacto básico del ciudadano (sin ficha completa ni campos sensibles) |
+
+#### Panel institución — tercera superficie del sistema
+- URL: `/institucion/` — superficie propia con middleware y base template separados
+- Mismo sistema de login Django — el sistema detecta el rol y redirige automáticamente al panel institución
+- Patrón arquitectónico idéntico al portal ciudadano (`portal/`)
+- Los tres roles (`EncargadoInstitucion`, `AdministrativoInstitucion`, `ProfesorInstitucion`) acceden exclusivamente a esta superficie
+
+#### Reactivación de institución RECHAZADA
+- Una institución RECHAZADA puede solicitar reactivación
+- La puede iniciar la propia institución desde su panel (botón "Solicitar reactivación") **o** el backoffice la inicia y notifica a la institución
+- El proceso se guarda como `REACTIVACION` — historial diferenciado de la aprobación original
+- La institución recibe notificación informando que es un proceso de reactivación, no una aprobación nueva
+
+#### Evaluaciones periódicas a instituciones
+- Son **tareas territoriales aplicadas a instituciones** — mismo mecanismo que las tareas del motor de flujos
+- Las crean los administradores del programa desde el backoffice
+- Se asignan a un operador territorial que las completa desde la **app de campo (móvil)**
+- El resultado queda vinculado al legajo de la institución evaluada
+- **Prerequisitos:** motor de flujos (US-006) + app móvil definida y operativa
+
+#### Indicadores de monitoreo
+- Métricas internas de la institución: alumnos activos, profesores, actividades en curso, turnos agendados
 
 ### Actividades institucionales
 
 - Una actividad **siempre pertenece a una institución** — no existen actividades sin institución
 - Las actividades viven en el legajo institucional como `PlanFortalecimiento`
-- Tipos: PREVENCION, TRATAMIENTO, REDUCCION_RIESGO, REINSERCION, CAPACITACION
+- Tipos: `PREVENCION`, `TRATAMIENTO`, `REDUCCION_RIESGO`, `REINSERCION`, `CAPACITACION`
 - Una actividad puede tener su propia `ConfiguracionTurnos` para ofrecer turnos propios
+- Un ciudadano puede estar inscripto en **múltiples actividades simultáneamente**
 
 #### Tipos de acceso a una actividad
 
-| Tipo | Descripción | Quién puede inscribirse |
-|------|-------------|------------------------|
-| **Libre** | Actividad abierta | Cualquier ciudadano puede inscribirse directamente |
-| **Requiere programa** | Actividad asociada a un programa específico | Solo ciudadanos que ya están inscriptos en ese programa |
+| Tipo | Descripción | Quién puede inscribir |
+|------|-------------|----------------------|
+| **LIBRE** | Actividad abierta | El ciudadano desde el portal, o cualquier operador/encargado |
+| **REQUIERE_PROGRAMA** | Solo para inscriptos en un programa específico | Solo operadores que gestionen ese programa o encargados de la institución |
 
-**Campo a agregar en `PlanFortalecimiento`:** `tipo_acceso = LIBRE | REQUIERE_PROGRAMA`. Si es `REQUIERE_PROGRAMA`, FK al `Programa` asociado.
+**Campo en `PlanFortalecimiento`:** `tipo_acceso = LIBRE | REQUIERE_PROGRAMA`. Si es `REQUIERE_PROGRAMA`, FK al `Programa` asociado.
+
+#### Cupo y lista de espera
+
+- El cupo máximo es **opcional** — se configura al crear la actividad
+- La lista de espera es **opcional** — se configura junto con el cupo
+- Cuando se libera un cupo con lista de espera activa, hay dos modos (configurable):
+  - **Automático**: se asigna al siguiente en la lista sin intervención
+  - **Manual**: el operador elige quién de la lista ocupa el lugar
+
+#### Fechas de la actividad
+
+- Fecha de inicio y fecha de fin son **opcionales**
+- Si se configura fecha de fin y se llega a ella → todos los ciudadanos `ACTIVO` pasan automáticamente a `FINALIZADO`
+
+#### Clases (entidad dentro de la actividad)
+
+- Una actividad se organiza en **clases** — entidades con: fecha, hora de inicio, duración y título opcional
+- Las clases son creadas con anticipación por el staff o el encargado de la institución
+- La asistencia se registra **por clase** — valores: `PRESENTE / AUSENTE / JUSTIFICADO / TARDANZA`
+- Pueden registrar asistencia: el **staff asignado a la actividad** + el **encargado de la institución**
 
 #### Inscripción a una actividad
-- El ciudadano queda en `InscriptoActividad` con estados: INSCRITO → ACTIVO → FINALIZADO / ABANDONADO
-- Se registra asistencia por fecha: PRESENTE / AUSENTE / JUSTIFICADO / TARDANZA
-- El staff de la actividad se asigna desde el personal de la institución
+
+El ciudadano queda en `InscriptoActividad` con estados:
+
+| Estado | Cómo se llega |
+|--------|--------------|
+| `INSCRITO` | Al inscribirse, antes de la primera clase |
+| `ACTIVO` | Al comenzar a participar |
+| `FINALIZADO` | Automático al llegar la fecha fin de la actividad, o manual si el staff lo marca como completado satisfactoriamente |
+| `ABANDONADO` | Manual por operador/staff, o auto-desinscripción del ciudadano desde el portal |
+
+**Al inscribirse:** el ciudadano recibe un **código de inscripción** como confirmación y lo ve en su perfil del portal.
+
+**Al abandonar:** los turnos pendientes de la actividad se cancelan y los slots vuelven a estar disponibles.
+
+#### Staff de la actividad
+
+- Se crea y gestiona desde la solapa de gestión dentro de la institución
+- Se asigna a una actividad específica desde dentro de la actividad misma
+- Solo el staff asignado + el encargado de la institución pueden registrar asistencia
+
+#### Vista del ciudadano — solapa "Cursos y Actividades"
+
+La tarjeta de cada actividad muestra: **nombre, institución, estado, próxima clase, asistencia acumulada**.
+Incluye tanto actividades activas como historial completo.
+El ciudadano también puede ver su **porcentaje de asistencia** desde el portal.
 
 ### Derivaciones
 
@@ -419,6 +490,30 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se definió el acceso por ámbito: institución ve sus ciudadanos, backoffice ve todos
 - Se estableció deuda planificada: `LegajoAtencion` migra al motor de flujos en el futuro
 - Se resolvió que el DNI único previene duplicados — no hay proceso de deduplicación manual
+
+### 2026-03-12 (sesión 9 — /definir editor visual de flujos)
+- Stack decidido: React Flow + Vite para el editor, Alpine.js para el resto del sistema
+- Definidos 10 tipos de nodo: Inicio, Formulario, Evaluación, Condición, Aprobación, Tarea territorial, Email, Espera, Asignación, Fin
+- El form builder del nodo Formulario vive en el panel lateral del mismo editor (sin navegación fuera)
+- Flujos versionados — instancias en curso no se ven afectadas al publicar nueva versión
+- Registrada decisión técnica DT-004 y DT-005 en arquitectura.md
+
+### 2026-03-12 (sesión 8 — /definir instituciones)
+- Definida la tercera superficie del sistema: Panel Institución en `/institucion/` con middleware propio
+- Definidos tres roles internos: EncargadoInstitucion (todo + usuarios), AdministrativoInstitucion (configuración), ProfesorInstitucion (asistencia)
+- Definido flujo de reactivación de institución rechazada (desde panel o desde backoffice)
+- Definidas las evaluaciones periódicas: tareas territoriales aplicadas a instituciones via app móvil → legajo institución
+- Agregadas US-025, US-026, US-027 al backlog
+
+### 2026-03-12 (sesión 7 — /definir actividades)
+- Se definió el flujo completo de inscripción: LIBRE desde portal, REQUIERE_PROGRAMA solo por operador/encargado
+- Se definió la entidad Clase (fecha + hora + duración + título opcional) como unidad de asistencia
+- Se definieron los cuatro estados del ciudadano en actividad: INSCRITO → ACTIVO → FINALIZADO / ABANDONADO
+- Se definió que FINALIZADO ocurre automáticamente al llegar la fecha fin, o manualmente al completar
+- Se definió la lista de espera con dos modos: automático y manual (configurable por actividad)
+- Se definió código de inscripción como confirmación al ciudadano
+- Se definió que el ciudadano ve % de asistencia desde el portal
+- Se agregaron US-022, US-023, US-024 al backlog
 
 ### 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
 - Se cerró el modelo completo de derivación e inscripción directa: son la misma acción, diferente permiso y punto de entrada
