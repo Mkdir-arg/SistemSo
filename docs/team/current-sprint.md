@@ -13,6 +13,7 @@ _Se define en el sprint planning._
 | ID | User Story | Estado | Notas |
 |----|-----------|--------|-------|
 | DX-001 | Como equipo de desarrollo quiero estandarizar `users`, `portal` institucional y `turnos` con services/selectors/views delgadas para mejorar DX y testabilidad | ✅ Completado | Trabajo técnico ejecutado fuera de sprint formal el 2026-03-13 |
+| DX-002 | Como equipo de desarrollo quiero refactorizar `configuracion` institucional y de actividades con selectors/services/forms explícitos para bajar acoplamiento y facilitar testing | ✅ Completado | Slice 2 ejecutado el 2026-03-13 sin cambios de modelo |
 
 ## Impedimentos
 

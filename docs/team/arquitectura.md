@@ -116,6 +116,13 @@ SistemSo/
 
 **Consecuencia:** El primer slice se implementó en `users`, `portal` institucional y `turnos`, dejando `legajos`, `configuracion` y `conversaciones` para etapas posteriores con el patrón ya validado.
 
+### DT-009 — `configuracion` se refactoriza por workflows, no por CRUD completo (2026-03-13)
+**Contexto:** La mayor deuda de `configuracion` no estaba en geografía sino en los workflows institucionales y de actividades: detalle institucional, detalle de actividad, staff, derivaciones e inscriptos concentraban queries y side effects en las views.
+
+**Decisión:** El slice 2 se enfocó solo en ese núcleo operativo. Se extrajeron selectors para contextos de detalle y services para flujos de staff/derivaciones/inscriptos/actividad, manteniendo geografía fuera del corte para minimizar riesgo.
+
+**Consecuencia:** `configuracion` sigue sin package-flip masivo, pero ya adopta el patrón del refactor DX en la parte con mayor retorno de mantenimiento. La próxima etapa recomendada queda en `legajos` y `conversaciones`.
+
 ---
 
 ## Deudas técnicas documentadas

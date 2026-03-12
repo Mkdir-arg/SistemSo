@@ -14,6 +14,26 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 2: configuracion institucional y actividades
+
+**User Story:** Como equipo de desarrollo quiero seguir estandarizando la capa de configuración institucional con services, selectors y forms explícitos para reducir acoplamiento en views y poder evolucionar el módulo sin romper workflows operativos.
+
+**Archivos creados:**
+- `configuracion/selectors_instituciones.py`
+- `configuracion/services_actividades.py`
+- `configuracion/tests/__init__.py`
+- `configuracion/tests/test_services_actividades.py`
+
+**Archivos modificados:**
+- `configuracion/forms.py`
+- `configuracion/views.py`
+- `configuracion/views_extra.py`
+- `configuracion/templates/configuracion/inscripto_form.html`
+- `configuracion/templates/configuracion/staff_editar_form.html`
+- `configuracion/templates/configuracion/actividad_editar_form.html`
+
+**Descripcion:** Se ejecutó el segundo slice del refactor DX sobre `configuracion`, focalizado en instituciones y actividades. Las queries de detalle institucional y de actividad se extrajeron a selectors, los workflows de staff/derivaciones/inscriptos/actividad quedaron en services transaccionales y los formularios dejaron de depender de `POST` raw en los flujos principales. No hubo cambios de modelos ni migraciones.
+
 ## 2026-03-13 — Refactor DX Slice 1: users, portal institucional y turnos
 
 **User Story:** Como equipo de desarrollo quiero estandarizar la arquitectura interna con services, selectors, forms y views más delgadas para reducir costo de cambio y mejorar testabilidad sin alterar el comportamiento funcional del sistema.

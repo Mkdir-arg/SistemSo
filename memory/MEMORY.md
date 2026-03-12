@@ -10,8 +10,10 @@
 - Se completó el primer slice del refactor DX interno.
 - Slice implementado: `users`, `portal` institucional, `turnos`, con soporte en `core`.
 - Patrón validado: selectors para lectura, services para orquestación, views más delgadas, formularios sin persistencia pesada.
+- Se completó también el segundo slice sobre `configuracion`, enfocado en instituciones y actividades.
+- `configuracion` ahora tiene `selectors_instituciones.py`, `services_actividades.py` y forms explícitos para editar inscriptos, actividades y staff.
 
 ## Próxima etapa sugerida
 
-- Refactorizar `configuracion` con el mismo patrón.
-- Luego entrar en `legajos` y `conversaciones`, que concentran la mayor deuda estructural.
+- Refactorizar `legajos` con el mismo patrón, empezando por búsqueda/detalle de ciudadano y flujos de legajo.
+- Luego entrar en `conversaciones`, que sigue concentrando lógica de lifecycle en views.
