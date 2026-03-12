@@ -27,10 +27,12 @@ urlpatterns = [
     
     # Root paths last
     path("", include("django.contrib.auth.urls")),
+    path("", include(("users.urls", "users"), namespace="users")),
     path("", include("users.urls")),
+    path("", include(("core.urls", "core"), namespace="core")),
     path("", include("core.urls")),
     path("", include("dashboard.urls")),
-
+    path("", include(("healthcheck.urls", "healthcheck"), namespace="healthcheck")),
     path("", include("healthcheck.urls")),
     
     # API Routes

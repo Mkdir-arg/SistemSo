@@ -21,6 +21,8 @@ from .performance_dashboard import (
     run_phase2_tests_api,
 )
 
+app_name = "core"
+
 def dashboard_redirect(request):
     return redirect('dashboard:inicio')
 
