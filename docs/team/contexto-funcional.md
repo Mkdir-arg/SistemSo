@@ -122,6 +122,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el cuarto slice del refactor DX sobre `legajos`, enfocado en legajo de atención, evaluación, planes, seguimientos, derivaciones y cierre/reapertura
 - La edición del plan de intervención dejó de depender de inputs hardcodeados que ignoraban los datos existentes
 - Las acciones clínicas base del legajo ahora comparten services/selectors reutilizables y forms más acotados a validación/mapeo
+- Se ejecutó el quinto slice del refactor DX sobre `legajos`, enfocado en eventos críticos, reportes, exportación y cambio de responsable
+- Los templates clínicos dejaron de referenciar campos inexistentes del dominio y ahora reflejan la estructura real de los modelos
+- Reportes y acciones AJAX del módulo ya no concentran orquestación inline en `views.py`
 
 ---
 

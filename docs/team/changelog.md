@@ -103,6 +103,25 @@
 
 **Descripcion:** Se implementó el cuarto slice del refactor DX sobre `legajos`, acotado al legajo de atención. Las queries de listados y detalle pasaron a selectors; la orquestación de evaluación, planes, seguimientos, derivaciones y cierre/reapertura pasó a services; los forms dejaron de persistir JSON dinámico en `save()` y el template del plan dejó de ignorar los valores existentes al editar. No hubo cambios de modelos ni migraciones.
 
+## 2026-03-13 — Refactor DX slice 5: `legajos` eventos, reportes y responsable
+
+**User Story:** Como equipo de desarrollo quiero cerrar el hotspot restante del legajo clínico para ordenar eventos críticos, reportes, exportación y cambio de responsable sin depender de views y templates fuera de contrato con los modelos.
+
+**Archivos modificados:**
+- `legajos/forms.py`
+- `legajos/selectors_legajos.py`
+- `legajos/services_legajos.py`
+- `legajos/views.py`
+- `legajos/templates/legajos/evento_form.html`
+- `legajos/templates/legajos/evento_list.html`
+- `legajos/templates/legajos/evaluacion_list.html`
+- `legajos/templates/legajos/plan_list.html`
+- `legajos/templates/legajos/reportes.html`
+- `legajos/templates/legajos/dispositivo_derivaciones.html`
+- `legajos/tests/test_legajo_workflow.py`
+
+**Descripcion:** Se implementó el quinto slice del refactor DX sobre `legajos`, enfocado en eventos críticos, reportes, exportación CSV, derivaciones por dispositivo y cambio de responsable. Se extrajeron selectors/services para estos flujos, `EventoCriticoForm` dejó de persistir side effects en `save()`, y se corrigieron templates que referenciaban campos inexistentes del modelo (`descripcion`, `gravedad`, `motivo_consulta`, `diagnostico`, `activo`, `origen`). No hubo cambios de modelo ni migraciones.
+
 ## 2026-03-05 — Mejora de logging detallado
 
 **User Story:** Como desarrollador, quiero logs detallados en tiempo real del backend, requests HTTP y nginx para diagnosticar problemas en producción.

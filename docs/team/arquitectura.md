@@ -137,6 +137,13 @@ SistemSo/
 
 **Consecuencia:** El flujo clínico base queda más testeable y predecible sin cortar el comportamiento histórico de planes con más de tres actividades. La deuda restante en `legajos` queda concentrada en eventos, reportes, responsable y módulos laterales.
 
+### DT-012 — los templates clínicos deben seguir el contrato real del modelo, no campos legacy fantasma (2026-03-13)
+**Contexto:** Varias pantallas de `legajos` renderizaban atributos que no existen en los modelos actuales (`evento.descripcion`, `evento.gravedad`, `evaluacion.motivo_consulta`, `evaluacion.diagnostico`, `plan.activo`, `derivacion.origen`). Eso hacía que el frontend quedara visualmente “implementado” pero arquitectónicamente roto.
+
+**Decisión:** El slice 5 corrigió esos templates para alinearlos con los campos reales y extrajo a selectors/services la lógica de eventos, reportes, exportación y cambio de responsable.
+
+**Consecuencia:** Se reduce deuda invisible pero peligrosa: ahora el template expresa el dominio real y el backend queda mejor preparado para tests de integración y cambios futuros.
+
 ---
 
 ## Deudas técnicas documentadas
@@ -152,6 +159,7 @@ SistemSo/
 | DT-007 | `configuracion/` no tiene modelos propios — es solo una capa de UI sobre `core` y `legajos` | Baja | Detectada 2026-03-09 |
 | DT-008 | Faltan namespaces consistentes en `users`, `core` y `healthcheck`; normalizarlo requiere barrido de `reverse()` y templates | Media | Detectada 2026-03-13 |
 | DT-009 | `legajos/views.py` sigue siendo un módulo monolítico; aunque los slices 3 y 4 extrajeron responsabilidades, todavía conviene separarlo por dominios clínico/institucional/programas | Alta | Actualizada 2026-03-13 |
+| DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 
 ---
 

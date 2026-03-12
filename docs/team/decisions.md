@@ -29,3 +29,10 @@
 - Decisión: el slice 4 movió orquestación a `services_legajos.py`, lecturas a `selectors_legajos.py` y mantuvo compatibilidad con actividades dinámicas adicionales del plan parseando los slots enviados por `POST`.
 - Regla derivada: cuando un form legacy convive con inputs dinámicos fuera del schema declarado, el refactor debe preservar ese contrato antes de endurecer validaciones.
 - Consecuencia: se corrige una inconsistencia funcional real en edición de planes sin introducir un corte abrupto del flujo histórico.
+
+## 2026-03-13 — los templates deben reflejar el modelo real
+
+- Contexto: varias pantallas de `legajos` venían renderizando campos inexistentes o nombres legacy que ya no pertenecen al schema actual.
+- Decisión: el slice 5 corrigió esos templates y movió los hotspots de eventos/reportes/responsable a selectors y services para que el frontend dependa de contratos reales del dominio.
+- Regla derivada: cuando un template y un modelo divergen, la prioridad es realinear el template al modelo antes de agregar más lógica de presentación.
+- Consecuencia: se reduce deuda silenciosa y baja el riesgo de romper pantallas por atributos fantasma.
