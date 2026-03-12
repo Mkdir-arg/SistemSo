@@ -85,6 +85,24 @@
 
 **Descripcion:** Se implementó el primer slice del refactor estructural de DX. `users` movió persistencia de grupos/profile a services; `portal` institucional pasó de FBVs con POST raw a `FormView` + services/selectors y dejó de usar `@csrf_exempt` en ese flujo; `turnos` extrajo queries de backoffice a selectors y acciones de estado a services transaccionales. No hubo cambios de modelos ni migraciones.
 
+## 2026-03-13 — Refactor DX slice 4: `legajos` flujo clínico base
+
+**User Story:** Como equipo de desarrollo quiero refactorizar el flujo clínico base de `legajos` para separar queries, orquestación y formularios en evaluación, planes, seguimientos, derivaciones y acciones de cierre/reapertura.
+
+**Archivos creados:**
+- `legajos/selectors_legajos.py`
+- `legajos/services_legajos.py`
+- `legajos/tests/test_legajo_workflow.py`
+
+**Archivos modificados:**
+- `legajos/forms.py`
+- `legajos/views.py`
+- `legajos/templates/legajos/plan_form.html`
+- `legajos/templates/legajos/legajo_cerrar.html`
+- `legajos/templates/legajos/legajo_reabrir.html`
+
+**Descripcion:** Se implementó el cuarto slice del refactor DX sobre `legajos`, acotado al legajo de atención. Las queries de listados y detalle pasaron a selectors; la orquestación de evaluación, planes, seguimientos, derivaciones y cierre/reapertura pasó a services; los forms dejaron de persistir JSON dinámico en `save()` y el template del plan dejó de ignorar los valores existentes al editar. No hubo cambios de modelos ni migraciones.
+
 ## 2026-03-05 — Mejora de logging detallado
 
 **User Story:** Como desarrollador, quiero logs detallados en tiempo real del backend, requests HTTP y nginx para diagnosticar problemas en producción.

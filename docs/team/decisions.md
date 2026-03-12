@@ -22,3 +22,10 @@
 - Decisión: el slice 3 se enfocó en la entrada principal del módulo: listado/detalle de ciudadano, consulta RENAPER y wizard de admisión.
 - Regla derivada: en módulos monolíticos, atacar primero el flujo de entrada con más visibilidad y reutilización antes de tocar submódulos laterales.
 - Consecuencia: el manejo de sesión y las queries repetidas ya no viven pegadas a las views del flujo base.
+
+## 2026-03-13 — `legajos` clínico conserva compatibilidad con actividades dinámicas
+
+- Contexto: el flujo clínico base tenía lógica de evaluación/planes/seguimientos/derivaciones inline en views y el formulario de plan no representaba correctamente los datos existentes al editar.
+- Decisión: el slice 4 movió orquestación a `services_legajos.py`, lecturas a `selectors_legajos.py` y mantuvo compatibilidad con actividades dinámicas adicionales del plan parseando los slots enviados por `POST`.
+- Regla derivada: cuando un form legacy convive con inputs dinámicos fuera del schema declarado, el refactor debe preservar ese contrato antes de endurecer validaciones.
+- Consecuencia: se corrige una inconsistencia funcional real en edición de planes sin introducir un corte abrupto del flujo histórico.

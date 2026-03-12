@@ -130,6 +130,13 @@ SistemSo/
 
 **Consecuencia:** El hub principal de `legajos` ya adopta el patrón del refactor DX y queda una base más segura para avanzar luego sobre el legajo de atención propiamente dicho.
 
+### DT-011 — `legajos` clínico se refactoriza con compatibilidad para actividades dinámicas del plan (2026-03-13)
+**Contexto:** El flujo clínico base de `legajos` seguía mezclando queries, asignación de profesionales, cierre/reapertura y parseo de actividades dinámicas dentro de las views. Además, `plan_form.html` ignoraba los valores del form al editar y podía perder información existente.
+
+**Decisión:** El slice 4 extrajo selectors para listados y detalle del legajo, creó `services_legajos.py` para evaluación, planes, seguimientos, derivaciones y acciones de estado, y movió el mapeo de tamizajes/actividades al form sin perder compatibilidad con slots dinámicos adicionales enviados por `POST`.
+
+**Consecuencia:** El flujo clínico base queda más testeable y predecible sin cortar el comportamiento histórico de planes con más de tres actividades. La deuda restante en `legajos` queda concentrada en eventos, reportes, responsable y módulos laterales.
+
 ---
 
 ## Deudas técnicas documentadas
@@ -144,6 +151,7 @@ SistemSo/
 | DT-006 | Recordatorios automáticos de turnos requieren Celery (no implementado) | Media | 2026-03-09 |
 | DT-007 | `configuracion/` no tiene modelos propios — es solo una capa de UI sobre `core` y `legajos` | Baja | Detectada 2026-03-09 |
 | DT-008 | Faltan namespaces consistentes en `users`, `core` y `healthcheck`; normalizarlo requiere barrido de `reverse()` y templates | Media | Detectada 2026-03-13 |
+| DT-009 | `legajos/views.py` sigue siendo un módulo monolítico; aunque los slices 3 y 4 extrajeron responsabilidades, todavía conviene separarlo por dominios clínico/institucional/programas | Alta | Actualizada 2026-03-13 |
 
 ---
 
