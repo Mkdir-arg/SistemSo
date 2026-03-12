@@ -36,3 +36,10 @@
 - Decisión: el slice 5 corrigió esos templates y movió los hotspots de eventos/reportes/responsable a selectors y services para que el frontend dependa de contratos reales del dominio.
 - Regla derivada: cuando un template y un modelo divergen, la prioridad es realinear el template al modelo antes de agregar más lógica de presentación.
 - Consecuencia: se reduce deuda silenciosa y baja el riesgo de romper pantallas por atributos fantasma.
+
+## 2026-03-13 — modularizar `views.py` sin romper compatibilidad
+
+- Contexto: `legajos/views.py` seguía siendo el archivo más monolítico del proyecto aun después de extraer services y selectors.
+- Decisión: el slice 6 separó ciudadanía/admisión y clínica en `views_ciudadanos.py` y `views_clinico.py`, dejando `views.py` como fachada compatible.
+- Regla derivada: cuando la deuda es física/organizacional, primero conviene introducir fachadas compatibles antes de forzar cambios de imports/URLs en cascada.
+- Consecuencia: se reduce el tamaño cognitivo del módulo y queda allanado el próximo paso de separar institucional/programas/actividades.

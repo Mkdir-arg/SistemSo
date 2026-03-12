@@ -122,6 +122,19 @@
 
 **Descripcion:** Se implementó el quinto slice del refactor DX sobre `legajos`, enfocado en eventos críticos, reportes, exportación CSV, derivaciones por dispositivo y cambio de responsable. Se extrajeron selectors/services para estos flujos, `EventoCriticoForm` dejó de persistir side effects en `save()`, y se corrigieron templates que referenciaban campos inexistentes del modelo (`descripcion`, `gravedad`, `motivo_consulta`, `diagnostico`, `activo`, `origen`). No hubo cambios de modelo ni migraciones.
 
+## 2026-03-13 — Refactor DX slice 6: `legajos` separación física de views por dominio
+
+**User Story:** Como equipo de desarrollo quiero separar físicamente `legajos/views.py` por dominios para reducir el costo de navegación y edición sin tocar las URLs ni romper imports existentes.
+
+**Archivos creados:**
+- `legajos/views_ciudadanos.py`
+- `legajos/views_clinico.py`
+
+**Archivos modificados:**
+- `legajos/views.py`
+
+**Descripcion:** Se implementó el sexto slice del refactor DX sobre `legajos`, enfocado en modularización física. `views.py` quedó como fachada compatible y el contenido se repartió en `views_ciudadanos.py` y `views_clinico.py`. No hubo cambios funcionales deliberados, de modelos ni de rutas; el objetivo fue bajar el tamaño del archivo monolítico y dejar una base más predecible para seguir refactorizando el módulo.
+
 ## 2026-03-05 — Mejora de logging detallado
 
 **User Story:** Como desarrollador, quiero logs detallados en tiempo real del backend, requests HTTP y nginx para diagnosticar problemas en producción.

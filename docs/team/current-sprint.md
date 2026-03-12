@@ -17,6 +17,7 @@ _Se define en el sprint planning._
 | DX-003 | Como equipo de desarrollo quiero refactorizar `legajos` en ciudadanos y admisión para ordenar RENAPER, sesión y consultas reutilizables | ✅ Completado | Slice 3 ejecutado el 2026-03-13 sin cambios de modelo |
 | DX-004 | Como equipo de desarrollo quiero refactorizar el flujo clínico base de `legajos` para separar evaluación, planes, seguimientos y derivaciones en selectors/services/forms consistentes | ✅ Completado | Slice 4 ejecutado el 2026-03-13 sin cambios de modelo |
 | DX-005 | Como equipo de desarrollo quiero cerrar el hotspot restante del legajo clínico en eventos, reportes, exportación y responsable para eliminar lógica y templates inconsistentes | ✅ Completado | Slice 5 ejecutado el 2026-03-13 sin cambios de modelo |
+| DX-006 | Como equipo de desarrollo quiero separar físicamente `legajos/views.py` por dominios para que el módulo sea más navegable y mantenible sin romper compatibilidad | ✅ Completado | Slice 6 ejecutado el 2026-03-13 sin cambios de modelo ni URLs |
 
 ## Impedimentos
 

@@ -144,6 +144,13 @@ SistemSo/
 
 **Consecuencia:** Se reduce deuda invisible pero peligrosa: ahora el template expresa el dominio real y el backend queda mejor preparado para tests de integración y cambios futuros.
 
+### DT-013 — `legajos/views.py` queda como fachada compatible durante la modularización (2026-03-13)
+**Contexto:** Después de los slices clínicos, `legajos/views.py` seguía siendo el archivo más costoso de navegar del repo. Sin embargo, cambiar `urls.py` y todos los imports externos a la vez agregaba churn innecesario.
+
+**Decisión:** El slice 6 separó el contenido en `views_ciudadanos.py` y `views_clinico.py`, manteniendo `views.py` como fachada que reexporta las vistas ya movidas y conserva solo el contenido todavía no migrado.
+
+**Consecuencia:** Se gana modularidad real sin romper la API interna del módulo. Los siguientes cortes pueden seguir moviendo dominios fuera de `views.py` sin tocar rutas ni imports consumidores.
+
 ---
 
 ## Deudas técnicas documentadas
@@ -158,7 +165,7 @@ SistemSo/
 | DT-006 | Recordatorios automáticos de turnos requieren Celery (no implementado) | Media | 2026-03-09 |
 | DT-007 | `configuracion/` no tiene modelos propios — es solo una capa de UI sobre `core` y `legajos` | Baja | Detectada 2026-03-09 |
 | DT-008 | Faltan namespaces consistentes en `users`, `core` y `healthcheck`; normalizarlo requiere barrido de `reverse()` y templates | Media | Detectada 2026-03-13 |
-| DT-009 | `legajos/views.py` sigue siendo un módulo monolítico; aunque los slices 3 y 4 extrajeron responsabilidades, todavía conviene separarlo por dominios clínico/institucional/programas | Alta | Actualizada 2026-03-13 |
+| DT-009 | `legajos/views.py` ya dejó de concentrar ciudadanía y clínica, pero todavía conserva institucional, programas y actividades; resta completar esa separación | Media | Actualizada 2026-03-13 |
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 
 ---

@@ -125,6 +125,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el quinto slice del refactor DX sobre `legajos`, enfocado en eventos críticos, reportes, exportación y cambio de responsable
 - Los templates clínicos dejaron de referenciar campos inexistentes del dominio y ahora reflejan la estructura real de los modelos
 - Reportes y acciones AJAX del módulo ya no concentran orquestación inline en `views.py`
+- Se ejecutó el sexto slice del refactor DX sobre `legajos`, enfocado en separar físicamente las views por dominios
+- `legajos/views.py` quedó como fachada compatible y el código se repartió entre `views_ciudadanos.py` y `views_clinico.py`
+- El cambio no altera rutas ni comportamiento funcional, pero reduce fricción para futuros refactors y tests del módulo
 
 ---
 
