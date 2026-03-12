@@ -22,8 +22,10 @@
 - `legajos/views.py` ahora funciona como fachada compatible y el código de ciudadanía/admisión y clínica vive en módulos separados.
 - Se completó el séptimo slice sobre `legajos`, enfocado en terminar la modularización física de views.
 - `legajos/views.py` quedó como fachada pura y la operativa institucional/actividades vive en `legajos/views_operativa.py`.
+- Se completó el octavo slice sobre `conversaciones`, enfocado en modularización del chat.
+- `conversaciones/views.py` quedó como fachada compatible y el módulo ahora usa `views_public.py`, `views_backoffice.py`, `selectors_conversaciones.py`, `services_chat.py` y `forms_chat.py`.
 
 ## Próxima etapa sugerida
 
-- Revisar el siguiente hotspot real: `conversaciones`, que sigue concentrando lifecycle, queries y endpoints mixtos en un archivo grande.
-- En paralelo, definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.
+- El siguiente hotspot real pasó a ser la deuda funcional/técnica residual de `conversaciones`: CSRF legacy, polling HTTP y estrategia realtime parcial.
+- En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

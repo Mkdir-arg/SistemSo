@@ -14,6 +14,24 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 8: `conversaciones` modularización y selectors
+
+**User Story:** Como equipo de desarrollo quiero desacoplar el módulo `conversaciones` separando vistas públicas y de backoffice, extrayendo queries reutilizables y validación de payloads para reducir lógica en `views.py` sin cambiar las URLs.
+
+**Archivos creados:**
+- `conversaciones/forms_chat.py`
+- `conversaciones/selectors_conversaciones.py`
+- `conversaciones/services_chat.py`
+- `conversaciones/views_public.py`
+- `conversaciones/views_backoffice.py`
+- `conversaciones/tests/__init__.py`
+- `conversaciones/tests/test_chat_services.py`
+
+**Archivos modificados:**
+- `conversaciones/views.py`
+
+**Descripcion:** Se implementó el octavo slice del refactor DX, focalizado en `conversaciones`. La bandeja, métricas y detalle pasaron a depender de selectors explícitos; la orquestación de inicio de conversación, mensajes, cierre, cola y asignación automática quedó encapsulada en `services_chat.py`; y `views.py` pasó a ser una fachada compatible que reexporta `views_public.py` y `views_backoffice.py`. Se mantuvieron las URLs y el contrato AJAX/WebSocket actual, incluyendo los `@csrf_exempt` legacy donde removerlos sería riesgoso sin tocar frontend.
+
 ## 2026-03-13 — Refactor DX slice 7: `legajos` fachada pura de views
 
 **User Story:** Como equipo de desarrollo quiero completar la separación física de `legajos/views.py` para que el archivo quede como una fachada pura y el dominio operativo/institucional tenga su propio módulo mantenible.

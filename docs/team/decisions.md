@@ -50,3 +50,10 @@
 - Decisión: el slice 7 movió ese bloque a `views_operativa.py` y dejó `views.py` como un punto de reexportación sin lógica propia.
 - Regla derivada: si una fachada temporal todavía conserva implementación, el siguiente corte debe convertirla en fachada real antes de abrir más submódulos.
 - Consecuencia: el contrato de imports se mantiene estable, pero la app ya puede seguir modularizándose por dominios con menos fricción.
+
+## 2026-03-13 — modularizar `conversaciones` preservando endpoints legacy
+
+- Contexto: `conversaciones/views.py` mezclaba chat público, backoffice, métricas y lógica de cola con parsing manual de JSON y queries repetidas.
+- Decisión: el slice 8 extrajo selectors, services y forms livianos, separó `views_public.py` y `views_backoffice.py` y dejó `views.py` como fachada compatible.
+- Regla derivada: en módulos con transporte AJAX/WebSocket legacy, primero conviene separar responsabilidades y validar payloads sin cambiar rutas ni el contrato del frontend.
+- Consecuencia: el módulo ya puede seguir evolucionando con menor riesgo y la deuda específica de CSRF/polling queda aislada para un corte posterior.

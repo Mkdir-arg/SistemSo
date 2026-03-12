@@ -158,6 +158,13 @@ SistemSo/
 
 **Consecuencia:** El costo de navegación baja de forma material y el próximo refactor puede atacar subdominios concretos sin volver a abrir un archivo monolítico ni tocar las URLs existentes.
 
+### DT-015 — `conversaciones` se modulariza sin romper el contrato AJAX/WebSocket actual (2026-03-13)
+**Contexto:** `conversaciones/views.py` concentraba más de 700 líneas con endpoints públicos, backoffice, métricas, queries repetidas y parsing manual de JSON. Quitar de golpe los `@csrf_exempt` o rediseñar el transporte del chat implicaba tocar frontend y comportamiento en tiempo real.
+
+**Decisión:** El slice 8 separó `views_public.py` y `views_backoffice.py`, movió las lecturas a `selectors_conversaciones.py`, encapsuló la orquestación del chat en `services_chat.py` y agregó forms livianos para validar payloads sin cambiar URLs ni el contrato AJAX/WebSocket existente.
+
+**Consecuencia:** El módulo queda mucho más mantenible y testeable sin asumir un rediseño del chat. La deuda restante sobre CSRF y polling/WebSocket queda documentada y aislada.
+
 ---
 
 ## Deudas técnicas documentadas
@@ -174,6 +181,7 @@ SistemSo/
 | DT-008 | Faltan namespaces consistentes en `users`, `core` y `healthcheck`; normalizarlo requiere barrido de `reverse()` y templates | Media | Detectada 2026-03-13 |
 | DT-009 | `legajos/views.py` ya quedó como fachada pura, pero la app `legajos` sigue mezclando dominios ciudadanos, clínicos, institucionales y de contactos en una misma app | Media | Actualizada 2026-03-13 |
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
+| DT-011 | `conversaciones` ya no concentra toda la lógica en `views.py`, pero mantiene endpoints legacy con `@csrf_exempt` y mezcla polling HTTP con notificaciones realtime parciales | Media | Actualizada 2026-03-13 |
 
 ---
 
