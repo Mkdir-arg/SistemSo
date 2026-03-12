@@ -15,3 +15,10 @@
 - Decisión: el slice 2 se aplicó solo sobre detalle institucional, actividad, staff, derivaciones e inscriptos, con selectors + services + forms explícitos.
 - Regla derivada: cuando una app mezcla tablas maestras simples y workflows complejos, el refactor debe empezar por los workflows que concentran side effects y queries repetidas.
 - Consecuencia: se reduce riesgo de regresión y queda una base reusable antes de entrar en `legajos`.
+
+## 2026-03-13 — `legajos` empieza por ciudadanos y admisión
+
+- Contexto: `legajos` mezcla varios dominios y no era realista refactorizarlo completo en un solo corte.
+- Decisión: el slice 3 se enfocó en la entrada principal del módulo: listado/detalle de ciudadano, consulta RENAPER y wizard de admisión.
+- Regla derivada: en módulos monolíticos, atacar primero el flujo de entrada con más visibilidad y reutilización antes de tocar submódulos laterales.
+- Consecuencia: el manejo de sesión y las queries repetidas ya no viven pegadas a las views del flujo base.

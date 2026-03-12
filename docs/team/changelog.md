@@ -14,6 +14,25 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 3: legajos ciudadanos y admisión
+
+**User Story:** Como equipo de desarrollo quiero refactorizar el flujo de ciudadanos y admisión en `legajos` para reducir lógica en views, ordenar el manejo de sesión y dejar una base más mantenible para el resto del módulo.
+
+**Archivos creados:**
+- `legajos/selectors_ciudadanos.py`
+- `legajos/services_ciudadanos.py`
+- `legajos/services_admision.py`
+- `legajos/tests/__init__.py`
+- `legajos/tests/test_ciudadanos_admision.py`
+
+**Archivos modificados:**
+- `legajos/forms.py`
+- `legajos/views.py`
+- `legajos/urls.py`
+- `legajos/templates/legajos/ciudadano_renaper_form.html`
+
+**Descripcion:** Se ejecutó el tercer slice del refactor DX sobre `legajos`, acotado a ciudadanos y admisión. Se extrajeron selectors para lista/detalle y métricas, services para RENAPER y para el wizard de admisión con manejo de sesión, se limpiaron formularios por contexto y se corrigió la duplicación real de rutas en `legajos/urls.py`. No hubo cambios de modelo ni migraciones.
+
 ## 2026-03-13 — Refactor DX Slice 2: configuracion institucional y actividades
 
 **User Story:** Como equipo de desarrollo quiero seguir estandarizando la capa de configuración institucional con services, selectors y forms explícitos para reducir acoplamiento en views y poder evolucionar el módulo sin romper workflows operativos.

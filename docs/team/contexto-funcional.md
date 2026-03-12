@@ -116,6 +116,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el segundo slice del refactor DX sobre `configuracion`, focalizado en detalle institucional, detalle de actividad, staff, derivaciones e inscriptos
 - Los flujos operativos del módulo dejaron de depender de `POST` raw en las pantallas principales y pasaron a forms explícitos más services transaccionales
 - No se alteraron reglas de negocio institucionales ni estados funcionales; el cambio fue estructural para mejorar mantenibilidad y testabilidad
+- Se ejecutó el tercer slice del refactor DX sobre `legajos`, acotado a ciudadanos y admisión
+- El flujo de RENAPER y el wizard de admisión dejaron de repartir manejo de sesión y orquestación en múltiples views
+- La carga manual del ciudadano quedó separada del formulario de confirmación RENAPER, corrigiendo una inconsistencia de UI con el campo DNI
 
 ---
 

@@ -123,6 +123,13 @@ SistemSo/
 
 **Consecuencia:** `configuracion` sigue sin package-flip masivo, pero ya adopta el patrón del refactor DX en la parte con mayor retorno de mantenimiento. La próxima etapa recomendada queda en `legajos` y `conversaciones`.
 
+### DT-010 — `legajos` se refactoriza por slices de dominio, empezando por ciudadanos y admisión (2026-03-13)
+**Contexto:** `legajos` sigue siendo la app con mayor deuda estructural del proyecto. Un refactor global del módulo completo tiene demasiado riesgo por el tamaño de `views.py`, la mezcla de dominios y la baja cobertura automática.
+
+**Decisión:** El slice 3 se concentró en `Ciudadano*` y en el wizard de admisión. Se extrajeron selectors para lista/detalle y services para RENAPER + manejo de sesión del wizard, sin entrar todavía en seguimientos, planes, derivaciones clínicas ni institucional.
+
+**Consecuencia:** El hub principal de `legajos` ya adopta el patrón del refactor DX y queda una base más segura para avanzar luego sobre el legajo de atención propiamente dicho.
+
 ---
 
 ## Deudas técnicas documentadas
