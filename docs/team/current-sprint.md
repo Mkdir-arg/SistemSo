@@ -36,6 +36,7 @@ _Se define en el sprint planning._
 | DX-022 | Como equipo de desarrollo quiero reducir el hotspot principal de `ÑACHEC` separando prestaciones, cierre y dashboard en módulos propios | ✅ Completado | Slice 22 ejecutado el 2026-03-13 con fachada compatible en `views_nachec.py` y smoke test de exports |
 | DX-023 | Como equipo de desarrollo quiero seguir partiendo `ÑACHEC` separando evaluación y activación de plan antes de tocar asignación y relevamiento | ✅ Completado | Slice 23 ejecutado el 2026-03-13 con `views_nachec_decisiones.py` y ampliación del smoke test |
 | DX-024 | Como equipo de desarrollo quiero cerrar la modularización física de `ÑACHEC` separando la operación territorial restante en un módulo dedicado | ✅ Completado | Slice 24 ejecutado el 2026-03-13 con `views_nachec_operacion.py` y `views_nachec.py` como fachada pura |
+| DX-025 | Como equipo de desarrollo quiero limpiar `legajos/forms.py` separándolo por dominio para alinear forms con las views ya modularizadas | ✅ Completado | Slice 25 ejecutado el 2026-03-13 con fachadas compatibles y smoke test de forms |
 
 ## Impedimentos
 

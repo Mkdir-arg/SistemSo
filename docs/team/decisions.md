@@ -169,3 +169,10 @@
 - Decisión: el slice 24 movió validación, asignación, reasignación, relevamiento y evidencias a `views_nachec_operacion.py`, dejando `views_nachec.py` como una fachada pura de compatibilidad.
 - Regla derivada: cuando un hotspot histórico ya fue fragmentado por subdominios estables, el archivo original debe terminar como fachada mínima antes de pasar al siguiente hotspot.
 - Consecuencia: baja el costo de navegación, se explicita la nueva cartografía del módulo y se preserva compatibilidad con imports y URLs existentes.
+
+## 2026-03-13 — alinear primero los forms con las views ya modularizadas
+
+- Contexto: tras modularizar casi todas las views de `legajos`, el archivo `forms.py` seguía mezclando ciudadanía, clínica y operativa en más de 500 líneas.
+- Decisión: el slice 25 dividió `legajos/forms.py` en `forms_ciudadanos.py`, `forms_clinico.py` y `forms_operativa.py`, dejando `forms.py` como fachada compatible.
+- Regla derivada: cuando el corte por dominio ya existe en views, conviene reflejarlo también en forms antes de abrir otro hotspot de la app.
+- Consecuencia: mejora la navegabilidad del módulo y se preserva el contrato público de imports mientras baja el costo de mantenimiento.

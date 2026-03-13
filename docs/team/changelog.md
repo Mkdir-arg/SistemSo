@@ -465,3 +465,16 @@
 - `legajos/tests/test_nachec_fachada.py`
 
 **Descripción:** Se extrajo el bloque operativo restante de `ÑACHEC` hacia `views_nachec_operacion.py`, incluyendo validación, asignación, reasignación, relevamiento y evidencias. `legajos/views_nachec.py` quedó finalmente como una fachada pura de compatibilidad, y el smoke test ahora cubre también esos exports.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 25: `legajos` cleanup de forms
+
+**Archivos modificados:**
+- `legajos/forms.py`
+- `legajos/forms_ciudadanos.py`
+- `legajos/forms_clinico.py`
+- `legajos/forms_operativa.py`
+- `legajos/tests/test_forms_fachada.py`
+
+**Descripción:** Se dividió `legajos/forms.py` por dominio funcional, separando ciudadanía/admisión, clínica y operativa. El archivo histórico quedó como fachada compatible para no romper imports existentes, y se agregó un smoke test para fijar los exports públicos del módulo.

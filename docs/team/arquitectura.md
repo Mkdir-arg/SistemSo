@@ -323,3 +323,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: en monolitos críticos de dominio como `ÑACHEC`, conviene atacar primero la modularización física de bloques grandes y bien delimitados antes de extraer lógica interna más sensible.
 - 2026-03-13: al modularizar workflows largos de `ÑACHEC`, conviene seguir el orden `dashboard/prestaciones/cierre` → `evaluación/plan` → `asignación/relevamiento`, porque cada paso reduce riesgo para el siguiente.
 - 2026-03-13: cuando un hotspot de dominio ya fue partido por bloques y conserva URLs estables, el archivo histórico debe cerrarse como fachada pura para evitar regresión de imports y dejar explícita la nueva cartografía modular.
+- 2026-03-13: cuando las views de una app ya están modularizadas, el siguiente paso barato y seguro es alinear los forms al mismo corte por dominio y dejar el archivo histórico como fachada compatible.
