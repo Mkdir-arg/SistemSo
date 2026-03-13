@@ -302,3 +302,10 @@
 - Decisión: el slice 43 extrajo ese workflow a `services/derivaciones_programa.py` y dejó la view como coordinadora delgada.
 - Regla derivada: cuando un módulo pendiente concentra transiciones de estado y side effects reales, conviene extraer primero la lógica a services y recién después considerar un movimiento físico del archivo.
 - Consecuencia: se baja riesgo, se gana testabilidad y se prepara una futura modularización sin arrastrar lógica de negocio pegada a la capa HTTP.
+
+## 2026-03-13 — después de extraer un workflow sensible, cerrar enseguida el packaging de la view
+
+- Contexto: tras el slice 43, `views_derivacion_programa.py` ya no concentraba la lógica crítica y quedaba como coordinadora HTTP bastante delgada.
+- Decisión: el slice 44 movió esa view a `legajos/views/` inmediatamente, antes de abrir otro frente más complejo.
+- Regla derivada: si un slice de service layer deja una view suficientemente delgada, conviene aprovechar el mismo impulso y cerrar enseguida su packaging físico.
+- Consecuencia: la arquitectura gana consistencia sin acumular deuda de “views finas pero todavía legacy”.

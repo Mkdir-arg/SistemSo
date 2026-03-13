@@ -340,3 +340,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: cuando en `legajos` ya solo quedan módulos de `views` con reglas densas o side effects fuertes, la estrategia incremental pierde seguridad y conviene frenar hasta tener mejor validación funcional.
 - 2026-03-13: `programas` y `solapas` siguen siendo movibles físicamente mientras no se toquen sus reglas internas; a partir de ahí, el siguiente nivel pendiente ya cruza dominio pesado de verdad.
 - 2026-03-13: cuando una view restante mezcla transiciones, SLA y creación de tareas, el siguiente corte ya no debe ser packaging físico sino extracción previa a service layer con tests de workflow.
+- 2026-03-13: una vez extraída la lógica sensible de una view a services, el movimiento físico al paquete `views/` vuelve a ser un corte barato y seguro.

@@ -14,6 +14,16 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 44: packaging de `views_derivacion_programa` en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/derivacion_programa.py`
+- `legajos/views_derivacion_programa.py`
+- `legajos/tests/test_derivacion_programa_package.py`
+
+**Descripción:** Luego de extraer el workflow a service, `views_derivacion_programa.py` se movió al paquete `legajos/views/` con wrapper legacy compatible y smoke test de exports. El borde programas/`ÑACHEC` ya quedó alineado con el packaging nuevo sin arrastrar lógica pesada en la capa HTTP.
+
 ## 2026-03-13 — Refactor DX Slice 43: service layer para derivaciones de programa
 
 **Archivos modificados:**

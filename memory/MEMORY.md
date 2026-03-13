@@ -102,6 +102,9 @@
 - Se completó el cuadragésimo tercer slice sobre `legajos`.
 - `views_derivacion_programa.py` ya no concentra el workflow sensible: aceptación, rechazo y branch `ÑACHEC` ahora viven en `services/derivaciones_programa.py`.
 - El siguiente paso razonable es mover físicamente esa view al paquete `legajos/views/`; después de eso, el bloqueo fuerte vuelve a estar en `institucional`, clínica y `ÑACHEC`.
+- Se completó el cuadragésimo cuarto slice sobre `legajos`.
+- `views_derivacion_programa.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
+- El siguiente bloqueo fuerte ya quedó claramente en `views_institucional.py`, `views_clinico.py` y `views_nachec_*`.
 
 ## Próxima etapa sugerida
 
