@@ -1016,3 +1016,20 @@
 - `chatbot/tests/test_package_exports.py`
 
 **Descripción:** Se movió la capa de `api_views` de `dashboard`, `users` y `chatbot` a paquetes reales, manteniendo intactos sus imports desde `urls.py` y `api_urls.py`. También se ampliaron los smoke tests de exports para fijar que esos viewsets y endpoints ya viven en el paquete nuevo.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 53: packaging de `api_views` en apps compartidas
+
+**Archivos modificados:**
+- `core/api_views.py`
+- `core/api_views/__init__.py`
+- `core/tests/test_package_exports.py`
+- `conversaciones/api_views.py`
+- `conversaciones/api_views/__init__.py`
+- `conversaciones/api_extra.py`
+- `conversaciones/api_views/extra.py`
+- `conversaciones/api_urls.py`
+- `conversaciones/tests/test_package_exports.py`
+
+**Descripción:** Se movieron las APIs compartidas de `core` y `conversaciones` al mismo patrón de paquetes reales, manteniendo intactos los imports desde `api_urls.py`. También se ampliaron los smoke tests para cubrir exports del paquete nuevo.

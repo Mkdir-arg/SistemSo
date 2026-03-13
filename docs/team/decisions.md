@@ -365,3 +365,10 @@
 - Decisión: el slice 52 movió `api_views` de `dashboard`, `users` y `chatbot` a paquetes reales sin cambiar contratos HTTP ni rutas.
 - Regla derivada: si una API es pequeña y sus imports están acotados a `urls.py` o `api_urls.py`, todavía conviene alinearla al patrón repo-wide antes de declarar agotado el refactor estructural.
 - Consecuencia: lo que queda pendiente deja de ser packaging barato y pasa a APIs más acopladas o a deuda funcional directa.
+
+## 2026-03-13 — las APIs compartidas también pueden seguir el mismo patrón si el routing queda estable
+
+- Contexto: después del slice 52, seguían fuera del patrón `api_views` de `core` y `conversaciones`, aunque sus routers/imports seguían bastante acotados a `api_urls.py`.
+- Decisión: el slice 53 movió esas APIs a paquetes reales y dejó `api_urls.py` importando el mismo símbolo lógico.
+- Regla derivada: incluso en apps compartidas, una API puede moverse a paquete si el routing se mantiene estable y el refactor no toca serializers, permisos ni contratos HTTP.
+- Consecuencia: la deuda estructural repo-wide queda casi agotada y el siguiente trabajo ya entra en APIs más grandes o deuda funcional.

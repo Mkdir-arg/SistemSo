@@ -129,6 +129,9 @@
 - Se completó el quincuagésimo segundo slice sobre `api_views` chicas.
 - `dashboard`, `users` y `chatbot` ahora también exponen sus APIs desde paquetes reales.
 - Lo pendiente ya quedó mayormente en APIs más acopladas (`core`, `conversaciones`, `legajos`) o en deuda funcional, no en packaging trivial.
+- Se completó el quincuagésimo tercer slice sobre `api_views` compartidas.
+- `core` y `conversaciones` ahora también exponen sus APIs desde paquetes reales sin tocar `api_urls.py`.
+- Lo pendiente ya quedó esencialmente en `legajos/api_views*` o en deuda funcional, no en packaging barato.
 
 ## Próxima etapa sugerida
 
