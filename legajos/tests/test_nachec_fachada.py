@@ -3,6 +3,12 @@ from django.test import SimpleTestCase
 from legajos import views_nachec
 from legajos.views_nachec_cierre import cerrar_caso_nachec, reabrir_caso_nachec
 from legajos.views_nachec_dashboard import dashboard_nachec
+from legajos.views_nachec_decisiones import (
+    activar_plan,
+    cerrar_caso,
+    evaluar_caso,
+    pasar_a_seguimiento,
+)
 from legajos.views_nachec_prestaciones import (
     cancelar_prestacion,
     confirmar_entrega_prestacion,
@@ -22,3 +28,9 @@ class NachecFachadaTests(SimpleTestCase):
         self.assertIs(views_nachec.cerrar_caso_nachec, cerrar_caso_nachec)
         self.assertIs(views_nachec.reabrir_caso_nachec, reabrir_caso_nachec)
         self.assertIs(views_nachec.dashboard_nachec, dashboard_nachec)
+
+    def test_views_nachec_expone_evaluacion_y_plan_desde_modulo_dedicado(self):
+        self.assertIs(views_nachec.evaluar_caso, evaluar_caso)
+        self.assertIs(views_nachec.activar_plan, activar_plan)
+        self.assertIs(views_nachec.pasar_a_seguimiento, pasar_a_seguimiento)
+        self.assertIs(views_nachec.cerrar_caso, cerrar_caso)
