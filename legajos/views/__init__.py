@@ -1,5 +1,15 @@
 """Views agrupadas de la app de legajos."""
 
+from .acompanamiento import crear_legajo_acompanamiento  # noqa: F401
+from .alertas import (  # noqa: F401
+    alertas_count_ajax,
+    alertas_dashboard,
+    alertas_preview_ajax,
+    cerrar_alerta_ajax,
+    debug_alertas,
+    test_alertas_page,
+)
+from .api_derivaciones import derivaciones_programa_api  # noqa: F401
 from .contactos_api import (  # noqa: F401
     actividades_ciudadano_api,
     alertas_ciudadano_api,
@@ -18,6 +28,7 @@ from .contactos_panel import (  # noqa: F401
     historial_contactos_simple,
     red_contactos_simple,
 )
+from .cursos import cursos_actividades_ciudadano  # noqa: F401
 from .dashboard_contactos import (  # noqa: F401
     dashboard_contactos,
     exportar_reporte_contactos,
@@ -26,6 +37,7 @@ from .dashboard_contactos import (  # noqa: F401
 )
 from .dashboard_simple import dashboard_contactos_simple as dashboard_contactos_simple_debug  # noqa: F401
 from .dashboard_simple import test_api  # noqa: F401
+from .derivacion import derivar_programa_view  # noqa: F401
 from .historial_contactos import (  # noqa: F401
     contactos_api,
     crear_contacto,
