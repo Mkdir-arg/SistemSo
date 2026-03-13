@@ -1048,3 +1048,15 @@
 - `legajos/tests/test_package_exports.py`
 
 **Descripción:** Se cerró también la capa de `api_views` en `legajos`, moviendo tanto la API principal como la de contactos al paquete real `legajos/api_views/`. El routing de DRF se mantuvo estable desde `api_urls.py` y `api_urls_contactos.py`, y se amplió el smoke test del paquete.
+
+---
+
+## 2026-03-14 — Refactor DX Slice 55: service layer inicial para operación `ÑACHEC`
+
+**Archivos modificados:**
+- `legajos/services/nachec.py`
+- `legajos/services/__init__.py`
+- `legajos/views/nachec_operacion.py`
+- `legajos/tests/test_nachec_operacion_services.py`
+
+**Descripción:** Se extrajo a service layer el subflujo inicial de `ÑACHEC` en `nachec_operacion`: completar validación, completar tarea, construir contexto de envío a asignación, enviar a asignación y asignar territorial. En el mismo corte se corrigió una inconsistencia real: la tarea de asignación se creaba como `OTRO`, pero la reasignación/completado buscaba un tipo inexistente; ahora la coordinación vuelve a encontrar y completar la tarea correcta por criterio consistente.

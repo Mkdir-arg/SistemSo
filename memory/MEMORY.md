@@ -135,6 +135,9 @@
 - Se completó el quincuagésimo cuarto slice sobre `legajos`.
 - `legajos` ahora también expone sus APIs desde `legajos/api_views/`, incluyendo la API de contactos.
 - El packaging estructural repo-wide quedó prácticamente agotado; lo siguiente ya no es un refactor físico barato.
+- Se completó el quincuagésimo quinto slice sobre `ÑACHEC`.
+- `ServicioOperacionNachec` ahora concentra validación inicial, envío a asignación y asignación territorial.
+- El siguiente frente ya no es estructural: queda el bloque de relevamiento, scoring y evidencias en `nachec_operacion`.
 
 ## Próxima etapa sugerida
 

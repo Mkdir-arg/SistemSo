@@ -379,3 +379,10 @@
 - Decisión: el slice 54 la movió al paquete real porque seguía consumida solo por sus routers y no exigió tocar serializers, permisos ni contratos DRF.
 - Regla derivada: la última API grande de una app puede cerrarse estructuralmente si el cambio sigue siendo cartografía pura y el routing permanece estable.
 - Consecuencia: a partir de este punto, el refactor repo-wide deja de tener slices estructurales baratos y lo que queda es funcional, de contrato o de cleanup fino.
+
+## 2026-03-14 — después del packaging, empezar por subflujos operativos acotados
+
+- Contexto: tras el slice 54, el packaging repo-wide quedó prácticamente agotado y el siguiente hotspot real pasó a ser `legajos/views/nachec_operacion.py`, que todavía retenía mucha lógica de negocio.
+- Decisión: el slice 55 atacó primero el subflujo más acotado y reusable (`validación` → `envío a asignación` → `asignación territorial`) y lo movió a `ServicioOperacionNachec`.
+- Regla derivada: cuando ya no queda deuda estructural barata, conviene seguir por subflujos operativos con transiciones claras y poco acoplamiento a scoring/adjuntos, para maximizar impacto y mantener riesgo controlado.
+- Consecuencia: la view baja bastante de responsabilidad y el siguiente corte ya queda concentrado en relevamiento, scoring y evidencias.

@@ -24,7 +24,7 @@
 | Dashboard | `dashboard/` | v1.0 | 2026-03-09 |
 | Auditoría | `auditoria/` | v1.0 | 2026-03-09 |
 | Configuración del Sistema | `configuracion-sistema/` | v1.0 | 2026-03-09 |
-| Refactor DX Interno | `refactor-dx/` | v1.53 | 2026-03-13 |
+| Refactor DX Interno | `refactor-dx/` | v1.54 | 2026-03-14 |
 
 ---
 
