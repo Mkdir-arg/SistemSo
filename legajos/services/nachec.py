@@ -310,3 +310,240 @@ class ServicioSLA:
         if not fecha_sla:
             return False
         return timezone.now().date() > fecha_sla
+
+
+class ServicioOperacionNachec:
+    """Orquesta tareas y transiciones operativas alrededor del caso."""
+
+    @staticmethod
+    @transaction.atomic
+    def completar_validacion(caso, usuario):
+        tarea, created = TareaNachec.objects.get_or_create(
+            caso=caso,
+            tipo=TipoTarea.VALIDACION,
+            defaults={
+                "titulo": "Revisión inicial - Validación de datos",
+                "descripcion": "Checklist de revisión inicial completado",
+                "asignado_a": usuario,
+                "creado_por": usuario,
+                "estado": EstadoTarea.COMPLETADA,
+                "prioridad": caso.prioridad or "MEDIA",
+                "fecha_vencimiento": timezone.now().date() + timedelta(days=2),
+            },
+        )
+
+        if not created and tarea.estado != EstadoTarea.COMPLETADA:
+            tarea.estado = EstadoTarea.COMPLETADA
+            tarea.save(update_fields=["estado", "modificado"])
+
+        return tarea
+
+    @staticmethod
+    @transaction.atomic
+    def completar_tarea(tarea):
+        if tarea.estado != EstadoTarea.COMPLETADA:
+            tarea.estado = EstadoTarea.COMPLETADA
+            tarea.save(update_fields=["estado", "modificado"])
+        return tarea
+
+    @staticmethod
+    def build_envio_asignacion_context(caso):
+        tarea_validacion = TareaNachec.objects.filter(caso=caso, tipo=TipoTarea.VALIDACION).first()
+        validaciones = {
+            "tarea_completada": bool(
+                tarea_validacion and tarea_validacion.estado == EstadoTarea.COMPLETADA
+            ),
+            "tiene_dni": bool(caso.ciudadano_titular and caso.ciudadano_titular.dni),
+            "tiene_prioridad": bool(caso.prioridad),
+            "tiene_municipio": bool(
+                caso.ciudadano_titular and caso.ciudadano_titular.municipio
+            ),
+            "tiene_localidad": bool(caso.localidad and caso.localidad != "Sin especificar"),
+        }
+        puede_confirmar = all(
+            [
+                validaciones["tarea_completada"],
+                validaciones["tiene_dni"],
+                validaciones["tiene_prioridad"],
+                validaciones["tiene_municipio"],
+            ]
+        )
+        return {
+            "validaciones": validaciones,
+            "puede_confirmar": puede_confirmar,
+            "tarea_validacion": tarea_validacion,
+        }
+
+    @staticmethod
+    def _get_tarea_asignacion_pendiente(caso):
+        return TareaNachec.objects.filter(
+            caso=caso,
+            tipo=TipoTarea.OTRO,
+            titulo__icontains="Asignar territorial",
+            estado__in=[EstadoTarea.PENDIENTE, EstadoTarea.EN_PROCESO],
+        ).first()
+
+    @classmethod
+    @transaction.atomic
+    def enviar_a_asignacion(cls, caso, usuario, municipio=None, localidad=None, observaciones=""):
+        caso.refresh_from_db()
+        if caso.estado != EstadoCaso.EN_REVISION:
+            raise ValidationError("El caso ya fue procesado por otro usuario")
+
+        tarea_validacion = TareaNachec.objects.filter(
+            caso=caso,
+            tipo=TipoTarea.VALIDACION,
+            estado=EstadoTarea.COMPLETADA,
+        ).first()
+        if not tarea_validacion:
+            raise ValidationError("No se puede enviar: la tarea de validación no está completada")
+        if not caso.ciudadano_titular.dni:
+            raise ValidationError("No se puede enviar: falta DNI del titular")
+        if not caso.ciudadano_titular.municipio:
+            raise ValidationError(
+                "No se puede enviar: debe especificar municipio del ciudadano para asignación territorial"
+            )
+
+        if municipio:
+            caso.municipio = municipio
+        if localidad:
+            caso.localidad = localidad
+
+        estado_anterior = caso.estado
+        caso.estado = EstadoCaso.A_ASIGNAR
+        caso.fecha_envio_asignacion = timezone.now()
+        sla_horas = {"URGENTE": 12, "ALTA": 12, "MEDIA": 24, "BAJA": 48}.get(
+            caso.prioridad, 24
+        )
+        caso.sla_asignacion_hasta = timezone.now() + timedelta(hours=sla_horas)
+        caso.save()
+
+        tarea = cls._get_tarea_asignacion_pendiente(caso)
+        descripcion = f"""Caso enviado a asignación territorial.
+
+Municipio: {caso.municipio}
+Localidad: {caso.localidad}
+Prioridad: {caso.get_prioridad_display()}
+
+Observaciones del operador:
+{observaciones}
+
+Debe asignar un territorial de la zona para iniciar relevamiento."""
+        if tarea:
+            tarea.descripcion = descripcion
+            tarea.prioridad = caso.prioridad
+            tarea.fecha_vencimiento = (timezone.now() + timedelta(hours=sla_horas)).date()
+            tarea.save()
+        else:
+            tarea = TareaNachec.objects.create(
+                caso=caso,
+                tipo=TipoTarea.OTRO,
+                titulo="Asignar territorial al caso",
+                descripcion=descripcion,
+                asignado_a=usuario,
+                creado_por=usuario,
+                estado=EstadoTarea.PENDIENTE,
+                prioridad=caso.prioridad,
+                fecha_vencimiento=(timezone.now() + timedelta(hours=sla_horas)).date(),
+            )
+
+        HistorialEstadoCaso.objects.create(
+            caso=caso,
+            estado_anterior=estado_anterior,
+            estado_nuevo=caso.estado,
+            usuario=usuario,
+            observacion=f"""Caso enviado a asignación territorial.
+SLA: {sla_horas}h
+Municipio: {caso.municipio}
+Localidad: {caso.localidad}
+Observaciones: {observaciones}""",
+        )
+
+        return {"caso": caso, "tarea": tarea, "sla_horas": sla_horas}
+
+    @classmethod
+    @transaction.atomic
+    def asignar_territorial(cls, caso, coordinador, territorial, fecha_limite_obj, instrucciones):
+        if caso.estado != EstadoCaso.A_ASIGNAR:
+            raise ValidationError("El caso ya fue asignado por otro usuario. Actualice la pantalla.")
+        if not territorial:
+            raise ValidationError("Debe seleccionar un territorial válido")
+        if len((instrucciones or "").strip()) < 10:
+            raise ValidationError("Las instrucciones deben tener al menos 10 caracteres")
+        if fecha_limite_obj < timezone.now().date():
+            raise ValidationError("La fecha límite no puede ser anterior a hoy")
+
+        estado_anterior = caso.estado
+        caso.estado = EstadoCaso.ASIGNADO
+        caso.territorial = territorial
+        caso.coordinador = coordinador
+        caso.fecha_asignacion = timezone.now().date()
+        caso.sla_relevamiento = fecha_limite_obj
+        caso.instrucciones_asignacion = instrucciones
+        caso.save()
+
+        tarea_asignacion = cls._get_tarea_asignacion_pendiente(caso)
+        if tarea_asignacion:
+            tarea_asignacion.estado = EstadoTarea.COMPLETADA
+            tarea_asignacion.fecha_completada = timezone.now()
+            tarea_asignacion.resultado = (
+                f"Asignado a {territorial.get_full_name()}. "
+                f"SLA relevamiento: {fecha_limite_obj.strftime('%d/%m/%Y')}"
+            )
+            tarea_asignacion.save()
+
+        descripcion_relevamiento = f"""Realizar relevamiento sociofamiliar del caso.
+
+Instrucciones del coordinador:
+{instrucciones}
+
+Datos del caso:
+- Ciudadano: {caso.ciudadano_titular.nombre_completo}
+- DNI: {caso.ciudadano_titular.dni}
+- Municipio: {caso.municipio}
+- Localidad: {caso.localidad}
+- Dirección: {caso.direccion}
+- Prioridad: {caso.get_prioridad_display()}
+
+Fecha límite: {fecha_limite_obj.strftime('%d/%m/%Y')}"""
+
+        tarea_relevamiento = TareaNachec.objects.filter(
+            caso=caso,
+            tipo=TipoTarea.RELEVAMIENTO,
+            estado__in=[EstadoTarea.PENDIENTE, EstadoTarea.EN_PROCESO],
+        ).first()
+        if tarea_relevamiento:
+            tarea_relevamiento.asignado_a = territorial
+            tarea_relevamiento.fecha_vencimiento = fecha_limite_obj
+            tarea_relevamiento.descripcion = descripcion_relevamiento
+            tarea_relevamiento.save()
+        else:
+            tarea_relevamiento = TareaNachec.objects.create(
+                caso=caso,
+                tipo=TipoTarea.RELEVAMIENTO,
+                titulo="Relevamiento inicial del caso",
+                descripcion=descripcion_relevamiento,
+                asignado_a=territorial,
+                creado_por=coordinador,
+                estado=EstadoTarea.PENDIENTE,
+                prioridad=caso.prioridad,
+                fecha_vencimiento=fecha_limite_obj,
+            )
+
+        sla_cumplido = timezone.now().date() <= (caso.sla_revision or timezone.now().date())
+        HistorialEstadoCaso.objects.create(
+            caso=caso,
+            estado_anterior=estado_anterior,
+            estado_nuevo=caso.estado,
+            usuario=coordinador,
+            observacion=f"""Territorial asignado: {territorial.get_full_name()}
+SLA relevamiento: {fecha_limite_obj.strftime('%d/%m/%Y')}
+SLA asignación cumplido: {'Sí' if sla_cumplido else 'No'}
+Instrucciones: {instrucciones[:100]}...""",
+        )
+
+        return {
+            "caso": caso,
+            "tarea_relevamiento": tarea_relevamiento,
+            "sla_cumplido": sla_cumplido,
+        }

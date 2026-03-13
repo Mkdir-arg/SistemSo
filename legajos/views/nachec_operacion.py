@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..models_nachec import CasoNachec, HistorialEstadoCaso, RelevamientoNachec, TareaNachec
+from ..services import ServicioOperacionNachec
 
 
 def _get_municipios():
@@ -16,29 +17,10 @@ def _get_municipios():
 @login_required
 def completar_validacion(request, caso_id):
     """Completar validación creando tarea si no existe"""
-    from django.utils import timezone
-
     caso = get_object_or_404(CasoNachec, id=caso_id)
 
     if request.method == 'POST':
-        tarea, created = TareaNachec.objects.get_or_create(
-            caso=caso,
-            tipo='VALIDACION',
-            defaults={
-                'titulo': 'Revisión inicial - Validación de datos',
-                'descripcion': 'Checklist de revisión inicial completado',
-                'asignado_a': request.user,
-                'creado_por': request.user,
-                'estado': 'COMPLETADA',
-                'prioridad': caso.prioridad or 'MEDIA',
-                'fecha_vencimiento': timezone.now().date() + timedelta(days=2),
-            },
-        )
-
-        if not created:
-            tarea.estado = 'COMPLETADA'
-            tarea.save()
-
+        ServicioOperacionNachec.completar_validacion(caso, request.user)
         messages.success(request, 'Validación completada. Ahora puede enviar el caso a asignación.')
         return redirect('legajos:programa_detalle', pk=2)
 
@@ -66,8 +48,7 @@ def completar_tarea(request, tarea_id):
     tarea = get_object_or_404(TareaNachec, id=tarea_id)
 
     if request.method == 'POST':
-        tarea.estado = 'COMPLETADA'
-        tarea.save()
+        ServicioOperacionNachec.completar_tarea(tarea)
         messages.success(request, f'Tarea "{tarea.titulo}" completada')
         return redirect(request.META.get('HTTP_REFERER', 'legajos:programa_detalle'), pk=2)
 
@@ -84,107 +65,37 @@ def enviar_a_asignacion(request, caso_id):
         return redirect('legajos:programa_detalle', pk=2)
 
     if request.method == 'GET':
-        validaciones = {}
-        tarea_validacion = TareaNachec.objects.filter(caso=caso, tipo='VALIDACION').first()
-        validaciones['tarea_completada'] = tarea_validacion and tarea_validacion.estado == 'COMPLETADA'
-        validaciones['tiene_dni'] = bool(caso.ciudadano_titular.dni)
-        validaciones['tiene_prioridad'] = bool(caso.prioridad)
-        validaciones['tiene_municipio'] = bool(caso.ciudadano_titular.municipio)
-        validaciones['tiene_localidad'] = bool(caso.localidad and caso.localidad != 'Sin especificar')
-
-        puede_confirmar = all([
-            validaciones['tarea_completada'],
-            validaciones['tiene_dni'],
-            validaciones['tiene_prioridad'],
-            validaciones['tiene_municipio'],
-        ])
+        context = ServicioOperacionNachec.build_envio_asignacion_context(caso)
 
         return render(
             request,
             'legajos/nachec/modal_enviar_asignacion.html',
             {
                 'caso': caso,
-                'validaciones': validaciones,
-                'puede_confirmar': puede_confirmar,
-                'tarea_validacion': tarea_validacion,
+                'validaciones': context['validaciones'],
+                'puede_confirmar': context['puede_confirmar'],
+                'tarea_validacion': context['tarea_validacion'],
                 'municipios': _get_municipios(),
             },
         )
 
     if request.method == 'POST':
-        from django.utils import timezone
-
-        caso.refresh_from_db()
-        if caso.estado != 'EN_REVISION':
-            messages.error(request, 'El caso ya fue procesado por otro usuario')
-            return redirect('legajos:programa_detalle', pk=2)
-
-        tarea_validacion = TareaNachec.objects.filter(
-            caso=caso,
-            tipo='VALIDACION',
-            estado='COMPLETADA',
-        ).first()
-
-        if not tarea_validacion:
-            messages.error(request, 'No se puede enviar: la tarea de validación no está completada')
-            return redirect('legajos:nachec_enviar_asignacion', caso_id=caso_id)
-        if not caso.ciudadano_titular.dni:
-            messages.error(request, 'No se puede enviar: falta DNI del titular')
-            return redirect('legajos:nachec_enviar_asignacion', caso_id=caso_id)
-        if not caso.ciudadano_titular.municipio:
-            messages.error(request, 'No se puede enviar: debe especificar municipio del ciudadano para asignación territorial')
+        try:
+            result = ServicioOperacionNachec.enviar_a_asignacion(
+                caso=caso,
+                usuario=request.user,
+                municipio=request.POST.get('municipio'),
+                localidad=request.POST.get('localidad'),
+                observaciones=request.POST.get('observaciones', ''),
+            )
+        except Exception as exc:
+            messages.error(request, str(exc))
             return redirect('legajos:nachec_enviar_asignacion', caso_id=caso_id)
 
-        municipio = request.POST.get('municipio')
-        localidad = request.POST.get('localidad')
-        observaciones = request.POST.get('observaciones', '')
-
-        if municipio:
-            caso.municipio = municipio
-        if localidad:
-            caso.localidad = localidad
-
-        estado_anterior = caso.estado
-        caso.estado = 'A_ASIGNAR'
-        caso.fecha_envio_asignacion = timezone.now()
-        sla_horas = {'URGENTE': 12, 'ALTA': 12, 'MEDIA': 24, 'BAJA': 48}.get(caso.prioridad, 24)
-        caso.sla_asignacion_hasta = timezone.now() + timedelta(hours=sla_horas)
-        caso.save()
-
-        TareaNachec.objects.create(
-            caso=caso,
-            tipo='OTRO',
-            titulo='Asignar territorial al caso',
-            descripcion=f"""Caso enviado a asignación territorial.
-
-Municipio: {caso.municipio}
-Localidad: {caso.localidad}
-Prioridad: {caso.get_prioridad_display()}
-
-Observaciones del operador:
-{observaciones}
-
-Debe asignar un territorial de la zona para iniciar relevamiento.""",
-            asignado_a=request.user,
-            creado_por=request.user,
-            estado='PENDIENTE',
-            prioridad=caso.prioridad,
-            fecha_vencimiento=(timezone.now() + timedelta(hours=sla_horas)).date(),
+        messages.success(
+            request,
+            f"Caso enviado a asignación. Tarea creada para Coordinación (SLA: {result['sla_horas']}h)",
         )
-
-        HistorialEstadoCaso.objects.create(
-            caso=caso,
-            estado_anterior=estado_anterior,
-            estado_nuevo=caso.estado,
-            usuario=request.user,
-            observacion=f"""Caso enviado a asignación territorial.
-SLA: {sla_horas}h
-Municipio: {caso.municipio}
-Localidad: {caso.localidad}
-Observaciones: {observaciones}""",
-        )
-
-        messages.success(request, f'Caso enviado a asignación. Tarea creada para Coordinación (SLA: {sla_horas}h)')
         return redirect('legajos:programa_detalle', pk=2)
 
 
@@ -213,9 +124,6 @@ def asignar_territorial(request, caso_id):
         if not fecha_limite:
             messages.error(request, 'Debe especificar fecha límite de relevamiento')
             return redirect('legajos:nachec_asignar_territorial', caso_id=caso.id)
-        if len(instrucciones) < 10:
-            messages.error(request, 'Las instrucciones deben tener al menos 10 caracteres')
-            return redirect('legajos:nachec_asignar_territorial', caso_id=caso.id)
 
         try:
             territorial = User.objects.get(id=territorial_id, is_active=True)
@@ -226,96 +134,21 @@ def asignar_territorial(request, caso_id):
         from datetime import datetime
         try:
             fecha_limite_obj = datetime.strptime(fecha_limite, '%Y-%m-%d').date()
-            if fecha_limite_obj < timezone.now().date():
-                messages.error(request, 'La fecha límite no puede ser anterior a hoy')
-                return redirect('legajos:nachec_asignar_territorial', caso_id=caso.id)
         except ValueError:
             messages.error(request, 'Formato de fecha inválido')
             return redirect('legajos:nachec_asignar_territorial', caso_id=caso.id)
 
-        with transaction.atomic():
-            estado_anterior = caso.estado
-            caso.estado = 'ASIGNADO'
-            caso.territorial = territorial
-            caso.coordinador = request.user
-            caso.fecha_asignacion = timezone.now().date()
-            caso.sla_relevamiento = fecha_limite_obj
-            caso.instrucciones_asignacion = instrucciones
-            caso.save()
-
-            tarea_asignacion = TareaNachec.objects.filter(
+        try:
+            ServicioOperacionNachec.asignar_territorial(
                 caso=caso,
-                tipo='ASIGNACION',
-                estado__in=['PENDIENTE', 'EN_PROCESO'],
-            ).first()
-
-            if tarea_asignacion:
-                tarea_asignacion.estado = 'COMPLETADA'
-                tarea_asignacion.fecha_completada = timezone.now()
-                tarea_asignacion.resultado = f"Asignado a {territorial.get_full_name()}. SLA relevamiento: {fecha_limite_obj.strftime('%d/%m/%Y')}"
-                tarea_asignacion.save()
-
-            tarea_relevamiento = TareaNachec.objects.filter(
-                caso=caso,
-                tipo='RELEVAMIENTO',
-                estado__in=['PENDIENTE', 'EN_PROCESO'],
-            ).first()
-
-            if tarea_relevamiento:
-                tarea_relevamiento.asignado_a = territorial
-                tarea_relevamiento.fecha_vencimiento = fecha_limite_obj
-                tarea_relevamiento.descripcion = f"""Realizar relevamiento sociofamiliar del caso.
-
-Instrucciones del coordinador:
-{instrucciones}
-
-Datos del caso:
-- Ciudadano: {caso.ciudadano_titular.nombre_completo}
-- DNI: {caso.ciudadano_titular.dni}
-- Municipio: {caso.municipio}
-- Localidad: {caso.localidad}
-- Dirección: {caso.direccion}
-- Prioridad: {caso.get_prioridad_display()}
-
-Fecha límite: {fecha_limite_obj.strftime('%d/%m/%Y')}"""
-                tarea_relevamiento.save()
-            else:
-                TareaNachec.objects.create(
-                    caso=caso,
-                    tipo='RELEVAMIENTO',
-                    titulo='Relevamiento inicial del caso',
-                    descripcion=f"""Realizar relevamiento sociofamiliar del caso.
-
-Instrucciones del coordinador:
-{instrucciones}
-
-Datos del caso:
-- Ciudadano: {caso.ciudadano_titular.nombre_completo}
-- DNI: {caso.ciudadano_titular.dni}
-- Municipio: {caso.municipio}
-- Localidad: {caso.localidad}
-- Dirección: {caso.direccion}
-- Prioridad: {caso.get_prioridad_display()}
-
-Fecha límite: {fecha_limite_obj.strftime('%d/%m/%Y')}""",
-                    asignado_a=territorial,
-                    creado_por=request.user,
-                    estado='PENDIENTE',
-                    prioridad=caso.prioridad,
-                    fecha_vencimiento=fecha_limite_obj,
-                )
-
-            sla_cumplido = timezone.now().date() <= (caso.sla_revision or timezone.now().date())
-            HistorialEstadoCaso.objects.create(
-                caso=caso,
-                estado_anterior=estado_anterior,
-                estado_nuevo=caso.estado,
-                usuario=request.user,
-                observacion=f"""Territorial asignado: {territorial.get_full_name()}
-SLA relevamiento: {fecha_limite_obj.strftime('%d/%m/%Y')}
-SLA asignación cumplido: {'Sí' if sla_cumplido else 'No'}
-Instrucciones: {instrucciones[:100]}...""",
+                coordinador=request.user,
+                territorial=territorial,
+                fecha_limite_obj=fecha_limite_obj,
+                instrucciones=instrucciones,
             )
+        except Exception as exc:
+            messages.error(request, str(exc))
+            return redirect('legajos:nachec_asignar_territorial', caso_id=caso.id)
 
         messages.success(request, f'Territorial asignado exitosamente. Tarea de relevamiento creada con vencimiento {fecha_limite_obj.strftime("%d/%m/%Y")}.')
         return redirect('legajos:programa_detalle', pk=2)
