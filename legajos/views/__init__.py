@@ -46,6 +46,20 @@ from .historial_contactos import (  # noqa: F401
     eliminar_contacto,
     historial_contactos_view,
 )
+from .operativa import (  # noqa: F401
+    ActividadesInscritoListView,
+    InscribirActividadView,
+    InstitucionCreateView,
+    InstitucionDeleteView,
+    InstitucionListView,
+    InstitucionUpdateView,
+    LegajoInstitucionalCreateView,
+    LegajoInstitucionalDetailView,
+    LegajoInstitucionalListView,
+    LegajoInstitucionalUpdateView,
+    actividades_por_institucion,
+    marcar_etapa_plan,
+)
 from .red_contactos import (  # noqa: F401
     contacto_emergencia_api,
     crear_contacto_emergencia,
