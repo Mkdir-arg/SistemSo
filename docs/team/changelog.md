@@ -14,6 +14,31 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 37: packaging de services y selectors en `legajos`
+
+**Archivos modificados:**
+- `legajos/services/__init__.py`
+- `legajos/services/admision.py`
+- `legajos/services/ciudadanos.py`
+- `legajos/services/contactos.py`
+- `legajos/services/legajos.py`
+- `legajos/services/solapas.py`
+- `legajos/services_admision.py`
+- `legajos/services_ciudadanos.py`
+- `legajos/services_contactos.py`
+- `legajos/services_legajos.py`
+- `legajos/services_solapas.py`
+- `legajos/selectors/__init__.py`
+- `legajos/selectors/ciudadanos.py`
+- `legajos/selectors/contactos.py`
+- `legajos/selectors/legajos.py`
+- `legajos/selectors_ciudadanos.py`
+- `legajos/selectors_contactos.py`
+- `legajos/selectors_legajos.py`
+- `legajos/tests/test_package_exports.py`
+
+**Descripción:** Se agrupó en `legajos` la capa reutilizable ya estabilizada de `services` y `selectors`, manteniendo wrappers compatibles para los módulos legacy. El objetivo fue seguir bajando deuda estructural en la app más grande del proyecto sin tocar todavía el wiring sensible de `views` y `signals`.
+
 ## 2026-03-13 — Refactor DX slice 14: `chatbot` contrato frontend/backend y CSRF
 
 **User Story:** Como equipo de desarrollo quiero alinear el contrato entre frontend y backend del módulo `chatbot` y retirar `@csrf_exempt` en sus endpoints principales para evitar deuda funcional y mejorar seguridad.

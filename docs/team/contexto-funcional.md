@@ -218,6 +218,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el trigésimo sexto slice del refactor DX sobre `core`
 - La app ahora agrupa views, forms y selectors del flujo principal en paquetes reales, sin tocar todavía la auditoría pesada ni sus signals
 - El comportamiento visible no cambió, pero la capa compartida del proyecto quedó más consistente con el packaging del resto de apps
+- Se ejecutó el trigésimo séptimo slice del refactor DX sobre `legajos`
+- La app ahora agrupa `services` y `selectors` reales para ciudadanía, admisión, legajos, contactos y solapas, manteniendo wrappers de compatibilidad para imports legacy
+- El comportamiento visible no cambió, pero el núcleo reutilizable del dominio quedó alineado con el packaging ya aplicado en el resto del proyecto
 
 ---
 

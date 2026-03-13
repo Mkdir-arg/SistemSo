@@ -48,6 +48,7 @@ _Se define en el sprint planning._
 | DX-034 | Como equipo de desarrollo quiero agrupar `portal` en paquetes reales sin romper sus flujos ciudadanos ni el registro institucional | ✅ Completado | Slice 34 ejecutado el 2026-03-13 con wrappers compatibles y tests de patch actualizados a paths reales |
 | DX-035 | Como equipo de desarrollo quiero agrupar `conversaciones` en paquetes reales sin romper chat, runtime y registro de señales | ✅ Completado | Slice 35 ejecutado el 2026-03-13 con wrappers compatibles, tests ajustados y `ready()` unificado |
 | DX-036 | Como equipo de desarrollo quiero agrupar `core` en paquetes reales donde el riesgo sea bajo para ordenar la base compartida del proyecto | ✅ Completado | Slice 36 ejecutado el 2026-03-13 sobre views/forms/selectors del flujo principal |
+| DX-037 | Como equipo de desarrollo quiero agrupar `legajos` en paquetes reales de services/selectors antes de tocar wiring sensible de views y signals | ✅ Completado | Slice 37 ejecutado el 2026-03-13 con wrappers compatibles y smoke test de exports |
 
 ## Impedimentos
 

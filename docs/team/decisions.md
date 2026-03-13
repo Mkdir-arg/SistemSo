@@ -253,3 +253,10 @@
 - Decisión: el slice 36 empaquetó solo `views`, `forms` y `selectors` del flujo principal, dejando fuera la parte de auditoría/signals.
 - Regla derivada: en apps transversales y de infraestructura, conviene aislar primero el packaging de la superficie estable antes de tocar wiring sensible o código de observabilidad.
 - Consecuencia: mejora la consistencia estructural sin comprometer la trazabilidad y auditoría del sistema.
+
+## 2026-03-13 — en `legajos`, empaquetar primero la capa reusable antes del wiring sensible
+
+- Contexto: `legajos` es la app más grande del proyecto y todavía conserva `views` y `signals` con mucho acoplamiento de dominio, pero ya tenía una capa reusable estabilizada de ciudadanía, admisión, contactos, legajos y solapas.
+- Decisión: el slice 37 creó paquetes reales de `services` y `selectors` para esa capa, manteniendo wrappers legacy y sin tocar todavía `views` ni `signals`.
+- Regla derivada: en apps grandes con mucho wiring implícito, conviene empaquetar primero la capa reusable ya estabilizada antes de mover la superficie operativa más sensible.
+- Consecuencia: baja la deuda estructural y mejora la navegabilidad sin introducir todavía riesgo alto en el runtime del dominio.

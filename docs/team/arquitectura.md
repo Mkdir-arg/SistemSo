@@ -333,3 +333,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: la migración de módulos planos a paquetes reales debe hacerse app por app, dejando wrappers compatibles en los entrypoints legacy hasta que exista cobertura suficiente para retirar esos aliases.
 - 2026-03-13: al mover una app a paquetes reales, los módulos legacy deben seguir exportando también símbolos usados implícitamente por tests o monkeypatches, aunque no formen parte de la API funcional principal.
 - 2026-03-13: cuando una app de Django tenga múltiples familias de señales, `AppConfig.ready()` debe consolidarlas en un único método explícito antes o durante la migración de packaging; mantener varios `ready()` en la clase es una inconsistencia funcional.
+- 2026-03-13: en apps grandes como `legajos`, el packaging físico debe empezar por `services` y `selectors` ya estabilizados, dejando `views` y `signals` para una etapa posterior con mejor cobertura.

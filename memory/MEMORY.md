@@ -81,6 +81,9 @@
 - `conversaciones` ahora agrupa `views`, `forms`, `services`, `selectors` y `signals` en paquetes reales, y `apps.py` ya no tiene el bug estructural de doble `ready()`.
 - Se completó el trigésimo sexto slice sobre `core`.
 - `core` ahora agrupa `views`, `forms` y `selectors` del flujo principal en paquetes reales; la auditoría pesada y los signals quedaron deliberadamente fuera de este corte.
+- Se completó el trigésimo séptimo slice sobre `legajos`.
+- `legajos` ahora agrupa `services` y `selectors` reales para ciudadanía, admisión, legajos, contactos y solapas, preservando wrappers legacy compatibles.
+- El siguiente paso razonable dentro de `legajos` ya no es packaging masivo: conviene seguir por subdominio sobre `views` o `signals`, empezando por la superficie con menor wiring sensible.
 
 ## Próxima etapa sugerida
 
