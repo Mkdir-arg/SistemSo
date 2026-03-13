@@ -1,4 +1,6 @@
-from .views_admin import (
+"""Paquete de vistas para la app de chatbot."""
+
+from .admin import (  # noqa: F401
     add_knowledge,
     admin_data,
     admin_panel,
@@ -7,7 +9,7 @@ from .views_admin import (
     test_api_key,
     update_api_key,
 )
-from .views_public import (
+from .public import (  # noqa: F401
     chat_interface,
     load_conversation,
     new_conversation,
