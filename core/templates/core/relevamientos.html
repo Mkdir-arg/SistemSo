@@ -50,7 +50,7 @@
                 <button type="submit" class="flex-1 py-3 px-4 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition-all" style="background: linear-gradient(135deg, #7928CA 0%, #FF0080 100%);">
                     Buscar
                 </button>
-                <a href="{% url 'relevamientos' %}" class="py-3 px-4 rounded-xl border border-[#E5E7EB] text-[#4A5565] font-semibold hover:bg-[#F9FAFB] transition-all">
+                <a href="{% url 'core:relevamientos' %}" class="py-3 px-4 rounded-xl border border-[#E5E7EB] text-[#4A5565] font-semibold hover:bg-[#F9FAFB] transition-all">
                     Limpiar
                 </a>
             </div>
@@ -86,7 +86,7 @@
                         </td>
                         <td class="px-4 py-3">
                             <a
-                                href="{% url 'relevamiento_detail' r.id %}"
+                                href="{% url 'core:relevamiento_detail' r.id %}"
                                 class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold !text-white shadow-sm hover:shadow transition-all"
                                 style="background: linear-gradient(135deg, #7928CA 0%, #FF0080 100%);"
                             >

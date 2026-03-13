@@ -10,7 +10,7 @@
                 <h1 class="text-3xl font-bold mb-2">Detalle de Relevamiento</h1>
                 <p class="text-purple-100">ID: {{ item.id|default:"-" }}</p>
             </div>
-            <a href="{% url 'relevamientos' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition-colors">
+            <a href="{% url 'core:relevamientos' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition-colors">
                 <i class="fas fa-arrow-left"></i>
                 Volver al listado
             </a>
