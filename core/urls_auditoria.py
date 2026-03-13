@@ -1,24 +1,33 @@
 from django.urls import path
-from . import views_auditoria
+from .views import (
+    alertas_auditoria,
+    dashboard_auditoria,
+    exportar_logs,
+    historial_cambios,
+    logs_acciones,
+    logs_descargas,
+    marcar_alerta_revisada,
+    sesiones_usuario,
+)
 
 app_name = 'auditoria'
 
 urlpatterns = [
     # Dashboard principal
-    path('', views_auditoria.dashboard_auditoria, name='dashboard'),
+    path('', dashboard_auditoria, name='dashboard'),
     
     # Logs
-    path('logs/acciones/', views_auditoria.logs_acciones, name='logs_acciones'),
-    path('logs/descargas/', views_auditoria.logs_descargas, name='logs_descargas'),
-    path('logs/exportar/', views_auditoria.exportar_logs, name='exportar_logs'),
+    path('logs/acciones/', logs_acciones, name='logs_acciones'),
+    path('logs/descargas/', logs_descargas, name='logs_descargas'),
+    path('logs/exportar/', exportar_logs, name='exportar_logs'),
     
     # Sesiones
-    path('sesiones/', views_auditoria.sesiones_usuario, name='sesiones'),
+    path('sesiones/', sesiones_usuario, name='sesiones'),
     
     # Alertas
-    path('alertas/', views_auditoria.alertas_auditoria, name='alertas'),
-    path('alertas/<int:alerta_id>/revisar/', views_auditoria.marcar_alerta_revisada, name='marcar_alerta_revisada'),
+    path('alertas/', alertas_auditoria, name='alertas'),
+    path('alertas/<int:alerta_id>/revisar/', marcar_alerta_revisada, name='marcar_alerta_revisada'),
     
     # Historial de cambios
-    path('historial/', views_auditoria.historial_cambios, name='historial_cambios'),
+    path('historial/', historial_cambios, name='historial_cambios'),
 ]

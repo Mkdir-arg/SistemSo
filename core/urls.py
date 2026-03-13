@@ -3,22 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
 from .views import (
+    alerts_api,
     inicio_view,
     relevamiento_detail_view,
     relevamientos_view,
     load_localidad,
     load_municipios,
-)
-from .performance_dashboard import (
-    performance_dashboard,
-    performance_api,
-    query_analysis_api,
     optimization_suggestions_api,
-    system_metrics_api,
-    alerts_api,
-    realtime_metrics_api,
+    performance_api,
+    performance_dashboard,
     phase2_metrics_api,
+    query_analysis_api,
+    realtime_metrics_api,
     run_phase2_tests_api,
+    system_metrics_api,
 )
 
 app_name = "core"
