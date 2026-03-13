@@ -60,6 +60,7 @@ from .operativa import (  # noqa: F401
     actividades_por_institucion,
     marcar_etapa_plan,
 )
+from .programas import ProgramaDetailView, ProgramaListView  # noqa: F401
 from .red_contactos import (  # noqa: F401
     contacto_emergencia_api,
     crear_contacto_emergencia,
@@ -74,4 +75,13 @@ from .red_contactos import (  # noqa: F401
     profesionales_api,
     red_contactos_view,
     vinculos_api,
+)
+from .solapas import (  # noqa: F401
+    CiudadanoDetalleConSolapasView,
+    aceptar_derivacion_programa,
+    cerrar_inscripcion_programa,
+    ciudadano_detalle_con_solapas,
+    derivar_a_programa,
+    inscribir_a_programa,
+    rechazar_derivacion_programa,
 )
