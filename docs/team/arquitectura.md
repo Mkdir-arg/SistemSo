@@ -186,6 +186,13 @@ SistemSo/
 
 **Consecuencia:** El proyecto gana previsibilidad de URLs y namespaces sin pagar el costo de un big-bang en templates y llamadas a `reverse()`.
 
+### DT-019 — la migración a namespaces se hace primero en consumidores no ambiguos (2026-03-13)
+**Contexto:** Tras habilitar namespaces compatibles, seguía pendiente mover consumidores reales. Sin embargo, nombres como `login/logout` siguen conviviendo con `django.contrib.auth.urls` y no conviene tocarlos sin una decisión explícita.
+
+**Decisión:** El slice 12 migró primero consumidores claros de `core:*` y `users:*` en templates y dejó fuera los names ambiguos.
+
+**Consecuencia:** La migración empieza a generar valor real y reduce dependencia de names legacy, pero sin entrar todavía en las rutas sensibles de autenticación.
+
 ---
 
 ## Deudas técnicas documentadas

@@ -78,3 +78,10 @@
 - Decisión: el slice 11 agregó `app_name` y expuso includes namespaced en paralelo a los legacy.
 - Regla derivada: cuando un rename global de URLs es riesgoso, primero conviene habilitar compatibilidad dual y migrar el consumo de forma incremental.
 - Consecuencia: ya se pueden usar namespaces consistentes en código nuevo sin obligar a una migración agresiva del código existente.
+
+## 2026-03-13 — migrar primero consumidores de names no ambiguos
+
+- Contexto: una vez habilitados los namespaces, todavía había mucho consumo legacy en templates.
+- Decisión: el slice 12 migró primero `core:*` y `users:*` en pantallas donde el name no colisiona con `django.contrib.auth.urls`.
+- Regla derivada: en migraciones de URLs, empezar por consumidores no ambiguos y dejar autenticación para un corte específico.
+- Consecuencia: avanza la estandarización real sin introducir una regresión oculta en login/logout.

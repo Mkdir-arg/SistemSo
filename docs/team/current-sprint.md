@@ -23,6 +23,7 @@ _Se define en el sprint planning._
 | DX-009 | Como equipo de desarrollo quiero alinear la API auxiliar de `conversaciones` al patrón de selectors/services para eliminar queries y permisos inline duplicados | ✅ Completado | Slice 9 ejecutado el 2026-03-13 sin cambios de rutas ni modelos |
 | DX-010 | Como equipo de desarrollo quiero separar físicamente `configuracion/views.py` por dominios para que la app siga el mismo patrón modular del resto del refactor | ✅ Completado | Slice 10 ejecutado el 2026-03-13 sin cambios de URLs, modelos ni templates |
 | DX-011 | Como equipo de desarrollo quiero habilitar namespaces consistentes en `users`, `core` y `healthcheck` sin romper los names legacy mientras se migra el proyecto | ✅ Completado | Slice 11 ejecutado el 2026-03-13 con compatibilidad dual namespaced/legacy |
+| DX-012 | Como equipo de desarrollo quiero migrar consumidores claros a `core:*` y `users:*` para empezar a retirar dependencia de names legacy | ✅ Completado | Slice 12 ejecutado el 2026-03-13 solo sobre templates con names no ambiguos |
 
 ## Impedimentos
 

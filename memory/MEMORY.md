@@ -30,8 +30,10 @@
 - `configuracion/views.py` quedó como fachada compatible y la app ahora reparte geografía, institucional y actividades en módulos separados.
 - Se completó el undécimo slice sobre namespaces.
 - `users`, `core` y `healthcheck` ya tienen `app_name` y `config/urls.py` expone includes namespaced en paralelo a los legacy.
+- Se completó el duodécimo slice sobre migración inicial de consumidores.
+- Templates internos ya usan `core:*` y `users:*` en varios puntos no ambiguos; autenticación quedó pendiente aparte.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser la migración gradual de consumo hacia namespaces nuevos y la deuda funcional/técnica residual de `conversaciones`: CSRF legacy, polling HTTP y estrategia realtime parcial.
+- El siguiente hotspot real pasó a ser cerrar la migración de consumidores sensibles (`login/logout`) y la deuda funcional/técnica residual de `conversaciones`: CSRF legacy, polling HTTP y estrategia realtime parcial.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

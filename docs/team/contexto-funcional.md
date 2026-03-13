@@ -143,6 +143,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el undécimo slice del refactor DX sobre URLs y namespaces raíz del proyecto
 - `users`, `core` y `healthcheck` ya exponen namespaces consistentes sin retirar todavía los names legacy
 - El cambio fue deliberadamente incremental para evitar una rotura transversal en templates y `reverse()`
+- Se ejecutó el duodécimo slice del refactor DX sobre consumidores de URLs
+- Varias pantallas internas ya consumen `core:*` y `users:*` en lugar de names legacy sin namespace
+- Se dejó autenticación fuera de este corte porque `login/logout` requieren una decisión más cuidadosa por convivencia con Django auth
 
 ---
 

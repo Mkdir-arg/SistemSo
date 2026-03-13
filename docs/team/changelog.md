@@ -14,6 +14,27 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 12: migración inicial de consumidores a namespaces
+
+**User Story:** Como equipo de desarrollo quiero empezar a consumir namespaces explícitos en templates y pantallas internas para reducir dependencia de names legacy y preparar el retiro gradual de la compatibilidad dual.
+
+**Archivos modificados:**
+- `core/templates/core/relevamientos.html`
+- `core/templates/core/relevamiento_detail.html`
+- `core/templates/relevamientos.html`
+- `core/templates/relevamiento_detail.html`
+- `users/templates/user/user_list.html`
+- `users/templates/user/user_form.html`
+- `users/templates/user/user_confirm_delete.html`
+- `templates/includes/sidebar/opciones.html`
+- `templates/includes/header.html`
+- `templates/403.html`
+- `templates/500.html`
+- `templates/relevamientos.html`
+- `templates/relevamiento_detail.html`
+
+**Descripcion:** Se implementó el slice 12 del refactor DX, migrando consumidores claros y no ambiguos desde names legacy a `core:*` y `users:*`. Se dejaron fuera `login/logout` porque todavía conviven con `django.contrib.auth.urls` y requieren una decisión más cuidadosa. El objetivo de este corte fue empezar a consumir los namespaces nuevos ya habilitados en el slice 11 sin introducir riesgo innecesario.
+
 ## 2026-03-13 — Refactor DX slice 11: namespaces compatibles en `users`, `core` y `healthcheck`
 
 **User Story:** Como equipo de desarrollo quiero estandarizar namespaces en módulos raíz del proyecto sin romper los nombres legacy que todavía usa el código existente.
