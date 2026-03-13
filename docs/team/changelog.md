@@ -14,6 +14,28 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 39: packaging de views auxiliares de contactos en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/contactos_api.py`
+- `legajos/views/contactos_panel.py`
+- `legajos/views/dashboard_contactos.py`
+- `legajos/views/dashboard_simple.py`
+- `legajos/views/historial_contactos.py`
+- `legajos/views/red_contactos.py`
+- `legajos/views/simple_contactos.py`
+- `legajos/views_contactos_api.py`
+- `legajos/views_contactos_panel.py`
+- `legajos/views_dashboard_contactos.py`
+- `legajos/views_dashboard_simple.py`
+- `legajos/views_historial_contactos.py`
+- `legajos/views_red_contactos.py`
+- `legajos/views_simple_contactos.py`
+- `legajos/tests/test_contactos_fachada.py`
+
+**Descripción:** Se empaquetó en `legajos/views/` el bloque auxiliar de contactos y dashboards simples, manteniendo wrappers compatibles para los módulos legacy. El corte deja fuera por ahora las views más sensibles de clínica e institucional, pero reduce otra porción grande de deuda estructural en la app.
+
 ## 2026-03-13 — Refactor DX Slice 38: packaging de forms en `legajos`
 
 **Archivos modificados:**

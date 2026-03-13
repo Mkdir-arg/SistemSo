@@ -267,3 +267,10 @@
 - Decisión: el slice 38 creó `legajos/forms/` como paquete real y dejó wrappers mínimos en los módulos históricos de forms.
 - Regla derivada: si la capa de formularios ya está partida por dominio y no tiene side effects de runtime, conviene empaquetarla antes de seguir con superficies más riesgosas como views o signals.
 - Consecuencia: la cartografía de la app gana consistencia y se reduce otro bloque de deuda estructural sin cambiar comportamiento funcional.
+
+## 2026-03-13 — en `legajos`, mover views auxiliares antes que las views sensibles
+
+- Contexto: después de empaquetar `services`, `selectors` y `forms`, la siguiente deuda natural estaba en `views`, pero la app todavía conserva bloques muy sensibles en clínica, institucional y `ÑACHEC`.
+- Decisión: el slice 39 empezó la migración de views por el bloque de contactos y dashboards simples, que ya estaba separado en módulos pequeños y con menor riesgo operativo.
+- Regla derivada: cuando una app grande entra en la etapa de packaging de views, conviene empezar por subdominios auxiliares con poco wiring implícito antes de tocar superficies críticas del negocio.
+- Consecuencia: el proyecto gana consistencia estructural y tests de export sin abrir todavía un frente de regresión alto en las rutas principales de `legajos`.

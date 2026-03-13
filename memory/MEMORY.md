@@ -87,6 +87,9 @@
 - Se completó el trigésimo octavo slice sobre `legajos`.
 - `legajos` ahora también agrupa `forms` reales por dominio, con wrappers legacy compatibles.
 - El siguiente corte seguro dentro de la app pasa a ser selectivo sobre `views`, empezando por la superficie menos sensible y evitando todavía una migración masiva de signals.
+- Se completó el trigésimo noveno slice sobre `legajos`.
+- El bloque auxiliar de contactos y dashboards simples ahora vive en `legajos/views/`, con wrappers legacy compatibles.
+- El siguiente corte seguro sigue siendo selectivo sobre `views`, pero ya más cerca de zonas sensibles como `programas`, `operativa` o `institucional`.
 
 ## Próxima etapa sugerida
 
