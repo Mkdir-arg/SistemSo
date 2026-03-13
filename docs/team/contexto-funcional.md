@@ -146,6 +146,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el duodécimo slice del refactor DX sobre consumidores de URLs
 - Varias pantallas internas ya consumen `core:*` y `users:*` en lugar de names legacy sin namespace
 - Se dejó autenticación fuera de este corte porque `login/logout` requieren una decisión más cuidadosa por convivencia con Django auth
+- Se ejecutó el decimotercer slice del refactor DX sobre `chatbot`
+- El módulo ya no mezcla chat de usuario y panel administrativo en un solo `views.py`, y valida payloads JSON con forms livianos
+- El comportamiento visible no cambió; el objetivo fue bajar acoplamiento y preparar mejor base para futuras mejoras del bot
 
 ---
 

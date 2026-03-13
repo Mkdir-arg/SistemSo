@@ -85,3 +85,10 @@
 - Decisión: el slice 12 migró primero `core:*` y `users:*` en pantallas donde el name no colisiona con `django.contrib.auth.urls`.
 - Regla derivada: en migraciones de URLs, empezar por consumidores no ambiguos y dejar autenticación para un corte específico.
 - Consecuencia: avanza la estandarización real sin introducir una regresión oculta en login/logout.
+
+## 2026-03-13 — dividir `chatbot` por superficie funcional
+
+- Contexto: `chatbot/views.py` seguía mezclando chat del usuario, panel admin y parsing manual de payloads.
+- Decisión: el slice 13 separó vistas públicas y administrativas y movió lectura/orquestación a selectors/services con forms livianos para JSON.
+- Regla derivada: cuando una app combina superficie de usuario y de administración, separar primero por superficie antes de rediseñar endpoints.
+- Consecuencia: la app queda consistente con el patrón del refactor DX y con mejor base para hardening posterior.

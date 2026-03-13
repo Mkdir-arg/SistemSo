@@ -193,6 +193,13 @@ SistemSo/
 
 **Consecuencia:** La migración empieza a generar valor real y reduce dependencia de names legacy, pero sin entrar todavía en las rutas sensibles de autenticación.
 
+### DT-020 — `chatbot` se divide entre vistas públicas y administrativas sin cambiar su superficie HTTP (2026-03-13)
+**Contexto:** `chatbot/views.py` mezclaba chat público, panel admin, validación manual de JSON y lecturas del dashboard en un mismo archivo.
+
+**Decisión:** El slice 13 separó `views_public.py` y `views_admin.py`, agregó forms para payloads JSON, selectors para lecturas del dashboard y services para el workflow del chat y las acciones administrativas, manteniendo `views.py` como fachada compatible.
+
+**Consecuencia:** El módulo queda más testeable y navegable sin asumir todavía un hardening de CSRF o un rediseño de sus endpoints.
+
 ---
 
 ## Deudas técnicas documentadas

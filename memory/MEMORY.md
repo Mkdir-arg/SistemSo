@@ -32,8 +32,10 @@
 - `users`, `core` y `healthcheck` ya tienen `app_name` y `config/urls.py` expone includes namespaced en paralelo a los legacy.
 - Se completó el duodécimo slice sobre migración inicial de consumidores.
 - Templates internos ya usan `core:*` y `users:*` en varios puntos no ambiguos; autenticación quedó pendiente aparte.
+- Se completó el decimotercer slice sobre `chatbot`.
+- `chatbot/views.py` quedó como fachada compatible y el módulo ahora usa forms/selectors/services y vistas separadas para superficie pública y admin.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser cerrar la migración de consumidores sensibles (`login/logout`) y la deuda funcional/técnica residual de `conversaciones`: CSRF legacy, polling HTTP y estrategia realtime parcial.
+- El siguiente hotspot real pasó a ser cerrar la migración de consumidores sensibles (`login/logout`) y la deuda funcional/técnica residual de `conversaciones`/`chatbot`: CSRF legacy y contratos JSON todavía apoyados en `@csrf_exempt`.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

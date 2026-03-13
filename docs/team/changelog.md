@@ -14,6 +14,24 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 13: `chatbot` modularización y validación de payloads
+
+**User Story:** Como equipo de desarrollo quiero separar la superficie pública y administrativa de `chatbot`, extraer lecturas reutilizables y validar payloads JSON para reducir lógica en `views.py` sin cambiar las rutas del módulo.
+
+**Archivos creados:**
+- `chatbot/forms_chatbot.py`
+- `chatbot/selectors_chatbot.py`
+- `chatbot/services_chatbot.py`
+- `chatbot/views_public.py`
+- `chatbot/views_admin.py`
+- `chatbot/tests/__init__.py`
+- `chatbot/tests/test_chatbot_services.py`
+
+**Archivos modificados:**
+- `chatbot/views.py`
+
+**Descripcion:** Se implementó el slice 13 del refactor DX sobre `chatbot`. El módulo ahora separa chat público y administración, valida payloads con forms livianos, encapsula el workflow principal y las operaciones administrativas en services, y usa selectors para lecturas del dashboard y conversaciones. `views.py` quedó como fachada compatible y no hubo cambios de URLs, modelos ni templates.
+
 ## 2026-03-13 — Refactor DX slice 12: migración inicial de consumidores a namespaces
 
 **User Story:** Como equipo de desarrollo quiero empezar a consumir namespaces explícitos en templates y pantallas internas para reducir dependencia de names legacy y preparar el retiro gradual de la compatibilidad dual.
