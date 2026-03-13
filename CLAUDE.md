@@ -1,10 +1,12 @@
-# Equipo de Desarrollo - AkunCalcu
+# Equipo de Desarrollo - SistemSo
 
 ## Identidad del proyecto
-**AkunCalcu** es un sistema de gestión comercial para Akuna Aberturas.
-- Stack: Python 3.12, Django 4.2.7, MySQL 8.0, Tailwind CSS
+**SistemSo** es un sistema de gestión estatal. Permite a organismos de gobierno gestionar ciudadanos, programas sociales e instituciones.
+- Stack: Python 3.12, Django 4.2.7, MySQL 8.0, Tailwind CSS + Alpine.js
 - Entorno: Docker Compose (`docker-compose up --build`)
-- App Django: `akuna_calc/` con apps: `core`, `productos`, `comercial`, `facturacion`, `usuarios`
+- Apps Django: `core`, `legajos`, `turnos`, `users`, `dashboard`, `configuracion`, `chatbot`, `conversaciones`, `portal`, `tramites`
+- Dos superficies: **backoffice** (operadores/profesionales) y **portal ciudadano** (público)
+- Tres dominios centrales: **Ciudadanos**, **Programas**, **Instituciones**
 
 ## Equipo de agentes
 
@@ -38,14 +40,16 @@ El equipo opera en modo **auto-orquestado**. Los agentes se activan automáticam
 | Comando | Cuándo usarlo |
 |---------|--------------|
 | `/definir [tema]` | Antes de implementar — clarificar reglas de negocio, debatir opciones, documentar sin codear |
+| `/planificar [idea]` | Cuando querés el diseño técnico aprobado pero NO el código todavía — Fases 1+2 y se detiene |
 | `/feature [idea]` | Cuando ya está claro qué se quiere — implementación completa en 5 fases |
 | `/fix [problema]` | Bug o comportamiento incorrecto en producción/desarrollo |
 | `/hotfix [problema]` | Bug crítico urgente |
+| `/roadmap` | Ver el mapa de dependencias del backlog, camino crítico y próximos pasos |
 | `/sprint-plan` | Planificar el sprint de la semana |
 | `/sprint-review` | Revisar qué se completó en el sprint |
 | `/status` | Estado actual del proyecto |
 
-**Flujo recomendado:** `/definir` → (acuerdo) → `/feature` → (implementación)
+**Flujo recomendado:** `/definir` → `/planificar` → (aprobación) → `/feature` → (implementación)
 
 ---
 

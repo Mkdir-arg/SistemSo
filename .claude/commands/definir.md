@@ -23,8 +23,15 @@ Cuando el usuario ejecuta `/definir [tema]`:
 Leer obligatoriamente y en este orden:
 1. `docs/team/contexto-funcional.md` — reglas de negocio, actores, preguntas abiertas, historial
 2. `docs/team/arquitectura.md` — estado técnico actual, principios, deudas
-3. `docs/funcionalidades/_index.md` — qué funcionalidades existen relacionadas al tema
-4. Si existe carpeta en `docs/funcionalidades/[slug-relacionado]/` → leer el documento más reciente
+3. `docs/team/backlog.md` — qué user stories ya existen, cuáles están pendientes de definir, dependencias entre items
+4. `docs/funcionalidades/_index.md` — qué funcionalidades existen relacionadas al tema
+5. Si existe carpeta en `docs/funcionalidades/[slug-relacionado]/` → leer el documento más reciente
+6. Buscar en `docs/requerimientos/` si ya existe un archivo relacionado al tema → leerlo si existe
+
+Con esta información, antes de presentar el punto de partida:
+- Identificar si el tema ya tiene user story en el backlog
+- Identificar si ya existe un requerimiento documentado
+- Identificar qué user stories del backlog se verían afectadas por lo que se defina en esta sesión
 
 ### PASO 2 — Presentar punto de partida
 
@@ -113,10 +120,15 @@ Si el usuario aprueba el resumen:
    ```
    Con estado `ABIERTO` y los criterios de éxito definidos en la sesión.
 
-3. **Si hubo decisión técnica → actualizar `docs/team/arquitectura.md`**
+3. **Actualizar `docs/team/backlog.md`:**
+   - Si surgieron user stories nuevas → agregarlas como items pendientes con ID correlativo
+   - Si el tema ya tenía user story en el backlog → actualizar las notas con referencia al requerimiento creado
+   - Si había un item en "Pendiente de /definir" → moverlo a "Features pendientes" o marcarlo como resuelto
+
+4. **Si hubo decisión técnica → actualizar `docs/team/arquitectura.md`**
 
 Terminar con:
-> "Sesión documentada. Cuando quieras implementar algo de lo que definimos, usá `/feature [descripción]`."
+> "Sesión documentada. Cuando quieras implementar algo de lo que definimos, usá `/feature [descripción]` o `/planificar [descripción]` si querés ver el diseño antes de codear."
 
 ---
 
