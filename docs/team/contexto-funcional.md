@@ -191,6 +191,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el vigésimo séptimo slice del refactor DX sobre `contactos`
 - El módulo legacy de contactos dejó de mezclar panel, APIs, queries pesadas y uploads en un solo archivo; ahora usa selectors, un service de adjuntos y una fachada compatible
 - El comportamiento visible no cambió salvo correcciones necesarias para alinearlo con el modelo real, eliminando referencias a campos inexistentes dentro de ese módulo
+- Se ejecutó el vigésimo octavo slice del refactor DX sobre consumidores transversales de rutas
+- El logout del backoffice, el bubble de chatbot y el dashboard de alertas ya consumen namespaces/rutas renderizadas por Django en lugar de paths hardcodeados
+- El comportamiento visible no cambió, pero la base quedó más preparada para cerrar la migración de URLs y namespaces sin roturas silenciosas
 
 ---
 

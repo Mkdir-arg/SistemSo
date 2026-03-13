@@ -190,3 +190,10 @@
 - Decisión: el slice 27 separó panel y API, extrajo la lectura a `selectors_contactos.py` y encapsuló el manejo repetido de archivos en `services_contactos.py`, dejando `views_simple_contactos.py` como fachada.
 - Regla derivada: cuando un módulo legacy mezcla APIs heterogéneas con side effects repetidos, conviene aislar primero lectura y archivos antes de revisar permisos o rediseñar el contrato completo.
 - Consecuencia: baja el costo cognitivo del módulo y permite corregir inconsistencias con el modelo real desde un solo lugar.
+
+## 2026-03-13 — cerrar hardcodes transversales antes de tocar la capa de URLs
+
+- Contexto: aun con namespaces compatibles disponibles, seguían quedando templates y scripts globales consumiendo `logout`, `chatbot` o `conversaciones` mediante paths hardcodeados o names legacy.
+- Decisión: el slice 28 migró esos consumidores a namespaces estables o a configuración renderizada por Django, y amplió los smoke tests de rutas críticas.
+- Regla derivada: antes de endurecer o renombrar URLs, conviene barrer los consumidores transversales más visibles y fijar con tests los namespaces que ya deben considerarse públicos.
+- Consecuencia: baja el riesgo de la futura etapa de limpieza de URLs y se reducen los puntos de rotura silenciosa ante cambios de routing.

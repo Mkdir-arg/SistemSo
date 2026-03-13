@@ -62,6 +62,8 @@
 - El backoffice ahora se reparte en módulos dedicados, con mixins de permisos reutilizables y CBVs para el CRUD repetible.
 - Se completó el vigésimo séptimo slice sobre `contactos`.
 - El módulo legacy ahora usa selectors para lectura compuesta, un service de adjuntos y una fachada compatible para no romper URLs/imports.
+- Se completó el vigésimo octavo slice sobre consumers transversales de rutas.
+- `users:logout`, `chatbot:send_message` y `conversaciones:detalle` ya están consumidos desde namespaces/config renderizada en los puntos más visibles.
 
 ## Próxima etapa sugerida
 
@@ -70,4 +72,5 @@
 - El siguiente hotspot real pasó a ser `turnos/views_backoffice.py` o `legajos/views_simple_contactos.py`, porque ya no queda retorno alto inmediato en seguir partiendo `ÑACHEC`.
 - El siguiente hotspot real pasó a ser `legajos/views_simple_contactos.py` o la deuda transversal remanente de namespaces/auth.
 - El siguiente hotspot real pasó a ser la deuda transversal remanente de namespaces/auth y algunos hardcodes legacy de rutas, porque los grandes monolitos internos ya bajaron mucho.
+- El siguiente hotspot real pasó a ser la limpieza de `legajos/urls.py`, pero ahí ya hay riesgo alto por names duplicados y consumidores legacy sin cobertura suficiente.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

@@ -505,3 +505,16 @@
 - `legajos/tests/test_contactos_fachada.py`
 
 **Descripción:** Se refactorizó el módulo legacy de contactos separando panel y APIs, extrayendo queries compuestas a selectors y el manejo de adjuntos a un service dedicado. `views_simple_contactos.py` quedó como fachada compatible. En el mismo corte se corrigieron referencias inconsistentes al modelo real dentro del módulo legacy, usando `EventoCritico.detalle` y `PlanIntervencion.actividades` en lugar de campos inexistentes.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 28: namespaces y hardcodes residuales
+
+**Archivos modificados:**
+- `templates/includes/header.html`
+- `templates/includes/navbar.html`
+- `templates/components/chatbot_bubble.html`
+- `templates/legajos/alertas_dashboard.html`
+- `core/tests/test_url_namespaces.py`
+
+**Descripción:** Se migraron consumidores residuales a namespaces estables y se retiraron hardcodes de rutas en puntos transversales del proyecto. El logout del backoffice ahora usa `users:logout`, el bubble de chatbot recibe su endpoint desde Django y el dashboard de alertas dejó de embeber rutas fijas de `conversaciones` y de cierre de alertas. Además se ampliaron los smoke tests de namespaces para fijar rutas críticas de `users`, `chatbot` y `conversaciones`.
