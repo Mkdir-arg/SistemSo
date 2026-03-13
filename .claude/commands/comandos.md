@@ -127,6 +127,18 @@ Muestra el estado actual del proyecto: sprint activo, items en progreso, ultimo 
 
 ---
 
+### /tomarcafe
+Lee toda la documentacion del proyecto (contexto funcional, arquitectura, backlog, sprint, errores, requerimientos, changelog) y presenta un panorama completo de donde estamos. Propone con que arrancar la sesion con una tabla de opciones ordenada por prioridad.
+
+**Cuando usarlo:** al inicio de una conversacion nueva, cuando retomas el trabajo despues de un tiempo, cuando no sabes por donde empezar.
+
+**Ejemplo:**
+```
+/tomarcafe
+```
+
+---
+
 ### /comandos
 Muestra esta lista.
 
@@ -140,7 +152,7 @@ Muestra esta lista.
 ## Flujo tipico de una semana
 
 ```
-Lunes    → /roadmap        (ver panorama y elegir qué entra al sprint)
+Lunes    → /tomarcafe      (ponerse al dia, ver panorama completo)
            /sprint-plan    (formalizar el sprint)
 Martes   → /definir [si hay algo por clarificar antes de arrancar]
            /planificar [diseño técnico sin código, si querés revisarlo primero]

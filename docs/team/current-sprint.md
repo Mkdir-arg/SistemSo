@@ -1,4 +1,4 @@
-# Sprint Actual — AkunCalcu
+# Sprint Actual — SistemSo
 
 > Estado: Sin sprint activo
 > Inicio: —
