@@ -48,7 +48,7 @@ class CiudadanoAuthViewsTests(TestCase):
 
         self.assertRedirects(response, reverse('portal:ciudadano_login'))
 
-    @patch('portal.services_ciudadano_auth.consultar_datos_renaper')
+    @patch('portal.services.ciudadano_auth.consultar_datos_renaper')
     def test_registro_step1_nuevo_consulta_renaper_y_guarda_sesion(self, consultar_mock):
         consultar_mock.return_value = {
             'success': True,

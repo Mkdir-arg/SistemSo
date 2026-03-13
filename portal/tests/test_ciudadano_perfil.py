@@ -54,7 +54,7 @@ class CiudadanoPerfilViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    @patch('portal.services_ciudadano_perfil.send_mail')
+    @patch('portal.services.ciudadano_perfil.send_mail')
     def test_cambio_email_invalida_solicitudes_previas_y_crea_otra(self, send_mail_mock):
         anterior = SolicitudCambioEmail.objects.create(
             user=self.user,

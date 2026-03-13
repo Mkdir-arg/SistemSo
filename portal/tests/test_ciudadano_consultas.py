@@ -80,9 +80,9 @@ class CiudadanoConsultasViewsTests(TestCase):
         self.assertEqual(Conversacion.objects.count(), 0)
         self.assertContains(response, 'Asegurate de que este valor tenga al menos 10 caracteres')
 
-    @patch('portal.services_consultas._notificar_grupo')
-    @patch('portal.services_consultas.NotificacionService.notificar_nueva_conversacion')
-    @patch('portal.services_consultas.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
+    @patch('portal.services.consultas._notificar_grupo')
+    @patch('portal.services.consultas.NotificacionService.notificar_nueva_conversacion')
+    @patch('portal.services.consultas.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
     def test_nueva_consulta_valida_crea_conversacion_y_mensaje(
         self,
         mock_asignar,

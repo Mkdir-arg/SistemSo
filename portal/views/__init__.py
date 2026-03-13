@@ -1,4 +1,6 @@
-from .views_public import (
+"""Paquete de vistas para la app de portal."""
+
+from .public import (
     ConsultarTramiteView,
     CrearUsuarioInstitucionView,
     PortalHomeView,
