@@ -1,5 +1,1 @@
-from django.http import HttpResponse
-
-
-def health_check(request):
-    return HttpResponse("OK", status=200)
+from .views.basic import *  # noqa: F401,F403

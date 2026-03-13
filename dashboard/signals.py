@@ -1,1 +1,0 @@
-# Signals para dashboard básico - sin dependencias de módulos eliminados
