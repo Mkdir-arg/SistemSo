@@ -126,6 +126,9 @@
 - Se completó el quincuagésimo primer slice sobre `core`.
 - Auditoría, performance y señales de `core` ahora viven dentro de `core/views/` y `core/signals/`, con `ready()` explícito y wrappers legacy.
 - El packaging repo-wide quedó prácticamente agotado; lo siguiente ya no es estructural barato.
+- Se completó el quincuagésimo segundo slice sobre `api_views` chicas.
+- `dashboard`, `users` y `chatbot` ahora también exponen sus APIs desde paquetes reales.
+- Lo pendiente ya quedó mayormente en APIs más acopladas (`core`, `conversaciones`, `legajos`) o en deuda funcional, no en packaging trivial.
 
 ## Próxima etapa sugerida
 

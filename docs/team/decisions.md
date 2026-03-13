@@ -358,3 +358,10 @@
 - Decisión: el slice 51 movió esos bloques a `core/views/` y `core/signals/`, manteniendo wrappers legacy y dejando `CoreConfig.ready()` con imports explícitos.
 - Regla derivada: en una app transversal, la deuda estructural más sensible conviene atacarla al final, cuando el resto del proyecto ya estabilizó la convención y reduce el riesgo de imports cruzados impredecibles.
 - Consecuencia: la deuda estructural repo-wide queda casi totalmente consumida y el siguiente trabajo ya pasa a hotspots funcionales o de contrato.
+
+## 2026-03-13 — después de las views HTML, alinear también `api_views` de bajo riesgo
+
+- Contexto: tras el slice 51, el proyecto ya tenía casi todas sus views HTML empaquetadas, pero algunas apps chicas seguían exponiendo `api_views.py` planos.
+- Decisión: el slice 52 movió `api_views` de `dashboard`, `users` y `chatbot` a paquetes reales sin cambiar contratos HTTP ni rutas.
+- Regla derivada: si una API es pequeña y sus imports están acotados a `urls.py` o `api_urls.py`, todavía conviene alinearla al patrón repo-wide antes de declarar agotado el refactor estructural.
+- Consecuencia: lo que queda pendiente deja de ser packaging barato y pasa a APIs más acopladas o a deuda funcional directa.

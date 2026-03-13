@@ -348,3 +348,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: al migrar señales a un paquete real, `AppConfig.ready()` debe importar explícitamente los submódulos del paquete nuevo; no conviene depender de imports implícitos o side effects escondidos en wrappers.
 - 2026-03-13: una vez cerradas las apps grandes, conviene alinear también las apps chicas al mismo patrón de packaging para evitar excepciones innecesarias en la cartografía del proyecto.
 - 2026-03-13: en apps transversales como `core`, primero conviene empaquetar la superficie estable (`views`, `forms`, `selectors`) y recién después cerrar auditoría/performance y `signals` con wiring explícito.
+- 2026-03-13: una vez estabilizado el packaging de views HTML, todavía vale la pena alinear `api_views` en apps chicas si el contrato HTTP no cambia y el import path desde `urls.py` puede conservarse.

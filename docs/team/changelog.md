@@ -999,3 +999,20 @@
 - `core/tests/test_package_exports.py`
 
 **Descripción:** Se cerró la parte pendiente de `core` moviendo auditoría y performance al paquete real de views y agrupando las señales de auditoría/cache dentro de `core/signals/`. Se mantuvieron wrappers compatibles para los módulos históricos y `CoreConfig.ready()` quedó con imports explícitos del paquete nuevo.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 52: packaging de `api_views` en apps chicas
+
+**Archivos modificados:**
+- `dashboard/api_views.py`
+- `dashboard/api_views/__init__.py`
+- `dashboard/tests/test_package_exports.py`
+- `users/api_views.py`
+- `users/api_views/__init__.py`
+- `users/tests/test_package_exports.py`
+- `chatbot/api_views.py`
+- `chatbot/api_views/__init__.py`
+- `chatbot/tests/test_package_exports.py`
+
+**Descripción:** Se movió la capa de `api_views` de `dashboard`, `users` y `chatbot` a paquetes reales, manteniendo intactos sus imports desde `urls.py` y `api_urls.py`. También se ampliaron los smoke tests de exports para fijar que esos viewsets y endpoints ya viven en el paquete nuevo.

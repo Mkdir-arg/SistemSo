@@ -63,6 +63,7 @@ _Se define en el sprint planning._
 | DX-049 | Como equipo de desarrollo quiero agrupar `signals` de `legajos` en un paquete real manteniendo el wiring explícito desde `AppConfig` | ✅ Completado | Slice 49 ejecutado el 2026-03-13 con `ready()` explícito y smoke test de exports |
 | DX-050 | Como equipo de desarrollo quiero alinear `dashboard`, `tramites` y `healthcheck` a la convención de packaging para cerrar las apps chicas que quedaban legacy | ✅ Completado | Slice 50 ejecutado el 2026-03-13 con views empaquetadas y smoke tests básicos |
 | DX-051 | Como equipo de desarrollo quiero cerrar la deuda estructural pendiente de `core` agrupando auditoría, performance y señales en paquetes reales | ✅ Completado | Slice 51 ejecutado el 2026-03-13 con wrappers compatibles, `ready()` explícito y smoke tests ampliados |
+| DX-052 | Como equipo de desarrollo quiero mover `api_views` de las apps chicas al mismo patrón de package para no dejar excepciones entre HTML y API | ✅ Completado | Slice 52 ejecutado el 2026-03-13 sobre `dashboard`, `users` y `chatbot` |
 
 ## Impedimentos
 
