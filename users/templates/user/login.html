@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NODO - Acceso al Sistema</title>
+    <title>{{ branding.application_name }} - Acceso al Sistema</title>
+    <link rel="icon" type="image/png" href="{% static branding.favicon_path %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=geliat@800&f[]=satoshi@900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,16 +23,57 @@
             }
         }
     </script>
+    <style>
+        :root {
+            {% for variable, value in branding.css_variables.items %}
+            {{ variable }}: {{ value }};
+            {% endfor %}
+        }
+
+        .login-submit-btn {
+            background: var(--login-button-gradient);
+            border: 1px solid transparent;
+            color: #ffffff;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .login-submit-btn:hover {
+            box-shadow: inset 0 0 0 9999px var(--login-button-hover-overlay);
+        }
+
+        .login-submit-btn:focus,
+        .login-submit-btn:focus-visible {
+            outline: none;
+            border: 2px solid var(--login-button-focus-border);
+            box-shadow: 0 1px 0 2px var(--login-button-focus-shadow);
+        }
+
+        .login-submit-btn:disabled {
+            background: var(--login-button-disabled-bg) !important;
+            border: 1px solid var(--login-button-disabled-border) !important;
+            color: var(--login-button-disabled-text) !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-[#F5F7FA] flex font-sans">
     <div class="w-full h-screen flex">
         <!-- Left Side - Illustration -->
         <div class="hidden lg:flex lg:flex-1 bg-[#F5F7FA] items-center justify-center relative overflow-hidden">
             <!-- Ondas de fondo -->
-            <img src="{% static 'custom/img/login/ondaslogin.png' %}" alt="" class="absolute right-0 w-[55%] h-full object-cover object-left">
+            {% if branding.active_profile == 'chaco' %}
+            <img src="{% static branding.login_background_image_path %}" alt="" class="absolute right-0 w-[52%] h-full object-cover object-left opacity-90">
+            <div class="relative z-10 flex items-center justify-center w-full h-full px-12">
+                <img src="{% static branding.login_illustration_path %}" alt="" class="w-auto h-[520px] object-contain drop-shadow-2xl">
+            </div>
+            {% else %}
+            <img src="{% static branding.login_background_image_path %}" alt="" class="absolute right-0 w-[55%] h-full object-cover object-left">
             
             <!-- Ilustración SVG -->
-            <div class="relative z-10 ml-[-5%]">
+            <img src="{% static branding.login_illustration_path %}" alt="" class="relative z-10 ml-[-5%] w-auto h-[650px]">
+            <div class="hidden">
 <svg class="w-auto h-[650px]" aria-hidden="true" width="627" height="499" viewBox="0 0 627 499" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M406 318C406 314.686 408.686 312 412 312H621C624.314 312 627 314.686 627 318V493C627 496.314 624.314 499 621 499H412C408.686 499 406 496.314 406 493V318Z" fill="#FF0080"/>
 <path d="M406 318C406 314.686 408.686 312 412 312H621C624.314 312 627 314.686 627 318V493C627 496.314 624.314 499 621 499H412C408.686 499 406 496.314 406 493V318Z" fill="url(#paint0_linear_182_7959)"/>
@@ -190,6 +232,7 @@
 </defs>
 </svg>
             </div>
+            {% endif %}
         </div>
 
         <!-- Right Side - Login Form -->
@@ -197,11 +240,11 @@
             <div class="w-full max-w-md py-8">
                 <!-- Header -->
                 <div class="mb-10 text-center">
-                    <h1 class="text-[42px] font-black font-satoshi text-[#55555] mb-2 leading-tight">
-                        Bienvenido a Nodo,
+                    <h1 class="text-[35px] font-extrabold mb-2 leading-tight" style="color: #00203A; font-family: 'Geliat', 'Satoshi', sans-serif;">
+                        Bienvenido Ñandé,
                     </h1>
-                    <h2 class="text-[42px] font-black font-satoshi text-[#55555] leading-tight">
-                        tu Sistema Integral
+                    <h2 class="text-[35px] font-extrabold leading-tight" style="color: #00203A; font-family: 'Geliat', 'Satoshi', sans-serif;">
+                        Sistema Social de Chaco
                     </h2>
                 </div>
 
@@ -229,7 +272,8 @@
                             <input type="text" 
                                    name="username" 
                                    required
-                                   class="w-full pl-12 pr-4 py-3.5 bg-white border border-[#E2E8F0] rounded-lg text-[#2D3748] placeholder-[#A0AEC0] focus:outline-none focus:ring-2 focus:ring-[#FF0080] focus:border-transparent transition-all font-normal"
+                                   class="w-full pl-12 pr-4 py-3.5 bg-white border border-[#E2E8F0] rounded-lg text-[#2D3748] placeholder-[#A0AEC0] focus:outline-none focus:ring-2 focus:border-transparent transition-all font-normal"
+                                   style="--tw-ring-color: {{ branding.colors.nodo_magenta }};"
                                    placeholder="Ingresa tu correo electrónico">
                         </div>
                     </div>
@@ -248,7 +292,8 @@
                                    name="password" 
                                    id="password"
                                    required
-                                   class="w-full pl-12 pr-12 py-3.5 bg-white border border-[#E2E8F0] rounded-lg text-[#2D3748] placeholder-[#A0AEC0] focus:outline-none focus:ring-2 focus:ring-[#FF0080] focus:border-transparent transition-all font-normal"
+                                   class="w-full pl-12 pr-12 py-3.5 bg-white border border-[#E2E8F0] rounded-lg text-[#2D3748] placeholder-[#A0AEC0] focus:outline-none focus:ring-2 focus:border-transparent transition-all font-normal"
+                                   style="--tw-ring-color: {{ branding.colors.nodo_magenta }};"
                                    placeholder="••••••••••">
                             <button type="button" 
                                     onclick="togglePassword()"
@@ -267,15 +312,14 @@
                             <input type="checkbox" class="mr-2 rounded" />
                             <span class="text-[#4A5568] font-medium">Recordarme</span>
                         </label>
-                        <button type="button" class="text-[#8908cc] hover:underline font-medium">
+                        <button type="button" class="hover:underline font-medium" style="color: {{ branding.colors.nodo_violet }};">
                             ¿Olvidaste tu contraseña?
                         </button>
                     </div>
 
                     <!-- Submit Button -->
                     <button type="submit"
-                            class="w-full h-[40px] px-[10px] text-white rounded-xl font-medium text-sm shadow-lg hover:shadow-xl transition-all mt-2 hover:scale-[1.02] active:scale-[0.98]"
-                            style="background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%);">
+                            class="login-submit-btn w-full h-[40px] px-[10px] rounded-xl font-medium text-sm shadow-lg hover:shadow-xl mt-2 hover:scale-[1.02] active:scale-[0.98]">
                         Iniciar Sesión
                     </button>
                 </form>
@@ -283,13 +327,13 @@
                 <!-- Register Link -->
                 <div class="text-center mt-6">
                     <span class="text-sm text-[#718096] font-normal">¿No estás registrado? </span>
-                    <a href="#" class="text-sm text-[#8908cc] hover:underline font-semibold">Crear cuenta</a>
+                    <a href="#" class="text-sm hover:underline font-semibold" style="color: {{ branding.colors.nodo_violet }};">Crear cuenta</a>
                 </div>
                 </div>
 
                 <!-- Footer Logo -->
-                <div class="flex items-center justify-center mt-12">
-                    <img src="{% static 'custom/img/login/Logo LOGIN.svg' %}" alt="Nodo" class="h-12">
+                <div class="flex items-center justify-center mt-6">
+                    <img src="{% static branding.login_logo_path %}" alt="{{ branding.application_name }}" class="h-12">
                 </div>
             </div>
         </div>

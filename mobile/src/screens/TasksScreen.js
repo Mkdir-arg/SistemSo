@@ -9,7 +9,7 @@ import CustomButton from '../components/CustomButton';
 
 const { width } = Dimensions.get('window');
 
-const GradientIcon = ({ name, size = 24, style }) => {
+const GradientIcon = ({ name, size = 24, style, colors }) => {
     return (
         <View style={[{ width: size, height: size }, style]}>
             <MaskedView
@@ -21,7 +21,7 @@ const GradientIcon = ({ name, size = 24, style }) => {
                 }
             >
                 <LinearGradient
-                    colors={['#FF0080', '#7928CA']}
+                    colors={colors}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 0, y: 1 }}
                     style={{ flex: 1 }}
@@ -157,8 +157,8 @@ export default function TasksScreen({ onOpenSurvey }) {
                         <StaggeredItem key={task.id} index={index + 1}>
                             <View style={[styles.taskCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
                                 <View style={styles.cardHeader}>
-                                    <View style={[styles.statusBadge, { backgroundColor: task.status === 'Completado' ? '#2DCE8920' : '#FF008020' }]}>
-                                        <Text style={[styles.statusText, { color: task.status === 'Completado' ? '#2DCE89' : '#FF0080', fontFamily: typography.bold }]}>
+                                    <View style={[styles.statusBadge, { backgroundColor: task.status === 'Completado' ? `${theme.colors.success}20` : `${theme.colors.primary}20` }]}>
+                                        <Text style={[styles.statusText, { color: task.status === 'Completado' ? theme.colors.success : theme.colors.primary, fontFamily: typography.bold }]}>
                                             {task.status.toUpperCase()}
                                         </Text>
                                     </View>
@@ -184,7 +184,7 @@ export default function TasksScreen({ onOpenSurvey }) {
                 ) : (
                     <StaggeredItem index={1}>
                         <View style={styles.emptyContainer}>
-                            <GradientIcon name="calendar-outline" size={60} style={{ opacity: 0.3 }} />
+                            <GradientIcon name="calendar-outline" size={60} style={{ opacity: 0.3 }} colors={theme.colors.gradients?.brand || ['#FF0080', '#7928CA']} />
                             <Text style={[styles.emptyText, { color: theme.colors.textSoft, fontFamily: typography.medium }]}>
                                 No hay tareas programadas para este día
                             </Text>

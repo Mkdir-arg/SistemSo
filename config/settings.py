@@ -1,64 +1,67 @@
-# settings.py
 import os
 import sys
 import logging
 from pathlib import Path
+
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 
-# --- Paths y .env (en este orden) ---
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carga base para desarrollo local
 load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.local")
 
-# --- Entorno ---
+# En despliegues se puede forzar archivo de entorno (ej: .env.production)
+ENV_FILE = os.environ.get("DJANGO_ENV_FILE")
+if ENV_FILE:
+    load_dotenv(BASE_DIR / ENV_FILE, override=False)
+elif (BASE_DIR / ".env.production").exists() and os.environ.get("ENVIRONMENT") == "prd":
+    load_dotenv(BASE_DIR / ".env.production", override=False)
+
 DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
-ENVIRONMENT = os.environ.get("ENVIRONMENT", "prd")  # dev|qa|prd
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "dev")  # dev|qa|prd
 
-# --- Secret Key ---
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    raise ValueError("DJANGO_SECRET_KEY debe estar configurada en .env")
+    raise ValueError("DJANGO_SECRET_KEY debe estar configurada en variables de entorno")
 
-# --- i18n/Timezone ---
 LANGUAGE_CODE = "es-ar"
 TIME_ZONE = "America/Argentina/Buenos_Aires"
 USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# --- Hosts / CSRF ---
-# Tomo del .env si existe; si no, fuerzo dominio de PythonAnywhere para evitar 400.
+# Hosts permitidos
 hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "")
 hosts = [h.strip() for h in hosts_env.split(",") if h.strip()]
-if "mlepera.pythonanywhere.com" not in hosts:
-    hosts += ["mlepera.pythonanywhere.com"]
-# en desarrollo, también localhost
 if DEBUG:
-    for h in ("localhost", "127.0.0.1"):
+    for h in ("localhost", "127.0.0.1", "0.0.0.0"):
         if h not in hosts:
             hosts.append(h)
 
-# Agregar nombres de servicios Docker para nginx
-for h in ("sedronar-http", "sedronar-ws"):
+# Nombres de servicios Docker internos
+for h in ("sedronar-http", "sedronar-ws", "nodo-web", "nodo-websocket", "web", "websocket"):
     if h not in hosts:
         hosts.append(h)
 
-ALLOWED_HOSTS = list(dict.fromkeys(hosts))  # sin duplicados
+ALLOWED_HOSTS = list(dict.fromkeys(hosts))
 
-DEFAULT_SCHEME = "https" if ENVIRONMENT == "prd" else "http"
-
-# CSRF_TRUSTED_ORIGINS requiere esquema. Para PA siempre https.
-CSRF_TRUSTED_ORIGINS = [
-    "https://mlepera.pythonanywhere.com",
-    "http://54.172.163.63",
-    "http://ec2-54-172-163-63.compute-1.amazonaws.com"
-]
+# CSRF trusted origins via env para evitar hardcode de IPs/dominios
+csrf_env = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [u.strip() for u in csrf_env.split(",") if u.strip()]
 if DEBUG:
-    CSRF_TRUSTED_ORIGINS += ["http://localhost", "http://127.0.0.1", "http://localhost:9000", "http://127.0.0.1:9000"]
+    CSRF_TRUSTED_ORIGINS += [
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:9000",
+        "http://127.0.0.1:9000",
+    ]
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
 
-# --- Apps ---
 INSTALLED_APPS = [
-    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -66,7 +69,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.admindocs",
-    # Libs
     "django_extensions",
     "rest_framework",
     "channels",
@@ -74,8 +76,8 @@ INSTALLED_APPS = [
     "health_check",
     "health_check.db",
     "health_check.cache",
-    "silk",  # Performance profiling
-    # Apps propias
+    "silk",
+    "turnos",
     "users",
     "core",
     "dashboard",
@@ -86,43 +88,25 @@ INSTALLED_APPS = [
     "portal",
     "tramites",
     "healthcheck",
-    "drf_spectacular",
 ]
 
-# --- Middleware ---
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",  # Seguridad primero
-    "core.middleware_concurrency.ConcurrencyLimitMiddleware",  # Limitar antes de medir
-    "silk.middleware.SilkyMiddleware",  # Performance profiling
+    "django.middleware.security.SecurityMiddleware",
     "django.middleware.gzip.GZipMiddleware",
-    "core.middleware_concurrency.RequestMetricsMiddleware",    # Métricas en tiempo real
-    "core.monitoring.MonitoringMiddleware",  # Sistema de monitoreo avanzado
-    "config.middlewares.performance.PerformanceMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.middleware.PortalCiudadanoMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.contrib.admindocs.middleware.XViewMiddleware",
-    "config.middlewares.xss_protection.XSSProtectionMiddleware",
-    "config.middlewares.threadlocals.ThreadLocalMiddleware",
-    # Nuevos middleware de auditoría
-    "core.middleware_auditoria.AuditoriaMiddleware",
-    "core.middleware_auditoria.AccesoSensibleMiddleware",
-    "core.middleware_auditoria.DescargaArchivoMiddleware",
-    "core.middleware_auditoria.SesionUsuarioMiddleware",
-    "config.middlewares.query_counter.QueryCountMiddleware",
-    # Middleware de redirección para usuarios institución
-    "config.middlewares.institucion_redirect.InstitucionRedirectMiddleware",
+    "core.middleware.RequestLoggingMiddleware",
 ]
 
-# --- URLs / WSGI / ASGI ---
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-# --- Templates ---
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -136,13 +120,13 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "legajos.context_processors.alertas_eventos_criticos",
                 "core.context_processors.dispositivos_context",
+                "core.context_processors.branding_context",
                 "conversaciones.context_processors.user_groups",
             ],
         },
     },
 ]
 
-# --- Static & Media ---
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -150,30 +134,28 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Static files optimization
 STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-if ENVIRONMENT == "prd":
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-else:
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+STATICFILES_STORAGE = (
+    "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+    if ENVIRONMENT == "prd"
+    else "django.contrib.staticfiles.storage.StaticFilesStorage"
+)
 
-# --- Auth / Redirects ---
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "inicio"
 LOGOUT_REDIRECT_URL = "login"
 ACCOUNT_FORMS = {"login": "users.forms.UserLoginForm"}
 
-# --- Email ---
-if ENVIRONMENT == "prd":
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-else:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if ENVIRONMENT == "prd"
+    else "django.core.mail.backends.console.EmailBackend"
+)
 
-# --- Mensajes ---
 MESSAGE_TAGS = {
     messages.DEBUG: "bg-gray-800 text-white",
     messages.INFO: "bg-blue-500 text-white",
@@ -182,7 +164,6 @@ MESSAGE_TAGS = {
     messages.ERROR: "bg-red-500 text-white",
 }
 
-# --- DB ---
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -200,107 +181,110 @@ DATABASES = {
             "read_timeout": 10,
             "write_timeout": 10,
         },
-        "CONN_MAX_AGE": 60,  # Reusar conexiones por 60 segundos
-        "CONN_HEALTH_CHECKS": True,  # Verificar salud de conexión antes de reusar
+        "CONN_MAX_AGE": 60,
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 
 if "pytest" in sys.argv or os.environ.get("PYTEST_RUNNING") == "1":
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
 
-# --- Cache ---
-import ssl
-
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
 REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
 REDIS_SSL = os.environ.get("REDIS_SSL", "False") == "True"
+REDIS_DB = os.environ.get("REDIS_DB", "1")
+REDIS_URL = os.environ.get(
+    "REDIS_URL",
+    f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+)
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 200,
+if ENVIRONMENT == "prd":
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "SOCKET_CONNECT_TIMEOUT": 5,
+                "SOCKET_TIMEOUT": 5,
             },
-            "REDIS_CLIENT_KWARGS": {
-                "ssl_cert_reqs": ssl.CERT_NONE,
-            } if REDIS_SSL else {},
+            "TIMEOUT": 600,
         },
-        "KEY_PREFIX": "sedronar",
-        "TIMEOUT": 300,
-    },
-    "sessions": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"{'rediss' if REDIS_SSL else 'redis'}://{REDIS_HOST}:{REDIS_PORT}/2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 100,
-            },
-            "REDIS_CLIENT_KWARGS": {
-                "ssl_cert_reqs": ssl.CERT_NONE,
-            } if REDIS_SSL else {},
+        "sessions": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+            "TIMEOUT": 86400,
         },
-        "KEY_PREFIX": "session",
     }
-}
-
-# --- Sessions ---
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "sessions"
-SESSION_COOKIE_AGE = 86400  # 24 horas
-
-# --- Channels ---
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [
-                {
-                    "address": (REDIS_HOST, int(REDIS_PORT)),
-                    "ssl_cert_reqs": ssl.CERT_NONE if REDIS_SSL else None,
-                }
-            ] if REDIS_SSL else [(REDIS_HOST, int(REDIS_PORT))],
-            "capacity": 1500,
-            "expiry": 60,
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "sistemso-dev-cache",
         },
-    },
-}
+        "sessions": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "sistemso-dev-sessions",
+        },
+    }
 
-# --- Health Check ---
+SESSION_ENGINE = (
+    "django.contrib.sessions.backends.cache"
+    if ENVIRONMENT == "prd"
+    else "django.contrib.sessions.backends.db"
+)
+SESSION_CACHE_ALIAS = "sessions"
+SESSION_COOKIE_AGE = 86400
+
+if ENVIRONMENT == "prd":
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {"hosts": [REDIS_URL]},
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        },
+    }
+
 HEALTH_CHECK = {
-    'DISK_USAGE_MAX': 90,  # percent
-    'MEMORY_MIN': 100,     # in MB
+    "DISK_USAGE_MAX": 90,
+    "MEMORY_MIN": 100,
 }
 
-# --- TTLs ---
-DEFAULT_CACHE_TIMEOUT = 600  # Aumentado a 10 minutos
+DEFAULT_CACHE_TIMEOUT = 600
 DASHBOARD_CACHE_TIMEOUT = 600
 CIUDADANO_CACHE_TIMEOUT = 600
 
-# --- DRF ---
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
-# --- Integraciones ---
-DOMINIO = os.environ.get("DOMINIO", "localhost:8001")
+DOMINIO = os.environ.get("DOMINIO", "localhost:8000")
 RENAPER_API_USERNAME = os.getenv("RENAPER_API_USERNAME")
 RENAPER_API_PASSWORD = os.getenv("RENAPER_API_PASSWORD")
-RENAPER_API_URL = os.getenv("RENAPER_API_URL")
+RENAPER_API_URL = os.getenv("RENAPER_API_URL", "").strip().strip('"').strip("'")
+RENAPER_API_KEY = os.getenv("RENAPER_API_KEY", "").strip().strip('"').strip("'")
+RENAPER_API_KEY_HEADER = os.getenv("RENAPER_API_KEY_HEADER", "X-API-Key")
+RENAPER_API_KEY_PREFIX = os.getenv("RENAPER_API_KEY_PREFIX", "").strip()
+RENAPER_AUTH_MODE = os.getenv("RENAPER_AUTH_MODE", "auto").strip().lower()  # auto|api_key|credentials
+RENAPER_HTTP_METHOD = os.getenv("RENAPER_HTTP_METHOD", "auto").strip().lower()  # auto|get|post
 RENAPER_TEST_MODE = os.getenv("RENAPER_TEST_MODE", "False") == "True"
+RENAPER_CONNECT_TIMEOUT = int(os.getenv("RENAPER_CONNECT_TIMEOUT", "10"))
+RENAPER_TIMEOUT = int(os.getenv("RENAPER_TIMEOUT", "20"))
+RENAPER_RETRIES = int(os.getenv("RENAPER_RETRIES", "0"))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", os.getenv("SUPABASE_KEY", ""))
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 SUPABASE_TIMEOUT_SECONDS = int(os.getenv("SUPABASE_TIMEOUT_SECONDS", "12"))
 
-# --- Logging ---
 LOG_DIR = BASE_DIR / "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -320,17 +304,25 @@ LOGGING = {
         "json_data": {"()": "core.utils.JSONDataFormatter"},
     },
     "handlers": {
+        "console": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
         "info_file": {"level": "INFO", "filters": ["info_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "info.log"), "formatter": "verbose"},
         "error_file": {"level": "ERROR", "filters": ["error_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "error.log"), "formatter": "verbose"},
         "warning_file": {"level": "WARNING", "filters": ["warning_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "warning.log"), "formatter": "verbose"},
         "critical_file": {"level": "CRITICAL", "filters": ["critical_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "critical.log"), "formatter": "verbose"},
         "data_file": {"level": "INFO", "filters": ["data_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "data.log"), "formatter": "json_data"},
     },
-    "root": {"handlers": ["info_file", "error_file", "warning_file", "critical_file", "data_file"], "level": "DEBUG" if DEBUG else "INFO"},
-    "loggers": {"django": {"handlers": [], "level": "DEBUG" if DEBUG else "INFO", "propagate": True}, "django.request": {"handlers": ["error_file"], "level": "ERROR", "propagate": False}},
+    "root": {"handlers": ["console", "info_file", "error_file", "warning_file", "critical_file", "data_file"], "level": "DEBUG" if DEBUG else "INFO"},
+    "loggers": {
+        "django": {"handlers": [], "level": "DEBUG" if DEBUG else "INFO", "propagate": True},
+        "django.request": {"handlers": ["error_file", "warning_file"], "level": "WARNING", "propagate": False},
+        "core.requests": {"handlers": [], "level": "INFO", "propagate": True},
+    },
 }
 
-# --- Password validators ---
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 8}},
@@ -338,55 +330,55 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# --- Debug tools ---
 if DEBUG:
     INTERNAL_IPS = ["127.0.0.1", "::1"]
 
-# --- Compresión Gzip ---
 USE_GZIP = True
 GZIP_CONTENT_TYPES = (
-    'text/css',
-    'text/javascript',
-    'application/javascript',
-    'application/x-javascript',
-    'text/xml',
-    'text/plain',
-    'text/html',
-    'application/json',
+    "text/css",
+    "text/javascript",
+    "application/javascript",
+    "application/x-javascript",
+    "text/xml",
+    "text/plain",
+    "text/html",
+    "application/json",
 )
 
-# --- Silk Configuration ---
 SILKY_PYTHON_PROFILER = True
 SILKY_PYTHON_PROFILER_BINARY = True
 SILKY_AUTHENTICATION = True
 SILKY_AUTHORISATION = True
-SILKY_MAX_REQUEST_BODY_SIZE = 1024  # 1KB
-SILKY_MAX_RESPONSE_BODY_SIZE = 1024  # 1KB
-SILKY_INTERCEPT_PERCENT = 100 if DEBUG else 10  # 100% en dev, 10% en prod
+SILKY_MAX_REQUEST_BODY_SIZE = 1024
+SILKY_MAX_RESPONSE_BODY_SIZE = 1024
+SILKY_INTERCEPT_PERCENT = 100 if DEBUG else 10
 
-# --- Seguridad por entorno ---
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 if ENVIRONMENT == "prd":
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # Cambiado temporalmente
-    SECURE_HSTS_SECONDS = 0  # Deshabilitado hasta configurar SSL
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-    SECURE_SSL_REDIRECT = False  # Deshabilitado hasta configurar SSL
-    SESSION_COOKIE_SECURE = False  # Deshabilitado hasta configurar SSL
-    CSRF_COOKIE_SECURE = False  # Deshabilitado hasta configurar SSL
-    USE_X_FORWARDED_HOST = True
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "31536000"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get("SECURE_HSTS_INCLUDE_SUBDOMAINS", "True") == "True"
+    SECURE_HSTS_PRELOAD = os.environ.get("SECURE_HSTS_PRELOAD", "True") == "True"
+    SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "True") == "True"
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
 else:
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
     SECURE_HSTS_SECONDS = 0
     SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
-# DRF Spectacular Configuration
+
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'SEDRONAR API',
-    'DESCRIPTION': 'Sistema de Gestión SEDRONAR - Documentación de APIs',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'COMPONENT_SPLIT_REQUEST': True,
-    'SCHEMA_PATH_PREFIX': '/api/',
+    "TITLE": "SEDRONAR API",
+    "DESCRIPTION": "Sistema de Gestion SEDRONAR - Documentacion de APIs",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/",
 }

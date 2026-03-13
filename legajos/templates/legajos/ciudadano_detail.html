@@ -600,6 +600,15 @@
     {% endif %}
     {% endfor %}
 
+    <!-- Tab: NACHEC (si la solapa dinamica existe) -->
+    {% for solapa in solapas %}
+    {% if 'NACHEC' in solapa.id or 'ACHEC' in solapa.id %}
+    <div id="tab-programa_NACHEC" class="tab-content hidden">
+        {% include 'legajos/ciudadano_nachec_detail.html' %}
+    </div>
+    {% endif %}
+    {% endfor %}
+
     <!-- Tab: Cursos y Actividades -->
     <div id="tab-cursos_actividades" class="tab-content hidden">
         <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
@@ -870,11 +879,16 @@ function cambiarTab(tabName) {
         button.classList.add('border-transparent', 'text-gray-500');
     });
     
-    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-    
+    const tabContent = document.getElementById(`tab-${tabName}`);
+    if (!tabContent) {
+        return;
+    }
+    tabContent.classList.remove('hidden');
     const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
-    activeButton.classList.add('border-blue-500', 'text-blue-600');
-    activeButton.classList.remove('border-transparent', 'text-gray-500');
+    if (activeButton) {
+        activeButton.classList.add('border-blue-500', 'text-blue-600');
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+    }
     
     // Cargar datos de legajos si se abre la pestaña de acompañamiento
     if (tabName.startsWith('programa_ACOMPANAMIENTO_SEDRONAR')) {

@@ -9,25 +9,47 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .inicio-highlight-gradient {
+        background: var(--ui-highlight-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .inicio-search-input:focus {
+        --tw-ring-color: var(--ui-highlight-color) !important;
+    }
+
+    .inicio-highlight-fill {
+        background-color: var(--ui-highlight-color) !important;
+    }
+</style>
 {% endblock %}
 
 {% block main-content %}
 <div class="max-w-full mx-4 lg:mx-8" x-data="dashboard()">
     <!-- Header Dinámico -->
-    <div class="bg-[#7928CA] rounded-2xl p-8 mb-8 text-white shadow-lg">
+    {% with greeting_card=branding.dashboard.greeting_card %}
+    <div class="p-8 mb-8" style="background: {{ greeting_card.bg }}; color: {{ greeting_card.text }}; box-shadow: {{ greeting_card.shadow }}; border-radius: {{ greeting_card.radius }};">
         <div class="flex justify-between items-start">
             <div>
-                <h1 class="text-3xl font-bold mb-2" x-text="saludo"></h1>
-                <p class="text-purple-100" x-text="fechaHora"></p>
+                <h1
+                    class="mb-2"
+                    style="font-family: Inter, sans-serif; font-size: {{ greeting_card.title_size }}; font-weight: {{ greeting_card.title_weight }}; {% if greeting_card.title_gradient %}background: {{ greeting_card.title_gradient }}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;{% else %}color: {{ greeting_card.title_color }};{% endif %}"
+                    x-text="saludo"
+                ></h1>
+                <p class="font-normal" style="font-family: Inter, sans-serif; font-size: {{ greeting_card.subtitle_size }}; font-weight: {{ greeting_card.subtitle_weight }}; color: {{ greeting_card.subtitle_color }};" x-text="fechaHora"></p>
             </div>
             <div class="flex items-center gap-3">
-                <div class="px-4 py-2 bg-white/20 rounded-xl flex items-center gap-2">
-                    <div class="w-2 h-2 bg-[#08B8CC] rounded-full animate-pulse"></div>
-                    <span class="text-sm font-medium">Sistema Activo</span>
+                <div class="px-4 py-2 bg-[#ECFDF5] border border-[#A4F4CF] rounded-xl flex items-center gap-2">
+                    <div class="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></div>
+                    <span class="text-sm font-bold text-[#006045]">Sistema Activo</span>
                 </div>
             </div>
         </div>
     </div>
+    {% endwith %}
 
     <!-- Búsqueda Rápida -->
     <div class="bg-white rounded-xl p-6 mb-8 border border-[#E5E7EB]" style="box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
@@ -35,10 +57,10 @@
             <div class="flex-1 relative">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#56606A]"></i>
                 <input type="text" placeholder="Buscar ciudadano (mín. 3 caracteres): nombre, apellido, DNI..." 
-                       class="w-full pl-12 pr-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#101828] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:ring-[#FF0080] focus:border-transparent transition-all"
+                       class="inicio-search-input w-full pl-12 pr-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#101828] placeholder-[#8C8C8C] focus:outline-none focus:ring-2 focus:border-transparent transition-all"
                        x-model="busqueda" @input="buscarCiudadano()">
             </div>
-            <button class="btn-nodo btn-brand btn-base">
+            <button class="px-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#4A5565] font-medium transition-all hover:bg-[#F3F4F6] hover:text-[#101828] focus:bg-[#F3F4F6] focus:text-[#101828] focus:shadow-[0_1px_0_2px_#F3F4F6] disabled:bg-[#F3F4F6] disabled:border-[#E5E7E8] disabled:text-[#99A1AF] flex items-center gap-2">
                 <i class="fas fa-plus"></i>
                 <span>Nuevo Legajo</span>
             </button>
@@ -54,24 +76,27 @@
     </div>
 
     <!-- Alertas Críticas -->
-    <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-8" x-show="alertasCriticas.length > 0">
+    <div class="bg-[#FEF0F2] border border-[#FFCCD3] rounded-xl p-6 mb-8" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); border-radius: 12px;" x-show="alertasCriticas.length > 0">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-red-800 flex items-center">
-                <i class="fas fa-exclamation-triangle mr-2 animate-pulse"></i>
+            <h3 class="text-[18px] font-semibold text-[#000000] flex items-center" style="font-family: Inter, sans-serif;">
+                <i class="fas fa-exclamation-triangle mr-2 animate-pulse text-[#D03801]"></i>
                 Alertas Críticas
             </h3>
-            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium" x-text="alertasCriticas.length + ' alertas'"></span>
+            <span class="badge-danger badge-sm flex items-center gap-2">
+                <span x-text="alertasCriticas.length + ' alertas'"></span>
+                <i class="fas fa-times text-xs"></i>
+            </span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <template x-for="alerta in alertasCriticas">
-                <div class="bg-white border border-red-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="bg-[#FFFFFF] border border-[#FFCCD3] rounded-xl p-4 hover:shadow-md transition-shadow" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); border-radius: 12px;">
                     <div class="flex items-start justify-between">
                         <div>
-                            <div class="font-medium text-gray-900" x-text="alerta.ciudadano"></div>
-                            <div class="text-sm text-red-600" x-text="alerta.tipo"></div>
-                            <div class="text-xs text-gray-500" x-text="alerta.fecha"></div>
+                            <div class="font-semibold text-[#000000] text-[16px]" style="font-family: Inter, sans-serif;" x-text="alerta.ciudadano"></div>
+                            <div class="text-[14px] font-bold text-[#D03801]" style="font-family: Inter, sans-serif;" x-text="alerta.tipo"></div>
+                            <div class="text-[14px] font-semibold text-[#6A7282]" style="font-family: Inter, sans-serif;" x-text="alerta.fecha"></div>
                         </div>
-                        <button class="text-red-600 hover:text-red-800">
+                        <button class="text-[#D03801] hover:text-red-800">
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
@@ -81,39 +106,65 @@
     </div>
 
     <!-- Métricas Principales con Gráficos -->
+    {% with metric_cards=branding.dashboard.metric_cards %}
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="p-5 transition-all duration-300" style="background: {{ metric_cards.bg }}; border: 1px solid {{ metric_cards.border }}; border-radius: {{ metric_cards.radius }}; box-shadow: {{ metric_cards.shadow }};" onmouseover="this.style.boxShadow='{{ metric_cards.hover_shadow }}'" onmouseout="this.style.boxShadow='{{ metric_cards.shadow }}'">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-user-friends text-xl text-[#10B981]"></i>
+                {% if metric_cards.icon_mode == 'badge_gradient' %}
+                    <div class="flex items-center justify-center rounded-xl" style="width: {{ metric_cards.icon_container_size }}; height: {{ metric_cards.icon_container_size }}; background: linear-gradient(45deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); box-shadow: {{ metric_cards.icon_shadow }};">
+                        <i class="fas fa-user-friends text-lg" style="color: {{ metric_cards.icon_color }};"></i>
+                    </div>
+                {% else %}
+                    <i class="fas fa-user-friends text-3xl text-transparent bg-clip-text" style="background-image: linear-gradient(180deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% endif %}
             </div>
-            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.ciudadanos"></p>
-            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Total Ciudadanos</p>
+            <p class="mb-1" style="font-family: Inter, sans-serif; font-size: {{ metric_cards.value_size }}; font-weight: {{ metric_cards.value_weight }}; color: {{ metric_cards.value_color }};" x-text="metricas.ciudadanos"></p>
+            <p style="font-family: Inter, sans-serif; font-size: {{ metric_cards.label_size }}; font-weight: {{ metric_cards.label_weight }}; color: {{ metric_cards.label_color }}; text-transform: {{ metric_cards.label_transform }}; letter-spacing: {{ metric_cards.label_tracking }};">Total Ciudadanos</p>
         </div>
 
-        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="p-5 transition-all duration-300" style="background: {{ metric_cards.bg }}; border: 1px solid {{ metric_cards.border }}; border-radius: {{ metric_cards.radius }}; box-shadow: {{ metric_cards.shadow }};" onmouseover="this.style.boxShadow='{{ metric_cards.hover_shadow }}'" onmouseout="this.style.boxShadow='{{ metric_cards.shadow }}'">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-folder-open text-xl text-[#3B82F6]"></i>
+                {% if metric_cards.icon_mode == 'badge_gradient' %}
+                    <div class="flex items-center justify-center rounded-xl" style="width: {{ metric_cards.icon_container_size }}; height: {{ metric_cards.icon_container_size }}; background: linear-gradient(45deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); box-shadow: {{ metric_cards.icon_shadow }};">
+                        <i class="fas fa-folder-open text-lg" style="color: {{ metric_cards.icon_color }};"></i>
+                    </div>
+                {% else %}
+                    <i class="fas fa-folder-open text-3xl text-transparent bg-clip-text" style="background-image: linear-gradient(180deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% endif %}
             </div>
-            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.legajos"></p>
-            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Legajos Activos</p>
+            <p class="mb-1" style="font-family: Inter, sans-serif; font-size: {{ metric_cards.value_size }}; font-weight: {{ metric_cards.value_weight }}; color: {{ metric_cards.value_color }};" x-text="metricas.legajos"></p>
+            <p style="font-family: Inter, sans-serif; font-size: {{ metric_cards.label_size }}; font-weight: {{ metric_cards.label_weight }}; color: {{ metric_cards.label_color }}; text-transform: {{ metric_cards.label_transform }}; letter-spacing: {{ metric_cards.label_tracking }};">Legajos Activos</p>
         </div>
 
-        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="p-5 transition-all duration-300" style="background: {{ metric_cards.bg }}; border: 1px solid {{ metric_cards.border }}; border-radius: {{ metric_cards.radius }}; box-shadow: {{ metric_cards.shadow }};" onmouseover="this.style.boxShadow='{{ metric_cards.hover_shadow }}'" onmouseout="this.style.boxShadow='{{ metric_cards.shadow }}'">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-calendar-check text-xl text-[#F59E0B]"></i>
+                {% if metric_cards.icon_mode == 'badge_gradient' %}
+                    <div class="flex items-center justify-center rounded-xl" style="width: {{ metric_cards.icon_container_size }}; height: {{ metric_cards.icon_container_size }}; background: linear-gradient(45deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); box-shadow: {{ metric_cards.icon_shadow }};">
+                        <i class="fas fa-calendar-check text-lg" style="color: {{ metric_cards.icon_color }};"></i>
+                    </div>
+                {% else %}
+                    <i class="fas fa-calendar-check text-3xl text-transparent bg-clip-text" style="background-image: linear-gradient(180deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% endif %}
             </div>
-            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.seguimientos"></p>
-            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Seguimientos Hoy</p>
+            <p class="mb-1" style="font-family: Inter, sans-serif; font-size: {{ metric_cards.value_size }}; font-weight: {{ metric_cards.value_weight }}; color: {{ metric_cards.value_color }};" x-text="metricas.seguimientos"></p>
+            <p style="font-family: Inter, sans-serif; font-size: {{ metric_cards.label_size }}; font-weight: {{ metric_cards.label_weight }}; color: {{ metric_cards.label_color }}; text-transform: {{ metric_cards.label_transform }}; letter-spacing: {{ metric_cards.label_tracking }};">Seguimientos Hoy</p>
         </div>
 
-        <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="p-5 transition-all duration-300" style="background: {{ metric_cards.bg }}; border: 1px solid {{ metric_cards.border }}; border-radius: {{ metric_cards.radius }}; box-shadow: {{ metric_cards.shadow }};" onmouseover="this.style.boxShadow='{{ metric_cards.hover_shadow }}'" onmouseout="this.style.boxShadow='{{ metric_cards.shadow }}'">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-exclamation-triangle text-xl text-[#EF4444]"></i>
+                {% if metric_cards.icon_mode == 'badge_gradient' %}
+                    <div class="flex items-center justify-center rounded-xl" style="width: {{ metric_cards.icon_container_size }}; height: {{ metric_cards.icon_container_size }}; background: linear-gradient(45deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); box-shadow: {{ metric_cards.icon_shadow }};">
+                        <i class="fas fa-exclamation-triangle text-lg" style="color: {{ metric_cards.icon_color }};"></i>
+                    </div>
+                {% else %}
+                    <i class="fas fa-exclamation-triangle text-3xl text-transparent bg-clip-text" style="background-image: linear-gradient(180deg, {{ metric_cards.icon_gradient_start }} 0%, {{ metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% endif %}
             </div>
-            <p class="text-3xl font-bold mb-1 text-[#252F40]" x-text="metricas.alertas"></p>
-            <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Alertas Activas</p>
+            <p class="mb-1" style="font-family: Inter, sans-serif; font-size: {{ metric_cards.value_size }}; font-weight: {{ metric_cards.value_weight }}; color: {{ metric_cards.value_color }};" x-text="metricas.alertas"></p>
+            <p style="font-family: Inter, sans-serif; font-size: {{ metric_cards.label_size }}; font-weight: {{ metric_cards.label_weight }}; color: {{ metric_cards.label_color }}; text-transform: {{ metric_cards.label_transform }}; letter-spacing: {{ metric_cards.label_tracking }};">Alertas Activas</p>
         </div>
     </div>
+    {% endwith %}
 
     <!-- Dashboard Principal -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -122,9 +173,21 @@
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-semibold text-gray-900">Tendencias Mensuales</h3>
                 <div class="flex space-x-2">
-                    <button @click="cambiarPeriodo('7d')" :class="periodo === '7d' ? 'bg-magenta text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">7D</button>
-                    <button @click="cambiarPeriodo('30d')" :class="periodo === '30d' ? 'bg-magenta text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">30D</button>
-                    <button @click="cambiarPeriodo('90d')" :class="periodo === '90d' ? 'bg-magenta text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-lg text-sm">90D</button>
+                    <button
+                        @click="cambiarPeriodo('7d')"
+                        :style="periodo === '7d' ? 'background: {{ branding.dashboard.trend_period_tabs.active_bg }}; color: {{ branding.dashboard.trend_period_tabs.active_text }};' : 'background: {{ branding.dashboard.trend_period_tabs.inactive_bg }}; color: {{ branding.dashboard.trend_period_tabs.inactive_text }};'"
+                        class="min-w-[56px] px-3 py-1 rounded-lg text-sm text-center transition-colors"
+                    >7D</button>
+                    <button
+                        @click="cambiarPeriodo('30d')"
+                        :style="periodo === '30d' ? 'background: {{ branding.dashboard.trend_period_tabs.active_bg }}; color: {{ branding.dashboard.trend_period_tabs.active_text }};' : 'background: {{ branding.dashboard.trend_period_tabs.inactive_bg }}; color: {{ branding.dashboard.trend_period_tabs.inactive_text }};'"
+                        class="min-w-[56px] px-3 py-1 rounded-lg text-sm text-center transition-colors"
+                    >30D</button>
+                    <button
+                        @click="cambiarPeriodo('90d')"
+                        :style="periodo === '90d' ? 'background: {{ branding.dashboard.trend_period_tabs.active_bg }}; color: {{ branding.dashboard.trend_period_tabs.active_text }};' : 'background: {{ branding.dashboard.trend_period_tabs.inactive_bg }}; color: {{ branding.dashboard.trend_period_tabs.inactive_text }};'"
+                        class="min-w-[56px] px-3 py-1 rounded-lg text-sm text-center transition-colors"
+                    >90D</button>
                 </div>
             </div>
             <div class="h-80">
@@ -192,8 +255,23 @@
                 <template x-for="actividad in actividadReciente">
                     <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                         <div class="flex-shrink-0">
-                            <div :class="getIconoActividad(actividad.tipo)" class="w-8 h-8 rounded-full flex items-center justify-center">
-                                <i :class="actividad.icono" class="text-sm"></i>
+                            <div
+                                {% if branding.dashboard.activity_timeline.icon_mode == 'uniform' %}
+                                class="w-8 h-8 rounded-full flex items-center justify-center"
+                                style="background: {{ branding.dashboard.activity_timeline.icon_bg }};"
+                                {% else %}
+                                :class="getIconoActividad(actividad.tipo)"
+                                class="w-8 h-8 rounded-full flex items-center justify-center"
+                                {% endif %}
+                            >
+                                <i
+                                    :class="actividad.icono"
+                                    {% if branding.dashboard.activity_timeline.icon_mode == 'uniform' %}
+                                    style="color: {{ branding.dashboard.activity_timeline.icon_color }}; font-size: {{ branding.dashboard.activity_timeline.icon_size }};"
+                                    {% else %}
+                                    class="text-sm"
+                                    {% endif %}
+                                ></i>
                             </div>
                         </div>
                         <div class="flex-1 min-w-0">
@@ -210,7 +288,15 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-users text-xl text-[#3B82F6]"></i>
+                {% if branding.dashboard.quick_action_cards.icon_mode == 'uniform' %}
+                    <div class="inline-flex items-center justify-center rounded-xl" style="width: 41px; height: 41px; background: {{ branding.dashboard.quick_action_cards.icon_bg }};">
+                        <i class="fas fa-users" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; color: {{ branding.dashboard.quick_action_cards.icon_color }};"></i>
+                    </div>
+                {% elif branding.dashboard.quick_action_cards.icon_mode == 'text_gradient' %}
+                    <i class="fas fa-users text-transparent bg-clip-text" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; background-image: linear-gradient(180deg, {{ branding.dashboard.metric_cards.icon_gradient_start }} 0%, {{ branding.dashboard.metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% else %}
+                    <i class="fas fa-users text-xl text-[#3B82F6]"></i>
+                {% endif %}
             </div>
             <h4 class="text-base font-semibold mb-1 text-[#252F40]">Gestionar Ciudadanos</h4>
             <p class="text-xs text-[#8C8C8C]">Ver, buscar y administrar</p>
@@ -218,7 +304,15 @@
 
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-plus-circle text-xl text-[#10B981]"></i>
+                {% if branding.dashboard.quick_action_cards.icon_mode == 'uniform' %}
+                    <div class="inline-flex items-center justify-center rounded-xl" style="width: 41px; height: 41px; background: {{ branding.dashboard.quick_action_cards.icon_bg }};">
+                        <i class="fas fa-plus-circle" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; color: {{ branding.dashboard.quick_action_cards.icon_color }};"></i>
+                    </div>
+                {% elif branding.dashboard.quick_action_cards.icon_mode == 'text_gradient' %}
+                    <i class="fas fa-plus-circle text-transparent bg-clip-text" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; background-image: linear-gradient(180deg, {{ branding.dashboard.metric_cards.icon_gradient_start }} 0%, {{ branding.dashboard.metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% else %}
+                    <i class="fas fa-plus-circle text-xl text-[#10B981]"></i>
+                {% endif %}
             </div>
             <h4 class="text-base font-semibold mb-1 text-[#252F40]">Nuevo Registro</h4>
             <p class="text-xs text-[#8C8C8C]">Crear legajo rápido</p>
@@ -226,7 +320,15 @@
 
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-chart-bar text-xl text-[#8B5CF6]"></i>
+                {% if branding.dashboard.quick_action_cards.icon_mode == 'uniform' %}
+                    <div class="inline-flex items-center justify-center rounded-xl" style="width: 41px; height: 41px; background: {{ branding.dashboard.quick_action_cards.icon_bg }};">
+                        <i class="fas fa-chart-bar" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; color: {{ branding.dashboard.quick_action_cards.icon_color }};"></i>
+                    </div>
+                {% elif branding.dashboard.quick_action_cards.icon_mode == 'text_gradient' %}
+                    <i class="fas fa-chart-bar text-transparent bg-clip-text" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; background-image: linear-gradient(180deg, {{ branding.dashboard.metric_cards.icon_gradient_start }} 0%, {{ branding.dashboard.metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% else %}
+                    <i class="fas fa-chart-bar text-xl text-[#8B5CF6]"></i>
+                {% endif %}
             </div>
             <h4 class="text-base font-semibold mb-1 text-[#252F40]">Reportes</h4>
             <p class="text-xs text-[#8C8C8C]">Análisis y estadísticas</p>
@@ -234,7 +336,15 @@
 
         <div class="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center justify-between mb-3">
-                <i class="fas fa-cog text-xl text-[#8C8C8C]"></i>
+                {% if branding.dashboard.quick_action_cards.icon_mode == 'uniform' %}
+                    <div class="inline-flex items-center justify-center rounded-xl" style="width: 41px; height: 41px; background: {{ branding.dashboard.quick_action_cards.icon_bg }};">
+                        <i class="fas fa-cog" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; color: {{ branding.dashboard.quick_action_cards.icon_color }};"></i>
+                    </div>
+                {% elif branding.dashboard.quick_action_cards.icon_mode == 'text_gradient' %}
+                    <i class="fas fa-cog text-transparent bg-clip-text" style="font-size: {{ branding.dashboard.quick_action_cards.icon_size }}; background-image: linear-gradient(180deg, {{ branding.dashboard.metric_cards.icon_gradient_start }} 0%, {{ branding.dashboard.metric_cards.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                {% else %}
+                    <i class="fas fa-cog text-xl text-[#8C8C8C]"></i>
+                {% endif %}
             </div>
             <h4 class="text-base font-semibold mb-1 text-[#252F40]">Configuración</h4>
             <p class="text-xs text-[#8C8C8C]">Ajustes del sistema</p>
@@ -242,54 +352,80 @@
     </div>
 
     <!-- Estado del Sistema Avanzado -->
+    {% with system_status=branding.dashboard.system_status %}
     <div class="bg-white rounded-xl shadow-lg p-6">
         <h3 class="text-xl font-semibold text-gray-900 mb-6">Estado del Sistema</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-cyan-100 rounded-full mb-4">
-                    <i class="fas fa-server text-nodo-cyan text-2xl"></i>
-                </div>
+                {% if system_status.icon_mode == 'uniform_gradient' %}
+                    <div class="inline-flex items-center justify-center rounded-full mb-4" style="width: {{ system_status.icon_container_size }}; height: {{ system_status.icon_container_size }}; background: {{ system_status.icon_container_bg }};">
+                        <i class="fas fa-server text-transparent bg-clip-text" style="font-size: {{ system_status.icon_size }}; background-image: linear-gradient(180deg, {{ system_status.icon_gradient_start }} 0%, {{ system_status.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    </div>
+                {% else %}
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-cyan-100 rounded-full mb-4">
+                        <i class="fas fa-server text-nodo-cyan text-2xl"></i>
+                    </div>
+                {% endif %}
                 <h4 class="font-semibold text-gray-900 mb-2">Servidor</h4>
                 <div class="bg-gray-200 rounded-full h-2 mb-2">
-                    <div class="bg-[#08B8CC] h-2 rounded-full" style="width: 95%"></div>
+                    <div class="h-2 rounded-full" style="width: 95%; {% if system_status.bar_fill %}background: {{ system_status.bar_fill }};{% else %}background: #08B8CC;{% endif %}"></div>
                 </div>
                 <p class="text-sm text-gray-500">95% Rendimiento</p>
             </div>
 
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-                    <i class="fas fa-database text-nodo-purple text-2xl"></i>
-                </div>
+                {% if system_status.icon_mode == 'uniform_gradient' %}
+                    <div class="inline-flex items-center justify-center rounded-full mb-4" style="width: {{ system_status.icon_container_size }}; height: {{ system_status.icon_container_size }}; background: {{ system_status.icon_container_bg }};">
+                        <i class="fas fa-database text-transparent bg-clip-text" style="font-size: {{ system_status.icon_size }}; background-image: linear-gradient(180deg, {{ system_status.icon_gradient_start }} 0%, {{ system_status.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    </div>
+                {% else %}
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                        <i class="fas fa-database text-nodo-purple text-2xl"></i>
+                    </div>
+                {% endif %}
                 <h4 class="font-semibold text-gray-900 mb-2">Base de Datos</h4>
                 <div class="bg-gray-200 rounded-full h-2 mb-2">
-                    <div class="bg-[#7928CA] h-2 rounded-full" style="width: 88%"></div>
+                    <div class="h-2 rounded-full" style="width: 88%; {% if system_status.bar_fill %}background: {{ system_status.bar_fill }};{% else %}background: #7928CA;{% endif %}"></div>
                 </div>
                 <p class="text-sm text-gray-500">88% Uso</p>
             </div>
 
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mb-4">
-                    <i class="fas fa-shield-alt text-magenta text-2xl"></i>
-                </div>
+                {% if system_status.icon_mode == 'uniform_gradient' %}
+                    <div class="inline-flex items-center justify-center rounded-full mb-4" style="width: {{ system_status.icon_container_size }}; height: {{ system_status.icon_container_size }}; background: {{ system_status.icon_container_bg }};">
+                        <i class="fas fa-shield-alt text-transparent bg-clip-text" style="font-size: {{ system_status.icon_size }}; background-image: linear-gradient(180deg, {{ system_status.icon_gradient_start }} 0%, {{ system_status.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    </div>
+                {% else %}
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mb-4">
+                        <i class="fas fa-shield-alt text-magenta text-2xl"></i>
+                    </div>
+                {% endif %}
                 <h4 class="font-semibold text-gray-900 mb-2">Seguridad</h4>
                 <div class="bg-gray-200 rounded-full h-2 mb-2">
-                    <div class="bg-[#FF0080] h-2 rounded-full" style="width: 100%"></div>
+                    <div class="h-2 rounded-full" style="width: 100%; {% if system_status.bar_fill %}background: {{ system_status.bar_fill }};{% else %}background: var(--ui-highlight-color);{% endif %}"></div>
                 </div>
                 <p class="text-sm text-gray-500">Protección Activa</p>
             </div>
 
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-4">
-                    <i class="fas fa-users text-yellow-600 text-2xl"></i>
-                </div>
+                {% if system_status.icon_mode == 'uniform_gradient' %}
+                    <div class="inline-flex items-center justify-center rounded-full mb-4" style="width: {{ system_status.icon_container_size }}; height: {{ system_status.icon_container_size }}; background: {{ system_status.icon_container_bg }};">
+                        <i class="fas fa-users text-transparent bg-clip-text" style="font-size: {{ system_status.icon_size }}; background-image: linear-gradient(180deg, {{ system_status.icon_gradient_start }} 0%, {{ system_status.icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                    </div>
+                {% else %}
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-4">
+                        <i class="fas fa-users text-yellow-600 text-2xl"></i>
+                    </div>
+                {% endif %}
                 <h4 class="font-semibold text-gray-900 mb-2">Usuarios</h4>
                 <div class="bg-gray-200 rounded-full h-2 mb-2">
-                    <div class="bg-[#F59E0B] h-2 rounded-full" style="width: 67%"></div>
+                    <div class="h-2 rounded-full" style="width: 67%; {% if system_status.bar_fill %}background: {{ system_status.bar_fill }};{% else %}background: #F59E0B;{% endif %}"></div>
                 </div>
                 <p class="text-sm text-gray-500" x-text="usuariosConectados + ' conectados'"></p>
             </div>
         </div>
     </div>
+    {% endwith %}
 </div>
 
 <script>
@@ -412,6 +548,25 @@ function dashboard() {
         },
 
         inicializarGraficos() {
+            const rootStyles = getComputedStyle(document.documentElement);
+            const highlightColor = rootStyles.getPropertyValue('--ui-highlight-color').trim() || '#FF0080';
+            const trendLineColor = '{{ branding.dashboard.trend_line_color }}';
+            const legajoStatesChartColors = {
+                abiertos: '{{ branding.dashboard.legajo_states_chart.abiertos }}',
+                seguimiento: '{{ branding.dashboard.legajo_states_chart.seguimiento }}',
+                derivados: '{{ branding.dashboard.legajo_states_chart.derivados }}',
+                cerrados: '{{ branding.dashboard.legajo_states_chart.cerrados }}'
+            };
+            const hexToRgba = (hex, alpha) => {
+                const normalizedHex = hex.replace('#', '');
+                const expandedHex = normalizedHex.length === 3
+                    ? normalizedHex.split('').map((char) => char + char).join('')
+                    : normalizedHex;
+                const red = parseInt(expandedHex.slice(0, 2), 16);
+                const green = parseInt(expandedHex.slice(2, 4), 16);
+                const blue = parseInt(expandedHex.slice(4, 6), 16);
+                return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+            };
             // Gráfico de tendencias
             const ctxTendencias = document.getElementById('chartTendencias').getContext('2d');
             new Chart(ctxTendencias, {
@@ -421,8 +576,8 @@ function dashboard() {
                     datasets: [{
                         label: 'Nuevos Legajos',
                         data: [12, 19, 15, 25, 22, 30],
-                        borderColor: 'rgb(255, 0, 128)',
-                        backgroundColor: 'rgba(255, 0, 128, 0.1)',
+                        borderColor: trendLineColor,
+                        backgroundColor: hexToRgba(trendLineColor, 0.1),
                         tension: 0.4
                     }]
                 },
@@ -442,7 +597,12 @@ function dashboard() {
                     labels: ['Abiertos', 'En Seguimiento', 'Derivados', 'Cerrados'],
                     datasets: [{
                         data: [45, 78, 23, 10],
-                        backgroundColor: ['#08B8CC', '#7928CA', '#FF0080', '#6b7280']
+                        backgroundColor: [
+                            legajoStatesChartColors.abiertos,
+                            legajoStatesChartColors.seguimiento,
+                            legajoStatesChartColors.derivados,
+                            legajoStatesChartColors.cerrados
+                        ]
                     }]
                 },
                 options: {

@@ -204,6 +204,35 @@ class AsistenciaView(LoginRequiredMixin, DetailView):
         context['inscritos'] = inscritos
         
         return context
+    
+    def post(self, request, *args, **kwargs):
+        from legajos.models import InscriptoActividad, RegistroAsistencia
+        from django.contrib import messages
+        from datetime import datetime
+        
+        actividad = self.get_object()
+        fecha = datetime.now().date()
+        
+        contador = 0
+        for key, value in request.POST.items():
+            if key.startswith('asistencia_'):
+                inscripto_id = key.replace('asistencia_', '')
+                try:
+                    inscripto = InscriptoActividad.objects.get(pk=inscripto_id)
+                    RegistroAsistencia.objects.update_or_create(
+                        inscripto=inscripto,
+                        fecha=fecha,
+                        defaults={
+                            'estado': value,
+                            'registrado_por': request.user
+                        }
+                    )
+                    contador += 1
+                except InscriptoActividad.DoesNotExist:
+                    pass
+        
+        messages.success(request, f'Asistencia registrada para {contador} personas')
+        return redirect('configuracion:asistencia', pk=actividad.pk)
 
 
 class TomarAsistenciaView(LoginRequiredMixin, DetailView):

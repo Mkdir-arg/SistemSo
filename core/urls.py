@@ -1,5 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 from .views import (
     inicio_view,
@@ -20,8 +21,12 @@ from .performance_dashboard import (
     run_phase2_tests_api,
 )
 
+def dashboard_redirect(request):
+    return redirect('dashboard:inicio')
+
 urlpatterns = [
     path("inicio/", login_required(inicio_view), name="inicio"),
+    path("dashboard/", login_required(dashboard_redirect), name="dashboard"),
     path("relevamientos/", login_required(relevamientos_view), name="relevamientos"),
     path("relevamientos/<uuid:relevamiento_id>/", login_required(relevamiento_detail_view), name="relevamiento_detail"),
     path(

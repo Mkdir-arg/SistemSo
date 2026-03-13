@@ -154,6 +154,28 @@
                     </label>
                     {{ form.domicilio }}
                 </div>
+                
+                <!-- Datos Territoriales -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-3 mt-6">
+                    <div>
+                        <label for="{{ form.provincia.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.provincia.label }}
+                        </label>
+                        {{ form.provincia }}
+                    </div>
+                    <div>
+                        <label for="{{ form.municipio.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.municipio.label }}
+                        </label>
+                        {{ form.municipio }}
+                    </div>
+                    <div>
+                        <label for="{{ form.localidad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.localidad.label }}
+                        </label>
+                        {{ form.localidad }}
+                    </div>
+                </div>
             </div>
 
             <!-- Botones -->

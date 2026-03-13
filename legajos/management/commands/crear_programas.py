@@ -20,10 +20,10 @@ class Command(BaseCommand):
                 'orden': 1
             },
             {
-                'codigo': 'PREV-UNIVERSAL',
-                'nombre': 'Prevención Universal',
-                'tipo': 'PREVENCION_UNIVERSAL',
-                'descripcion': 'Programa de prevención universal en consumos problemáticos',
+                'codigo': 'ÑACHEC',
+                'nombre': 'ÑACHEC',
+                'tipo': 'ÑACHEC',
+                'descripcion': 'Programa de ÑACHEC',
                 'icono': 'shield-alt',
                 'color': '#10B981',
                 'orden': 2

@@ -18,10 +18,8 @@ import { Ionicons } from '@expo/vector-icons';
 import CustomButton from '../components/CustomButton';
 import AuthVisualBackground from '../components/AuthVisualBackground';
 
-const logo = require('../../assets/brand/logo-nodo.png');
-
 export default function LoginScreen() {
-  const { theme, typography, isDark } = useTheme();
+  const { theme, typography, isDark, branding } = useTheme();
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -67,7 +65,7 @@ export default function LoginScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.header}>
-              <Image source={logo} style={styles.logo} resizeMode="contain" />
+              <Image source={branding.assets.logo} style={styles.logo} resizeMode="contain" />
             </View>
 
             <View
@@ -76,13 +74,14 @@ export default function LoginScreen() {
                 {
                   borderColor: theme.colors.border,
                   backgroundColor: isDark ? 'rgba(20,20,24,0.92)' : 'rgba(255,255,255,0.92)',
+                  shadowColor: theme.colors.auth?.glow || theme.colors.primary,
                 },
               ]}
             >
               <View style={styles.cardHeader}>
                 <Text style={[styles.title, { fontFamily: typography.bold, color: theme.colors.text }]}>Bienvenido</Text>
                 <Text style={[styles.subtitle, { fontFamily: typography.regular, color: theme.colors.textMuted }]}>
-                  Inicia sesion para continuar
+                  {branding.loginSubtitle}
                 </Text>
               </View>
 
@@ -214,7 +213,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 20,
     padding: 18,
-    shadowColor: '#FF0080',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 18,

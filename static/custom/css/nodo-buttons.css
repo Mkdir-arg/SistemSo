@@ -61,7 +61,7 @@
 
 /* Brand Button (Primary) */
 .btn-brand {
-    background: linear-gradient(45deg, #7828CA, #FF0080);
+    background: var(--login-button-gradient);
     color: white !important;
     border: none;
 }
@@ -73,22 +73,21 @@
 }
 
 .btn-brand:hover {
-    background: linear-gradient(45deg, #7828CA, #FF0080);
-    filter: brightness(0.8);
+    background-image: linear-gradient(var(--login-button-hover-overlay), var(--login-button-hover-overlay)), var(--login-button-gradient);
     color: white !important;
 }
 
 .btn-brand:focus {
-    background: linear-gradient(45deg, #7828CA, #FF0080);
-    border: 2px solid #7828CA;
-    box-shadow: 0 1px 0 2px #E5E7EB;
+    background: var(--login-button-gradient);
+    border: 2px solid var(--login-button-focus-border);
+    box-shadow: var(--login-button-focus-shadow);
     color: white !important;
 }
 
 .btn-brand:disabled {
-    background: #F3F4F6;
-    border: 1px solid #E5E7E8;
-    color: #99A1AF !important;
+    background: var(--login-button-disabled-bg);
+    border: 1px solid var(--login-button-disabled-border);
+    color: var(--login-button-disabled-text) !important;
 }
 
 /* Secondary Button */
@@ -119,26 +118,26 @@
 
 /* Tertiary Button */
 .btn-tertiary {
-    background: #FFFFFF;
-    color: #FF0080;
-    border: 1px solid #FF0080;
+    background: var(--button-tertiary-bg, #FFFFFF);
+    color: var(--button-tertiary-text, #FF0080);
+    border: 1px solid var(--button-tertiary-border, #FF0080);
 }
 
 .btn-tertiary:hover {
-    background: rgba(255, 0, 128, 0.1);
-    color: #D4006A;
-    border: 1px solid #D4006A;
+    background: var(--button-tertiary-hover-bg, rgba(255, 0, 128, 0.1));
+    color: var(--button-tertiary-hover-text, #D4006A);
+    border: 1px solid var(--button-tertiary-hover-border, #D4006A);
 }
 
 .btn-tertiary:focus {
-    background: rgba(212, 0, 106, 0.1);
-    color: #D4006A;
-    border: 1px solid #D4006A;
-    box-shadow: 0 1px 0 2px #F3F4F6;
+    background: var(--button-tertiary-focus-bg, rgba(212, 0, 106, 0.1));
+    color: var(--button-tertiary-focus-text, #D4006A);
+    border: 1px solid var(--button-tertiary-focus-border, #D4006A);
+    box-shadow: 0 1px 0 2px var(--button-tertiary-focus-shadow, #F3F4F6);
 }
 
 .btn-tertiary:disabled {
-    background: rgba(199, 160, 180, 0.2);
-    border: 1px solid #C7A0B4;
-    color: #D4006A;
+    background: var(--button-tertiary-disabled-bg, rgba(199, 160, 180, 0.2));
+    border: 1px solid var(--button-tertiary-disabled-border, #C7A0B4);
+    color: var(--button-tertiary-disabled-text, #D4006A);
 }

@@ -5,7 +5,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="shortcut icon" type="image/png" href="{% static 'custom/img/NODO.png' %}" />
+        <link rel="shortcut icon" type="image/png" href="{% static branding.favicon_path %}" />
         
         <!-- Tailwind CSS -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -15,23 +15,23 @@
                     extend: {
                         colors: {
                             // Paleta NODO
-                            'magenta': '#FF0080',
-                            'nodo-purple': '#7928CA',
-                            'nodo-cyan': '#08B8CC',
+                            'magenta': '{{ branding.colors.nodo_magenta }}',
+                            'nodo-purple': '{{ branding.colors.nodo_purple }}',
+                            'nodo-cyan': '{{ branding.colors.nodo_cyan }}',
                             // Compatibilidad anterior
-                            'primario': '#7928CA',
-                            'primario-claro': '#FF0080',
-                            'primario-oscuro': '#8908CC',
-                            'secundario': '#475569',
-                            'secundario-claro': '#64748b',
-                            'secundario-oscuro': '#334155',
-                            'acento': '#08B8CC',
-                            'acento-claro': '#14b8a6',
-                            'acento-oscuro': '#0d9488',
-                            'arg-azul': '#7928CA',
-                            'arg-secundario': '#475569',
-                            primary: '#7928CA',
-                            secondary: '#475569',
+                            'primario': '{{ branding.colors.color_primario }}',
+                            'primario-claro': '{{ branding.colors.color_primario_claro }}',
+                            'primario-oscuro': '{{ branding.colors.color_primario_oscuro }}',
+                            'secundario': '{{ branding.colors.color_secundario }}',
+                            'secundario-claro': '{{ branding.colors.color_secundario_claro }}',
+                            'secundario-oscuro': '{{ branding.colors.color_secundario_oscuro }}',
+                            'acento': '{{ branding.colors.color_acento }}',
+                            'acento-claro': '{{ branding.colors.color_acento_claro }}',
+                            'acento-oscuro': '{{ branding.colors.color_acento_oscuro }}',
+                            'arg-azul': '{{ branding.colors.color_primario }}',
+                            'arg-secundario': '{{ branding.colors.color_secundario }}',
+                            primary: '{{ branding.colors.color_primario }}',
+                            secondary: '{{ branding.colors.color_secundario }}',
                         },
                         fontFamily: {
                             'lora': ['Lora', 'serif'],
@@ -58,6 +58,13 @@
         
         <!-- NODO Brand Manual de Marca -->
         <link rel="stylesheet" href="{% static 'custom/css/nodo-brand.css' %}" />
+        <style>
+            :root {
+                {% for variable, value in branding.css_variables.items %}
+                {{ variable }}: {{ value }};
+                {% endfor %}
+            }
+        </style>
         
         <!-- NODO Buttons Design System -->
         <link rel="stylesheet" href="{% static 'custom/css/nodo-buttons.css' %}" />
@@ -79,7 +86,7 @@
         <!-- Custom styles -->
         {% block head %}{% endblock %}
         
-        <title>NODO - {% block title %}{% endblock %}</title>
+        <title>{{ branding.application_name }} - {% block title %}{% endblock %}</title>
     </head>
     <body class="min-h-screen bg-white font-montserrat" x-data="{ sidebarOpen: false, sidebarCollapsed: false }" style="background: var(--fondo-principal);">
         <div class="min-h-full">

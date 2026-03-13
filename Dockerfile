@@ -24,15 +24,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar código fuente
 COPY . .
 
-# Copiar y dar permisos al entrypoint
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
 # Crear directorio para logs
 RUN mkdir -p logs
 
+# Normalizar fin de linea en Windows y hacer ejecutable el script de entrada
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
+
 # Exponer puertos
 EXPOSE 8000 8001
-
-# Comando por defecto
-ENTRYPOINT ["/docker-entrypoint.sh"]

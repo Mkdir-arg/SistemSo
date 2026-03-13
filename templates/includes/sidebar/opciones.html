@@ -1,11 +1,16 @@
 {% load static custom_filters %}
 {% with pagina_actual=request.resolver_match.route %}
+    <style>
+        .sidebar-nav .text-\[\#FF0080\] {
+            color: var(--nav-active-color) !important;
+        }
+    </style>
     <div class="flex flex-1 flex-col">
         <!-- User info -->
         <div class="mb-4">
             <template x-if="!sidebarCollapsed">
                 <div class="p-2 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] flex items-center gap-2">
-                    <div class="h-8 w-8 rounded-full bg-[#7928CA] flex items-center justify-center shadow-sm flex-shrink-0">
+                    <div class="h-8 w-8 rounded-full flex items-center justify-center shadow-sm flex-shrink-0" style="{% if branding.active_profile == 'chaco' %}background: linear-gradient(90deg, {{ branding.colors.color_acento_oscuro }} 0%, {{ branding.colors.color_acento_oscuro }} 100%);{% else %}background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%);{% endif %}">
                         <span class="text-xs font-semibold text-white">{{ request.user.username|first|upper }}</span>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -23,7 +28,7 @@
             
             <template x-if="sidebarCollapsed">
                 <div class="flex justify-center">
-                    <div class="h-10 w-10 rounded-full bg-[#7928CA] flex items-center justify-center shadow-sm">
+                    <div class="h-10 w-10 rounded-full flex items-center justify-center shadow-sm" style="{% if branding.active_profile == 'chaco' %}background: linear-gradient(90deg, {{ branding.colors.color_acento_oscuro }} 0%, {{ branding.colors.color_acento_oscuro }} 100%);{% else %}background: linear-gradient(90deg, #7928CA 0%, #FF0080 100%);{% endif %}">
                         <span class="text-sm font-semibold text-white">{{ request.user.username|first|upper }}</span>
                     </div>
                 </div>
@@ -31,7 +36,7 @@
         </div>
         
         <!-- Navegación principal -->
-        <nav class="space-y-2">
+        <nav class="space-y-2 sidebar-nav">
             <!-- Inicio -->
             <div class="relative">
                 <a href="{% url 'inicio' %}" class="{% if 'inicio' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center p-3 text-sm font-semibold transition-all" :class="sidebarCollapsed ? 'justify-center' : 'gap-x-3'">

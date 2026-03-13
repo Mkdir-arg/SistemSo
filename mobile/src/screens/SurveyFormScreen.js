@@ -8,7 +8,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import StaggeredItem from '../components/StaggeredItem';
 import CustomButton from '../components/CustomButton';
 
-const GradientIcon = ({ name, size = 24, style }) => {
+const GradientIcon = ({ name, size = 24, style, colors }) => {
     return (
         <View style={[{ width: size, height: size }, style]}>
             <MaskedView
@@ -20,7 +20,7 @@ const GradientIcon = ({ name, size = 24, style }) => {
                 }
             >
                 <LinearGradient
-                    colors={['#FF0080', '#7928CA']}
+                    colors={colors}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 0, y: 1 }}
                     style={{ flex: 1 }}
@@ -73,9 +73,9 @@ export default function SurveyFormScreen({ onCancel, onSave }) {
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <StaggeredItem index={0}>
-                    <View style={[styles.locationBadge, { backgroundColor: '#2DCE8915' }]}>
-                        <Ionicons name="location" size={16} color="#2DCE89" />
-                        <Text style={[styles.locationText, { color: '#2DCE89', fontFamily: typography.medium }]}>
+                    <View style={[styles.locationBadge, { backgroundColor: `${theme.colors.success}15` }]}>
+                        <Ionicons name="location" size={16} color={theme.colors.success} />
+                        <Text style={[styles.locationText, { color: theme.colors.success, fontFamily: typography.medium }]}>
                             {formData.ubicacion}
                         </Text>
                     </View>
@@ -113,8 +113,8 @@ export default function SurveyFormScreen({ onCancel, onSave }) {
                     >
                         {signature.length > 0 ? (
                             <View style={styles.signaturePreview}>
-                                <Ionicons name="checkmark-circle" size={32} color="#2DCE89" />
-                                <Text style={[styles.signatureHint, { color: '#2DCE89', fontFamily: typography.bold }]}>Firma capturada</Text>
+                                <Ionicons name="checkmark-circle" size={32} color={theme.colors.success} />
+                                <Text style={[styles.signatureHint, { color: theme.colors.success, fontFamily: typography.bold }]}>Firma capturada</Text>
                             </View>
                         ) : (
                             <>
@@ -134,7 +134,7 @@ export default function SurveyFormScreen({ onCancel, onSave }) {
                                         onPress={() => setShowSigModal(false)}
                                         style={styles.closeButton}
                                     >
-                                        <Ionicons name="close" size={40} color="#FF0080" />
+                                        <Ionicons name="close" size={40} color={theme.colors.primary} />
                                     </TouchableOpacity>
                                 </View>
 

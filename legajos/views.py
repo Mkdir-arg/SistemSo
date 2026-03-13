@@ -90,6 +90,23 @@ class CiudadanoDetailView(LoginRequiredMixin, DetailView):
         context['solapas'] = SolapasService.obtener_solapas_ciudadano(self.object)
         context['programas_activos'] = SolapasService.obtener_programas_activos(self.object)
         
+        # Agregar datos de ÑACHEC si existe caso activo
+        from .models_nachec import CasoNachec, RelevamientoNachec, EvaluacionVulnerabilidad, PlanIntervencionNachec, PrestacionNachec, HistorialEstadoCaso
+        try:
+            caso_nachec = CasoNachec.objects.filter(ciudadano_titular=self.object).exclude(estado__in=['CERRADO', 'RECHAZADO', 'SUSPENDIDO']).select_related('territorial', 'coordinador', 'operador_admision').order_by('-creado').first()
+            if caso_nachec:
+                context['caso_nachec'] = caso_nachec
+                context['relevamiento'] = RelevamientoNachec.objects.filter(caso=caso_nachec).order_by('-creado').first()
+                try:
+                    context['evaluacion'] = EvaluacionVulnerabilidad.objects.get(caso=caso_nachec)
+                except EvaluacionVulnerabilidad.DoesNotExist:
+                    context['evaluacion'] = None
+                context['plan_vigente'] = PlanIntervencionNachec.objects.filter(caso=caso_nachec, vigente=True).first()
+                context['prestaciones'] = PrestacionNachec.objects.filter(caso=caso_nachec).select_related('responsable').order_by('-creado')[:10]
+                context['historial_estados'] = HistorialEstadoCaso.objects.filter(caso=caso_nachec).select_related('usuario').order_by('-timestamp')[:10]
+        except Exception:
+            pass
+        
         return context
 
 
@@ -212,6 +229,7 @@ class CiudadanoConfirmarView(LoginRequiredMixin, CreateView):
             'fecha_nacimiento': datos.get('fecha_nacimiento'),
             'genero': datos.get('genero'),
             'domicilio': datos.get('domicilio'),
+            'provincia': datos.get('provincia'),
         }
     
     def get_context_data(self, **kwargs):
@@ -366,6 +384,16 @@ class AdmisionPaso2View(LoginRequiredMixin, CreateView):
         
         try:
             response = super().form_valid(form)
+            
+            # Actualizar InscripcionPrograma con el legajo_id si existe
+            inscripcion_id = self.request.session.get('inscripcion_programa_id')
+            if inscripcion_id:
+                from .models_programas import InscripcionPrograma
+                inscripcion = InscripcionPrograma.objects.filter(id=inscripcion_id).first()
+                if inscripcion:
+                    inscripcion.legajo_id = self.object.id
+                    inscripcion.save()
+                self.request.session.pop('inscripcion_programa_id', None)
             
             # Limpiar sesión y guardar ID del legajo para paso 3
             self.request.session.pop('admision_ciudadano_id', None)
