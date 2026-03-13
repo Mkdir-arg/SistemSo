@@ -5,7 +5,7 @@ type: error
 ---
 
 # Rol turnoOperar no está aplicado en vistas operativas de turnos
-> Estado: ABIERTO
+> Estado: ABIERTO (bloqueado por US-011)
 > Fecha: 2026-03-11
 > Severidad: MEDIO
 

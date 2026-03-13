@@ -2,7 +2,7 @@
 
 > **Regla:** El Arquitecto lee este documento ANTES de proponer cualquier diseño técnico.
 > **Regla:** El Arquitecto actualiza este documento cuando toma una decisión técnica relevante.
-> Última actualización: 2026-03-09
+> Última actualización: 2026-03-12
 
 ---
 

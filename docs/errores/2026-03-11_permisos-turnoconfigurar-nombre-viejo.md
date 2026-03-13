@@ -5,7 +5,7 @@ type: error
 ---
 
 # Permisos turnoConfigurar usan nombre de grupo desactualizado
-> Estado: ABIERTO
+> Estado: ABIERTO (bloqueado por US-011)
 > Fecha: 2026-03-11
 > Severidad: ALTO
 
