@@ -1,6 +1,7 @@
 """Servicios para la app de legajos."""
 
 from .admision import AdmisionSessionService  # noqa: F401
+from .alertas import AlertasService  # noqa: F401
 from .ciudadanos import CiudadanosService, RenaperLookupError  # noqa: F401
 from .contactos import (  # noqa: F401
     ALLOWED_EXTENSIONS,
@@ -10,5 +11,12 @@ from .contactos import (  # noqa: F401
     subir_archivos_para_objeto,
 )
 from .derivaciones_programa import DerivacionProgramaResult, DerivacionProgramaService  # noqa: F401
+from .filtros_usuario import FiltrosUsuarioService  # noqa: F401
+from .institucional import CasoService, DerivacionService  # noqa: F401
 from .legajos import LegajoWorkflowService  # noqa: F401
+from .nachec import (  # noqa: F401
+    ServicioDeteccionDuplicados,
+    ServicioSLA,
+    ServicioTransicionNachec,
+)
 from .solapas import SolapasService  # noqa: F401

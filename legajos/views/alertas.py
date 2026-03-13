@@ -2,8 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from ..models import AlertaCiudadano
-from ..services_alertas import AlertasService
-from ..services_filtros_usuario import FiltrosUsuarioService
+from ..services import AlertasService, FiltrosUsuarioService
 
 
 @login_required

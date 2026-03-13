@@ -9,15 +9,29 @@ class LegajosPackageExportsTests(SimpleTestCase):
         )
         from legajos.services import (
             AdmisionSessionService,
+            AlertasService,
+            CasoService,
             CiudadanosService,
             ContactosFilesError,
+            DerivacionService,
+            FiltrosUsuarioService,
             LegajoWorkflowService,
+            ServicioDeteccionDuplicados,
+            ServicioSLA,
+            ServicioTransicionNachec,
             SolapasService,
         )
 
         self.assertIsNotNone(AdmisionSessionService)
+        self.assertIsNotNone(AlertasService)
+        self.assertIsNotNone(CasoService)
         self.assertIsNotNone(CiudadanosService)
+        self.assertIsNotNone(DerivacionService)
+        self.assertIsNotNone(FiltrosUsuarioService)
         self.assertIsNotNone(LegajoWorkflowService)
+        self.assertIsNotNone(ServicioDeteccionDuplicados)
+        self.assertIsNotNone(ServicioSLA)
+        self.assertIsNotNone(ServicioTransicionNachec)
         self.assertIsNotNone(SolapasService)
         self.assertIsNotNone(ContactosFilesError)
         self.assertTrue(callable(build_ciudadano_detail_context))

@@ -11,7 +11,7 @@ from ..selectors import (
     build_legajo_archivos_payload,
     build_legajo_evolucion_payload,
 )
-from ..services_alertas import AlertasService
+from ..services import AlertasService
 from ..services import ContactosFilesError, eliminar_archivo_por_id, subir_archivos_para_objeto
 
 

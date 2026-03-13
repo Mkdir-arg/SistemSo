@@ -14,8 +14,7 @@ from .serializers import (
     PlanIntervencionSerializer, SeguimientoContactoSerializer, 
     DerivacionSerializer, EventoCriticoSerializer, AlertaCiudadanoSerializer
 )
-from .services_alertas import AlertasService
-from .services_filtros_usuario import FiltrosUsuarioService
+from .services import AlertasService, FiltrosUsuarioService
 
 
 @extend_schema_view(

@@ -4,7 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from ..models import Conversacion, Mensaje
-from legajos.services_alertas import AlertasService
+from legajos.services import AlertasService
 
 
 @receiver(post_save, sender=Conversacion)

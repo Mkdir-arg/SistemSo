@@ -27,7 +27,7 @@ from ..forms_institucional import (
     RechazarDerivacionForm,
     CambiarEstadoCasoForm
 )
-from ..services_institucional import DerivacionService, CasoService
+from ..services import CasoService, DerivacionService
 from ..permissions_institucional import (
     puede_ver_institucion,
     puede_ver_programa,

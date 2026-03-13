@@ -4,7 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from .models import EventoCritico, SeguimientoContacto, LegajoAtencion
-from .services_alertas import AlertasService
+from .services import AlertasService
 from conversaciones.models import Mensaje, Conversacion
 
 
