@@ -346,3 +346,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: en subdominios ya partidos por archivos como `ÑACHEC`, el cierre del packaging puede hacerse en bloque si el slice se limita a imports, wrappers y exports, sin tocar transiciones internas.
 - 2026-03-13: cuando una app grande aún conserva servicios planos residuales, conviene cerrarlos dentro del paquete `services/` antes de tocar `signals`, para que el wiring de side effects ya dependa de una API estable.
 - 2026-03-13: al migrar señales a un paquete real, `AppConfig.ready()` debe importar explícitamente los submódulos del paquete nuevo; no conviene depender de imports implícitos o side effects escondidos en wrappers.
+- 2026-03-13: una vez cerradas las apps grandes, conviene alinear también las apps chicas al mismo patrón de packaging para evitar excepciones innecesarias en la cartografía del proyecto.

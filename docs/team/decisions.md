@@ -344,3 +344,10 @@
 - Decisión: el slice 49 creó `legajos/signals/` como paquete real y actualizó `LegajosConfig.ready()` para importar de forma explícita los submódulos `core`, `alerts`, `historial`, `programas` y `nachec`.
 - Regla derivada: en packaging de señales, la compatibilidad de wrappers no alcanza; el registro efectivo debe quedar visible y explícito en `AppConfig.ready()`.
 - Consecuencia: se reduce ambigüedad en el wiring y el siguiente trabajo deja de ser estructural para pasar a deuda funcional o de contrato.
+
+## 2026-03-13 — cerrar las excepciones pequeñas después de las apps grandes
+
+- Contexto: tras los slices 48 y 49, la mayor parte del proyecto ya seguía la convención de paquetes, pero `dashboard`, `tramites` y `healthcheck` seguían como excepciones pequeñas con `views.py` planos.
+- Decisión: el slice 50 alineó esas apps chicas al mismo patrón y dejó `dashboard/signals/` explícito aunque hoy no registre señales activas.
+- Regla derivada: cuando el proyecto ya consolidó una convención estructural, conviene cerrar también las apps chicas restantes para que la cartografía no quede llena de excepciones.
+- Consecuencia: el siguiente trabajo deja de ser packaging repo-wide y pasa a centrarse en hotspots funcionales, deuda de contrato o cleanup puntual.

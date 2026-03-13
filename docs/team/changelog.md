@@ -947,3 +947,31 @@
 - `legajos/tests/test_signals_package.py`
 
 **Descripción:** Se agrupó la capa de señales de `legajos` dentro de `legajos/signals/`, se dejó `AppConfig.ready()` apuntando al paquete nuevo y se conservaron wrappers compatibles en los módulos legacy secundarios. El slice no cambia reglas de negocio; solo ordena el wiring de side effects y fija exports básicos con smoke tests.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 50: packaging de apps chicas restantes
+
+**Archivos modificados:**
+- `dashboard/views.py`
+- `dashboard/views/__init__.py`
+- `dashboard/views/home.py`
+- `dashboard/signals.py`
+- `dashboard/signals/__init__.py`
+- `dashboard/urls.py`
+- `dashboard/tests/__init__.py`
+- `dashboard/tests/test_package_exports.py`
+- `tramites/views.py`
+- `tramites/views/__init__.py`
+- `tramites/views/backoffice.py`
+- `tramites/urls.py`
+- `tramites/tests/__init__.py`
+- `tramites/tests/test_package_exports.py`
+- `healthcheck/views.py`
+- `healthcheck/views/__init__.py`
+- `healthcheck/views/basic.py`
+- `healthcheck/tests/__init__.py`
+- `healthcheck/tests/test_package_exports.py`
+- `legajos/signals.py`
+
+**Descripción:** Se alinearon `dashboard`, `tramites` y `healthcheck` al mismo patrón de packaging por responsabilidad, moviendo sus views a paquetes reales y dejando `dashboard/signals/` como paquete explícito aunque todavía no registre hooks propios. En el mismo corte se eliminó el viejo `legajos/signals.py`, ya reemplazado por el paquete real del slice anterior.

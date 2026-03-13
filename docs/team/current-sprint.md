@@ -61,6 +61,7 @@ _Se define en el sprint planning._
 | DX-047 | Como equipo de desarrollo quiero cerrar el packaging de `ÑACHEC` moviendo su familia `views_nachec_*` al paquete nuevo sin tocar sus transiciones internas | ✅ Completado | Slice 47 ejecutado el 2026-03-13 con wrappers compatibles y smoke test de exports |
 | DX-048 | Como equipo de desarrollo quiero cerrar el packaging restante de `services` en `legajos` antes de evaluar el wiring sensible de `signals` | ✅ Completado | Slice 48 ejecutado el 2026-03-13 con wrappers compatibles y migración de consumidores internos |
 | DX-049 | Como equipo de desarrollo quiero agrupar `signals` de `legajos` en un paquete real manteniendo el wiring explícito desde `AppConfig` | ✅ Completado | Slice 49 ejecutado el 2026-03-13 con `ready()` explícito y smoke test de exports |
+| DX-050 | Como equipo de desarrollo quiero alinear `dashboard`, `tramites` y `healthcheck` a la convención de packaging para cerrar las apps chicas que quedaban legacy | ✅ Completado | Slice 50 ejecutado el 2026-03-13 con views empaquetadas y smoke tests básicos |
 
 ## Impedimentos
 

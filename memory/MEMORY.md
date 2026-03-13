@@ -120,6 +120,9 @@
 - Se completó el cuadragésimo noveno slice sobre `legajos`.
 - La familia de señales ahora vive dentro de `legajos/signals/`, con `ready()` explícito hacia el paquete nuevo y smoke tests de exports.
 - El packaging estructural de `legajos` quedó prácticamente agotado; lo siguiente ya es deuda funcional o de contrato.
+- Se completó el quincuagésimo slice sobre apps chicas.
+- `dashboard`, `tramites` y `healthcheck` ahora también usan paquetes reales de `views`, y `dashboard` dejó explícito su paquete de `signals`.
+- El packaging repo-wide quedó casi agotado; los siguientes pasos con valor real pasan a ser funcionales o de contrato.
 
 ## Próxima etapa sugerida
 
