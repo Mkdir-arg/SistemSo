@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from core.cache_decorators import invalidate_cache_pattern
-from .models import Conversacion, Mensaje
+from ..models import Conversacion, Mensaje
 
 @receiver([post_save, post_delete], sender=Conversacion)
 def invalidate_conversacion_cache(sender, **kwargs):

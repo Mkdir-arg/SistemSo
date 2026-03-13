@@ -40,8 +40,8 @@ class ChatServicesTests(TestCase):
             last_name='Chat',
         )
 
-    @patch('conversaciones.services_chat.NotificacionService.notificar_nueva_conversacion')
-    @patch('conversaciones.services_chat.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
+    @patch('conversaciones.services.chat.NotificacionService.notificar_nueva_conversacion')
+    @patch('conversaciones.services.chat.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
     def test_iniciar_conversacion_publica_crea_conversacion_activa(self, mock_asignar, mock_notificar):
         conversacion = iniciar_conversacion_publica({
             'tipo': 'anonima',
@@ -141,7 +141,7 @@ class ConversacionesViewsContractTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('csrftoken', self.client.cookies)
 
-    @patch('conversaciones.views_public.iniciar_conversacion_publica')
+    @patch('conversaciones.views.public.iniciar_conversacion_publica')
     def test_iniciar_conversacion_publica_requiere_csrf_y_devuelve_contrato(self, mock_iniciar):
         mock_iniciar.return_value = Conversacion(id=44)
         url = reverse('conversaciones:iniciar_conversacion')

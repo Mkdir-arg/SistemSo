@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db import models
-from .models import Conversacion, ColaAsignacion, MetricasOperador
+from ..models import ColaAsignacion, Conversacion, MetricasOperador
 import logging
 
 logger = logging.getLogger(__name__)

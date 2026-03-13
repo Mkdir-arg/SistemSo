@@ -1,4 +1,6 @@
-from .views_backoffice import (
+"""Paquete de vistas para la app de conversaciones."""
+
+from .backoffice import (
     api_conversacion_detalle,
     api_estadisticas_tiempo_real,
     api_metricas_tiempo_real,
@@ -13,7 +15,7 @@ from .views_backoffice import (
     reasignar_conversacion,
     tiene_permiso_conversaciones,
 )
-from .views_public import (
+from .public import (
     chat_ciudadano,
     consultar_renaper,
     enviar_mensaje_ciudadano,
