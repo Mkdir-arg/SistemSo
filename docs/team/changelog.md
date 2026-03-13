@@ -348,3 +348,14 @@
 - `conversaciones/tests/test_chat_services.py`
 
 **Descripción:** Se corrigió una inconsistencia funcional real en `conversaciones`: el chat ciudadano evaluaba contra una URL resuelta por backoffice y los fetches JSON dependían de rutas hardcodeadas sin cabecera CSRF. El slice alinea el contrato renderizado entre templates y URLs namespaced, protege los POST JSON con CSRF y agrega tests de contrato para conversación pública y respuesta de operador.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 16: `conversaciones` runtime de lista en vivo
+
+**Archivos modificados:**
+- `conversaciones/templates/conversaciones/lista.html`
+- `static/custom/js/conversaciones_lista_ws.js`
+- `conversaciones/tests/test_chat_services.py`
+
+**Descripción:** Se eliminó la doble carga de `conversaciones_lista_ws.js` en la pantalla de lista y se movió el contrato de URLs/runtime a atributos renderizados por Django. El WebSocket de lista ahora evita inicialización duplicada, usa URLs configurables para detalle/cierre/API y queda mejor preparado para la migración de namespaces.

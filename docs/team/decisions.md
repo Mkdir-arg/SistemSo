@@ -106,3 +106,10 @@
 - Decisión: el slice 15 corrigió primero el contrato real renderizando URLs desde Django y devolviendo la evaluación al dominio público; después retiró `@csrf_exempt` de los POST JSON principales.
 - Regla derivada: en integraciones AJAX legacy, primero se corrige el contrato observable por el frontend y recién después se endurecen controles de seguridad.
 - Consecuencia: `conversaciones` conserva la UX actual, pero elimina una incoherencia funcional real y mejora su postura CSRF.
+
+## 2026-03-13 — los runtimes en vivo deben ser idempotentes y configurables
+
+- Contexto: `conversaciones_lista_ws.js` se cargaba tanto desde `base.html` como desde `lista.html`, y además seguía dependiendo de URLs hardcodeadas para detalle, cierre y API.
+- Decisión: el slice 16 eliminó la carga duplicada local, agregó un guard de inicialización global y movió las URLs operativas al DOM renderizado por Django.
+- Regla derivada: si un runtime JS se inyecta globalmente desde `base.html`, debe tolerar inclusiones repetidas y tomar configuración específica de pantalla desde atributos de datos o un objeto global.
+- Consecuencia: la lista en vivo de conversaciones queda más estable y más preparada para cambios futuros de rutas/namespaces.

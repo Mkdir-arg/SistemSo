@@ -155,6 +155,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el decimoquinto slice del refactor DX sobre `conversaciones`, enfocado en el contrato real del chat ciudadano y operador
 - La evaluación del ciudadano volvió al dominio público real de la funcionalidad y dejó de chocar con una vista protegida de backoffice
 - Los POST JSON del chat ya no dependen de `@csrf_exempt`; ahora usan URLs renderizadas por Django y cabecera CSRF explícita
+- Se ejecutó el decimosexto slice del refactor DX sobre `conversaciones`, enfocado en la lista en vivo del backoffice
+- La pantalla dejó de cargar dos veces el runtime WebSocket de lista y ya no depende de URLs hardcodeadas para refrescar detalle/cierre
+- El comportamiento visible no cambió, pero baja el riesgo de conexiones duplicadas y facilita la migración de rutas
 
 ---
 

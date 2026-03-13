@@ -27,6 +27,7 @@ _Se define en el sprint planning._
 | DX-013 | Como equipo de desarrollo quiero modularizar `chatbot` y validar payloads JSON para bajar acoplamiento entre chat público y administración | ✅ Completado | Slice 13 ejecutado el 2026-03-13 sin cambios de rutas ni modelos |
 | DX-014 | Como equipo de desarrollo quiero corregir el contrato real frontend/backend de `chatbot` y endurecer CSRF en sus endpoints principales | ✅ Completado | Slice 14 ejecutado el 2026-03-13 alineando rutas, shape JSON y protección CSRF |
 | DX-015 | Como equipo de desarrollo quiero corregir el contrato real de `conversaciones` y endurecer CSRF en sus endpoints JSON sin romper la UX actual | ✅ Completado | Slice 15 ejecutado el 2026-03-13 alineando evaluación pública, URLs renderizadas y protección CSRF |
+| DX-016 | Como equipo de desarrollo quiero estabilizar el runtime de la lista en vivo de `conversaciones` para evitar doble suscripción y paths hardcodeados | ✅ Completado | Slice 16 ejecutado el 2026-03-13 alineando `conversaciones_lista_ws.js` con URLs renderizadas y guard de inicialización |
 
 ## Impedimentos
 

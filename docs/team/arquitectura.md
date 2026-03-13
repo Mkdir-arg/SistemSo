@@ -314,3 +314,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 
 - 2026-03-13: los templates que consumen endpoints JSON en `chatbot` y `conversaciones` deben recibir las URLs efectivas desde Django, evitando rutas hardcodeadas en JS para preservar compatibilidad ante modularización y namespaces.
 - 2026-03-13: en módulos de chat, el endurecimiento CSRF solo se aplica después de alinear el contrato frontend/backend y garantizar emisión de cookie CSRF en la superficie pública.
+- 2026-03-13: los runtimes WebSocket cargados globalmente desde `base.html` deben ser idempotentes y leer su configuración desde el DOM de la pantalla cuando exista, para evitar doble inicialización y paths embebidos.
