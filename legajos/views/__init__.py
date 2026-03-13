@@ -10,6 +10,31 @@ from .alertas import (  # noqa: F401
     test_alertas_page,
 )
 from .api_derivaciones import derivaciones_programa_api  # noqa: F401
+from .clinico import (  # noqa: F401
+    CambiarResponsableView,
+    CerrarAlertaEventoView,
+    DerivacionCreateView,
+    DerivacionListView,
+    DerivacionUpdateView,
+    DispositivoDerivacionesView,
+    EvaluacionInicialView,
+    EvaluacionListView,
+    EventoCriticoCreateView,
+    EventoListView,
+    EventoUpdateView,
+    ExportarCSVView,
+    LegajoCerrarView,
+    LegajoDetailView,
+    LegajoListView,
+    LegajoReabrirView,
+    PlanIntervencionView,
+    PlanListView,
+    PlanUpdateView,
+    ReportesView,
+    SeguimientoCreateView,
+    SeguimientoListView,
+    SeguimientoUpdateView,
+)
 from .contactos_api import (  # noqa: F401
     actividades_ciudadano_api,
     alertas_ciudadano_api,
