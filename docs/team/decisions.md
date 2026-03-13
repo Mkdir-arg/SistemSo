@@ -232,3 +232,10 @@
 - Decisión: el slice 33 convirtió esa cartografía existente en paquetes reales de `views`, `forms`, `services` y `selectors`, sin mezclar el corte de packaging con un nuevo rediseño funcional.
 - Regla derivada: si una app ya tiene un corte por dominio suficientemente claro, el packaging debe limitarse a reflejar esa estructura física y dejar wrappers mínimos en los módulos históricos.
 - Consecuencia: se baja riesgo, se gana orden interno y se evita introducir dos tipos de cambio a la vez.
+
+## 2026-03-13 — al empaquetar una app, los tests deben migrar a los paths reales
+
+- Contexto: en `portal`, varios tests parcheaban helpers internos sobre módulos legacy (`services_*.py`) que pasaron a ser wrappers durante el packaging.
+- Decisión: el slice 34 actualizó esos tests para parchear los módulos reales bajo `portal.services.*`, en vez de seguir confiando en wrappers históricos.
+- Regla derivada: cuando una migración física convierte módulos legacy en fachadas, los tests que hacen monkeypatch de internals deben moverse al path real del paquete y no seguir fijando paths transitorios.
+- Consecuencia: se evita una falsa sensación de compatibilidad y se mantiene la testabilidad del dominio sobre su cartografía nueva.

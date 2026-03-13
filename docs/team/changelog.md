@@ -632,3 +632,54 @@
 - `configuracion/tests/test_package_exports.py`
 
 **Descripción:** Se agrupó `configuracion` en paquetes reales de views, forms, services y selectors. Los módulos legacy por dominio quedaron como wrappers compatibles, `configuracion.views` y `configuracion.forms` pasaron a ser paquetes reales y se agregaron smoke tests para fijar el contrato público del packaging.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 34: packaging de `portal`
+
+**Archivos modificados:**
+- `portal/views.py`
+- `portal/views_public.py`
+- `portal/views_ciudadano.py`
+- `portal/views_ciudadano_auth.py`
+- `portal/views_ciudadano_consultas.py`
+- `portal/views_ciudadano_perfil.py`
+- `portal/views_ciudadano_turnos.py`
+- `portal/forms.py`
+- `portal/forms_public.py`
+- `portal/services_ciudadano_auth.py`
+- `portal/services_ciudadano_perfil.py`
+- `portal/services_consultas.py`
+- `portal/services_registro.py`
+- `portal/services_turnos_ciudadano.py`
+- `portal/selectors_ciudadano.py`
+- `portal/selectors_ciudadano_perfil.py`
+- `portal/selectors_public.py`
+- `portal/selectors_turnos_ciudadano.py`
+- `portal/views/__init__.py`
+- `portal/views/public.py`
+- `portal/views/ciudadano.py`
+- `portal/views/ciudadano_auth.py`
+- `portal/views/ciudadano_consultas.py`
+- `portal/views/ciudadano_perfil.py`
+- `portal/views/ciudadano_turnos.py`
+- `portal/forms/__init__.py`
+- `portal/forms/ciudadano.py`
+- `portal/forms/public.py`
+- `portal/services/__init__.py`
+- `portal/services/ciudadano_auth.py`
+- `portal/services/ciudadano_perfil.py`
+- `portal/services/consultas.py`
+- `portal/services/registro.py`
+- `portal/services/turnos_ciudadano.py`
+- `portal/selectors/__init__.py`
+- `portal/selectors/ciudadano.py`
+- `portal/selectors/ciudadano_perfil.py`
+- `portal/selectors/public.py`
+- `portal/selectors/turnos_ciudadano.py`
+- `portal/tests/test_package_exports.py`
+- `portal/tests/test_ciudadano_auth.py`
+- `portal/tests/test_ciudadano_consultas.py`
+- `portal/tests/test_ciudadano_perfil.py`
+
+**Descripción:** Se agrupó `portal` en paquetes reales de views, forms, services y selectors, manteniendo wrappers de compatibilidad para los módulos legacy. También se actualizaron los tests del portal para parchear internals sobre los paths reales del paquete y no sobre wrappers históricos.

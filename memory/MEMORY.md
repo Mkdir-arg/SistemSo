@@ -75,6 +75,8 @@
 - `chatbot` ahora también agrupa `views`, `forms`, `services` y `selectors` en paquetes reales, con wrappers legacy y preservando exports usados por tests.
 - Se completó el trigésimo tercer slice sobre `configuracion`.
 - `configuracion` ahora agrupa `views`, `forms`, `services` y `selectors` en paquetes reales, reutilizando la modularización por dominio ya existente.
+- Se completó el trigésimo cuarto slice sobre `portal`.
+- `portal` ahora agrupa `views`, `forms`, `services` y `selectors` en paquetes reales y sus tests dejaron de parchear wrappers legacy.
 
 ## Próxima etapa sugerida
 
