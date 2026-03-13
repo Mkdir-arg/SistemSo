@@ -1,0 +1,51 @@
+"""Views agrupadas de la app de legajos."""
+
+from .contactos_api import (  # noqa: F401
+    actividades_ciudadano_api,
+    alertas_ciudadano_api,
+    archivos_ciudadano_api,
+    archivos_legajo_api,
+    cerrar_alerta_api,
+    eliminar_archivo,
+    evolucion_legajo_api,
+    prediccion_riesgo_api,
+    subir_archivos_ciudadano,
+    subir_archivos_legajo,
+    timeline_ciudadano_api,
+)
+from .contactos_panel import (  # noqa: F401
+    dashboard_contactos_simple,
+    historial_contactos_simple,
+    red_contactos_simple,
+)
+from .dashboard_contactos import (  # noqa: F401
+    dashboard_contactos,
+    exportar_reporte_contactos,
+    metricas_contactos_api,
+    metricas_red_contactos_api,
+)
+from .dashboard_simple import dashboard_contactos_simple as dashboard_contactos_simple_debug  # noqa: F401
+from .dashboard_simple import test_api  # noqa: F401
+from .historial_contactos import (  # noqa: F401
+    contactos_api,
+    crear_contacto,
+    detalle_contacto,
+    editar_contacto,
+    eliminar_contacto,
+    historial_contactos_view,
+)
+from .red_contactos import (  # noqa: F401
+    contacto_emergencia_api,
+    crear_contacto_emergencia,
+    crear_dispositivo,
+    crear_profesional,
+    crear_vinculo,
+    dispositivos_api,
+    eliminar_contacto_emergencia,
+    eliminar_dispositivo,
+    eliminar_profesional,
+    eliminar_vinculo,
+    profesionales_api,
+    red_contactos_view,
+    vinculos_api,
+)

@@ -1,6 +1,12 @@
 from django.test import SimpleTestCase
 
 from legajos import views_simple_contactos
+from legajos.views import (
+    actividades_ciudadano_api as actividades_ciudadano_api_pkg,
+    dashboard_contactos_simple as dashboard_contactos_simple_pkg,
+    historial_contactos_simple as historial_contactos_simple_pkg,
+    red_contactos_simple as red_contactos_simple_pkg,
+)
 from legajos.views_contactos_api import (
     actividades_ciudadano_api,
     alertas_ciudadano_api,
@@ -22,6 +28,12 @@ from legajos.views_contactos_panel import (
 
 
 class ContactosFachadaTests(SimpleTestCase):
+    def test_package_expone_views_de_contactos(self):
+        self.assertIs(actividades_ciudadano_api_pkg, actividades_ciudadano_api)
+        self.assertIs(dashboard_contactos_simple_pkg, dashboard_contactos_simple)
+        self.assertIs(historial_contactos_simple_pkg, historial_contactos_simple)
+        self.assertIs(red_contactos_simple_pkg, red_contactos_simple)
+
     def test_expone_views_de_panel(self):
         self.assertIs(views_simple_contactos.red_contactos_simple, red_contactos_simple)
         self.assertIs(
