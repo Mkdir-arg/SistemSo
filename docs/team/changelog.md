@@ -333,3 +333,18 @@
 - Creado `docs/team/` con backlog, sprint, decisions, changelog
 - Creados comandos personalizados en `.claude/commands/`
 - Inicializada memoria del proyecto en `memory/MEMORY.md`
+
+---
+
+## 2026-03-13 — Refactor DX Slice 15: `conversaciones` contrato real y CSRF
+
+**Archivos modificados:**
+- `conversaciones/views_public.py`
+- `conversaciones/views_backoffice.py`
+- `conversaciones/views.py`
+- `conversaciones/templates/conversaciones/chat_ciudadano.html`
+- `conversaciones/templates/conversaciones/detalle.html`
+- `conversaciones/templates/conversaciones/lista.html`
+- `conversaciones/tests/test_chat_services.py`
+
+**Descripción:** Se corrigió una inconsistencia funcional real en `conversaciones`: el chat ciudadano evaluaba contra una URL resuelta por backoffice y los fetches JSON dependían de rutas hardcodeadas sin cabecera CSRF. El slice alinea el contrato renderizado entre templates y URLs namespaced, protege los POST JSON con CSRF y agrega tests de contrato para conversación pública y respuesta de operador.

@@ -99,3 +99,10 @@
 - Decisión: el slice 14 corrigió primero el contrato real de rutas y respuesta JSON y, sobre esa base, quitó `@csrf_exempt` en los endpoints principales del módulo.
 - Regla derivada: no endurecer seguridad sobre una integración rota; primero alinear contrato, después activar la protección.
 - Consecuencia: `chatbot` queda funcionalmente más coherente y con mejor postura de seguridad sin tocar su UX.
+
+## 2026-03-13 — endurecer `conversaciones` solo después de corregir su contrato público
+
+- Contexto: el chat ciudadano usaba rutas hardcodeadas, no enviaba cabecera CSRF y evaluaba contra una URL que en realidad estaba protegida como backoffice.
+- Decisión: el slice 15 corrigió primero el contrato real renderizando URLs desde Django y devolviendo la evaluación al dominio público; después retiró `@csrf_exempt` de los POST JSON principales.
+- Regla derivada: en integraciones AJAX legacy, primero se corrige el contrato observable por el frontend y recién después se endurecen controles de seguridad.
+- Consecuencia: `conversaciones` conserva la UX actual, pero elimina una incoherencia funcional real y mejora su postura CSRF.

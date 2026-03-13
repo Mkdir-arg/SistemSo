@@ -307,3 +307,10 @@ class MiModelo(TimeStamped):  # TimeStamped de core.models
 # Siempre como string para evitar importación circular
 ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 ```
+
+---
+
+## Decisiones técnicas tomadas
+
+- 2026-03-13: los templates que consumen endpoints JSON en `chatbot` y `conversaciones` deben recibir las URLs efectivas desde Django, evitando rutas hardcodeadas en JS para preservar compatibilidad ante modularización y namespaces.
+- 2026-03-13: en módulos de chat, el endurecimiento CSRF solo se aplica después de alinear el contrato frontend/backend y garantizar emisión de cookie CSRF en la superficie pública.

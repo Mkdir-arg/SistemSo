@@ -36,8 +36,10 @@
 - `chatbot/views.py` quedó como fachada compatible y el módulo ahora usa forms/selectors/services y vistas separadas para superficie pública y admin.
 - Se completó el decimocuarto slice sobre `chatbot`.
 - El módulo ya alinea rutas/rendered URLs, shape JSON del chat y CSRF en sus endpoints principales.
+- Se completó el decimoquinto slice sobre `conversaciones`.
+- El chat ciudadano y el detalle de operador ya consumen URLs renderizadas por Django, la evaluación volvió a la superficie pública real y los POST JSON principales del módulo ya no usan `@csrf_exempt`.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser cerrar la migración de consumidores sensibles (`login/logout`) y la deuda funcional/técnica residual de `conversaciones`, que todavía conserva `@csrf_exempt`, polling HTTP y contratos más frágiles.
+- El siguiente hotspot real pasó a ser cerrar la migración de consumidores sensibles (`login/logout`) y la deuda residual de tiempo real en `conversaciones`, especialmente el polling HTTP y los contratos no cubiertos aún por tests.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.
