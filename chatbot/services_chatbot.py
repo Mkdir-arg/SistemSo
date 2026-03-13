@@ -30,7 +30,7 @@ def send_message_to_chatbot(session, user, message_content):
     conversation = get_or_create_bubble_conversation(session, user, message_content)
     history = list(conversation.messages.only('role', 'content').order_by('timestamp')[:20])
 
-    Message.objects.create(
+    user_message = Message.objects.create(
         conversation=conversation,
         role='user',
         content=message_content,
@@ -39,13 +39,18 @@ def send_message_to_chatbot(session, user, message_content):
     ai_service = EnhancedChatbotService()
     response_data = ai_service.generate_response(message_content, history)
 
-    Message.objects.create(
+    assistant_message = Message.objects.create(
         conversation=conversation,
         role='assistant',
         content=response_data['content'],
         tokens_used=response_data.get('tokens_used', 0),
     )
 
+    response_data['conversation_id'] = conversation.id
+    response_data['user_message_id'] = user_message.id
+    response_data['assistant_message_id'] = assistant_message.id
+    response_data['user_message_timestamp'] = user_message.timestamp.isoformat()
+    response_data['assistant_message_timestamp'] = assistant_message.timestamp.isoformat()
     return response_data
 
 

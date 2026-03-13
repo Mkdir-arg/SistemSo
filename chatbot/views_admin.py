@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 from .forms_chatbot import ApiKeyForm, KnowledgeForm
 from .selectors_chatbot import build_admin_dashboard_payload, get_chat_logs_payload
@@ -38,7 +38,16 @@ def staff_required(view_func):
 @login_required
 @staff_required
 def admin_panel(request):
-    return render(request, 'chatbot/admin_dashboard.html')
+    return render(request, 'chatbot/admin_dashboard.html', {
+        'chatbot_admin_urls': {
+            'admin_data': reverse('chatbot:admin_data'),
+            'chat_logs': reverse('chatbot:chat_logs'),
+            'update_api_key': reverse('chatbot:update_api_key'),
+            'test_api_key': reverse('chatbot:test_api_key'),
+            'add_knowledge': reverse('chatbot:add_knowledge'),
+            'delete_knowledge_template': reverse('chatbot:delete_knowledge', kwargs={'knowledge_id': 0}).replace('/0/', '/__ID__/'),
+        },
+    })
 
 
 @login_required
@@ -55,7 +64,6 @@ def chat_logs(request):
 
 @login_required
 @staff_required
-@csrf_exempt
 def update_api_key(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -76,7 +84,6 @@ def update_api_key(request):
 
 @login_required
 @staff_required
-@csrf_exempt
 def test_api_key(request):
     try:
         response = test_api_connection()
@@ -95,7 +102,6 @@ def test_api_key(request):
 
 @login_required
 @staff_required
-@csrf_exempt
 def add_knowledge(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -114,7 +120,6 @@ def add_knowledge(request):
 
 @login_required
 @staff_required
-@csrf_exempt
 def delete_knowledge(request, knowledge_id):
     if request.method != 'DELETE':
         return JsonResponse({'error': 'Método no permitido'}, status=405)

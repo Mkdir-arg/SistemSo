@@ -4,7 +4,17 @@
 {% block title %}Dashboard Chatbot{% endblock %}
 
 {% block main-content %}
-<div class="space-y-6" x-data="chatbotAdmin()">
+<div
+    id="chatbot-admin-app"
+    class="space-y-6"
+    x-data="chatbotAdmin()"
+    data-admin-data-url="{{ chatbot_admin_urls.admin_data }}"
+    data-chat-logs-url="{{ chatbot_admin_urls.chat_logs }}"
+    data-update-api-key-url="{{ chatbot_admin_urls.update_api_key }}"
+    data-test-api-key-url="{{ chatbot_admin_urls.test_api_key }}"
+    data-add-knowledge-url="{{ chatbot_admin_urls.add_knowledge }}"
+    data-delete-knowledge-url-template="{{ chatbot_admin_urls.delete_knowledge_template }}"
+>
     <!-- Header -->
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex items-center justify-between">
@@ -229,6 +239,14 @@ function chatbotAdmin() {
         knowledge: [],
         apiKey: '',
         autoRefresh: false,
+        urls: {
+            adminData: document.getElementById('chatbot-admin-app').dataset.adminDataUrl,
+            chatLogs: document.getElementById('chatbot-admin-app').dataset.chatLogsUrl,
+            updateApiKey: document.getElementById('chatbot-admin-app').dataset.updateApiKeyUrl,
+            testApiKey: document.getElementById('chatbot-admin-app').dataset.testApiKeyUrl,
+            addKnowledge: document.getElementById('chatbot-admin-app').dataset.addKnowledgeUrl,
+            deleteKnowledgeTemplate: document.getElementById('chatbot-admin-app').dataset.deleteKnowledgeUrlTemplate,
+        },
         showAddKnowledge: false,
         newKnowledge: {
             title: '',
@@ -243,7 +261,7 @@ function chatbotAdmin() {
         
         async loadData() {
             try {
-                const response = await fetch('/chatbot/api/admin-data/');
+                const response = await fetch(this.urls.adminData);
                 const data = await response.json();
                 
                 this.systemStatus = data.system_status;
@@ -262,7 +280,7 @@ function chatbotAdmin() {
         
         async loadLogs() {
             try {
-                const response = await fetch('/chatbot/api/logs/');
+                const response = await fetch(this.urls.chatLogs);
                 const data = await response.json();
                 this.logs = data.logs;
                 
@@ -307,7 +325,7 @@ function chatbotAdmin() {
         
         async updateApiKey() {
             try {
-                const response = await fetch('/chatbot/api/update-api-key/', {
+                const response = await fetch(this.urls.updateApiKey, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -330,7 +348,7 @@ function chatbotAdmin() {
         
         async testApiKey() {
             try {
-                const response = await fetch('/chatbot/api/test-api/', {
+                const response = await fetch(this.urls.testApiKey, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
@@ -347,7 +365,7 @@ function chatbotAdmin() {
         
         async addKnowledge() {
             try {
-                const response = await fetch('/chatbot/api/add-knowledge/', {
+                const response = await fetch(this.urls.addKnowledge, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -372,7 +390,7 @@ function chatbotAdmin() {
         async deleteKnowledge(id) {
             if (confirm('¿Estás seguro de eliminar este conocimiento?')) {
                 try {
-                    const response = await fetch(`/chatbot/api/delete-knowledge/${id}/`, {
+                    const response = await fetch(this.urls.deleteKnowledgeTemplate.replace('__ID__', id), {
                         method: 'DELETE',
                         headers: {
                             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value

@@ -8,7 +8,15 @@
 {% endblock %}
 
 {% block content %}
-<div class="flex h-screen bg-gray-100" x-data="{ sidebarOpen: false }">
+<div
+    id="chatbot-app"
+    class="flex h-screen bg-gray-100"
+    x-data="{ sidebarOpen: false }"
+    data-send-url="{{ chatbot_urls.send_message }}"
+    data-feedback-url="{{ chatbot_urls.submit_feedback }}"
+    data-new-url="{{ chatbot_urls.new_conversation }}"
+    data-conversation-url-template="{{ chatbot_urls.conversation_detail_template }}"
+>
     <!-- Sidebar con conversaciones -->
     <div class="w-full md:w-1/4 bg-white border-r border-gray-200 flex flex-col" 
          :class="{ 'hidden md:flex': !sidebarOpen, 'flex': sidebarOpen }">

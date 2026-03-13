@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
-from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 from .forms_chatbot import FeedbackForm, SendMessageForm
 from .selectors_chatbot import (
@@ -33,11 +33,16 @@ def chat_interface(request):
     return render(request, 'chatbot/chat_interface.html', {
         'conversations': conversations,
         'active_conversation': active_conversation,
+        'chatbot_urls': {
+            'send_message': reverse('chatbot:send_message'),
+            'submit_feedback': reverse('chatbot:submit_feedback'),
+            'new_conversation': reverse('chatbot:new_conversation'),
+            'conversation_detail_template': reverse('chatbot:load_conversation', kwargs={'conversation_id': 0}).replace('/0/', '/__ID__/'),
+        },
     })
 
 
 @login_required
-@csrf_exempt
 def send_message(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -56,9 +61,21 @@ def send_message(request):
             request.user,
             form.cleaned_data['message'],
         )
+        conversation_id = request.session.get('chatbot_bubble_conversation_id')
         return JsonResponse({
             'success': True,
             'response': response_data['content'],
+            'conversation_id': conversation_id,
+            'user_message': {
+                'id': response_data.get('user_message_id'),
+                'content': form.cleaned_data['message'],
+                'timestamp': response_data.get('user_message_timestamp'),
+            },
+            'assistant_message': {
+                'id': response_data.get('assistant_message_id'),
+                'content': response_data['content'],
+                'timestamp': response_data.get('assistant_message_timestamp'),
+            },
         })
     except Exception:
         return JsonResponse({
@@ -100,7 +117,6 @@ def new_conversation(request):
 
 
 @login_required
-@csrf_exempt
 def submit_feedback(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)

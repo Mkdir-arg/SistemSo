@@ -1,7 +1,8 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import Client, TestCase
+from django.urls import reverse
 
 from chatbot.forms_chatbot import ApiKeyForm, SendMessageForm
 from chatbot.models import Conversation, Message
@@ -52,3 +53,42 @@ class ChatbotServicesTests(TestCase):
     def test_validate_api_key_format(self):
         self.assertTrue(validate_api_key_format('sk-test'))
         self.assertFalse(validate_api_key_format('test'))
+
+
+class ChatbotViewsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='chatbot-view-user', password='secret')
+        self.client = Client(enforce_csrf_checks=True)
+        self.client.force_login(self.user)
+
+    @patch('chatbot.services_chatbot.EnhancedChatbotService.generate_response')
+    def test_send_message_returns_frontend_contract(self, mock_generate_response):
+        mock_generate_response.return_value = {'content': 'respuesta', 'tokens_used': 7}
+        self.client.get(reverse('chatbot:chat_interface'))
+        csrftoken = self.client.cookies['csrftoken'].value
+
+        response = self.client.post(
+            reverse('chatbot:send_message'),
+            data='{"message":"hola"}',
+            content_type='application/json',
+            HTTP_X_CSRFTOKEN=csrftoken,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(payload['success'])
+        self.assertIn('conversation_id', payload)
+        self.assertEqual(payload['user_message']['content'], 'hola')
+        self.assertEqual(payload['assistant_message']['content'], 'respuesta')
+
+    @patch('chatbot.services_chatbot.EnhancedChatbotService.generate_response')
+    def test_send_message_rechaza_post_sin_csrf(self, mock_generate_response):
+        mock_generate_response.return_value = {'content': 'respuesta', 'tokens_used': 7}
+
+        response = self.client.post(
+            reverse('chatbot:send_message'),
+            data='{"message":"hola"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 403)
