@@ -331,3 +331,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: cuando una app conserva routes legacy, los `name=` deben ser únicos y explícitos por dominio antes de intentar una limpieza más profunda del archivo de URLs.
 - 2026-03-13: los services que publican configuración de tablas o acciones para el frontend deben emitir `url_name` y `reverse()` ya namespaced, no depender de aliases legacy.
 - 2026-03-13: la migración de módulos planos a paquetes reales debe hacerse app por app, dejando wrappers compatibles en los entrypoints legacy hasta que exista cobertura suficiente para retirar esos aliases.
+- 2026-03-13: al mover una app a paquetes reales, los módulos legacy deben seguir exportando también símbolos usados implícitamente por tests o monkeypatches, aunque no formen parte de la API funcional principal.

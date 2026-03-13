@@ -218,3 +218,10 @@
 - Decisión: el slice 31 inició la migración de packaging real solo en `turnos` y `users`, creando `views/`, `services/`, `selectors/` y `signals/` donde correspondía y dejando wrappers compatibles en los módulos legacy.
 - Regla derivada: las migraciones físicas de packaging deben hacerse app por app, con tests de exports públicos, antes de retirar los entrypoints históricos.
 - Consecuencia: el proyecto gana estructura más consistente sin obligar a un big bang de imports en todo el árbol.
+
+## 2026-03-13 — preservar exports implícitos al empaquetar apps con tests legacy
+
+- Contexto: en `chatbot`, los tests existentes parcheaban `EnhancedChatbotService` desde `chatbot.services_chatbot`, aunque el verdadero contrato funcional del módulo eran sus funciones helper.
+- Decisión: el slice 32 mantuvo ese export en el wrapper legacy al mover la implementación real a `chatbot/services/chat.py`.
+- Regla derivada: antes de reemplazar un módulo histórico por un wrapper, hay que conservar también los símbolos usados por tests, monkeypatches o integraciones internas, no solo las funciones “principales”.
+- Consecuencia: baja el riesgo de roturas sutiles durante la migración a paquetes y se respeta mejor el contrato efectivo del código existente.

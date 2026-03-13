@@ -71,6 +71,8 @@
 - Se completó el trigésimo primer slice sobre `turnos` y `users`.
 - Ambas apps ahora agrupan implementación en paquetes reales de `views`, `services` y `selectors`; `users` también separa `signals` en paquete propio.
 - La compatibilidad se preserva con wrappers en los módulos legacy, lo que deja preparada la misma estrategia para futuras apps.
+- Se completó el trigésimo segundo slice sobre `chatbot`.
+- `chatbot` ahora también agrupa `views`, `forms`, `services` y `selectors` en paquetes reales, con wrappers legacy y preservando exports usados por tests.
 
 ## Próxima etapa sugerida
 

@@ -580,3 +580,27 @@
 - `users/tests/test_package_exports.py`
 
 **Descripción:** Se agruparon views, services, selectors y signals en paquetes reales dentro de `turnos` y `users`, manteniendo wrappers de compatibilidad en los módulos legacy para no romper imports existentes. En el mismo corte se alinearon los `success_url` de administración de usuarios al namespace `users:*` y se agregaron smoke tests para fijar los exports públicos de los paquetes.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 32: packaging de `chatbot`
+
+**Archivos modificados:**
+- `chatbot/views.py`
+- `chatbot/views_admin.py`
+- `chatbot/views_public.py`
+- `chatbot/forms_chatbot.py`
+- `chatbot/services_chatbot.py`
+- `chatbot/selectors_chatbot.py`
+- `chatbot/views/__init__.py`
+- `chatbot/views/admin.py`
+- `chatbot/views/public.py`
+- `chatbot/forms/__init__.py`
+- `chatbot/forms/chat.py`
+- `chatbot/services/__init__.py`
+- `chatbot/services/chat.py`
+- `chatbot/selectors/__init__.py`
+- `chatbot/selectors/chat.py`
+- `chatbot/tests/test_package_exports.py`
+
+**Descripción:** Se agrupó `chatbot` en paquetes reales de views, forms, services y selectors, dejando wrappers compatibles para los módulos legacy y preservando el export histórico de `EnhancedChatbotService` en `services_chatbot.py`. El módulo quedó alineado con el patrón de packaging ya aplicado en `turnos` y `users`.
