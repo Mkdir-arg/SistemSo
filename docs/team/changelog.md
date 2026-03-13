@@ -375,3 +375,18 @@
 - `conversaciones/tests/test_chat_services.py`
 
 **Descripción:** Se alinearon consumidores residuales de `conversaciones` fuera de la lista principal. Los scripts globales ahora toman URLs desde una configuración renderizada por Django, el detalle de operador deja de hardcodear el path WebSocket y el portal ciudadano deja de construir manualmente la URL de mensajes. El objetivo fue cerrar la deuda cross-app del módulo antes de pasar al siguiente hotspot.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 18: `portal` consultas ciudadanas
+
+**Archivos modificados:**
+- `portal/forms.py`
+- `portal/views_ciudadano.py`
+- `portal/templates/portal/ciudadano/nueva_consulta.html`
+- `portal/selectors_ciudadano.py`
+- `portal/services_consultas.py`
+- `portal/views_ciudadano_consultas.py`
+- `portal/tests/test_ciudadano_consultas.py`
+
+**Descripción:** Se extrajo el subdominio de consultas ciudadanas de `portal/views_ciudadano.py` hacia selectors, services y vistas dedicadas. El flujo de nueva consulta y envío de mensaje deja de depender de `POST` raw y pasa a forms explícitos. También se agregan tests para ownership, validación y creación de conversación/mensaje.

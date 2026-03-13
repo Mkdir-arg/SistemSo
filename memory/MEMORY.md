@@ -42,8 +42,10 @@
 - La lista en vivo ya no carga dos veces `conversaciones_lista_ws.js`, el runtime WebSocket es idempotente y toma URLs operativas desde el DOM renderizado.
 - Se completó el decimoséptimo slice sobre `conversaciones`.
 - Los scripts globales y consumidores cross-app del dominio ya usan configuración renderizada por Django en lugar de rutas hardcodeadas.
+- Se completó el decimoctavo slice sobre `portal`.
+- Las consultas ciudadanas ahora viven en `views_ciudadano_consultas.py`, `selectors_ciudadano.py` y `services_consultas.py`, con forms explícitos para nueva consulta y envío de mensaje.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser `portal/views_ciudadano.py`, que sigue concentrando mucha lógica y además todavía contiene polling/acciones manuales alrededor de consultas y turnos.
+- El siguiente hotspot real pasó a ser seguir desarmando `portal/views_ciudadano.py`, empezando por turnos o auth según el mejor ratio impacto/riesgo del siguiente corte.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

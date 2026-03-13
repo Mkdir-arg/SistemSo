@@ -120,3 +120,10 @@
 - Decisión: el slice 17 introdujo `window.conversacionesConfig` en `base.html` y movió a esa configuración los scripts globales de estadísticas/alertas, además de parametrizar el detalle operador y el portal ciudadano.
 - Regla derivada: cuando un dominio cruza varias pantallas y apps, la fuente de verdad de sus rutas debe renderizarse desde Django y no replicarse en múltiples archivos estáticos.
 - Consecuencia: baja el acoplamiento transversal del módulo y se simplifica la futura migración de namespaces/rutas.
+
+## 2026-03-13 — extraer primero subdominios cerrados de `portal/views_ciudadano.py`
+
+- Contexto: `portal/views_ciudadano.py` seguía siendo un hotspot grande y mezclaba auth, perfil, consultas y turnos.
+- Decisión: el slice 18 atacó primero el subdominio de consultas ciudadanas, porque tiene ownership claro, integra con `conversaciones` y podía migrarse a forms/selectors/services sin tocar turnos ni autenticación.
+- Regla derivada: cuando una view monolítica mezcla varios subdominios, conviene extraer primero el flujo con fronteras más claras y menor dependencia de UI compleja.
+- Consecuencia: el portal ciudadano gana una estructura más testeable y el archivo principal baja de tamaño sin introducir una migración masiva.

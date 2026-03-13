@@ -161,6 +161,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el decimoséptimo slice del refactor DX sobre `conversaciones`, enfocado en consumidores residuales del módulo fuera de su lista principal
 - Los scripts globales de alertas/estadísticas y algunos consumidores en portal/backoffice ya no embeben rutas de `conversaciones` en archivos estáticos
 - El comportamiento visible tampoco cambió, pero el módulo quedó más coherente transversalmente y con menos acoplamiento a paths fijos
+- Se ejecutó el decimoctavo slice del refactor DX sobre `portal`, enfocado en consultas ciudadanas
+- La parte de consultas salió de `portal/views_ciudadano.py` y ahora usa forms, selectors y services dedicados
+- El flujo visible no cambió, pero ahora valida mejor los POST, fija ownership de conversaciones en un único lugar y suma tests del dominio
 
 ---
 
