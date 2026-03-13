@@ -9,6 +9,10 @@
     class="space-y-2"
     data-assign-url-template="{% url 'conversaciones:asignar' 0 %}"
     data-reassign-url-template="{% url 'conversaciones:reasignar' 0 %}"
+    data-detail-api-url-template="{% url 'conversaciones:api_conversacion_detalle' 0 %}"
+    data-detail-url-template="{% url 'conversaciones:detalle' 0 %}"
+    data-close-url-template="{% url 'conversaciones:cerrar' 0 %}"
+    data-list-ws-path="/ws/conversaciones/"
 >
     <!-- Header -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -421,8 +425,6 @@
     </div>
 </div>
 
-<!-- Cargar script de tiempo real con WebSocket -->
-<script src="{% static 'custom/js/conversaciones_lista_ws.js' %}"></script>
 <script>
     
     function mostrarNotificacion(mensaje, tipo = 'info') {

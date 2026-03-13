@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -211,3 +211,18 @@ class ConversacionesViewsContractTests(TestCase):
         self.assertTrue(payload['success'])
         self.assertEqual(payload['mensaje']['contenido'], 'hola')
         self.assertEqual(conversacion.operador_asignado, self.operador)
+
+    def test_lista_renderiza_urls_para_websocket_runtime(self):
+        group = Group.objects.create(name='Conversaciones')
+        operador = User.objects.create_user(username='operador-lista', password='secret')
+        operador.groups.add(group)
+
+        self.client.force_login(operador)
+        response = self.client.get(reverse('conversaciones:lista'))
+
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode()
+        self.assertIn('data-detail-api-url-template="/conversaciones/api/conversacion/0/"', html)
+        self.assertIn('data-detail-url-template="/conversaciones/0/"', html)
+        self.assertIn('data-close-url-template="/conversaciones/0/cerrar/"', html)
+        self.assertIn('data-list-ws-path="/ws/conversaciones/"', html)
