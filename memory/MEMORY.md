@@ -58,10 +58,13 @@
 - La operación territorial restante ahora vive en `views_nachec_operacion.py` y `views_nachec.py` quedó como fachada pura.
 - Se completó el vigésimo quinto slice sobre `legajos`.
 - `legajos/forms.py` quedó como fachada y el módulo ahora separa ciudadanía, clínica y operativa en archivos distintos.
+- Se completó el vigésimo sexto slice sobre `turnos`.
+- El backoffice ahora se reparte en módulos dedicados, con mixins de permisos reutilizables y CBVs para el CRUD repetible.
 
 ## Próxima etapa sugerida
 
 - El siguiente hotspot real pasó a ser el bloque territorial restante de `ÑACHEC`: validación, asignación, relevamiento y evidencias.
 - El siguiente hotspot real pasó a ser decidir entre profundizar `ÑACHEC` con services/selectors propios o atacar la deuda transversal restante de auth namespaces y `turnos` legacy.
 - El siguiente hotspot real pasó a ser `turnos/views_backoffice.py` o `legajos/views_simple_contactos.py`, porque ya no queda retorno alto inmediato en seguir partiendo `ÑACHEC`.
+- El siguiente hotspot real pasó a ser `legajos/views_simple_contactos.py` o la deuda transversal remanente de namespaces/auth.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

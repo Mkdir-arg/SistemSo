@@ -185,6 +185,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el vigésimo quinto slice del refactor DX sobre `legajos`, enfocado en cleanup de formularios
 - `legajos/forms.py` dejó de concentrar ciudadanía, clínica y operativa en un solo archivo; ahora funciona como fachada compatible hacia módulos por dominio
 - El comportamiento visible no cambió, pero se alineó la estructura de forms con las views ya modularizadas y bajó el costo cognitivo del módulo
+- Se ejecutó el vigésimo sexto slice del refactor DX sobre `turnos`, enfocado en el backoffice
+- El backoffice dejó de concentrar dashboard, configuración, disponibilidad, agenda y acciones en un solo `views_backoffice.py`; ahora usa módulos dedicados y CBVs en el CRUD repetible
+- El comportamiento visible no cambió, pero la app ganó mixins de permisos reutilizables y una estructura más coherente con el resto del refactor
 
 ---
 

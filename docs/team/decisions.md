@@ -176,3 +176,10 @@
 - Decisión: el slice 25 dividió `legajos/forms.py` en `forms_ciudadanos.py`, `forms_clinico.py` y `forms_operativa.py`, dejando `forms.py` como fachada compatible.
 - Regla derivada: cuando el corte por dominio ya existe en views, conviene reflejarlo también en forms antes de abrir otro hotspot de la app.
 - Consecuencia: mejora la navegabilidad del módulo y se preserva el contrato público de imports mientras baja el costo de mantenimiento.
+
+## 2026-03-13 — usar CBVs solo donde el CRUD repetible ya está maduro
+
+- Contexto: `turnos` ya tenía services y selectors claros, pero el backoffice seguía concentrando dashboard, configuraciones, disponibilidades, agenda y acciones en un único archivo de views.
+- Decisión: el slice 26 separó el backoffice en módulos y llevó a CBVs el CRUD repetible de configuraciones y disponibilidades, manteniendo como FBVs las acciones POST atómicas sobre turnos.
+- Regla derivada: en refactors incrementales, las CBVs aportan valor cuando encapsulan formularios/listas/detalles repetibles; no conviene forzarlas en endpoints de acción simples.
+- Consecuencia: mejora la coherencia de la app sin introducir abstracciones innecesarias ni cambiar contratos de URL.

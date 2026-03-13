@@ -478,3 +478,16 @@
 - `legajos/tests/test_forms_fachada.py`
 
 **Descripción:** Se dividió `legajos/forms.py` por dominio funcional, separando ciudadanía/admisión, clínica y operativa. El archivo histórico quedó como fachada compatible para no romper imports existentes, y se agregó un smoke test para fijar los exports públicos del módulo.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 26: `turnos` backoffice modular y CBVs
+
+**Archivos modificados:**
+- `turnos/mixins.py`
+- `turnos/views_backoffice.py`
+- `turnos/views_configuracion.py`
+- `turnos/views_turnos.py`
+- `turnos/tests/test_views_fachada.py`
+
+**Descripción:** Se reorganizó el backoffice de `turnos` en módulos dedicados y se pasó el CRUD repetible de configuraciones/disponibilidades a CBVs, manteniendo `views_backoffice.py` como fachada compatible y sin cambiar URLs. Las acciones POST atómicas se mantuvieron como FBVs porque ahí no agregaban valor real las CBVs.
