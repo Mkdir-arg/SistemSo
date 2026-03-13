@@ -225,3 +225,10 @@
 - Decisión: el slice 32 mantuvo ese export en el wrapper legacy al mover la implementación real a `chatbot/services/chat.py`.
 - Regla derivada: antes de reemplazar un módulo histórico por un wrapper, hay que conservar también los símbolos usados por tests, monkeypatches o integraciones internas, no solo las funciones “principales”.
 - Consecuencia: baja el riesgo de roturas sutiles durante la migración a paquetes y se respeta mejor el contrato efectivo del código existente.
+
+## 2026-03-13 — cuando una app ya está modularizada por dominio, empaquetarla sin rediseñarla
+
+- Contexto: `configuracion` ya había separado geografía, institucional y actividades en módulos distintos, pero todavía convivía con entrypoints raíz y sin paquetes reales por responsabilidad.
+- Decisión: el slice 33 convirtió esa cartografía existente en paquetes reales de `views`, `forms`, `services` y `selectors`, sin mezclar el corte de packaging con un nuevo rediseño funcional.
+- Regla derivada: si una app ya tiene un corte por dominio suficientemente claro, el packaging debe limitarse a reflejar esa estructura física y dejar wrappers mínimos en los módulos históricos.
+- Consecuencia: se baja riesgo, se gana orden interno y se evita introducir dos tipos de cambio a la vez.

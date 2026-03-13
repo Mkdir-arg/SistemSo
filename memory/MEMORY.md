@@ -73,6 +73,8 @@
 - La compatibilidad se preserva con wrappers en los módulos legacy, lo que deja preparada la misma estrategia para futuras apps.
 - Se completó el trigésimo segundo slice sobre `chatbot`.
 - `chatbot` ahora también agrupa `views`, `forms`, `services` y `selectors` en paquetes reales, con wrappers legacy y preservando exports usados por tests.
+- Se completó el trigésimo tercer slice sobre `configuracion`.
+- `configuracion` ahora agrupa `views`, `forms`, `services` y `selectors` en paquetes reales, reutilizando la modularización por dominio ya existente.
 
 ## Próxima etapa sugerida
 

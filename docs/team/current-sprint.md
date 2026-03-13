@@ -44,6 +44,7 @@ _Se define en el sprint planning._
 | DX-030 | Como equipo de desarrollo quiero que los services de `users` publiquen URLs namespaced consistentes para evitar contrato legacy en tablas y acciones | ✅ Completado | Slice 30 ejecutado el 2026-03-13 corrigiendo reverses legacy y `usuario_borrar` |
 | DX-031 | Como equipo de desarrollo quiero agrupar `turnos` y `users` en paquetes de views/services/selectors/signals para ordenar imports y preparar la siguiente etapa del refactor | ✅ Completado | Slice 31 ejecutado el 2026-03-13 con fachadas compatibles y smoke tests de exports |
 | DX-032 | Como equipo de desarrollo quiero agrupar `chatbot` en paquetes reales para alinear la app con el packaging nuevo sin romper su contrato HTTP ni sus tests | ✅ Completado | Slice 32 ejecutado el 2026-03-13 con wrappers compatibles y smoke tests de exports |
+| DX-033 | Como equipo de desarrollo quiero agrupar `configuracion` en paquetes reales para ordenar views/forms/services/selectors sin tocar su contrato funcional | ✅ Completado | Slice 33 ejecutado el 2026-03-13 con wrappers compatibles y smoke tests de exports |
 
 ## Impedimentos
 

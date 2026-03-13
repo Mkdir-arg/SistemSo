@@ -604,3 +604,31 @@
 - `chatbot/tests/test_package_exports.py`
 
 **Descripción:** Se agrupó `chatbot` en paquetes reales de views, forms, services y selectors, dejando wrappers compatibles para los módulos legacy y preservando el export histórico de `EnhancedChatbotService` en `services_chatbot.py`. El módulo quedó alineado con el patrón de packaging ya aplicado en `turnos` y `users`.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 33: packaging de `configuracion`
+
+**Archivos modificados:**
+- `configuracion/views.py`
+- `configuracion/views_actividades.py`
+- `configuracion/views_extra.py`
+- `configuracion/views_geografia.py`
+- `configuracion/views_institucional.py`
+- `configuracion/forms.py`
+- `configuracion/services_actividades.py`
+- `configuracion/selectors_instituciones.py`
+- `configuracion/views/__init__.py`
+- `configuracion/views/actividades.py`
+- `configuracion/views/extra.py`
+- `configuracion/views/geografia.py`
+- `configuracion/views/institucional.py`
+- `configuracion/forms/__init__.py`
+- `configuracion/forms/institucional.py`
+- `configuracion/services/__init__.py`
+- `configuracion/services/actividades.py`
+- `configuracion/selectors/__init__.py`
+- `configuracion/selectors/instituciones.py`
+- `configuracion/tests/test_package_exports.py`
+
+**Descripción:** Se agrupó `configuracion` en paquetes reales de views, forms, services y selectors. Los módulos legacy por dominio quedaron como wrappers compatibles, `configuracion.views` y `configuracion.forms` pasaron a ser paquetes reales y se agregaron smoke tests para fijar el contrato público del packaging.
