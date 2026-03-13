@@ -173,6 +173,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el vigésimo primer slice del refactor DX sobre `portal`, enfocado en perfil, programas y mis datos
 - El resto del perfil ciudadano salió de `portal/views_ciudadano.py` y ahora vive en `views_ciudadano_perfil.py`, con selectors y services propios
 - El comportamiento visible no cambió, pero el archivo histórico del portal ciudadano quedó reducido a una fachada de compatibilidad
+- Se ejecutó el vigésimo segundo slice del refactor DX sobre `ÑACHEC`, enfocado en prestaciones, cierre/reapertura y dashboard
+- `legajos/views_nachec.py` dejó de concentrar esos bloques y ahora funciona parcialmente como fachada compatible
+- El comportamiento visible no cambió, pero el hotspot principal del módulo bajó de tamaño antes de entrar en validación, relevamiento y evaluación
 
 ---
 

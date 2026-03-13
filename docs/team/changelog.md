@@ -430,3 +430,16 @@
 - `portal/tests/test_ciudadano_perfil.py`
 
 **Descripción:** Se extrajo el resto del perfil ciudadano fuera de `portal/views_ciudadano.py`. El dashboard, programas, mis datos y cambio de email/password ahora viven en un módulo dedicado con selectors y services propios. También se encapsuló la solicitud/confirmación de cambio de email y se agregaron tests de ownership e integridad del cambio de email.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 22: `ÑACHEC` prestaciones, cierre y dashboard
+
+**Archivos modificados:**
+- `legajos/views_nachec.py`
+- `legajos/views_nachec_prestaciones.py`
+- `legajos/views_nachec_cierre.py`
+- `legajos/views_nachec_dashboard.py`
+- `legajos/tests/test_nachec_fachada.py`
+
+**Descripción:** Se extrajeron del monolito `legajos/views_nachec.py` los bloques de prestaciones, cierre/reapertura y dashboard hacia módulos dedicados, manteniendo `urls_nachec.py` intacto y usando `views_nachec.py` como fachada compatible. El objetivo del corte fue bajar drásticamente el tamaño del hotspot antes de entrar en flujos más sensibles de validación, evaluación y relevamiento.

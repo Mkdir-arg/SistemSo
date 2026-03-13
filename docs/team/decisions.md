@@ -148,3 +148,10 @@
 - Decisión: el slice 21 movió ese resto a `views_ciudadano_perfil.py`, apoyado en `selectors_ciudadano_perfil.py` y `services_ciudadano_perfil.py`.
 - Regla derivada: si un archivo histórico ya fue partido en varios submódulos, conviene terminar el trabajo y dejarlo como fachada pura antes de saltar a otro hotspot.
 - Consecuencia: `portal/views_ciudadano.py` deja de ser un monolito y el dominio ciudadano del portal queda físicamente separado por subdominios claros.
+
+## 2026-03-13 — en `ÑACHEC` modularizar primero bloques grandes de bajo riesgo
+
+- Contexto: `legajos/views_nachec.py` seguía siendo el mayor hotspot del repo con más de 2700 líneas y cobertura automática baja para sus workflows críticos.
+- Decisión: el slice 22 atacó primero prestaciones, cierre/reapertura y dashboard, porque son bloques grandes, bien delimitados y con contrato de URLs estable.
+- Regla derivada: en monolitos de alto riesgo, empezar por separar físicamente los bloques más aislables antes de mover validaciones y transiciones de estado más delicadas.
+- Consecuencia: el archivo principal de `ÑACHEC` baja fuerte de tamaño y queda mejor preparado para continuar con evaluación, relevamiento y asignación.
