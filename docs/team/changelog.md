@@ -539,3 +539,44 @@
 - `users/tests/test_service_urls.py`
 
 **Descripción:** Se alineó el contexto de listado de usuarios a namespaces estables, reemplazando reverses legacy y corrigiendo un `url_name` inconsistente (`usuario_borrar`) por `users:usuario_eliminar`. El contrato quedó cubierto con un test simple del service.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 31: packaging de `turnos` y `users`
+
+**Archivos modificados:**
+- `turnos/views_backoffice.py`
+- `turnos/views_configuracion.py`
+- `turnos/views_turnos.py`
+- `turnos/services_turnos.py`
+- `turnos/selectors_turnos.py`
+- `turnos/views/__init__.py`
+- `turnos/views/backoffice.py`
+- `turnos/views/configuracion.py`
+- `turnos/views/turnos.py`
+- `turnos/services/__init__.py`
+- `turnos/services/notifications.py`
+- `turnos/services/workflow.py`
+- `turnos/selectors/__init__.py`
+- `turnos/selectors/backoffice.py`
+- `turnos/tests/test_package_exports.py`
+- `users/views.py`
+- `users/views_admin.py`
+- `users/views_auth.py`
+- `users/services.py`
+- `users/services_admin.py`
+- `users/selectors_usuarios.py`
+- `users/signals.py`
+- `users/views/__init__.py`
+- `users/views/admin.py`
+- `users/views/auth.py`
+- `users/services/__init__.py`
+- `users/services/admin.py`
+- `users/services/listing.py`
+- `users/selectors/__init__.py`
+- `users/selectors/usuarios.py`
+- `users/signals/__init__.py`
+- `users/signals/profiles.py`
+- `users/tests/test_package_exports.py`
+
+**Descripción:** Se agruparon views, services, selectors y signals en paquetes reales dentro de `turnos` y `users`, manteniendo wrappers de compatibilidad en los módulos legacy para no romper imports existentes. En el mismo corte se alinearon los `success_url` de administración de usuarios al namespace `users:*` y se agregaron smoke tests para fijar los exports públicos de los paquetes.

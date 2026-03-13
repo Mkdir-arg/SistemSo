@@ -224,6 +224,7 @@ SistemSo/
 | DT-009 | `legajos/views.py` ya quedó como fachada pura, pero la app `legajos` sigue mezclando dominios ciudadanos, clínicos, institucionales y de contactos en una misma app | Media | Actualizada 2026-03-13 |
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 | DT-011 | `conversaciones` ya no concentra toda la lógica en `views.py`, pero mantiene endpoints legacy con `@csrf_exempt` y mezcla polling HTTP con notificaciones realtime parciales | Media | Actualizada 2026-03-13 |
+| DT-012 | La migración a paquetes reales (`views/`, `services/`, `selectors/`, `signals/`) todavía está incompleta fuera de `turnos` y `users`; el resto del proyecto mantiene wrappers y módulos legacy | Media | Detectada 2026-03-13 |
 
 ---
 
@@ -329,3 +330,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: cuando una ruta ya tiene namespace estable, los templates y scripts deben consumirla desde Django o desde configuración renderizada, no embutir paths del proyecto en HTML/JS.
 - 2026-03-13: cuando una app conserva routes legacy, los `name=` deben ser únicos y explícitos por dominio antes de intentar una limpieza más profunda del archivo de URLs.
 - 2026-03-13: los services que publican configuración de tablas o acciones para el frontend deben emitir `url_name` y `reverse()` ya namespaced, no depender de aliases legacy.
+- 2026-03-13: la migración de módulos planos a paquetes reales debe hacerse app por app, dejando wrappers compatibles en los entrypoints legacy hasta que exista cobertura suficiente para retirar esos aliases.

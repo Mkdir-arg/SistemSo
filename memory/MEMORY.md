@@ -68,6 +68,9 @@
 - El conflicto nominal de `cerrar_alerta` quedó resuelto con names explícitos por dominio.
 - Se completó el trigésimo slice sobre `users`.
 - El service del listado de usuarios ya expone reverses y `url_name` namespaced.
+- Se completó el trigésimo primer slice sobre `turnos` y `users`.
+- Ambas apps ahora agrupan implementación en paquetes reales de `views`, `services` y `selectors`; `users` también separa `signals` en paquete propio.
+- La compatibilidad se preserva con wrappers en los módulos legacy, lo que deja preparada la misma estrategia para futuras apps.
 
 ## Próxima etapa sugerida
 

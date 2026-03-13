@@ -211,3 +211,10 @@
 - Decisión: el slice 30 migró ese contrato interno a `users:*` y corrigió la acción de eliminación a `users:usuario_eliminar`.
 - Regla derivada: cuando un service arma configuración consumida por componentes de UI, debe exponer nombres de ruta canónicos y no aliases legacy.
 - Consecuencia: se reduce el acoplamiento oculto entre routing y componentes genéricos de tabla del backoffice.
+
+## 2026-03-13 — migrar a paquetes reales solo por apps y con fachadas compatibles
+
+- Contexto: después de modularizar muchos monolitos, varias apps seguían teniendo archivos raíz como `views.py` o `services.py`, pero mover todo el repo a paquetes reales en una sola pasada implicaba demasiado riesgo de imports rotos y side effects no cubiertos.
+- Decisión: el slice 31 inició la migración de packaging real solo en `turnos` y `users`, creando `views/`, `services/`, `selectors/` y `signals/` donde correspondía y dejando wrappers compatibles en los módulos legacy.
+- Regla derivada: las migraciones físicas de packaging deben hacerse app por app, con tests de exports públicos, antes de retirar los entrypoints históricos.
+- Consecuencia: el proyecto gana estructura más consistente sin obligar a un big bang de imports en todo el árbol.
