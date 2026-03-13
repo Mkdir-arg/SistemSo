@@ -108,6 +108,9 @@
 - Se completó el cuadragésimo quinto slice sobre `legajos`.
 - `views_institucional.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
 - El siguiente frente razonable pasó a ser `views_clinico.py`; después de eso, casi todo lo que queda será la familia `views_nachec_*`.
+- Se completó el cuadragésimo sexto slice sobre `legajos`.
+- `views_clinico.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
+- Lo pendiente en `legajos` ya quedó esencialmente concentrado en la familia `views_nachec_*`.
 
 ## Próxima etapa sugerida
 

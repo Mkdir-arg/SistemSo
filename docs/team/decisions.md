@@ -316,3 +316,10 @@
 - Decisión: el slice 45 la movió a `legajos/views/` sin rediseñar lógica interna en el mismo cambio.
 - Regla derivada: una view grande puede moverse físicamente de forma segura si el riesgo principal está en su comportamiento, no en su cartografía de imports.
 - Consecuencia: se sigue reduciendo deuda estructural sin mezclar de golpe packaging y reescritura funcional.
+
+## 2026-03-13 — en clínica, preferir packaging físico antes que reescritura oportunista
+
+- Contexto: `views_clinico.py` seguía siendo grande, pero ya consumía selectors, forms y services del dominio clínico.
+- Decisión: el slice 46 la movió al paquete `legajos/views/` sin tocar reglas clínicas ni contratos de templates/URLs.
+- Regla derivada: cuando un dominio ya tiene capas separadas, el packaging físico puede hacerse aunque el archivo siga siendo grande; no hace falta mezclarlo con otra reescritura.
+- Consecuencia: mejora la coherencia interna del módulo sin abrir una regresión funcional innecesaria.

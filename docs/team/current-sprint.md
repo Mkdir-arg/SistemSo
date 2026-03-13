@@ -57,6 +57,7 @@ _Se define en el sprint planning._
 | DX-043 | Como equipo de desarrollo quiero sacar la lógica sensible de `views_derivacion_programa.py` a un service antes de modularizar físicamente ese borde con `ÑACHEC` | ✅ Completado | Slice 43 ejecutado el 2026-03-13 con service dedicado y tests del workflow |
 | DX-044 | Como equipo de desarrollo quiero mover `views_derivacion_programa.py` al paquete nuevo de views una vez extraído su workflow sensible | ✅ Completado | Slice 44 ejecutado el 2026-03-13 con wrapper compatible y smoke test de exports |
 | DX-045 | Como equipo de desarrollo quiero mover `views_institucional.py` al paquete nuevo sin cambiar su dominio interno todavía | ✅ Completado | Slice 45 ejecutado el 2026-03-13 con wrapper compatible y smoke test de exports |
+| DX-046 | Como equipo de desarrollo quiero mover `views_clinico.py` al paquete nuevo manteniendo intacto su comportamiento actual | ✅ Completado | Slice 46 ejecutado el 2026-03-13 con wrapper compatible y smoke test de exports |
 
 ## Impedimentos
 

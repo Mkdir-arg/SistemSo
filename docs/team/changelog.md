@@ -14,6 +14,16 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 46: packaging de `views_clinico` en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/clinico.py`
+- `legajos/views_clinico.py`
+- `legajos/tests/test_clinico_package.py`
+
+**Descripción:** Se movió `views_clinico.py` al paquete `legajos/views/` manteniendo wrapper legacy compatible y smoke test de exports. Con este corte, la mayor parte del dominio clínico ya quedó alineada con la estructura nueva sin alterar comportamiento funcional.
+
 ## 2026-03-13 — Refactor DX Slice 45: packaging de `views_institucional` en `legajos`
 
 **Archivos modificados:**
