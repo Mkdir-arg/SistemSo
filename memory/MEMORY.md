@@ -66,6 +66,8 @@
 - `users:logout`, `chatbot:send_message` y `conversaciones:detalle` ya están consumidos desde namespaces/config renderizada en los puntos más visibles.
 - Se completó el vigésimo noveno slice sobre `legajos/urls.py`.
 - El conflicto nominal de `cerrar_alerta` quedó resuelto con names explícitos por dominio.
+- Se completó el trigésimo slice sobre `users`.
+- El service del listado de usuarios ya expone reverses y `url_name` namespaced.
 
 ## Próxima etapa sugerida
 
@@ -76,4 +78,5 @@
 - El siguiente hotspot real pasó a ser la deuda transversal remanente de namespaces/auth y algunos hardcodes legacy de rutas, porque los grandes monolitos internos ya bajaron mucho.
 - El siguiente hotspot real pasó a ser la limpieza de `legajos/urls.py`, pero ahí ya hay riesgo alto por names duplicados y consumidores legacy sin cobertura suficiente.
 - El siguiente hotspot real ya no es tan claro: queda sobre todo deuda de reordenamiento profundo de `legajos/urls.py` y algunos consumidores legacy con cobertura insuficiente.
+- El siguiente hotspot real ya entra en rendimientos decrecientes: quedan aliases legacy y reordenamientos más profundos de URLs que exigen mejor cobertura funcional para no romper contrato.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

@@ -204,3 +204,10 @@
 - Decisión: el slice 29 renombró esos endpoints a `cerrar_alerta_evento` y `cerrar_alerta_ciudadano`, actualizando el único consumidor explícito y agregando smoke tests.
 - Regla derivada: cuando una app mantiene URLs legacy extensas, el primer saneamiento debe ser eliminar `name=` duplicados antes de intentar reorganizaciones más ambiciosas.
 - Consecuencia: el routing queda más predecible y se reduce el riesgo de `reverse()` ambiguos en etapas posteriores.
+
+## 2026-03-13 — los services de UI deben publicar solo rutas namespaced
+
+- Contexto: `users/services.py` todavía emitía reverses legacy y un `url_name` inconsistente para la tabla/listado de usuarios.
+- Decisión: el slice 30 migró ese contrato interno a `users:*` y corrigió la acción de eliminación a `users:usuario_eliminar`.
+- Regla derivada: cuando un service arma configuración consumida por componentes de UI, debe exponer nombres de ruta canónicos y no aliases legacy.
+- Consecuencia: se reduce el acoplamiento oculto entre routing y componentes genéricos de tabla del backoffice.

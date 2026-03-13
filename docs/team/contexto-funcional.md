@@ -197,6 +197,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el vigésimo noveno slice del refactor DX sobre `legajos/urls.py`
 - Las rutas de cierre de alertas dejaron de compartir el mismo `name=` y ahora distinguen explícitamente entre evento crítico y alerta de ciudadano
 - El comportamiento visible no cambió, pero el routing de `legajos` quedó menos ambiguo y más seguro para futuros refactors
+- Se ejecutó el trigésimo slice del refactor DX sobre `users`
+- El service que alimenta la tabla/listado de usuarios dejó de publicar URLs legacy y ahora expone acciones y reverses con namespace explícito
+- El comportamiento visible no cambió, pero el contrato interno del módulo quedó más coherente con la estandarización de rutas del proyecto
 
 ---
 

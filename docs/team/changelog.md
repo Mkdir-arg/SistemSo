@@ -529,3 +529,13 @@
 - `core/tests/test_url_namespaces.py`
 
 **Descripción:** Se eliminó el conflicto de names duplicados en `legajos/urls.py`, renombrando las dos rutas `cerrar_alerta` a nombres explícitos según su dominio: `cerrar_alerta_evento` y `cerrar_alerta_ciudadano`. También se actualizó el único consumidor explícito del nombre anterior y se fijó el contrato con smoke tests.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 30: `users` servicios con namespaces consistentes
+
+**Archivos modificados:**
+- `users/services.py`
+- `users/tests/test_service_urls.py`
+
+**Descripción:** Se alineó el contexto de listado de usuarios a namespaces estables, reemplazando reverses legacy y corrigiendo un `url_name` inconsistente (`usuario_borrar`) por `users:usuario_eliminar`. El contrato quedó cubierto con un test simple del service.
