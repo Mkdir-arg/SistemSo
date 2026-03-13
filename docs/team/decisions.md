@@ -309,3 +309,10 @@
 - Decisión: el slice 44 movió esa view a `legajos/views/` inmediatamente, antes de abrir otro frente más complejo.
 - Regla derivada: si un slice de service layer deja una view suficientemente delgada, conviene aprovechar el mismo impulso y cerrar enseguida su packaging físico.
 - Consecuencia: la arquitectura gana consistencia sin acumular deuda de “views finas pero todavía legacy”.
+
+## 2026-03-13 — mover físicamente una view pesada sigue siendo razonable si ya descansa en capas separadas
+
+- Contexto: `views_institucional.py` seguía siendo grande, pero buena parte de su dominio ya descansaba sobre `services_institucional`, forms y permisos dedicados.
+- Decisión: el slice 45 la movió a `legajos/views/` sin rediseñar lógica interna en el mismo cambio.
+- Regla derivada: una view grande puede moverse físicamente de forma segura si el riesgo principal está en su comportamiento, no en su cartografía de imports.
+- Consecuencia: se sigue reduciendo deuda estructural sin mezclar de golpe packaging y reescritura funcional.

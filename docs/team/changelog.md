@@ -14,6 +14,16 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 45: packaging de `views_institucional` en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/institucional.py`
+- `legajos/views_institucional.py`
+- `legajos/tests/test_institucional_package.py`
+
+**Descripción:** Se movió `views_institucional.py` al paquete `legajos/views/` manteniendo wrapper legacy compatible y smoke test de exports. El cambio no reordena reglas del dominio institucional, pero deja esa superficie alineada con la estructura nueva del módulo.
+
 ## 2026-03-13 — Refactor DX Slice 44: packaging de `views_derivacion_programa` en `legajos`
 
 **Archivos modificados:**

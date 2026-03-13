@@ -105,6 +105,9 @@
 - Se completó el cuadragésimo cuarto slice sobre `legajos`.
 - `views_derivacion_programa.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
 - El siguiente bloqueo fuerte ya quedó claramente en `views_institucional.py`, `views_clinico.py` y `views_nachec_*`.
+- Se completó el cuadragésimo quinto slice sobre `legajos`.
+- `views_institucional.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
+- El siguiente frente razonable pasó a ser `views_clinico.py`; después de eso, casi todo lo que queda será la familia `views_nachec_*`.
 
 ## Próxima etapa sugerida
 
