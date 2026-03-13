@@ -254,6 +254,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el cuadragésimo octavo slice del refactor DX sobre `legajos`
 - La familia restante de servicios (`alertas`, `filtros_usuario`, `institucional`, `nachec`) ahora vive dentro de `legajos/services/`, con wrappers legacy compatibles
 - El comportamiento visible no cambió, y el siguiente frente estructural quedó concentrado en `signals`
+- Se ejecutó el cuadragésimo noveno slice del refactor DX sobre `legajos`
+- La familia de señales ahora vive dentro de `legajos/signals/`, con `ready()` explícito y wrappers legacy secundarios donde todavía tenían valor
+- El comportamiento visible no cambió, y el packaging estructural de `legajos` quedó prácticamente agotado
 
 ---
 

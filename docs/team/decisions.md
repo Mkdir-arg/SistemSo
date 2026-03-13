@@ -337,3 +337,10 @@
 - Decisión: el slice 48 movió esas familias a `legajos/services/` y dejó wrappers legacy, de modo que la futura migración de señales dependa de una API de paquete estable.
 - Regla derivada: cuando queda pendiente empaquetar tanto servicios como señales en una app grande, conviene cerrar primero toda la capa service antes de tocar el wiring de side effects.
 - Consecuencia: el siguiente corte sobre `signals` queda más contenido y con menos imports cruzados a módulos legacy.
+
+## 2026-03-13 — al empaquetar señales, hacer explícito el wiring desde `AppConfig`
+
+- Contexto: después del slice 48, `legajos` ya tenía una API de servicios estable, pero la capa de señales seguía repartida entre módulos legacy y side effects disparados por imports planos.
+- Decisión: el slice 49 creó `legajos/signals/` como paquete real y actualizó `LegajosConfig.ready()` para importar de forma explícita los submódulos `core`, `alerts`, `historial`, `programas` y `nachec`.
+- Regla derivada: en packaging de señales, la compatibilidad de wrappers no alcanza; el registro efectivo debe quedar visible y explícito en `AppConfig.ready()`.
+- Consecuencia: se reduce ambigüedad en el wiring y el siguiente trabajo deja de ser estructural para pasar a deuda funcional o de contrato.

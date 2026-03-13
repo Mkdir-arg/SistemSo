@@ -117,6 +117,9 @@
 - Se completó el cuadragésimo octavo slice sobre `legajos`.
 - La familia restante de servicios ahora vive dentro de `legajos/services/`, con wrappers legacy compatibles y consumidores internos alineados al paquete nuevo.
 - El siguiente frente estructural natural pasó a ser `signals`, ya con una API de servicios más estable debajo.
+- Se completó el cuadragésimo noveno slice sobre `legajos`.
+- La familia de señales ahora vive dentro de `legajos/signals/`, con `ready()` explícito hacia el paquete nuevo y smoke tests de exports.
+- El packaging estructural de `legajos` quedó prácticamente agotado; lo siguiente ya es deuda funcional o de contrato.
 
 ## Próxima etapa sugerida
 

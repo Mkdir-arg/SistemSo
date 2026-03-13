@@ -926,3 +926,24 @@
 - `legajos/tests/test_package_exports.py`
 
 **Descripción:** Se terminó de agrupar en `legajos/services/` la familia de servicios que todavía seguía en módulos planos (`alertas`, `filtros_usuario`, `institucional`, `nachec`), manteniendo wrappers legacy compatibles. También se migraron consumidores internos al paquete nuevo y se amplió el smoke test de exports para fijar la API pública del paquete.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 49: packaging de `signals` en `legajos`
+
+**Archivos modificados:**
+- `legajos/apps.py`
+- `legajos/signals/__init__.py`
+- `legajos/signals/core.py`
+- `legajos/signals/alerts.py`
+- `legajos/signals/historial.py`
+- `legajos/signals/programas.py`
+- `legajos/signals/nachec.py`
+- `legajos/signals.py`
+- `legajos/signals_alertas.py`
+- `legajos/signals_historial.py`
+- `legajos/signals_programas.py`
+- `legajos/signals_nachec.py`
+- `legajos/tests/test_signals_package.py`
+
+**Descripción:** Se agrupó la capa de señales de `legajos` dentro de `legajos/signals/`, se dejó `AppConfig.ready()` apuntando al paquete nuevo y se conservaron wrappers compatibles en los módulos legacy secundarios. El slice no cambia reglas de negocio; solo ordena el wiring de side effects y fija exports básicos con smoke tests.
