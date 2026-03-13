@@ -270,6 +270,13 @@
             <script>
                 // Pasar grupos del usuario al JavaScript
                 window.userGroups = {{ user_groups_json|safe }};
+                window.conversacionesConfig = {
+                    listUrl: "{% url 'conversaciones:lista' %}",
+                    statsUrl: "{% url 'conversaciones:api_estadisticas' %}",
+                    alertsCountUrl: "{% url 'conversaciones_api:alertas_count' %}",
+                    alertsPreviewUrl: "{% url 'conversaciones_api:alertas_preview' %}",
+                    detailUrlTemplate: "{% url 'conversaciones:detalle' 0 %}",
+                };
             </script>
             <script src="{% static 'custom/js/notification_sound.js' %}"></script>
             <script src="{% static 'custom/js/alertas_websocket.js' %}"></script>

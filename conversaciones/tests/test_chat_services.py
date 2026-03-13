@@ -226,3 +226,20 @@ class ConversacionesViewsContractTests(TestCase):
         self.assertIn('data-detail-url-template="/conversaciones/0/"', html)
         self.assertIn('data-close-url-template="/conversaciones/0/cerrar/"', html)
         self.assertIn('data-list-ws-path="/ws/conversaciones/"', html)
+
+    def test_detalle_renderiza_path_websocket_desde_template(self):
+        group = Group.objects.create(name='Conversaciones')
+        operador = User.objects.create_user(username='operador-detalle', password='secret')
+        operador.groups.add(group)
+        conversacion = Conversacion.objects.create(
+            tipo='anonima',
+            prioridad='normal',
+            estado='activa',
+            operador_asignado=operador,
+        )
+
+        self.client.force_login(operador)
+        response = self.client.get(reverse('conversaciones:detalle', args=[conversacion.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-ws-path-template="/ws/conversaciones/0/"', response.content.decode())

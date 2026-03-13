@@ -44,7 +44,12 @@
 </div>
 
 <!-- Área del chat -->
-<div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] flex flex-col animate-fadeInUp" style="min-height: 420px;">
+<div
+    id="portal-consulta-detalle-app"
+    class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] flex flex-col animate-fadeInUp"
+    style="min-height: 420px;"
+    data-messages-url-template="{% url 'conversaciones:obtener_mensajes_ciudadano' 0 %}"
+>
 
     <!-- Mensajes -->
     <div class="flex-1 overflow-y-auto p-6 space-y-4" id="mensajesContainer" style="max-height: 480px;">
@@ -141,8 +146,13 @@
 
     // Polling de nuevos mensajes (cada 4 segundos) si la conversación está abierta
     {% if puede_enviar %}
+    var consultaDetalleApp = document.getElementById('portal-consulta-detalle-app');
     var conversacionId = {{ conversacion.id }};
     var mensajesCargados = new Set();
+
+    function buildConversationUrl(template, conversationId) {
+        return template.replace('/0/', `/${conversationId}/`);
+    }
 
     // Registrar IDs ya renderizados por el servidor
     document.querySelectorAll('[data-msg-id]').forEach(function (el) {
@@ -189,7 +199,7 @@
 
     async function cargarMensajesNuevos() {
         try {
-            var response = await fetch('/conversaciones/' + conversacionId + '/mensajes/');
+            var response = await fetch(buildConversationUrl(consultaDetalleApp.dataset.messagesUrlTemplate, conversacionId));
             var data = await response.json();
             data.mensajes.forEach(function (msg) {
                 var key = msg.id + '-' + msg.remitente;

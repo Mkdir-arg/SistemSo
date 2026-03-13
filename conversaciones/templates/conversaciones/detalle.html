@@ -9,6 +9,7 @@
     class="space-y-6"
     x-data="chatOperador()"
     data-reply-url="{% url 'conversaciones:enviar_mensaje_operador' conversacion.id %}"
+    data-ws-path-template="/ws/conversaciones/0/"
 >
     <!-- Header -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -106,6 +107,7 @@
             conversacionId: {{ conversacion.id }},
             socket: null,
             replyUrl: detailApp.dataset.replyUrl,
+            wsPathTemplate: detailApp.dataset.wsPathTemplate,
             
             init() {
                 this.$nextTick(() => {
@@ -116,8 +118,8 @@
             
             conectarWebSocket() {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                // Ruta WebSocket debe coincidir con routing.py: ws/conversaciones/<id>/
-                const wsUrl = `${protocol}//${window.location.host}/ws/conversaciones/${this.conversacionId}/`;
+                const wsPath = this.wsPathTemplate.replace('/0/', `/${this.conversacionId}/`);
+                const wsUrl = `${protocol}//${window.location.host}${wsPath}`;
                 
                 this.socket = new WebSocket(wsUrl);
                 
