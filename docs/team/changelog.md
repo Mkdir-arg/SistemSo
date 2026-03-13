@@ -975,3 +975,27 @@
 - `legajos/signals.py`
 
 **Descripción:** Se alinearon `dashboard`, `tramites` y `healthcheck` al mismo patrón de packaging por responsabilidad, moviendo sus views a paquetes reales y dejando `dashboard/signals/` como paquete explícito aunque todavía no registre hooks propios. En el mismo corte se eliminó el viejo `legajos/signals.py`, ya reemplazado por el paquete real del slice anterior.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 51: packaging de auditoría/performance en `core`
+
+**Archivos modificados:**
+- `core/views/__init__.py`
+- `core/views/auditoria.py`
+- `core/views/performance.py`
+- `core/views_auditoria.py`
+- `core/performance_dashboard.py`
+- `core/signals/__init__.py`
+- `core/signals/auditoria.py`
+- `core/signals/auditoria_historial.py`
+- `core/signals/cache.py`
+- `core/signals_auditoria.py`
+- `core/signals_auditoria_historial.py`
+- `core/signals_cache.py`
+- `core/apps.py`
+- `core/urls.py`
+- `core/urls_auditoria.py`
+- `core/tests/test_package_exports.py`
+
+**Descripción:** Se cerró la parte pendiente de `core` moviendo auditoría y performance al paquete real de views y agrupando las señales de auditoría/cache dentro de `core/signals/`. Se mantuvieron wrappers compatibles para los módulos históricos y `CoreConfig.ready()` quedó con imports explícitos del paquete nuevo.

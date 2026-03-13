@@ -351,3 +351,10 @@
 - Decisión: el slice 50 alineó esas apps chicas al mismo patrón y dejó `dashboard/signals/` explícito aunque hoy no registre señales activas.
 - Regla derivada: cuando el proyecto ya consolidó una convención estructural, conviene cerrar también las apps chicas restantes para que la cartografía no quede llena de excepciones.
 - Consecuencia: el siguiente trabajo deja de ser packaging repo-wide y pasa a centrarse en hotspots funcionales, deuda de contrato o cleanup puntual.
+
+## 2026-03-13 — en `core`, cerrar auditoría y señales como último frente estructural
+
+- Contexto: tras los slices 36, 50 y el avance repo-wide, `core` todavía retenía una excepción relevante: `views_auditoria.py`, `performance_dashboard.py` y varias señales de auditoría/cache seguían fuera de los paquetes reales.
+- Decisión: el slice 51 movió esos bloques a `core/views/` y `core/signals/`, manteniendo wrappers legacy y dejando `CoreConfig.ready()` con imports explícitos.
+- Regla derivada: en una app transversal, la deuda estructural más sensible conviene atacarla al final, cuando el resto del proyecto ya estabilizó la convención y reduce el riesgo de imports cruzados impredecibles.
+- Consecuencia: la deuda estructural repo-wide queda casi totalmente consumida y el siguiente trabajo ya pasa a hotspots funcionales o de contrato.

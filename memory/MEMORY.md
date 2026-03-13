@@ -123,6 +123,9 @@
 - Se completó el quincuagésimo slice sobre apps chicas.
 - `dashboard`, `tramites` y `healthcheck` ahora también usan paquetes reales de `views`, y `dashboard` dejó explícito su paquete de `signals`.
 - El packaging repo-wide quedó casi agotado; los siguientes pasos con valor real pasan a ser funcionales o de contrato.
+- Se completó el quincuagésimo primer slice sobre `core`.
+- Auditoría, performance y señales de `core` ahora viven dentro de `core/views/` y `core/signals/`, con `ready()` explícito y wrappers legacy.
+- El packaging repo-wide quedó prácticamente agotado; lo siguiente ya no es estructural barato.
 
 ## Próxima etapa sugerida
 

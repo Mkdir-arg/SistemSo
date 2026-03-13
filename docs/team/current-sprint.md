@@ -62,6 +62,7 @@ _Se define en el sprint planning._
 | DX-048 | Como equipo de desarrollo quiero cerrar el packaging restante de `services` en `legajos` antes de evaluar el wiring sensible de `signals` | ✅ Completado | Slice 48 ejecutado el 2026-03-13 con wrappers compatibles y migración de consumidores internos |
 | DX-049 | Como equipo de desarrollo quiero agrupar `signals` de `legajos` en un paquete real manteniendo el wiring explícito desde `AppConfig` | ✅ Completado | Slice 49 ejecutado el 2026-03-13 con `ready()` explícito y smoke test de exports |
 | DX-050 | Como equipo de desarrollo quiero alinear `dashboard`, `tramites` y `healthcheck` a la convención de packaging para cerrar las apps chicas que quedaban legacy | ✅ Completado | Slice 50 ejecutado el 2026-03-13 con views empaquetadas y smoke tests básicos |
+| DX-051 | Como equipo de desarrollo quiero cerrar la deuda estructural pendiente de `core` agrupando auditoría, performance y señales en paquetes reales | ✅ Completado | Slice 51 ejecutado el 2026-03-13 con wrappers compatibles, `ready()` explícito y smoke tests ampliados |
 
 ## Impedimentos
 

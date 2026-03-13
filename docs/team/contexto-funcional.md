@@ -260,6 +260,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el quincuagésimo slice del refactor DX sobre apps chicas
 - `dashboard`, `tramites` y `healthcheck` ahora siguen también la convención de packaging por carpeta
 - El comportamiento visible no cambió, y la deuda estructural restante quedó mucho más concentrada en hotspots funcionales
+- Se ejecutó el quincuagésimo primer slice del refactor DX sobre `core`
+- Auditoría, performance y señales de `core` ahora viven también dentro de paquetes reales, con `ready()` explícito
+- El comportamiento visible no cambió, y el refactor estructural repo-wide quedó prácticamente agotado
 
 ---
 
