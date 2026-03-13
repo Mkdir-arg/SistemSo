@@ -79,6 +79,8 @@
 - `portal` ahora agrupa `views`, `forms`, `services` y `selectors` en paquetes reales y sus tests dejaron de parchear wrappers legacy.
 - Se completó el trigésimo quinto slice sobre `conversaciones`.
 - `conversaciones` ahora agrupa `views`, `forms`, `services`, `selectors` y `signals` en paquetes reales, y `apps.py` ya no tiene el bug estructural de doble `ready()`.
+- Se completó el trigésimo sexto slice sobre `core`.
+- `core` ahora agrupa `views`, `forms` y `selectors` del flujo principal en paquetes reales; la auditoría pesada y los signals quedaron deliberadamente fuera de este corte.
 
 ## Próxima etapa sugerida
 

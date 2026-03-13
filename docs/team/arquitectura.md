@@ -224,7 +224,7 @@ SistemSo/
 | DT-009 | `legajos/views.py` ya quedó como fachada pura, pero la app `legajos` sigue mezclando dominios ciudadanos, clínicos, institucionales y de contactos en una misma app | Media | Actualizada 2026-03-13 |
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 | DT-011 | `conversaciones` ya no concentra toda la lógica en `views.py`, pero mantiene endpoints legacy con `@csrf_exempt` y mezcla polling HTTP con notificaciones realtime parciales | Media | Actualizada 2026-03-13 |
-| DT-012 | La migración a paquetes reales (`views/`, `services/`, `selectors/`, `signals/`) ya alcanzó `turnos`, `users`, `chatbot`, `configuracion`, `portal` y `conversaciones`, pero todavía está incompleta en `legajos` y `core` | Media | Actualizada 2026-03-13 |
+| DT-012 | La migración a paquetes reales (`views/`, `services/`, `selectors/`, `signals/`) ya alcanzó `turnos`, `users`, `chatbot`, `configuracion`, `portal`, `conversaciones` y parte de `core`; sigue incompleta en `legajos` y en la capa de auditoría/signals de `core` | Media | Actualizada 2026-03-13 |
 
 ---
 

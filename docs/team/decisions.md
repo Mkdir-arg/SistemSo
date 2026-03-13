@@ -246,3 +246,10 @@
 - Decisión: el slice 35 unificó el registro en un único `ready()` antes de cerrar el packaging de `signals`.
 - Regla derivada: si una app registra señales desde `AppConfig`, la migración a paquetes debe empezar verificando que `ready()` no tenga inconsistencias estructurales que oculten parte del wiring.
 - Consecuencia: se evita “preservar” accidentalmente un bug de inicialización al reordenar archivos.
+
+## 2026-03-13 — en la app base `core`, empaquetar solo la superficie de bajo riesgo primero
+
+- Contexto: `core` comparte piezas de bajo acoplamiento como geografía y vistas generales, pero también concentra auditoría, middleware y signals sensibles.
+- Decisión: el slice 36 empaquetó solo `views`, `forms` y `selectors` del flujo principal, dejando fuera la parte de auditoría/signals.
+- Regla derivada: en apps transversales y de infraestructura, conviene aislar primero el packaging de la superficie estable antes de tocar wiring sensible o código de observabilidad.
+- Consecuencia: mejora la consistencia estructural sin comprometer la trazabilidad y auditoría del sistema.

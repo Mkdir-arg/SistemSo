@@ -715,3 +715,21 @@
 - `conversaciones/tests/test_package_exports.py`
 
 **Descripción:** Se agrupó `conversaciones` en paquetes reales de views, forms, services, selectors y signals. En el mismo corte se corrigió una inconsistencia estructural real en `apps.py`: la app tenía dos métodos `ready()` y solo se estaba ejecutando el último; ahora el registro de señales queda explícito y único. También se actualizaron los tests de patching al path real del paquete.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 36: packaging liviano de `core`
+
+**Archivos modificados:**
+- `core/views.py`
+- `core/forms.py`
+- `core/selectors_geografia.py`
+- `core/views/__init__.py`
+- `core/views/public.py`
+- `core/forms/__init__.py`
+- `core/forms/general.py`
+- `core/selectors/__init__.py`
+- `core/selectors/geografia.py`
+- `core/tests/test_package_exports.py`
+
+**Descripción:** Se agrupó `core` en paquetes reales para `views`, `forms` y `selectors` del flujo principal, dejando fuera la auditoría pesada y la capa de signals. El objetivo fue alinear la cartografía base del proyecto sin tocar todavía los módulos de mayor riesgo operativo.
