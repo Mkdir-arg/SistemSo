@@ -1,6 +1,7 @@
 from django.test import SimpleTestCase
 
 from legajos import forms
+from legajos.forms import HistorialContactoForm
 from legajos.forms_ciudadanos import (
     AdmisionLegajoForm,
     BuscarCiudadanoForm,
@@ -23,6 +24,10 @@ from legajos.forms_operativa import InscribirActividadForm
 
 
 class LegajosFormsFachadaTests(SimpleTestCase):
+    def test_package_expone_forms_publicos(self):
+        self.assertIs(forms.ConsultaRenaperForm, ConsultaRenaperForm)
+        self.assertIs(forms.HistorialContactoForm, HistorialContactoForm)
+
     def test_expone_forms_de_ciudadanos(self):
         self.assertIs(forms.ConsultaRenaperForm, ConsultaRenaperForm)
         self.assertIs(forms.CiudadanoManualForm, CiudadanoManualForm)
