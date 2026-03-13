@@ -269,6 +269,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el quincuagésimo tercer slice del refactor DX sobre APIs compartidas
 - `core` y `conversaciones` ahora también agrupan sus `api_views` en paquetes reales
 - El comportamiento visible no cambió, y la deuda estructural restante quedó casi totalmente reducida a `legajos` o deuda funcional
+- Se ejecutó el quincuagésimo cuarto slice del refactor DX sobre `legajos`
+- `legajos` ahora también agrupa sus `api_views` en paquetes reales, incluyendo contactos
+- El comportamiento visible no cambió, y la deuda estructural repo-wide quedó prácticamente agotada
 
 ---
 

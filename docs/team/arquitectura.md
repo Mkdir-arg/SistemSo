@@ -350,3 +350,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: en apps transversales como `core`, primero conviene empaquetar la superficie estable (`views`, `forms`, `selectors`) y recién después cerrar auditoría/performance y `signals` con wiring explícito.
 - 2026-03-13: una vez estabilizado el packaging de views HTML, todavía vale la pena alinear `api_views` en apps chicas si el contrato HTTP no cambia y el import path desde `urls.py` puede conservarse.
 - 2026-03-13: las `api_views` de apps compartidas también pueden moverse a paquetes reales siempre que `api_urls.py` siga apuntando al mismo import lógico y no se toque el contrato DRF.
+- 2026-03-13: si una API grande todavía está acotada a routers propios y no reabre permisos/serializers, también puede cerrarse como último paso estructural antes de dar por agotado el packaging repo-wide.

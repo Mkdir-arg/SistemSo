@@ -1033,3 +1033,18 @@
 - `conversaciones/tests/test_package_exports.py`
 
 **Descripción:** Se movieron las APIs compartidas de `core` y `conversaciones` al mismo patrón de paquetes reales, manteniendo intactos los imports desde `api_urls.py`. También se ampliaron los smoke tests para cubrir exports del paquete nuevo.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 54: packaging de `api_views` en `legajos`
+
+**Archivos modificados:**
+- `legajos/api_views.py`
+- `legajos/api_views/__init__.py`
+- `legajos/api_views_contactos.py`
+- `legajos/api_views/contactos.py`
+- `legajos/api_urls.py`
+- `legajos/api_urls_contactos.py`
+- `legajos/tests/test_package_exports.py`
+
+**Descripción:** Se cerró también la capa de `api_views` en `legajos`, moviendo tanto la API principal como la de contactos al paquete real `legajos/api_views/`. El routing de DRF se mantuvo estable desde `api_urls.py` y `api_urls_contactos.py`, y se amplió el smoke test del paquete.

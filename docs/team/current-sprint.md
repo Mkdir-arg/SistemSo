@@ -65,6 +65,7 @@ _Se define en el sprint planning._
 | DX-051 | Como equipo de desarrollo quiero cerrar la deuda estructural pendiente de `core` agrupando auditoría, performance y señales en paquetes reales | ✅ Completado | Slice 51 ejecutado el 2026-03-13 con wrappers compatibles, `ready()` explícito y smoke tests ampliados |
 | DX-052 | Como equipo de desarrollo quiero mover `api_views` de las apps chicas al mismo patrón de package para no dejar excepciones entre HTML y API | ✅ Completado | Slice 52 ejecutado el 2026-03-13 sobre `dashboard`, `users` y `chatbot` |
 | DX-053 | Como equipo de desarrollo quiero mover `api_views` de `core` y `conversaciones` al mismo patrón de package sin tocar contratos HTTP | ✅ Completado | Slice 53 ejecutado el 2026-03-13 con compatibilidad desde `api_urls.py` y smoke tests ampliados |
+| DX-054 | Como equipo de desarrollo quiero cerrar también `api_views` de `legajos` para agotar la deuda estructural repo-wide más obvia | ✅ Completado | Slice 54 ejecutado el 2026-03-13 con compatibilidad de routing DRF y smoke test ampliado |
 
 ## Impedimentos
 

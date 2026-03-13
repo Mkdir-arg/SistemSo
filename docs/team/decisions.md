@@ -372,3 +372,10 @@
 - Decisión: el slice 53 movió esas APIs a paquetes reales y dejó `api_urls.py` importando el mismo símbolo lógico.
 - Regla derivada: incluso en apps compartidas, una API puede moverse a paquete si el routing se mantiene estable y el refactor no toca serializers, permisos ni contratos HTTP.
 - Consecuencia: la deuda estructural repo-wide queda casi agotada y el siguiente trabajo ya entra en APIs más grandes o deuda funcional.
+
+## 2026-03-13 — cerrar la última API grande solo si sigue siendo cartografía pura
+
+- Contexto: tras el slice 53, el único bloque estructural obvio que seguía fuera de convención era `legajos/api_views*`, pero ya era una API más grande que las anteriores.
+- Decisión: el slice 54 la movió al paquete real porque seguía consumida solo por sus routers y no exigió tocar serializers, permisos ni contratos DRF.
+- Regla derivada: la última API grande de una app puede cerrarse estructuralmente si el cambio sigue siendo cartografía pura y el routing permanece estable.
+- Consecuencia: a partir de este punto, el refactor repo-wide deja de tener slices estructurales baratos y lo que queda es funcional, de contrato o de cleanup fino.

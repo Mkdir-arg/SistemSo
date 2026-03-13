@@ -132,6 +132,9 @@
 - Se completó el quincuagésimo tercer slice sobre `api_views` compartidas.
 - `core` y `conversaciones` ahora también exponen sus APIs desde paquetes reales sin tocar `api_urls.py`.
 - Lo pendiente ya quedó esencialmente en `legajos/api_views*` o en deuda funcional, no en packaging barato.
+- Se completó el quincuagésimo cuarto slice sobre `legajos`.
+- `legajos` ahora también expone sus APIs desde `legajos/api_views/`, incluyendo la API de contactos.
+- El packaging estructural repo-wide quedó prácticamente agotado; lo siguiente ya no es un refactor físico barato.
 
 ## Próxima etapa sugerida
 
