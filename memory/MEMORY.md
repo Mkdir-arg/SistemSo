@@ -84,6 +84,9 @@
 - Se completó el trigésimo séptimo slice sobre `legajos`.
 - `legajos` ahora agrupa `services` y `selectors` reales para ciudadanía, admisión, legajos, contactos y solapas, preservando wrappers legacy compatibles.
 - El siguiente paso razonable dentro de `legajos` ya no es packaging masivo: conviene seguir por subdominio sobre `views` o `signals`, empezando por la superficie con menor wiring sensible.
+- Se completó el trigésimo octavo slice sobre `legajos`.
+- `legajos` ahora también agrupa `forms` reales por dominio, con wrappers legacy compatibles.
+- El siguiente corte seguro dentro de la app pasa a ser selectivo sobre `views`, empezando por la superficie menos sensible y evitando todavía una migración masiva de signals.
 
 ## Próxima etapa sugerida
 

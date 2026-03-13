@@ -260,3 +260,10 @@
 - Decisión: el slice 37 creó paquetes reales de `services` y `selectors` para esa capa, manteniendo wrappers legacy y sin tocar todavía `views` ni `signals`.
 - Regla derivada: en apps grandes con mucho wiring implícito, conviene empaquetar primero la capa reusable ya estabilizada antes de mover la superficie operativa más sensible.
 - Consecuencia: baja la deuda estructural y mejora la navegabilidad sin introducir todavía riesgo alto en el runtime del dominio.
+
+## 2026-03-13 — en `legajos`, cerrar primero el packaging de forms antes de pasar a views o signals
+
+- Contexto: `legajos` ya había separado `forms_ciudadanos.py`, `forms_clinico.py`, `forms_operativa.py` y otros submódulos, pero seguía exponiéndolos solo como archivos planos legacy.
+- Decisión: el slice 38 creó `legajos/forms/` como paquete real y dejó wrappers mínimos en los módulos históricos de forms.
+- Regla derivada: si la capa de formularios ya está partida por dominio y no tiene side effects de runtime, conviene empaquetarla antes de seguir con superficies más riesgosas como views o signals.
+- Consecuencia: la cartografía de la app gana consistencia y se reduce otro bloque de deuda estructural sin cambiar comportamiento funcional.

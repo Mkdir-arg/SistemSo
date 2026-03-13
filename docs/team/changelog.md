@@ -14,6 +14,27 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 38: packaging de forms en `legajos`
+
+**Archivos modificados:**
+- `legajos/forms.py`
+- `legajos/forms_ciudadanos.py`
+- `legajos/forms_clinico.py`
+- `legajos/forms_contactos.py`
+- `legajos/forms_derivacion.py`
+- `legajos/forms_institucional.py`
+- `legajos/forms_operativa.py`
+- `legajos/forms/__init__.py`
+- `legajos/forms/ciudadanos.py`
+- `legajos/forms/clinico.py`
+- `legajos/forms/contactos.py`
+- `legajos/forms/derivacion.py`
+- `legajos/forms/institucional.py`
+- `legajos/forms/operativa.py`
+- `legajos/tests/test_forms_fachada.py`
+
+**Descripción:** Se convirtió la familia de formularios de `legajos` en un paquete real, reaprovechando el corte por dominio ya existente y manteniendo wrappers compatibles para imports históricos. El cambio no modifica formularios visibles ni flujos, pero completa el packaging de la capa de forms de la app más grande del proyecto.
+
 ## 2026-03-13 — Refactor DX Slice 37: packaging de services y selectors en `legajos`
 
 **Archivos modificados:**
