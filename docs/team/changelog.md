@@ -417,3 +417,16 @@
 - `portal/tests/test_ciudadano_auth.py`
 
 **Descripción:** Se extrajo la autenticación y el registro ciudadano hacia un módulo dedicado y un service de orquestación. El login conserva el throttling por IP, mientras que el alta por pasos deja de mezclar consulta RENAPER, sesión y creación de usuario/ciudadano dentro de `portal/views_ciudadano.py`. También se agregaron tests de flujo para legajo existente, cuenta ya registrada y alta nueva.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 21: `portal` perfil, programas y mis datos
+
+**Archivos modificados:**
+- `portal/views_ciudadano.py`
+- `portal/selectors_ciudadano_perfil.py`
+- `portal/services_ciudadano_perfil.py`
+- `portal/views_ciudadano_perfil.py`
+- `portal/tests/test_ciudadano_perfil.py`
+
+**Descripción:** Se extrajo el resto del perfil ciudadano fuera de `portal/views_ciudadano.py`. El dashboard, programas, mis datos y cambio de email/password ahora viven en un módulo dedicado con selectors y services propios. También se encapsuló la solicitud/confirmación de cambio de email y se agregaron tests de ownership e integridad del cambio de email.

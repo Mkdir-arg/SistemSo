@@ -32,6 +32,7 @@ _Se define en el sprint planning._
 | DX-018 | Como equipo de desarrollo quiero extraer consultas ciudadanas de `portal/views_ciudadano.py` a capas más claras para bajar acoplamiento y mejorar testabilidad | ✅ Completado | Slice 18 ejecutado el 2026-03-13 con forms, selectors y services dedicados |
 | DX-019 | Como equipo de desarrollo quiero extraer turnos ciudadanos de `portal/views_ciudadano.py` a capas claras para aislar reservas, disponibilidad y validación | ✅ Completado | Slice 19 ejecutado el 2026-03-13 con forms, selectors, services y tests del flujo ciudadano de turnos |
 | DX-020 | Como equipo de desarrollo quiero extraer auth y registro ciudadano de `portal/views_ciudadano.py` para separar sesión, throttling y alta por pasos | ✅ Completado | Slice 20 ejecutado el 2026-03-13 con service de auth/registro y tests de flujo |
+| DX-021 | Como equipo de desarrollo quiero extraer perfil, programas y mis datos de `portal/views_ciudadano.py` para dejar el módulo como fachada compatible | ✅ Completado | Slice 21 ejecutado el 2026-03-13 con selectors/services de perfil y tests de ownership/cambio de email |
 
 ## Impedimentos
 

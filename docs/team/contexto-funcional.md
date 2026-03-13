@@ -170,6 +170,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el vigésimo slice del refactor DX sobre `portal`, enfocado en autenticación y registro ciudadano
 - El login y el alta por pasos ya no viven dentro de `portal/views_ciudadano.py`; ahora usan un módulo de vistas propio y un service de auth/registro
 - El comportamiento visible no cambió, pero quedó aislada la lógica de throttling por IP, sesión de registro y creación/vinculación de cuentas ciudadanas
+- Se ejecutó el vigésimo primer slice del refactor DX sobre `portal`, enfocado en perfil, programas y mis datos
+- El resto del perfil ciudadano salió de `portal/views_ciudadano.py` y ahora vive en `views_ciudadano_perfil.py`, con selectors y services propios
+- El comportamiento visible no cambió, pero el archivo histórico del portal ciudadano quedó reducido a una fachada de compatibilidad
 
 ---
 

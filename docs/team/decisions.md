@@ -141,3 +141,10 @@
 - Decisión: el slice 20 movió login/logout, registro por pasos y password reset a `views_ciudadano_auth.py` y concentró la orquestación del alta en `services_ciudadano_auth.py`.
 - Regla derivada: cuando un módulo ciudadano mezcla subdominios funcionales y auth, conviene extraer primero la autenticación/alta si concentra estado de sesión, efectos de seguridad o creación de cuentas.
 - Consecuencia: el archivo principal del portal ciudadano baja fuerte de tamaño y queda mejor preparado para extraer luego perfil/datos sin mezclar preocupaciones.
+
+## 2026-03-13 — cerrar `portal/views_ciudadano.py` como fachada antes de salir del módulo
+
+- Contexto: tras slices 18, 19 y 20, el archivo residual del portal ciudadano todavía concentraba perfil, programas, mis datos y cambio de email/password.
+- Decisión: el slice 21 movió ese resto a `views_ciudadano_perfil.py`, apoyado en `selectors_ciudadano_perfil.py` y `services_ciudadano_perfil.py`.
+- Regla derivada: si un archivo histórico ya fue partido en varios submódulos, conviene terminar el trabajo y dejarlo como fachada pura antes de saltar a otro hotspot.
+- Consecuencia: `portal/views_ciudadano.py` deja de ser un monolito y el dominio ciudadano del portal queda físicamente separado por subdominios claros.
