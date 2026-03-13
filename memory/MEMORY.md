@@ -52,8 +52,10 @@
 - Perfil, programas y mis datos ahora viven en `views_ciudadano_perfil.py`, `selectors_ciudadano_perfil.py` y `services_ciudadano_perfil.py`.
 - Se completó el vigésimo segundo slice sobre `ÑACHEC`.
 - Prestaciones, cierre/reapertura y dashboard ya viven en módulos propios y `views_nachec.py` quedó parcialmente como fachada compatible.
+- Se completó el vigésimo tercer slice sobre `ÑACHEC`.
+- Evaluación profesional y activación de plan ahora viven en `views_nachec_decisiones.py`.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser continuar partiendo `legajos/views_nachec.py`, empezando por evaluación/plan o asignación/relevamiento.
+- El siguiente hotspot real pasó a ser el bloque territorial restante de `ÑACHEC`: validación, asignación, relevamiento y evidencias.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

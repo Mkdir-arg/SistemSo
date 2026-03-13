@@ -155,3 +155,10 @@
 - Decisión: el slice 22 atacó primero prestaciones, cierre/reapertura y dashboard, porque son bloques grandes, bien delimitados y con contrato de URLs estable.
 - Regla derivada: en monolitos de alto riesgo, empezar por separar físicamente los bloques más aislables antes de mover validaciones y transiciones de estado más delicadas.
 - Consecuencia: el archivo principal de `ÑACHEC` baja fuerte de tamaño y queda mejor preparado para continuar con evaluación, relevamiento y asignación.
+
+## 2026-03-13 — en `ÑACHEC` separar evaluación/plan antes de asignación/relevamiento
+
+- Contexto: tras el slice 22, el hotspot restante seguía mezclando dos zonas distintas de riesgo: decisiones profesionales y operación territorial.
+- Decisión: el slice 23 aisló primero evaluación, ampliación/rechazo y activación de plan en `views_nachec_decisiones.py`.
+- Regla derivada: dentro de workflows largos, conviene separar antes las decisiones de escritorio y recién después las transiciones territoriales que dependen más de permisos, SLA y evidencias.
+- Consecuencia: `views_nachec.py` queda por debajo de 1000 líneas y el bloque más sensible restante queda mejor delimitado para el próximo corte.

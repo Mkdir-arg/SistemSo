@@ -443,3 +443,14 @@
 - `legajos/tests/test_nachec_fachada.py`
 
 **Descripción:** Se extrajeron del monolito `legajos/views_nachec.py` los bloques de prestaciones, cierre/reapertura y dashboard hacia módulos dedicados, manteniendo `urls_nachec.py` intacto y usando `views_nachec.py` como fachada compatible. El objetivo del corte fue bajar drásticamente el tamaño del hotspot antes de entrar en flujos más sensibles de validación, evaluación y relevamiento.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 23: `ÑACHEC` evaluación y activación de plan
+
+**Archivos modificados:**
+- `legajos/views_nachec.py`
+- `legajos/views_nachec_decisiones.py`
+- `legajos/tests/test_nachec_fachada.py`
+
+**Descripción:** Se extrajo de `legajos/views_nachec.py` el bloque de evaluación profesional, solicitudes de ampliación/rechazo, activación de plan y transiciones cortas posteriores. El archivo principal del módulo queda aún más cerca de una fachada, mientras que el smoke test se amplía para fijar esos exports.

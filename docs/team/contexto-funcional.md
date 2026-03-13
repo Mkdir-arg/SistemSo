@@ -176,6 +176,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el vigésimo segundo slice del refactor DX sobre `ÑACHEC`, enfocado en prestaciones, cierre/reapertura y dashboard
 - `legajos/views_nachec.py` dejó de concentrar esos bloques y ahora funciona parcialmente como fachada compatible
 - El comportamiento visible no cambió, pero el hotspot principal del módulo bajó de tamaño antes de entrar en validación, relevamiento y evaluación
+- Se ejecutó el vigésimo tercer slice del refactor DX sobre `ÑACHEC`, enfocado en evaluación y activación de plan
+- La evaluación profesional, la ampliación/rechazo y la activación del plan ahora viven en `views_nachec_decisiones.py`
+- El comportamiento visible no cambió, pero `legajos/views_nachec.py` quedó por debajo de las 1000 líneas antes de atacar asignación y relevamiento
 
 ---
 
