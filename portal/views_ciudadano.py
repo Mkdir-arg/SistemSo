@@ -1,30 +1,22 @@
 from django.contrib import messages
-from django.contrib.auth import login, logout
-from django.contrib.auth.models import Group, User
-from django.contrib.auth.views import (
-    PasswordResetCompleteView,
-    PasswordResetConfirmView,
-    PasswordResetDoneView,
-    PasswordResetView,
-)
-from django.core.cache import cache
-from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
-from django.views import View
 
 from core.decorators import ciudadano_required
-from legajos.models import Ciudadano
 from legajos.models_programas import InscripcionPrograma, DerivacionPrograma
-from legajos.services.consulta_renaper import consultar_datos_renaper
 from .forms import (
-    CiudadanoLoginForm,
     CiudadanoCambioEmailForm,
     CiudadanoCambioPasswordForm,
     CiudadanoEditarDatosForm,
-    CiudadanoPasswordResetForm,
-    RegistroStep1Form,
-    RegistroStep2Form,
+)
+from .views_ciudadano_auth import (
+    CiudadanoLoginView,
+    CiudadanoLogoutView,
+    CiudadanoPasswordResetCompleteView,
+    CiudadanoPasswordResetConfirmView,
+    CiudadanoPasswordResetDoneView,
+    CiudadanoPasswordResetView,
+    RegistroStep1View,
+    RegistroStep2View,
 )
 from .views_ciudadano_consultas import (
     ciudadano_consulta_detalle,
@@ -41,185 +33,6 @@ from .views_ciudadano_turnos import (
     ciudadano_turno_confirmado,
     ciudadano_turno_slots,
 )
-
-LOGIN_MAX_INTENTOS = 5
-LOGIN_BLOQUEO_SEGUNDOS = 300  # 5 minutos
-
-
-def _cache_key_login(ip):
-    return f'login_intentos_{ip}'
-
-
-def _get_client_ip(request):
-    x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded:
-        return x_forwarded.split(',')[0].strip()
-    return request.META.get('REMOTE_ADDR', '')
-
-
-class CiudadanoLoginView(View):
-    template_name = 'portal/ciudadano/login.html'
-
-    def get(self, request):
-        if request.user.is_authenticated and request.user.groups.filter(name='Ciudadanos').exists():
-            return redirect('portal:ciudadano_mi_perfil')
-        form = CiudadanoLoginForm()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        ip = _get_client_ip(request)
-        cache_key = _cache_key_login(ip)
-        intentos = cache.get(cache_key, 0)
-
-        if intentos >= LOGIN_MAX_INTENTOS:
-            messages.error(request, 'Demasiados intentos fallidos. Intentá de nuevo en 5 minutos.')
-            return render(request, self.template_name, {'form': CiudadanoLoginForm(), 'bloqueado': True})
-
-        form = CiudadanoLoginForm(request, data=request.POST)
-        if form.is_valid():
-            cache.delete(cache_key)
-            login(request, form.get_user())
-            return redirect('portal:ciudadano_mi_perfil')
-
-        # Incrementar contador de intentos fallidos
-        cache.set(cache_key, intentos + 1, LOGIN_BLOQUEO_SEGUNDOS)
-        return render(request, self.template_name, {'form': form})
-
-
-class CiudadanoLogoutView(View):
-    def post(self, request):
-        logout(request)
-        return redirect('portal:ciudadano_login')
-
-
-class RegistroStep1View(View):
-    template_name = 'portal/ciudadano/registro_step1.html'
-
-    def get(self, request):
-        form = RegistroStep1Form()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        form = RegistroStep1Form(request.POST)
-        if not form.is_valid():
-            return render(request, self.template_name, {'form': form})
-
-        dni = form.cleaned_data['dni']
-        genero = form.cleaned_data['genero']
-
-        # Verificar si el DNI ya tiene usuario registrado
-        try:
-            ciudadano = Ciudadano.objects.get(dni=dni)
-            if ciudadano.usuario_id:
-                # Flujo 3: ya tiene cuenta
-                messages.info(request, 'Ya tenés una cuenta registrada. Iniciá sesión con tu DNI y contraseña.')
-                return redirect('portal:ciudadano_login')
-            else:
-                # Flujo 2: tiene legajo pero sin usuario
-                # No se guarda nombre/apellido para evitar exposición de datos del legajo
-                request.session['registro_ciudadano'] = {
-                    'flujo': 'legajo_existente',
-                    'ciudadano_id': ciudadano.pk,
-                    'dni': dni,
-                }
-                return redirect('portal:ciudadano_registro_step2')
-        except Ciudadano.DoesNotExist:
-            pass
-
-        # Flujo 1: ciudadano nuevo — consultar RENAPER
-        try:
-            resultado = consultar_datos_renaper(dni, genero)
-            if not resultado.get('success'):
-                form.add_error('dni', 'No pudimos verificar tu identidad. Verificá los datos ingresados.')
-                return render(request, self.template_name, {'form': form})
-            datos_renaper = resultado['data']
-        except Exception:
-            form.add_error(None, 'El servicio de verificación no está disponible. Intentá más tarde.')
-            return render(request, self.template_name, {'form': form})
-
-        request.session['registro_ciudadano'] = {
-            'flujo': 'nuevo',
-            'dni': dni,
-            'genero': genero,
-            'nombre': datos_renaper.get('nombre', ''),
-            'apellido': datos_renaper.get('apellido', ''),
-        }
-        return redirect('portal:ciudadano_registro_step2')
-
-
-class RegistroStep2View(View):
-    template_name = 'portal/ciudadano/registro_step2.html'
-
-    def get(self, request):
-        datos = request.session.get('registro_ciudadano')
-        if not datos:
-            return redirect('portal:ciudadano_registro_step1')
-        form = RegistroStep2Form()
-        return render(request, self.template_name, {'form': form, 'datos': datos})
-
-    def post(self, request):
-        datos = request.session.get('registro_ciudadano')
-        if not datos:
-            return redirect('portal:ciudadano_registro_step1')
-
-        form = RegistroStep2Form(request.POST)
-        if not form.is_valid():
-            return render(request, self.template_name, {'form': form, 'datos': datos})
-
-        dni = datos['dni']
-        email = form.cleaned_data['email']
-        telefono = form.cleaned_data['telefono']
-        password = form.cleaned_data['password1']
-
-        # Verificar que el DNI no tenga ya un User (doble check por race condition)
-        if User.objects.filter(username=dni).exists():
-            messages.error(request, 'Ya existe una cuenta con ese DNI.')
-            return redirect('portal:ciudadano_login')
-
-        # Crear el User
-        user = User.objects.create_user(username=dni, email=email, password=password)
-        grupo = Group.objects.get(name='Ciudadanos')
-        user.groups.add(grupo)
-
-        flujo = datos.get('flujo')
-        if flujo == 'legajo_existente':
-            ciudadano = get_object_or_404(Ciudadano, pk=datos['ciudadano_id'])
-
-            # Re-verificar race condition: otro proceso pudo haber asignado usuario entre Step1 y Step2
-            if ciudadano.usuario_id:
-                user.delete()
-                messages.error(request, 'Este legajo ya tiene una cuenta asociada. Iniciá sesión.')
-                del request.session['registro_ciudadano']
-                return redirect('portal:ciudadano_login')
-
-            ciudadano.usuario = user
-            if email:
-                ciudadano.email = email
-            if telefono:
-                ciudadano.telefono = telefono
-            ciudadano.save()
-        else:
-            # Flujo nuevo: crear el Ciudadano
-            ciudadano = Ciudadano.objects.create(
-                dni=dni,
-                nombre=datos.get('nombre', ''),
-                apellido=datos.get('apellido', ''),
-                email=email,
-                telefono=telefono or '',
-                genero=datos.get('genero', 'X'),
-                usuario=user,
-            )
-
-        user.first_name = ciudadano.nombre
-        user.last_name = ciudadano.apellido
-        user.save()
-
-        # Limpiar sesión de registro
-        del request.session['registro_ciudadano']
-
-        login(request, user)
-        messages.success(request, f'¡Bienvenido/a, {ciudadano.nombre}! Tu cuenta fue creada correctamente.')
-        return redirect('portal:ciudadano_mi_perfil')
 
 
 @ciudadano_required
@@ -334,27 +147,6 @@ def ciudadano_programa_detalle(request, pk):
         'derivaciones': derivaciones,
     }
     return render(request, 'portal/ciudadano/programa_detalle.html', context)
-
-
-class CiudadanoPasswordResetView(PasswordResetView):
-    form_class = CiudadanoPasswordResetForm
-    template_name = 'portal/ciudadano/password_reset.html'
-    email_template_name = 'portal/ciudadano/email/password_reset_body.html'
-    subject_template_name = 'portal/ciudadano/email/password_reset_subject.txt'
-    success_url = reverse_lazy('portal:ciudadano_password_reset_done')
-
-
-class CiudadanoPasswordResetDoneView(PasswordResetDoneView):
-    template_name = 'portal/ciudadano/password_reset_done.html'
-
-
-class CiudadanoPasswordResetConfirmView(PasswordResetConfirmView):
-    template_name = 'portal/ciudadano/password_reset_confirm.html'
-    success_url = reverse_lazy('portal:ciudadano_password_reset_complete')
-
-
-class CiudadanoPasswordResetCompleteView(PasswordResetCompleteView):
-    template_name = 'portal/ciudadano/password_reset_complete.html'
 
 
 @ciudadano_required

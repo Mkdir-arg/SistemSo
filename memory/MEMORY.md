@@ -46,8 +46,10 @@
 - Las consultas ciudadanas ahora viven en `views_ciudadano_consultas.py`, `selectors_ciudadano.py` y `services_consultas.py`, con forms explícitos para nueva consulta y envío de mensaje.
 - Se completó el decimonoveno slice sobre `portal`.
 - Los turnos ciudadanos ahora viven en `views_ciudadano_turnos.py`, `selectors_turnos_ciudadano.py` y `services_turnos_ciudadano.py`, con form explícito para confirmar el turno.
+- Se completó el vigésimo slice sobre `portal`.
+- La autenticación y el registro ciudadano ahora viven en `views_ciudadano_auth.py` y `services_ciudadano_auth.py`, con tests de flujo de alta y vinculación.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser seguir desarmando `portal/views_ciudadano.py`, ahora empezando por autenticación, registro y perfil ciudadano.
+- El siguiente hotspot real pasó a ser seguir desarmando `portal/views_ciudadano.py`, ahora empezando por perfil, programas y mis datos.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

@@ -134,3 +134,10 @@
 - Decisión: el slice 19 extrajo turnos a un módulo propio y usó un form explícito para la confirmación, manteniendo el flujo multi-paso pero validando `fecha`, `hora_inicio`, `hora_fin` y `motivo` con Django Forms.
 - Regla derivada: en flujos multi-paso del portal ciudadano, los pasos intermedios pueden hidratarse desde GET, pero el paso que confirma o persiste datos debe cerrarse con un form explícito y un service transaccional.
 - Consecuencia: baja el acoplamiento del portal, se elimina parsing manual repetido y la reserva/cancelación de turnos queda reusable y testeable.
+
+## 2026-03-13 — separar `auth/registro` antes de tocar perfil ciudadano
+
+- Contexto: después de extraer consultas y turnos, `portal/views_ciudadano.py` seguía mezclando autenticación, throttling por IP, sesión de registro y creación/vinculación de cuentas.
+- Decisión: el slice 20 movió login/logout, registro por pasos y password reset a `views_ciudadano_auth.py` y concentró la orquestación del alta en `services_ciudadano_auth.py`.
+- Regla derivada: cuando un módulo ciudadano mezcla subdominios funcionales y auth, conviene extraer primero la autenticación/alta si concentra estado de sesión, efectos de seguridad o creación de cuentas.
+- Consecuencia: el archivo principal del portal ciudadano baja fuerte de tamaño y queda mejor preparado para extraer luego perfil/datos sin mezclar preocupaciones.

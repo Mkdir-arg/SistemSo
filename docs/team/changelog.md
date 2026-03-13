@@ -405,3 +405,15 @@
 - `portal/tests/test_ciudadano_turnos.py`
 
 **Descripción:** Se extrajo el subdominio de turnos del portal ciudadano desde `portal/views_ciudadano.py` hacia selectors, services y vistas dedicadas. La confirmación del turno deja de procesar `POST` raw y pasa a un form explícito con validación de fecha y normalización del motivo. También se encapsuló la reserva/cancelación en services reutilizables y se agregaron tests del flujo ciudadano de turnos.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 20: `portal` auth y registro ciudadano
+
+**Archivos modificados:**
+- `portal/views_ciudadano.py`
+- `portal/views_ciudadano_auth.py`
+- `portal/services_ciudadano_auth.py`
+- `portal/tests/test_ciudadano_auth.py`
+
+**Descripción:** Se extrajo la autenticación y el registro ciudadano hacia un módulo dedicado y un service de orquestación. El login conserva el throttling por IP, mientras que el alta por pasos deja de mezclar consulta RENAPER, sesión y creación de usuario/ciudadano dentro de `portal/views_ciudadano.py`. También se agregaron tests de flujo para legajo existente, cuenta ya registrada y alta nueva.
