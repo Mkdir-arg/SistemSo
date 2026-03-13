@@ -38,6 +38,10 @@ from .dashboard_contactos import (  # noqa: F401
 from .dashboard_simple import dashboard_contactos_simple as dashboard_contactos_simple_debug  # noqa: F401
 from .dashboard_simple import test_api  # noqa: F401
 from .derivacion import derivar_programa_view  # noqa: F401
+from .derivacion_programa import (  # noqa: F401
+    aceptar_derivacion_programa,
+    rechazar_derivacion_programa,
+)
 from .historial_contactos import (  # noqa: F401
     contactos_api,
     crear_contacto,
