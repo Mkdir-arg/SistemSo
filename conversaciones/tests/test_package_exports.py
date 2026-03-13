@@ -10,11 +10,15 @@ class ConversacionesPackageExportsTests(SimpleTestCase):
         self.assertTrue(callable(detalle_conversacion))
 
     def test_forms_services_selectors_and_signals_export_public_symbols(self):
+        from conversaciones.api_views import alertas_conversaciones_count
+        from conversaciones.api_views.extra import conversacion_detalle
         from conversaciones.forms import IniciarConversacionForm, MensajeConversacionForm
         from conversaciones.selectors import get_alertas_conversaciones_count
         from conversaciones.services import AsignadorAutomatico, iniciar_conversacion_publica
         from conversaciones.signals import invalidate_conversacion_cache
 
+        self.assertTrue(callable(alertas_conversaciones_count))
+        self.assertTrue(callable(conversacion_detalle))
         self.assertIsNotNone(IniciarConversacionForm)
         self.assertIsNotNone(MensajeConversacionForm)
         self.assertIsNotNone(AsignadorAutomatico)

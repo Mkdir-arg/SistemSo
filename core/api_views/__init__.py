@@ -4,10 +4,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from .models import (
+from ..models import (
     Provincia, Municipio, Localidad, Institucion, DocumentoRequerido, Sexo, Mes, Dia, Turno
 )
-from .serializers import (
+from ..serializers import (
     ProvinciaSerializer, MunicipioSerializer, LocalidadSerializer,
     InstitucionSerializer, DocumentoRequeridoSerializer, SexoSerializer, MesSerializer, 
     DiaSerializer, TurnoSerializer
