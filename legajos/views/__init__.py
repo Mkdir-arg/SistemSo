@@ -85,6 +85,27 @@ from .institucional import (  # noqa: F401
     programa_derivaciones,
     rechazar_derivacion_view,
 )
+from .nachec_cierre import cerrar_caso_nachec, reabrir_caso_nachec  # noqa: F401
+from .nachec_dashboard import dashboard_nachec  # noqa: F401
+from .nachec_decisiones import activar_plan, cerrar_caso, evaluar_caso, pasar_a_seguimiento  # noqa: F401
+from .nachec_operacion import (  # noqa: F401
+    adjuntar_evidencias,
+    asignar_territorial,
+    completar_tarea,
+    completar_validacion,
+    enviar_a_asignacion,
+    finalizar_relevamiento,
+    formulario_relevamiento,
+    iniciar_relevamiento,
+    reasignar_territorial,
+    ver_tarea_validacion,
+)
+from .nachec_prestaciones import (  # noqa: F401
+    cancelar_prestacion,
+    confirmar_entrega_prestacion,
+    iniciar_prestacion,
+    reprogramar_prestacion,
+)
 from .operativa import (  # noqa: F401
     ActividadesInscritoListView,
     InscribirActividadView,
