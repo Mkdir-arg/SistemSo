@@ -454,3 +454,14 @@
 - `legajos/tests/test_nachec_fachada.py`
 
 **Descripción:** Se extrajo de `legajos/views_nachec.py` el bloque de evaluación profesional, solicitudes de ampliación/rechazo, activación de plan y transiciones cortas posteriores. El archivo principal del módulo queda aún más cerca de una fachada, mientras que el smoke test se amplía para fijar esos exports.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 24: `ÑACHEC` operación territorial
+
+**Archivos modificados:**
+- `legajos/views_nachec.py`
+- `legajos/views_nachec_operacion.py`
+- `legajos/tests/test_nachec_fachada.py`
+
+**Descripción:** Se extrajo el bloque operativo restante de `ÑACHEC` hacia `views_nachec_operacion.py`, incluyendo validación, asignación, reasignación, relevamiento y evidencias. `legajos/views_nachec.py` quedó finalmente como una fachada pura de compatibilidad, y el smoke test ahora cubre también esos exports.

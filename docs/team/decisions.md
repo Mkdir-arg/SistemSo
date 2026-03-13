@@ -162,3 +162,10 @@
 - Decisión: el slice 23 aisló primero evaluación, ampliación/rechazo y activación de plan en `views_nachec_decisiones.py`.
 - Regla derivada: dentro de workflows largos, conviene separar antes las decisiones de escritorio y recién después las transiciones territoriales que dependen más de permisos, SLA y evidencias.
 - Consecuencia: `views_nachec.py` queda por debajo de 1000 líneas y el bloque más sensible restante queda mejor delimitado para el próximo corte.
+
+## 2026-03-13 — cerrar `ÑACHEC` con una fachada pura cuando la modularización física ya terminó
+
+- Contexto: después de separar prestaciones, cierre, dashboard, evaluación y plan, `views_nachec.py` todavía retenía el bloque operativo restante y seguía siendo el punto de implementación real del módulo.
+- Decisión: el slice 24 movió validación, asignación, reasignación, relevamiento y evidencias a `views_nachec_operacion.py`, dejando `views_nachec.py` como una fachada pura de compatibilidad.
+- Regla derivada: cuando un hotspot histórico ya fue fragmentado por subdominios estables, el archivo original debe terminar como fachada mínima antes de pasar al siguiente hotspot.
+- Consecuencia: baja el costo de navegación, se explicita la nueva cartografía del módulo y se preserva compatibilidad con imports y URLs existentes.
