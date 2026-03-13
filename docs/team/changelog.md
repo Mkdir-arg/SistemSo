@@ -901,3 +901,28 @@
 - `core/tests/test_package_exports.py`
 
 **Descripción:** Se agrupó `core` en paquetes reales para `views`, `forms` y `selectors` del flujo principal, dejando fuera la auditoría pesada y la capa de signals. El objetivo fue alinear la cartografía base del proyecto sin tocar todavía los módulos de mayor riesgo operativo.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 48: packaging restante de `services` en `legajos`
+
+**Archivos modificados:**
+- `legajos/services/__init__.py`
+- `legajos/services/alertas.py`
+- `legajos/services/filtros_usuario.py`
+- `legajos/services/institucional.py`
+- `legajos/services/nachec.py`
+- `legajos/services_alertas.py`
+- `legajos/services_filtros_usuario.py`
+- `legajos/services_institucional.py`
+- `legajos/services_nachec.py`
+- `legajos/api_views.py`
+- `legajos/signals_alertas.py`
+- `legajos/views/alertas.py`
+- `legajos/views/contactos_api.py`
+- `legajos/views/institucional.py`
+- `conversaciones/consumers.py`
+- `conversaciones/signals/alerts.py`
+- `legajos/tests/test_package_exports.py`
+
+**Descripción:** Se terminó de agrupar en `legajos/services/` la familia de servicios que todavía seguía en módulos planos (`alertas`, `filtros_usuario`, `institucional`, `nachec`), manteniendo wrappers legacy compatibles. También se migraron consumidores internos al paquete nuevo y se amplió el smoke test de exports para fijar la API pública del paquete.

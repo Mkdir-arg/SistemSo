@@ -59,6 +59,7 @@ _Se define en el sprint planning._
 | DX-045 | Como equipo de desarrollo quiero mover `views_institucional.py` al paquete nuevo sin cambiar su dominio interno todavía | ✅ Completado | Slice 45 ejecutado el 2026-03-13 con wrapper compatible y smoke test de exports |
 | DX-046 | Como equipo de desarrollo quiero mover `views_clinico.py` al paquete nuevo manteniendo intacto su comportamiento actual | ✅ Completado | Slice 46 ejecutado el 2026-03-13 con wrapper compatible y smoke test de exports |
 | DX-047 | Como equipo de desarrollo quiero cerrar el packaging de `ÑACHEC` moviendo su familia `views_nachec_*` al paquete nuevo sin tocar sus transiciones internas | ✅ Completado | Slice 47 ejecutado el 2026-03-13 con wrappers compatibles y smoke test de exports |
+| DX-048 | Como equipo de desarrollo quiero cerrar el packaging restante de `services` en `legajos` antes de evaluar el wiring sensible de `signals` | ✅ Completado | Slice 48 ejecutado el 2026-03-13 con wrappers compatibles y migración de consumidores internos |
 
 ## Impedimentos
 

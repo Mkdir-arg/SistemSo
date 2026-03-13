@@ -330,3 +330,10 @@
 - Decisión: el slice 47 movió toda esa familia al paquete `legajos/views/` en un solo corte puramente estructural.
 - Regla derivada: cuando un subdominio ya está partido por archivos y el cambio no reabre lógica, conviene cerrarlo de una sola vez para evitar arrastrar wrappers mixtos por muchas etapas.
 - Consecuencia: se completa antes la cartografía nueva y se reduce la deuda residual de packaging.
+
+## 2026-03-13 — cerrar primero el packaging de `services` antes de entrar en `signals`
+
+- Contexto: tras el slice 47, `legajos` ya tenía `views`, `forms` y parte de `services` empaquetados, pero seguían existiendo servicios planos residuales (`alertas`, `filtros_usuario`, `institucional`, `nachec`) consumidos desde views, consumers y señales.
+- Decisión: el slice 48 movió esas familias a `legajos/services/` y dejó wrappers legacy, de modo que la futura migración de señales dependa de una API de paquete estable.
+- Regla derivada: cuando queda pendiente empaquetar tanto servicios como señales en una app grande, conviene cerrar primero toda la capa service antes de tocar el wiring de side effects.
+- Consecuencia: el siguiente corte sobre `signals` queda más contenido y con menos imports cruzados a módulos legacy.

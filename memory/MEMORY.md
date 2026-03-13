@@ -114,6 +114,9 @@
 - Se completó el cuadragésimo séptimo slice sobre `legajos`.
 - La familia `views_nachec_*` ahora vive dentro de `legajos/views/`, con wrappers legacy compatibles.
 - El packaging estructural de `legajos` quedó prácticamente completo; lo siguiente ya no es cartografía sino deuda funcional y de wiring más fina.
+- Se completó el cuadragésimo octavo slice sobre `legajos`.
+- La familia restante de servicios ahora vive dentro de `legajos/services/`, con wrappers legacy compatibles y consumidores internos alineados al paquete nuevo.
+- El siguiente frente estructural natural pasó a ser `signals`, ya con una API de servicios más estable debajo.
 
 ## Próxima etapa sugerida
 
