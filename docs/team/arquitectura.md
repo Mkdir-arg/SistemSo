@@ -224,7 +224,7 @@ SistemSo/
 | DT-009 | `legajos/views.py` ya quedó como fachada pura, pero la app `legajos` sigue mezclando dominios ciudadanos, clínicos, institucionales y de contactos en una misma app | Media | Actualizada 2026-03-13 |
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 | DT-011 | `conversaciones` ya no concentra toda la lógica en `views.py`, pero mantiene endpoints legacy con `@csrf_exempt` y mezcla polling HTTP con notificaciones realtime parciales | Media | Actualizada 2026-03-13 |
-| DT-012 | La migración a paquetes reales (`views/`, `services/`, `selectors/`, `signals/`) ya alcanzó `turnos`, `users`, `chatbot`, `configuracion` y `portal`, pero todavía está incompleta en `conversaciones`, `legajos` y `core` | Media | Actualizada 2026-03-13 |
+| DT-012 | La migración a paquetes reales (`views/`, `services/`, `selectors/`, `signals/`) ya alcanzó `turnos`, `users`, `chatbot`, `configuracion`, `portal` y `conversaciones`, pero todavía está incompleta en `legajos` y `core` | Media | Actualizada 2026-03-13 |
 
 ---
 
@@ -332,3 +332,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: los services que publican configuración de tablas o acciones para el frontend deben emitir `url_name` y `reverse()` ya namespaced, no depender de aliases legacy.
 - 2026-03-13: la migración de módulos planos a paquetes reales debe hacerse app por app, dejando wrappers compatibles en los entrypoints legacy hasta que exista cobertura suficiente para retirar esos aliases.
 - 2026-03-13: al mover una app a paquetes reales, los módulos legacy deben seguir exportando también símbolos usados implícitamente por tests o monkeypatches, aunque no formen parte de la API funcional principal.
+- 2026-03-13: cuando una app de Django tenga múltiples familias de señales, `AppConfig.ready()` debe consolidarlas en un único método explícito antes o durante la migración de packaging; mantener varios `ready()` en la clase es una inconsistencia funcional.

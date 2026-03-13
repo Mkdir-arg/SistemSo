@@ -77,6 +77,8 @@
 - `configuracion` ahora agrupa `views`, `forms`, `services` y `selectors` en paquetes reales, reutilizando la modularización por dominio ya existente.
 - Se completó el trigésimo cuarto slice sobre `portal`.
 - `portal` ahora agrupa `views`, `forms`, `services` y `selectors` en paquetes reales y sus tests dejaron de parchear wrappers legacy.
+- Se completó el trigésimo quinto slice sobre `conversaciones`.
+- `conversaciones` ahora agrupa `views`, `forms`, `services`, `selectors` y `signals` en paquetes reales, y `apps.py` ya no tiene el bug estructural de doble `ready()`.
 
 ## Próxima etapa sugerida
 

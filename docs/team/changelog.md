@@ -683,3 +683,35 @@
 - `portal/tests/test_ciudadano_perfil.py`
 
 **Descripción:** Se agrupó `portal` en paquetes reales de views, forms, services y selectors, manteniendo wrappers de compatibilidad para los módulos legacy. También se actualizaron los tests del portal para parchear internals sobre los paths reales del paquete y no sobre wrappers históricos.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 35: packaging de `conversaciones`
+
+**Archivos modificados:**
+- `conversaciones/apps.py`
+- `conversaciones/views.py`
+- `conversaciones/views_backoffice.py`
+- `conversaciones/views_public.py`
+- `conversaciones/forms_chat.py`
+- `conversaciones/services.py`
+- `conversaciones/services_chat.py`
+- `conversaciones/selectors_conversaciones.py`
+- `conversaciones/signals.py`
+- `conversaciones/signals_alertas.py`
+- `conversaciones/views/__init__.py`
+- `conversaciones/views/backoffice.py`
+- `conversaciones/views/public.py`
+- `conversaciones/forms/__init__.py`
+- `conversaciones/forms/chat.py`
+- `conversaciones/services/__init__.py`
+- `conversaciones/services/core.py`
+- `conversaciones/services/chat.py`
+- `conversaciones/selectors/__init__.py`
+- `conversaciones/selectors/conversaciones.py`
+- `conversaciones/signals/__init__.py`
+- `conversaciones/signals/alerts.py`
+- `conversaciones/tests/test_chat_services.py`
+- `conversaciones/tests/test_package_exports.py`
+
+**Descripción:** Se agrupó `conversaciones` en paquetes reales de views, forms, services, selectors y signals. En el mismo corte se corrigió una inconsistencia estructural real en `apps.py`: la app tenía dos métodos `ready()` y solo se estaba ejecutando el último; ahora el registro de señales queda explícito y único. También se actualizaron los tests de patching al path real del paquete.

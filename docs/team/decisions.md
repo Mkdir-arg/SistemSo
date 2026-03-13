@@ -239,3 +239,10 @@
 - Decisión: el slice 34 actualizó esos tests para parchear los módulos reales bajo `portal.services.*`, en vez de seguir confiando en wrappers históricos.
 - Regla derivada: cuando una migración física convierte módulos legacy en fachadas, los tests que hacen monkeypatch de internals deben moverse al path real del paquete y no seguir fijando paths transitorios.
 - Consecuencia: se evita una falsa sensación de compatibilidad y se mantiene la testabilidad del dominio sobre su cartografía nueva.
+
+## 2026-03-13 — no migrar packaging de señales sin corregir antes `ready()`
+
+- Contexto: `conversaciones` tenía dos definiciones de `ready()` en su `AppConfig`, por lo que solo se registraba la segunda familia de señales.
+- Decisión: el slice 35 unificó el registro en un único `ready()` antes de cerrar el packaging de `signals`.
+- Regla derivada: si una app registra señales desde `AppConfig`, la migración a paquetes debe empezar verificando que `ready()` no tenga inconsistencias estructurales que oculten parte del wiring.
+- Consecuencia: se evita “preservar” accidentalmente un bug de inicialización al reordenar archivos.
