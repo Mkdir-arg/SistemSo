@@ -12,14 +12,11 @@ from django.contrib.auth.views import (
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.utils.html import escape
 from django.views import View
-from django.views.decorators.http import require_POST
 
-from conversaciones.models import Conversacion, Mensaje
 from core.decorators import ciudadano_required
 from legajos.models import Ciudadano
 from legajos.models_programas import InscripcionPrograma, DerivacionPrograma
@@ -35,6 +32,12 @@ from .forms import (
 )
 from .models import DisponibilidadTurnos, RecursoTurnos, TurnoCiudadano
 from .turnos_utils import get_slots_disponibles, get_calendario_mensual
+from .views_ciudadano_consultas import (
+    ciudadano_consulta_detalle,
+    ciudadano_enviar_mensaje,
+    ciudadano_mis_consultas,
+    ciudadano_nueva_consulta,
+)
 
 LOGIN_MAX_INTENTOS = 5
 LOGIN_BLOQUEO_SEGUNDOS = 300  # 5 minutos
@@ -328,151 +331,6 @@ def ciudadano_programa_detalle(request, pk):
         'derivaciones': derivaciones,
     }
     return render(request, 'portal/ciudadano/programa_detalle.html', context)
-
-
-@ciudadano_required
-def ciudadano_mis_consultas(request):
-    ciudadano = request.user.ciudadano_perfil
-
-    conversaciones = Conversacion.objects.filter(
-        Q(dni_ciudadano=ciudadano.dni) | Q(ciudadano_usuario=request.user)
-    ).order_by('-fecha_inicio')
-
-    context = {
-        'ciudadano': ciudadano,
-        'conversaciones': conversaciones,
-    }
-    return render(request, 'portal/ciudadano/mis_consultas.html', context)
-
-
-@ciudadano_required
-def ciudadano_consulta_detalle(request, pk):
-    ciudadano = request.user.ciudadano_perfil
-
-    conversacion = get_object_or_404(Conversacion, pk=pk)
-
-    # Anti-IDOR: verificar que la conversación pertenece al ciudadano autenticado
-    if conversacion.dni_ciudadano != ciudadano.dni and conversacion.ciudadano_usuario != request.user:
-        raise Http404
-
-    mensajes = conversacion.mensajes.order_by('fecha_envio')
-
-    context = {
-        'ciudadano': ciudadano,
-        'conversacion': conversacion,
-        'mensajes': mensajes,
-        'puede_enviar': conversacion.estado != 'cerrada',
-    }
-    return render(request, 'portal/ciudadano/consulta_detalle.html', context)
-
-
-@ciudadano_required
-def ciudadano_nueva_consulta(request):
-    ciudadano = request.user.ciudadano_perfil
-
-    if request.method == 'POST':
-        motivo = escape(request.POST.get('motivo', '').strip())
-
-        conversacion = Conversacion.objects.create(
-            tipo='personal',
-            dni_ciudadano=ciudadano.dni,
-            sexo_ciudadano=ciudadano.genero if hasattr(ciudadano, 'genero') else None,
-            ciudadano_usuario=request.user,
-            estado='activa',
-            prioridad='normal',
-        )
-
-        # Crear el primer mensaje con el motivo si fue completado
-        if motivo:
-            Mensaje.objects.create(
-                conversacion=conversacion,
-                remitente='ciudadano',
-                contenido=motivo,
-            )
-
-        # Intentar asignación automática
-        try:
-            from conversaciones.services import AsignadorAutomatico, NotificacionService
-            AsignadorAutomatico.asignar_conversacion_automatica(conversacion)
-            NotificacionService.notificar_nueva_conversacion(conversacion)
-        except Exception:
-            pass
-
-        # Notificar via WebSocket (ignorar si no está disponible)
-        try:
-            from channels.layers import get_channel_layer
-            from asgiref.sync import async_to_sync
-            channel_layer = get_channel_layer()
-            if channel_layer:
-                async_to_sync(channel_layer.group_send)(
-                    'conversaciones_list',
-                    {
-                        'type': 'nueva_conversacion',
-                        'conversacion_id': conversacion.id,
-                        'mensaje': f'Nueva conversación #{conversacion.id} creada desde portal ciudadano',
-                    }
-                )
-        except Exception:
-            pass
-
-        return redirect('portal:ciudadano_consulta_detalle', pk=conversacion.pk)
-
-    context = {
-        'ciudadano': ciudadano,
-    }
-    return render(request, 'portal/ciudadano/nueva_consulta.html', context)
-
-
-@ciudadano_required
-def ciudadano_enviar_mensaje(request, pk):
-    ciudadano = request.user.ciudadano_perfil
-
-    conversacion = get_object_or_404(Conversacion, pk=pk)
-
-    # Anti-IDOR
-    if conversacion.dni_ciudadano != ciudadano.dni and conversacion.ciudadano_usuario != request.user:
-        raise Http404
-
-    if request.method == 'POST' and conversacion.estado != 'cerrada':
-        texto = escape(request.POST.get('texto', '').strip())
-        if texto:
-            mensaje = Mensaje.objects.create(
-                conversacion=conversacion,
-                remitente='ciudadano',
-                contenido=texto,
-            )
-
-            # Notificar via WebSocket (ignorar si no está disponible)
-            try:
-                from channels.layers import get_channel_layer
-                from asgiref.sync import async_to_sync
-                channel_layer = get_channel_layer()
-                if channel_layer:
-                    async_to_sync(channel_layer.group_send)(
-                        f'conversacion_{pk}',
-                        {
-                            'type': 'chat_message',
-                            'mensaje': {
-                                'id': mensaje.id,
-                                'contenido': mensaje.contenido,
-                                'remitente': 'ciudadano',
-                                'fecha': mensaje.fecha_envio.strftime('%H:%M'),
-                                'usuario': 'Ciudadano',
-                            }
-                        }
-                    )
-                    async_to_sync(channel_layer.group_send)(
-                        'conversaciones_list',
-                        {
-                            'type': 'nuevo_mensaje',
-                            'conversacion_id': pk,
-                            'mensaje': f'Nuevo mensaje en conversación #{pk}',
-                        }
-                    )
-            except Exception:
-                pass
-
-    return redirect('portal:ciudadano_consulta_detalle', pk=pk)
 
 
 class CiudadanoPasswordResetView(PasswordResetView):

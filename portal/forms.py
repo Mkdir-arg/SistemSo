@@ -135,3 +135,26 @@ class CiudadanoPasswordResetForm(PasswordResetForm):
     def get_users(self, email):
         active_users = User.objects.filter(email__iexact=email, is_active=True)
         return (u for u in active_users if u.groups.filter(name='Ciudadanos').exists())
+
+
+class CiudadanoNuevaConsultaForm(forms.Form):
+    motivo = forms.CharField(
+        label='Motivo de la consulta',
+        min_length=10,
+        max_length=2000,
+        widget=forms.Textarea(attrs={'rows': 5}),
+    )
+
+    def clean_motivo(self):
+        return self.cleaned_data['motivo'].strip()
+
+
+class CiudadanoEnviarMensajeForm(forms.Form):
+    texto = forms.CharField(
+        label='Mensaje',
+        max_length=2000,
+        widget=forms.Textarea(attrs={'rows': 2}),
+    )
+
+    def clean_texto(self):
+        return self.cleaned_data['texto'].strip()
