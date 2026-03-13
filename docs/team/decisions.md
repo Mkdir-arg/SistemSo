@@ -323,3 +323,10 @@
 - Decisión: el slice 46 la movió al paquete `legajos/views/` sin tocar reglas clínicas ni contratos de templates/URLs.
 - Regla derivada: cuando un dominio ya tiene capas separadas, el packaging físico puede hacerse aunque el archivo siga siendo grande; no hace falta mezclarlo con otra reescritura.
 - Consecuencia: mejora la coherencia interna del módulo sin abrir una regresión funcional innecesaria.
+
+## 2026-03-13 — en familias ya separadas por archivos, cerrar el packaging en bloque
+
+- Contexto: `ÑACHEC` ya estaba dividido en `views_nachec_cierre.py`, `views_nachec_dashboard.py`, `views_nachec_decisiones.py`, `views_nachec_operacion.py` y `views_nachec_prestaciones.py`, con `views_nachec.py` como fachada.
+- Decisión: el slice 47 movió toda esa familia al paquete `legajos/views/` en un solo corte puramente estructural.
+- Regla derivada: cuando un subdominio ya está partido por archivos y el cambio no reabre lógica, conviene cerrarlo de una sola vez para evitar arrastrar wrappers mixtos por muchas etapas.
+- Consecuencia: se completa antes la cartografía nueva y se reduce la deuda residual de packaging.

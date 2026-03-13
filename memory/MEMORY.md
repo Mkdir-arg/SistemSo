@@ -111,6 +111,9 @@
 - Se completó el cuadragésimo sexto slice sobre `legajos`.
 - `views_clinico.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
 - Lo pendiente en `legajos` ya quedó esencialmente concentrado en la familia `views_nachec_*`.
+- Se completó el cuadragésimo séptimo slice sobre `legajos`.
+- La familia `views_nachec_*` ahora vive dentro de `legajos/views/`, con wrappers legacy compatibles.
+- El packaging estructural de `legajos` quedó prácticamente completo; lo siguiente ya no es cartografía sino deuda funcional y de wiring más fina.
 
 ## Próxima etapa sugerida
 

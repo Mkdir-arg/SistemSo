@@ -14,6 +14,24 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 47: packaging de la familia `views_nachec_*` en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/nachec_cierre.py`
+- `legajos/views/nachec_dashboard.py`
+- `legajos/views/nachec_decisiones.py`
+- `legajos/views/nachec_operacion.py`
+- `legajos/views/nachec_prestaciones.py`
+- `legajos/views_nachec_cierre.py`
+- `legajos/views_nachec_dashboard.py`
+- `legajos/views_nachec_decisiones.py`
+- `legajos/views_nachec_operacion.py`
+- `legajos/views_nachec_prestaciones.py`
+- `legajos/tests/test_nachec_package.py`
+
+**Descripción:** Se movió al paquete `legajos/views/` la familia completa `views_nachec_*`, manteniendo wrappers legacy y sin tocar las transiciones internas del programa. Con este corte, el packaging estructural de `legajos` quedó prácticamente completo en views, forms, services y selectors.
+
 ## 2026-03-13 — Refactor DX Slice 46: packaging de `views_clinico` en `legajos`
 
 **Archivos modificados:**
