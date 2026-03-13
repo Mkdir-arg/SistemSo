@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from legajos.models import Ciudadano
 
@@ -158,3 +159,23 @@ class CiudadanoEnviarMensajeForm(forms.Form):
 
     def clean_texto(self):
         return self.cleaned_data['texto'].strip()
+
+
+class CiudadanoConfirmarTurnoForm(forms.Form):
+    fecha = forms.DateField(widget=forms.HiddenInput())
+    hora_inicio = forms.TimeField(widget=forms.HiddenInput(), input_formats=['%H:%M'])
+    hora_fin = forms.TimeField(widget=forms.HiddenInput(), input_formats=['%H:%M'])
+    motivo = forms.CharField(
+        required=False,
+        max_length=1000,
+        widget=forms.Textarea(attrs={'rows': 3}),
+    )
+
+    def clean_fecha(self):
+        fecha = self.cleaned_data['fecha']
+        if fecha < timezone.localdate():
+            raise forms.ValidationError('No se pueden solicitar turnos para fechas pasadas.')
+        return fecha
+
+    def clean_motivo(self):
+        return self.cleaned_data.get('motivo', '').strip()

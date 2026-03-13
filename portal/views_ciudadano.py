@@ -1,5 +1,3 @@
-from datetime import date, datetime as dt
-
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import Group, User
@@ -10,9 +8,7 @@ from django.contrib.auth.views import (
     PasswordResetView,
 )
 from django.core.cache import cache
-from django.db import transaction
 from django.db.models import Q
-from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
@@ -30,13 +26,20 @@ from .forms import (
     RegistroStep1Form,
     RegistroStep2Form,
 )
-from .models import DisponibilidadTurnos, RecursoTurnos, TurnoCiudadano
-from .turnos_utils import get_slots_disponibles, get_calendario_mensual
 from .views_ciudadano_consultas import (
     ciudadano_consulta_detalle,
     ciudadano_enviar_mensaje,
     ciudadano_mis_consultas,
     ciudadano_nueva_consulta,
+)
+from .views_ciudadano_turnos import (
+    ciudadano_cancelar_turno,
+    ciudadano_confirmar_turno,
+    ciudadano_mis_turnos,
+    ciudadano_solicitar_turno,
+    ciudadano_turno_calendario,
+    ciudadano_turno_confirmado,
+    ciudadano_turno_slots,
 )
 
 LOGIN_MAX_INTENTOS = 5
@@ -473,213 +476,3 @@ def ciudadano_cambio_password(request):
 
 
 # ─── Sistema de Turnos ────────────────────────────────────────────────────────
-
-@ciudadano_required
-def ciudadano_mis_turnos(request):
-    ciudadano = request.user.ciudadano_perfil
-
-    turnos_proximos = TurnoCiudadano.objects.filter(
-        ciudadano=ciudadano,
-        fecha__gte=date.today(),
-        estado__in=[TurnoCiudadano.Estado.PENDIENTE, TurnoCiudadano.Estado.CONFIRMADO],
-    ).select_related('recurso').order_by('fecha', 'hora_inicio')
-
-    turnos_historial = TurnoCiudadano.objects.filter(
-        ciudadano=ciudadano,
-        fecha__lt=date.today(),
-    ).select_related('recurso').order_by('-fecha', '-hora_inicio')[:10]
-
-    context = {
-        'ciudadano': ciudadano,
-        'turnos_proximos': turnos_proximos,
-        'turnos_historial': turnos_historial,
-    }
-    return render(request, 'portal/ciudadano/mis_turnos.html', context)
-
-
-@ciudadano_required
-def ciudadano_solicitar_turno(request):
-    ciudadano = request.user.ciudadano_perfil
-    recursos = RecursoTurnos.objects.filter(activo=True).order_by('tipo', 'nombre')
-
-    context = {
-        'ciudadano': ciudadano,
-        'recursos': recursos,
-    }
-    return render(request, 'portal/ciudadano/solicitar_turno.html', context)
-
-
-@ciudadano_required
-def ciudadano_turno_calendario(request, recurso_id):
-    ciudadano = request.user.ciudadano_perfil
-    recurso = get_object_or_404(RecursoTurnos, pk=recurso_id, activo=True)
-
-    hoy = date.today()
-    anio = int(request.GET.get('anio', hoy.year))
-    mes = int(request.GET.get('mes', hoy.month))
-
-    calendario = get_calendario_mensual(recurso, anio, mes)
-
-    # Calcular mes anterior y siguiente para navegación
-    if mes == 1:
-        mes_anterior = {'anio': anio - 1, 'mes': 12}
-    else:
-        mes_anterior = {'anio': anio, 'mes': mes - 1}
-
-    if mes == 12:
-        mes_siguiente = {'anio': anio + 1, 'mes': 1}
-    else:
-        mes_siguiente = {'anio': anio, 'mes': mes + 1}
-
-    # Serializar calendario para Alpine.js: {fecha_iso: disponible}
-    calendario_json = {
-        fecha.isoformat(): disponible
-        for fecha, disponible in calendario.items()
-    }
-
-    # Offset del primer día (lunes=0) para la grilla del calendario
-    primer_dia_offset = date(anio, mes, 1).weekday()
-
-    context = {
-        'ciudadano': ciudadano,
-        'recurso': recurso,
-        'calendario': calendario,
-        'calendario_json': calendario_json,
-        'anio': anio,
-        'mes': mes,
-        'mes_nombre': date(anio, mes, 1).strftime('%B %Y').capitalize(),
-        'mes_anterior': mes_anterior,
-        'mes_siguiente': mes_siguiente,
-        'hoy_iso': hoy.isoformat(),
-        'primer_dia_offset': range(primer_dia_offset),
-    }
-    return render(request, 'portal/ciudadano/turno_calendario.html', context)
-
-
-@ciudadano_required
-def ciudadano_turno_slots(request, recurso_id):
-    """Retorna JSON con slots disponibles para una fecha dada."""
-    recurso = get_object_or_404(RecursoTurnos, pk=recurso_id, activo=True)
-    fecha_str = request.GET.get('fecha')
-
-    try:
-        fecha = date.fromisoformat(fecha_str)
-    except (ValueError, TypeError):
-        return JsonResponse({'error': 'Fecha inválida'}, status=400)
-
-    if fecha < date.today():
-        return JsonResponse(
-            {'error': 'No se pueden solicitar turnos para fechas pasadas'}, status=400
-        )
-
-    slots = get_slots_disponibles(recurso, fecha)
-    return JsonResponse({'slots': [
-        {
-            'hora_inicio': s['hora_inicio'].strftime('%H:%M'),
-            'hora_fin': s['hora_fin'].strftime('%H:%M'),
-            'disponible': s['disponible'],
-        }
-        for s in slots
-    ]})
-
-
-@ciudadano_required
-def ciudadano_confirmar_turno(request, recurso_id):
-    ciudadano = request.user.ciudadano_perfil
-    recurso = get_object_or_404(RecursoTurnos, pk=recurso_id, activo=True)
-
-    if request.method == 'POST':
-        fecha_str = request.POST.get('fecha')
-        hora_inicio_str = request.POST.get('hora_inicio')
-        hora_fin_str = request.POST.get('hora_fin')
-        motivo = request.POST.get('motivo', '').strip()
-
-        try:
-            fecha = date.fromisoformat(fecha_str)
-            hora_inicio = dt.strptime(hora_inicio_str, '%H:%M').time()
-            hora_fin = dt.strptime(hora_fin_str, '%H:%M').time()
-        except (ValueError, TypeError):
-            messages.error(request, 'Datos del turno inválidos. Intentá de nuevo.')
-            return redirect('portal:ciudadano_turno_calendario', recurso_id=recurso_id)
-
-        with transaction.atomic():
-            ocupados = TurnoCiudadano.objects.select_for_update().filter(
-                recurso=recurso,
-                fecha=fecha,
-                hora_inicio=hora_inicio,
-                estado__in=[TurnoCiudadano.Estado.PENDIENTE, TurnoCiudadano.Estado.CONFIRMADO],
-            ).count()
-
-            disp = DisponibilidadTurnos.objects.filter(
-                recurso=recurso,
-                dia_semana=fecha.weekday(),
-                hora_inicio__lte=hora_inicio,
-                hora_fin__gte=hora_fin,
-                activo=True,
-            ).first()
-
-            if not disp or ocupados >= disp.cupo_maximo:
-                messages.error(
-                    request,
-                    'Este turno ya no está disponible. Por favor elegí otro horario.',
-                )
-                return redirect('portal:ciudadano_turno_calendario', recurso_id=recurso_id)
-
-            estado_inicial = (
-                TurnoCiudadano.Estado.PENDIENTE
-                if recurso.requiere_aprobacion
-                else TurnoCiudadano.Estado.CONFIRMADO
-            )
-
-            turno = TurnoCiudadano.objects.create(
-                ciudadano=ciudadano,
-                recurso=recurso,
-                fecha=fecha,
-                hora_inicio=hora_inicio,
-                hora_fin=hora_fin,
-                estado=estado_inicial,
-                motivo_consulta=motivo,
-            )
-
-        return redirect('portal:ciudadano_turno_confirmado', pk=turno.pk)
-
-    # GET: mostrar formulario de confirmación con datos del slot elegido
-    context = {
-        'ciudadano': ciudadano,
-        'recurso': recurso,
-        'fecha': request.GET.get('fecha'),
-        'hora_inicio': request.GET.get('hora_inicio'),
-        'hora_fin': request.GET.get('hora_fin'),
-    }
-    return render(request, 'portal/ciudadano/turno_confirmar.html', context)
-
-
-@ciudadano_required
-def ciudadano_turno_confirmado(request, pk):
-    ciudadano = request.user.ciudadano_perfil
-    turno = get_object_or_404(TurnoCiudadano, pk=pk, ciudadano=ciudadano)
-    return render(request, 'portal/ciudadano/turno_confirmado.html', {
-        'ciudadano': ciudadano,
-        'turno': turno,
-    })
-
-
-@ciudadano_required
-def ciudadano_cancelar_turno(request, pk):
-    ciudadano = request.user.ciudadano_perfil
-    turno = get_object_or_404(TurnoCiudadano, pk=pk, ciudadano=ciudadano)
-
-    if request.method == 'POST':
-        if turno.estado in [TurnoCiudadano.Estado.PENDIENTE, TurnoCiudadano.Estado.CONFIRMADO]:
-            turno.estado = TurnoCiudadano.Estado.CANCELADO_CIUDADANO
-            turno.save()
-            messages.success(
-                request,
-                f'Tu turno del {turno.fecha.strftime("%d/%m/%Y")} fue cancelado.',
-            )
-        return redirect('portal:ciudadano_mis_turnos')
-
-    return render(request, 'portal/ciudadano/turno_cancelar.html', {
-        'ciudadano': ciudadano,
-        'turno': turno,
-    })
