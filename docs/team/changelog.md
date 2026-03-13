@@ -390,3 +390,18 @@
 - `portal/tests/test_ciudadano_consultas.py`
 
 **Descripción:** Se extrajo el subdominio de consultas ciudadanas de `portal/views_ciudadano.py` hacia selectors, services y vistas dedicadas. El flujo de nueva consulta y envío de mensaje deja de depender de `POST` raw y pasa a forms explícitos. También se agregan tests para ownership, validación y creación de conversación/mensaje.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 19: `portal` turnos ciudadano
+
+**Archivos modificados:**
+- `portal/forms.py`
+- `portal/views_ciudadano.py`
+- `portal/templates/portal/ciudadano/turno_confirmar.html`
+- `portal/selectors_turnos_ciudadano.py`
+- `portal/services_turnos_ciudadano.py`
+- `portal/views_ciudadano_turnos.py`
+- `portal/tests/test_ciudadano_turnos.py`
+
+**Descripción:** Se extrajo el subdominio de turnos del portal ciudadano desde `portal/views_ciudadano.py` hacia selectors, services y vistas dedicadas. La confirmación del turno deja de procesar `POST` raw y pasa a un form explícito con validación de fecha y normalización del motivo. También se encapsuló la reserva/cancelación en services reutilizables y se agregaron tests del flujo ciudadano de turnos.

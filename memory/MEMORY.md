@@ -44,8 +44,10 @@
 - Los scripts globales y consumidores cross-app del dominio ya usan configuración renderizada por Django en lugar de rutas hardcodeadas.
 - Se completó el decimoctavo slice sobre `portal`.
 - Las consultas ciudadanas ahora viven en `views_ciudadano_consultas.py`, `selectors_ciudadano.py` y `services_consultas.py`, con forms explícitos para nueva consulta y envío de mensaje.
+- Se completó el decimonoveno slice sobre `portal`.
+- Los turnos ciudadanos ahora viven en `views_ciudadano_turnos.py`, `selectors_turnos_ciudadano.py` y `services_turnos_ciudadano.py`, con form explícito para confirmar el turno.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser seguir desarmando `portal/views_ciudadano.py`, empezando por turnos o auth según el mejor ratio impacto/riesgo del siguiente corte.
+- El siguiente hotspot real pasó a ser seguir desarmando `portal/views_ciudadano.py`, ahora empezando por autenticación, registro y perfil ciudadano.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

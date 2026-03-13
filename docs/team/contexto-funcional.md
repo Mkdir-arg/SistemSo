@@ -164,6 +164,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el decimoctavo slice del refactor DX sobre `portal`, enfocado en consultas ciudadanas
 - La parte de consultas salió de `portal/views_ciudadano.py` y ahora usa forms, selectors y services dedicados
 - El flujo visible no cambió, pero ahora valida mejor los POST, fija ownership de conversaciones en un único lugar y suma tests del dominio
+- Se ejecutó el decimonoveno slice del refactor DX sobre `portal`, enfocado en turnos ciudadanos
+- La parte de turnos salió de `portal/views_ciudadano.py` y ahora usa forms, selectors y services dedicados
+- El flujo visible no cambió, pero ahora valida la confirmación con formularios Django y encapsula disponibilidad, reserva y cancelación en una capa reutilizable
 
 ---
 

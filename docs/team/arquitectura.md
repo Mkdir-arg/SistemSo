@@ -317,3 +317,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: los runtimes WebSocket cargados globalmente desde `base.html` deben ser idempotentes y leer su configuración desde el DOM de la pantalla cuando exista, para evitar doble inicialización y paths embebidos.
 - 2026-03-13: los scripts globales de un dominio compartido deben consumir una configuración explícita (`window.<dominio>Config`) renderizada por Django, en lugar de embutir rutas del proyecto en archivos estáticos.
 - 2026-03-13: en el portal ciudadano, los subdominios con ownership sensible sobre recursos del ciudadano deben encapsular ese control en selectors y services propios, no repetirlo inline en views monolíticas.
+- 2026-03-13: en el portal ciudadano, la reserva y cancelación de turnos deben vivir en services transaccionales y las pantallas deben validarse con forms explícitos, incluso cuando el flujo sea multi-paso y arranque desde parámetros GET.

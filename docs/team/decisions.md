@@ -127,3 +127,10 @@
 - Decisión: el slice 18 atacó primero el subdominio de consultas ciudadanas, porque tiene ownership claro, integra con `conversaciones` y podía migrarse a forms/selectors/services sin tocar turnos ni autenticación.
 - Regla derivada: cuando una view monolítica mezcla varios subdominios, conviene extraer primero el flujo con fronteras más claras y menor dependencia de UI compleja.
 - Consecuencia: el portal ciudadano gana una estructura más testeable y el archivo principal baja de tamaño sin introducir una migración masiva.
+
+## 2026-03-13 — los turnos ciudadanos deben validar con forms aunque el flujo nazca en GET
+
+- Contexto: la confirmación de turnos del portal ciudadano armaba fecha y horarios desde query params y luego persistía con `POST` raw dentro de `portal/views_ciudadano.py`.
+- Decisión: el slice 19 extrajo turnos a un módulo propio y usó un form explícito para la confirmación, manteniendo el flujo multi-paso pero validando `fecha`, `hora_inicio`, `hora_fin` y `motivo` con Django Forms.
+- Regla derivada: en flujos multi-paso del portal ciudadano, los pasos intermedios pueden hidratarse desde GET, pero el paso que confirma o persiste datos debe cerrarse con un form explícito y un service transaccional.
+- Consecuencia: baja el acoplamiento del portal, se elimina parsing manual repetido y la reserva/cancelación de turnos queda reusable y testeable.
