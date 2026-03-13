@@ -23,3 +23,10 @@ class UsersPackageExportsTests(SimpleTestCase):
 
         self.assertTrue(callable(create_user_profile))
         self.assertTrue(callable(save_user_profile))
+
+    def test_api_views_package_exports_viewsets(self):
+        from users.api_views import GroupViewSet, ProfileViewSet, UserViewSet
+
+        self.assertIsNotNone(UserViewSet)
+        self.assertIsNotNone(GroupViewSet)
+        self.assertIsNotNone(ProfileViewSet)

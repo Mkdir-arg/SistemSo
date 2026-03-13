@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.contrib.auth.models import User, Group
-from .models import Profile
-from .serializers import (
+from ..models import Profile
+from ..serializers import (
     UserSerializer, UserCreateSerializer, UserUpdateSerializer,
     GroupSerializer, ProfileSerializer, ChangePasswordSerializer
 )
