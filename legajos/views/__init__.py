@@ -50,6 +50,16 @@ from .historial_contactos import (  # noqa: F401
     eliminar_contacto,
     historial_contactos_view,
 )
+from .institucional import (  # noqa: F401
+    aceptar_derivacion,
+    api_programa_indicadores,
+    cambiar_estado_caso_view,
+    caso_detalle,
+    institucion_detalle_programatico,
+    programa_casos,
+    programa_derivaciones,
+    rechazar_derivacion_view,
+)
 from .operativa import (  # noqa: F401
     ActividadesInscritoListView,
     InscribirActividadView,
