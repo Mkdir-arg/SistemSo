@@ -93,6 +93,9 @@
 - Se completó el cuadragésimo slice sobre `legajos`.
 - Alertas, cursos, derivación simple, API de derivaciones y acompañamiento ahora viven también en `legajos/views/`, con wrappers legacy compatibles.
 - El siguiente corte ya deja de ser tan barato: lo pendiente entra en `programas`, `operativa`, `institucional`, clínica y `ÑACHEC`.
+- Se completó el cuadragésimo primer slice sobre `legajos`.
+- `views_operativa.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
+- A partir de acá, lo pendiente en `legajos` ya es la superficie más sensible del dominio; seguir en automático sin mejor validación funcional deja de ser razonable.
 
 ## Próxima etapa sugerida
 

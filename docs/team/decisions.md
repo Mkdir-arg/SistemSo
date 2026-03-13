@@ -281,3 +281,10 @@
 - Decisión: el slice 40 movió esas views a `legajos/views/` y dejó intactos los bloques más delicados de programas, operativa, institucional, clínica y `ÑACHEC`.
 - Regla derivada: cuando ya existe un paquete de views parcial en una app grande, conviene ampliarlo primero con bloques chicos y estables antes de tocar módulos largos con reglas de negocio más densas.
 - Consecuencia: el packaging avanza con riesgo controlado y deja más explícito cuál es la superficie verdaderamente sensible que queda pendiente.
+
+## 2026-03-13 — en `legajos`, detener la migración física cuando ya solo quedan views de dominio pesado
+
+- Contexto: después de mover contactos, dashboards simples, alertas, cursos, derivación simple, acompañamiento y operativa, lo que sigue en `legajos` son módulos como `programas`, `institucional`, clínica y `ÑACHEC`, con reglas más densas y más side effects.
+- Decisión: el slice 41 deja documentado que, a partir de este punto, la estrategia de packaging barato pierde seguridad y ya no conviene seguir en automático sin mejor validación funcional.
+- Regla derivada: en apps grandes, la modularización física puede avanzar en bucle solo mientras el siguiente bloque no concentre demasiada lógica sensible; cuando eso ocurre, conviene frenar y reevaluar.
+- Consecuencia: se evita convertir un refactor incremental de DX en una fuente de regresiones sobre el corazón operativo del sistema.

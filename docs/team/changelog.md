@@ -14,6 +14,16 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 41: packaging de `views_operativa` en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/operativa.py`
+- `legajos/views_operativa.py`
+- `legajos/tests/test_operativa_package.py`
+
+**Descripción:** Se movió `views_operativa.py` a `legajos/views/operativa.py`, manteniendo compatibilidad con el módulo histórico y agregando un smoke test de exports. Con esto, el packaging de `legajos` ya agotó prácticamente la superficie de bajo riesgo dentro de `views`.
+
 ## 2026-03-13 — Refactor DX Slice 40: packaging de views de soporte en `legajos`
 
 **Archivos modificados:**
