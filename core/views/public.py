@@ -8,7 +8,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.timezone import localtime
 from django.views.decorators.http import require_GET
 
-from core.selectors_geografia import get_localidades_values, get_municipios_values
+from ..selectors import get_localidades_values, get_municipios_values
 from core.services.relevamientos_supabase import (
     fetch_adjuntos_counts,
     fetch_instituciones_list,
