@@ -1,12 +1,14 @@
 import logging
+
 from django.urls import reverse
+
 from core.services.advanced_filters import AdvancedFilterEngine
 from users.selectors_usuarios import get_usuarios_queryset
 from users.users_filter_config import (
     FIELD_MAP as BENEFICIARIO_FILTER_MAP,
     FIELD_TYPES as BENEFICIARIO_FIELD_TYPES,
-    TEXT_OPS as BENEFICIARIO_TEXT_OPS,
     NUM_OPS as BENEFICIARIO_NUM_OPS,
+    TEXT_OPS as BENEFICIARIO_TEXT_OPS,
     get_filters_ui_config,
 )
 

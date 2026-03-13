@@ -1,20 +1,3 @@
-from django.contrib.auth.views import LoginView
-from django.urls import reverse
+"""Compatibilidad legacy: reexporta desde users.views.auth."""
 
-
-class UsuariosLoginView(LoginView):
-    template_name = "user/login.html"
-
-    def get_success_url(self):
-        if self.request.user.groups.filter(name="EncargadoInstitucion").exists():
-            from core.models import Institucion
-
-            institucion = Institucion.objects.filter(
-                encargados=self.request.user
-            ).first()
-            if institucion:
-                return reverse(
-                    "configuracion:institucion_detalle", kwargs={"pk": institucion.pk}
-                )
-
-        return super().get_success_url()
+from .views.auth import *  # noqa: F401,F403
