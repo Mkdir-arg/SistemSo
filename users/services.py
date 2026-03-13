@@ -55,25 +55,25 @@ class UsuariosService:
             "table_actions": [
                 {
                     "label": "Editar",
-                    "url_name": "usuario_editar",
+                    "url_name": "users:usuario_editar",
                     "type": "primary",
                     "class": "editar",
                 },
                 {
                     "label": "Eliminar",
-                    "url_name": "usuario_borrar",
+                    "url_name": "users:usuario_eliminar",
                     "type": "danger",
                     "class": "eliminar",
                 },
             ],
             "breadcrumb_items": [
-                {"text": "Usuarios", "url": reverse("usuarios")},
+                {"text": "Usuarios", "url": reverse("users:usuarios")},
                 {"text": "Listar", "active": True},
             ],
-            "reset_url": reverse("usuarios"),
-            "add_url": reverse("usuario_crear"),
+            "reset_url": reverse("users:usuarios"),
+            "add_url": reverse("users:usuario_crear"),
             "filters_mode": True,
             "filters_config": get_filters_ui_config(),
-            "filters_action": reverse("usuarios"),
+            "filters_action": reverse("users:usuarios"),
             "show_add_button": True,
         }
