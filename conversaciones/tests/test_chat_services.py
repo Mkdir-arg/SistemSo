@@ -1,7 +1,8 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import Client, TestCase
+from django.urls import reverse
 
 from conversaciones.forms_chat import IniciarConversacionForm, MensajeConversacionForm
 from conversaciones.models import Conversacion, HistorialAlertaConversacion, Mensaje
@@ -119,3 +120,94 @@ class ChatServicesTests(TestCase):
         )
 
         self.assertEqual(get_alertas_conversaciones_count(self.operador), 1)
+
+
+class ConversacionesViewsContractTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        self.operador = User.objects.create_user(
+            username='super-chat',
+            password='secret',
+            is_superuser=True,
+            is_staff=True,
+        )
+
+    def _csrf_headers(self):
+        return {'HTTP_X_CSRFTOKEN': self.client.cookies['csrftoken'].value}
+
+    def test_chat_ciudadano_emite_cookie_csrf(self):
+        response = self.client.get(reverse('conversaciones:chat_ciudadano'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('csrftoken', self.client.cookies)
+
+    @patch('conversaciones.views_public.iniciar_conversacion_publica')
+    def test_iniciar_conversacion_publica_requiere_csrf_y_devuelve_contrato(self, mock_iniciar):
+        mock_iniciar.return_value = Conversacion(id=44)
+        url = reverse('conversaciones:iniciar_conversacion')
+
+        self.client.get(reverse('conversaciones:chat_ciudadano'))
+        forbidden = self.client.post(
+            url,
+            data='{"tipo":"anonima","prioridad":"normal"}',
+            content_type='application/json',
+        )
+        allowed = self.client.post(
+            url,
+            data='{"tipo":"anonima","prioridad":"normal"}',
+            content_type='application/json',
+            **self._csrf_headers(),
+        )
+
+        self.assertEqual(forbidden.status_code, 403)
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(allowed.json(), {'success': True, 'conversacion_id': 44})
+
+    def test_evaluar_conversacion_publica_requiere_csrf_y_actualiza_satisfaccion(self):
+        conversacion = Conversacion.objects.create(tipo='anonima', prioridad='normal', estado='cerrada')
+        url = reverse('conversaciones:evaluar', args=[conversacion.id])
+
+        self.client.get(reverse('conversaciones:chat_ciudadano'))
+        forbidden = self.client.post(
+            url,
+            data='{"satisfaccion":5}',
+            content_type='application/json',
+        )
+        allowed = self.client.post(
+            url,
+            data='{"satisfaccion":4}',
+            content_type='application/json',
+            **self._csrf_headers(),
+        )
+
+        conversacion.refresh_from_db()
+        self.assertEqual(forbidden.status_code, 403)
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(allowed.json(), {'success': True})
+        self.assertEqual(conversacion.satisfaccion, 4)
+
+    def test_enviar_mensaje_operador_requiere_csrf_y_devuelve_contrato(self):
+        conversacion = Conversacion.objects.create(tipo='anonima', prioridad='normal', estado='activa')
+        url = reverse('conversaciones:enviar_mensaje_operador', args=[conversacion.id])
+
+        self.client.force_login(self.operador)
+        self.client.get(reverse('conversaciones:detalle', args=[conversacion.id]))
+        forbidden = self.client.post(
+            url,
+            data='{"mensaje":"hola"}',
+            content_type='application/json',
+        )
+        allowed = self.client.post(
+            url,
+            data='{"mensaje":"hola"}',
+            content_type='application/json',
+            **self._csrf_headers(),
+        )
+
+        payload = allowed.json()
+        conversacion.refresh_from_db()
+        self.assertEqual(forbidden.status_code, 403)
+        self.assertEqual(allowed.status_code, 200)
+        self.assertTrue(payload['success'])
+        self.assertEqual(payload['mensaje']['contenido'], 'hola')
+        self.assertEqual(conversacion.operador_asignado, self.operador)

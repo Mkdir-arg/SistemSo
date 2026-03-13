@@ -3,13 +3,15 @@ import logging
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 
-from .forms_chat import IniciarConversacionForm, MensajeConversacionForm, RenaperConsultaForm
+from .forms_chat import EvaluarConversacionForm, IniciarConversacionForm, MensajeConversacionForm, RenaperConsultaForm
+from .models import Conversacion
 from .selectors_conversaciones import get_conversacion_detalle_queryset
 from .services_chat import (
     consultar_renaper_para_chat,
     crear_mensaje_ciudadano,
+    evaluar_conversacion as evaluar_conversacion_service,
     iniciar_conversacion_publica,
 )
 
@@ -29,11 +31,11 @@ def _first_form_error(form, default_message):
     return default_message
 
 
+@ensure_csrf_cookie
 def chat_ciudadano(request):
     return render(request, 'conversaciones/chat_ciudadano.html')
 
 
-@csrf_exempt
 def consultar_renaper(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'})
@@ -79,7 +81,6 @@ def consultar_renaper(request):
         return JsonResponse({'success': False, 'error': 'Error interno del servidor'})
 
 
-@csrf_exempt
 def iniciar_conversacion(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'})
@@ -109,7 +110,6 @@ def iniciar_conversacion(request):
         })
 
 
-@csrf_exempt
 def enviar_mensaje_ciudadano(request, conversacion_id):
     if request.method != 'POST':
         return JsonResponse({'success': False})
@@ -143,7 +143,6 @@ def enviar_mensaje_ciudadano(request, conversacion_id):
         return JsonResponse({'success': False, 'error': 'Error interno del servidor'})
 
 
-@csrf_exempt
 def obtener_mensajes_ciudadano(request, conversacion_id):
     conversacion = get_object_or_404(get_conversacion_detalle_queryset(), id=conversacion_id)
     mensajes = conversacion.mensajes.all()
@@ -158,3 +157,23 @@ def obtener_mensajes_ciudadano(request, conversacion_id):
             for msg in mensajes
         ]
     })
+
+
+def evaluar_conversacion(request, conversacion_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+    payload, error_response = _json_payload(request)
+    if error_response:
+        return error_response
+
+    evaluar_form = EvaluarConversacionForm({'satisfaccion': payload.get('satisfaccion')})
+    if not evaluar_form.is_valid():
+        return JsonResponse({
+            'success': False,
+            'error': _first_form_error(evaluar_form, 'Evaluación inválida'),
+        })
+
+    conversacion = get_object_or_404(Conversacion, id=conversacion_id)
+    evaluar_conversacion_service(conversacion, evaluar_form.cleaned_data['satisfaccion'])
+    return JsonResponse({'success': True})

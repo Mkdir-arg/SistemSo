@@ -8,7 +8,6 @@ from .views_backoffice import (
     configurar_cola,
     detalle_conversacion,
     enviar_mensaje_operador,
-    evaluar_conversacion,
     lista_conversaciones,
     metricas_conversaciones,
     reasignar_conversacion,
@@ -18,6 +17,7 @@ from .views_public import (
     chat_ciudadano,
     consultar_renaper,
     enviar_mensaje_ciudadano,
+    evaluar_conversacion,
     iniciar_conversacion,
     obtener_mensajes_ciudadano,
 )

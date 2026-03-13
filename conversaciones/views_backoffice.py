@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.csrf import csrf_exempt
 
 from .forms_chat import (
     AsignarConversacionForm,
@@ -97,7 +96,6 @@ def asignar_conversacion(request, conversacion_id):
 
 @login_required
 @user_passes_test(tiene_permiso_conversaciones)
-@csrf_exempt
 def enviar_mensaje_operador(request, conversacion_id):
     if request.method != 'POST':
         return JsonResponse({'success': False})
