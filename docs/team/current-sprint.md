@@ -38,6 +38,7 @@ _Se define en el sprint planning._
 | DX-024 | Como equipo de desarrollo quiero cerrar la modularización física de `ÑACHEC` separando la operación territorial restante en un módulo dedicado | ✅ Completado | Slice 24 ejecutado el 2026-03-13 con `views_nachec_operacion.py` y `views_nachec.py` como fachada pura |
 | DX-025 | Como equipo de desarrollo quiero limpiar `legajos/forms.py` separándolo por dominio para alinear forms con las views ya modularizadas | ✅ Completado | Slice 25 ejecutado el 2026-03-13 con fachadas compatibles y smoke test de forms |
 | DX-026 | Como equipo de desarrollo quiero modularizar el backoffice de `turnos` y usar CBVs donde el CRUD repetible ya está claro | ✅ Completado | Slice 26 ejecutado el 2026-03-13 con `views_backoffice.py` como fachada, mixins reutilizables y CRUD en CBVs |
+| DX-027 | Como equipo de desarrollo quiero refactorizar el módulo legacy de contactos separando queries, archivos y panel para bajar acoplamiento y corregir inconsistencias con el modelo real | ✅ Completado | Slice 27 ejecutado el 2026-03-13 con selectors/services dedicados y fachada compatible |
 
 ## Impedimentos
 

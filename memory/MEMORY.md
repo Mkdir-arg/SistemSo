@@ -60,6 +60,8 @@
 - `legajos/forms.py` quedó como fachada y el módulo ahora separa ciudadanía, clínica y operativa en archivos distintos.
 - Se completó el vigésimo sexto slice sobre `turnos`.
 - El backoffice ahora se reparte en módulos dedicados, con mixins de permisos reutilizables y CBVs para el CRUD repetible.
+- Se completó el vigésimo séptimo slice sobre `contactos`.
+- El módulo legacy ahora usa selectors para lectura compuesta, un service de adjuntos y una fachada compatible para no romper URLs/imports.
 
 ## Próxima etapa sugerida
 
@@ -67,4 +69,5 @@
 - El siguiente hotspot real pasó a ser decidir entre profundizar `ÑACHEC` con services/selectors propios o atacar la deuda transversal restante de auth namespaces y `turnos` legacy.
 - El siguiente hotspot real pasó a ser `turnos/views_backoffice.py` o `legajos/views_simple_contactos.py`, porque ya no queda retorno alto inmediato en seguir partiendo `ÑACHEC`.
 - El siguiente hotspot real pasó a ser `legajos/views_simple_contactos.py` o la deuda transversal remanente de namespaces/auth.
+- El siguiente hotspot real pasó a ser la deuda transversal remanente de namespaces/auth y algunos hardcodes legacy de rutas, porque los grandes monolitos internos ya bajaron mucho.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

@@ -325,3 +325,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: cuando un hotspot de dominio ya fue partido por bloques y conserva URLs estables, el archivo histórico debe cerrarse como fachada pura para evitar regresión de imports y dejar explícita la nueva cartografía modular.
 - 2026-03-13: cuando las views de una app ya están modularizadas, el siguiente paso barato y seguro es alinear los forms al mismo corte por dominio y dejar el archivo histórico como fachada compatible.
 - 2026-03-13: en apps donde la capa service/selectors ya existe y el patrón CRUD es repetible, conviene introducir CBVs solo en esos flujos y dejar las acciones POST atómicas como FBVs delgadas.
+- 2026-03-13: en módulos legacy con APIs JSON heterogéneas, conviene extraer primero selectors de lectura y un service pequeño para side effects repetidos antes de intentar rediseñar contratos o permisos.

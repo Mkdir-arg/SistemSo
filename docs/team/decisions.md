@@ -183,3 +183,10 @@
 - Decisión: el slice 26 separó el backoffice en módulos y llevó a CBVs el CRUD repetible de configuraciones y disponibilidades, manteniendo como FBVs las acciones POST atómicas sobre turnos.
 - Regla derivada: en refactors incrementales, las CBVs aportan valor cuando encapsulan formularios/listas/detalles repetibles; no conviene forzarlas en endpoints de acción simples.
 - Consecuencia: mejora la coherencia de la app sin introducir abstracciones innecesarias ni cambiar contratos de URL.
+
+## 2026-03-13 — en módulos legacy de APIs, extraer primero lectura y adjuntos repetidos
+
+- Contexto: `legajos/views_simple_contactos.py` mezclaba vistas HTML, múltiples APIs JSON, queries compuestas y validación/upload de adjuntos en un solo archivo grande.
+- Decisión: el slice 27 separó panel y API, extrajo la lectura a `selectors_contactos.py` y encapsuló el manejo repetido de archivos en `services_contactos.py`, dejando `views_simple_contactos.py` como fachada.
+- Regla derivada: cuando un módulo legacy mezcla APIs heterogéneas con side effects repetidos, conviene aislar primero lectura y archivos antes de revisar permisos o rediseñar el contrato completo.
+- Consecuencia: baja el costo cognitivo del módulo y permite corregir inconsistencias con el modelo real desde un solo lugar.
