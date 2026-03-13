@@ -359,3 +359,19 @@
 - `conversaciones/tests/test_chat_services.py`
 
 **Descripción:** Se eliminó la doble carga de `conversaciones_lista_ws.js` en la pantalla de lista y se movió el contrato de URLs/runtime a atributos renderizados por Django. El WebSocket de lista ahora evita inicialización duplicada, usa URLs configurables para detalle/cierre/API y queda mejor preparado para la migración de namespaces.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 17: `conversaciones` residual cross-app
+
+**Archivos modificados:**
+- `templates/includes/base.html`
+- `static/custom/js/conversaciones_tiempo_real_global.js`
+- `static/custom/js/conversaciones_tiempo_real.js`
+- `static/custom/js/alertas_conversaciones_fallback.js`
+- `static/custom/js/alertas_conversaciones_simple.js`
+- `conversaciones/templates/conversaciones/detalle.html`
+- `portal/templates/portal/ciudadano/consulta_detalle.html`
+- `conversaciones/tests/test_chat_services.py`
+
+**Descripción:** Se alinearon consumidores residuales de `conversaciones` fuera de la lista principal. Los scripts globales ahora toman URLs desde una configuración renderizada por Django, el detalle de operador deja de hardcodear el path WebSocket y el portal ciudadano deja de construir manualmente la URL de mensajes. El objetivo fue cerrar la deuda cross-app del módulo antes de pasar al siguiente hotspot.

@@ -113,3 +113,10 @@
 - Decisión: el slice 16 eliminó la carga duplicada local, agregó un guard de inicialización global y movió las URLs operativas al DOM renderizado por Django.
 - Regla derivada: si un runtime JS se inyecta globalmente desde `base.html`, debe tolerar inclusiones repetidas y tomar configuración específica de pantalla desde atributos de datos o un objeto global.
 - Consecuencia: la lista en vivo de conversaciones queda más estable y más preparada para cambios futuros de rutas/namespaces.
+
+## 2026-03-13 — la configuración de dominio compartido debe salir de archivos estáticos
+
+- Contexto: tras los slices 15 y 16 todavía quedaban scripts globales y consumidores cross-app de `conversaciones` pegados a `/conversaciones/...`, incluso fuera de la app misma.
+- Decisión: el slice 17 introdujo `window.conversacionesConfig` en `base.html` y movió a esa configuración los scripts globales de estadísticas/alertas, además de parametrizar el detalle operador y el portal ciudadano.
+- Regla derivada: cuando un dominio cruza varias pantallas y apps, la fuente de verdad de sus rutas debe renderizarse desde Django y no replicarse en múltiples archivos estáticos.
+- Consecuencia: baja el acoplamiento transversal del módulo y se simplifica la futura migración de namespaces/rutas.

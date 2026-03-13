@@ -40,8 +40,10 @@
 - El chat ciudadano y el detalle de operador ya consumen URLs renderizadas por Django, la evaluación volvió a la superficie pública real y los POST JSON principales del módulo ya no usan `@csrf_exempt`.
 - Se completó el decimosexto slice sobre `conversaciones`.
 - La lista en vivo ya no carga dos veces `conversaciones_lista_ws.js`, el runtime WebSocket es idempotente y toma URLs operativas desde el DOM renderizado.
+- Se completó el decimoséptimo slice sobre `conversaciones`.
+- Los scripts globales y consumidores cross-app del dominio ya usan configuración renderizada por Django en lugar de rutas hardcodeadas.
 
 ## Próxima etapa sugerida
 
-- El siguiente hotspot real pasó a ser cerrar la migración de consumidores sensibles (`login/logout`) y la deuda residual de tiempo real en `conversaciones`, especialmente el polling del chat ciudadano y la convergencia con WebSockets.
+- El siguiente hotspot real pasó a ser `portal/views_ciudadano.py`, que sigue concentrando mucha lógica y además todavía contiene polling/acciones manuales alrededor de consultas y turnos.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.
