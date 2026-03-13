@@ -35,7 +35,11 @@
 {% endblock %}
 
 {% block main-content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="alertasDashboard()">
+<div
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+    x-data="alertasDashboard()"
+    data-close-alert-url-template="{% url 'legajos:cerrar_alerta_ajax' 0 %}"
+    data-count-alerts-url="{% url 'legajos:alertas_count_ajax' %}">
     <!-- Header -->
     <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -268,7 +272,7 @@
                                 {% endif %}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="/conversaciones/{{ alerta.conversacion.id }}/" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <a href="{% url 'conversaciones:detalle' alerta.conversacion.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
                                     <i class="fas fa-external-link-alt mr-1"></i>Ver
                                 </a>
                             </td>
@@ -297,7 +301,10 @@
 function alertasDashboard() {
     return {
         cerrarAlerta(alertaId) {
-            fetch(`/legajos/alertas/${alertaId}/cerrar/`, {
+            const dashboardElement = document.querySelector('[data-close-alert-url-template]');
+            const closeAlertUrlTemplate = dashboardElement?.dataset.closeAlertUrlTemplate || '{% url "legajos:cerrar_alerta_ajax" 0 %}';
+
+            fetch(closeAlertUrlTemplate.replace('/0/', `/${alertaId}/`), {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -326,7 +333,9 @@ function alertasDashboard() {
         },
         
         updateCounter() {
-            fetch('/legajos/alertas/count/')
+            const countAlertsUrl = document.querySelector('[data-count-alerts-url]')?.dataset.countAlertsUrl || '{% url "legajos:alertas_count_ajax" %}';
+
+            fetch(countAlertsUrl)
                 .then(response => response.json())
                 .then(data => {
                     const counter = document.querySelector('#alertas-counter');
