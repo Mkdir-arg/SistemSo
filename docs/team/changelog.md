@@ -14,6 +14,19 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 42: packaging de `views_programas` y `views_solapas` en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/programas.py`
+- `legajos/views/solapas.py`
+- `legajos/views_programas.py`
+- `legajos/views_solapas.py`
+- `legajos/tests/test_programas_package.py`
+- `legajos/tests/test_solapas_package.py`
+
+**Descripción:** Se movieron `views_programas.py` y `views_solapas.py` al paquete `legajos/views/`, manteniendo compatibilidad con los módulos históricos y agregando smoke tests de exports. Con este corte, el packaging de `views` en `legajos` ya cubre casi toda la superficie no crítica.
+
 ## 2026-03-13 — Refactor DX Slice 41: packaging de `views_operativa` en `legajos`
 
 **Archivos modificados:**

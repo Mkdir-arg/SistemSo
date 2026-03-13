@@ -288,3 +288,10 @@
 - Decisión: el slice 41 deja documentado que, a partir de este punto, la estrategia de packaging barato pierde seguridad y ya no conviene seguir en automático sin mejor validación funcional.
 - Regla derivada: en apps grandes, la modularización física puede avanzar en bucle solo mientras el siguiente bloque no concentre demasiada lógica sensible; cuando eso ocurre, conviene frenar y reevaluar.
 - Consecuencia: se evita convertir un refactor incremental de DX en una fuente de regresiones sobre el corazón operativo del sistema.
+
+## 2026-03-13 — cerrar `programas` y `solapas` antes de declarar agotada la superficie barata
+
+- Contexto: tras mover contactos, soporte y operativa, todavía quedaban `views_programas.py` y `views_solapas.py` como bloques medianos pero físicamente movibles sin rediseñar reglas internas.
+- Decisión: el slice 42 los migró a `legajos/views/` y dejó wrappers compatibles, pero consideró ese corte como el último paso barato antes del dominio más sensible.
+- Regla derivada: si un módulo todavía puede moverse físicamente sin reabrir reglas de negocio complejas, conviene cerrarlo antes de declarar agotada la estrategia incremental.
+- Consecuencia: se maximiza el avance del packaging sin entrar todavía en el terreno de mayor riesgo.

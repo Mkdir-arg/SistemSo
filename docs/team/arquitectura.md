@@ -338,3 +338,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: en `legajos`, el packaging de `views` debe empezar por subdominios auxiliares ya separados, como contactos y dashboards simples, antes de tocar clínica, institucional o `ÑACHEC`.
 - 2026-03-13: una vez cerradas las views auxiliares en `legajos`, todavía conviene seguir por bloques de soporte pequeños antes de pasar a `programas`, `operativa` o `institucional`.
 - 2026-03-13: cuando en `legajos` ya solo quedan módulos de `views` con reglas densas o side effects fuertes, la estrategia incremental pierde seguridad y conviene frenar hasta tener mejor validación funcional.
+- 2026-03-13: `programas` y `solapas` siguen siendo movibles físicamente mientras no se toquen sus reglas internas; a partir de ahí, el siguiente nivel pendiente ya cruza dominio pesado de verdad.

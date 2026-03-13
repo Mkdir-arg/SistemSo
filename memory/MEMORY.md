@@ -96,6 +96,9 @@
 - Se completó el cuadragésimo primer slice sobre `legajos`.
 - `views_operativa.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible.
 - A partir de acá, lo pendiente en `legajos` ya es la superficie más sensible del dominio; seguir en automático sin mejor validación funcional deja de ser razonable.
+- Se completó el cuadragésimo segundo slice sobre `legajos`.
+- `views_programas.py` y `views_solapas.py` ahora viven dentro de `legajos/views/`, con wrappers legacy compatibles.
+- Lo pendiente en `legajos` quedó concentrado en `views_derivacion_programa.py`, `views_institucional.py`, `views_clinico.py` y `views_nachec_*`, que ya son bloques de dominio sensible.
 
 ## Próxima etapa sugerida
 

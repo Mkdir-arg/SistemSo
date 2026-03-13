@@ -53,6 +53,7 @@ _Se define en el sprint planning._
 | DX-039 | Como equipo de desarrollo quiero agrupar en `legajos/views/` las views auxiliares de contactos y dashboards simples antes de mover bloques más sensibles | ✅ Completado | Slice 39 ejecutado el 2026-03-13 con wrappers compatibles y tests de fachada ampliados |
 | DX-040 | Como equipo de desarrollo quiero seguir agrupando en `legajos/views/` las views de soporte de bajo riesgo antes de entrar en subdominios más sensibles | ✅ Completado | Slice 40 ejecutado el 2026-03-13 con wrappers compatibles y smoke test de exports |
 | DX-041 | Como equipo de desarrollo quiero mover `views_operativa.py` al paquete nuevo de views antes de tocar módulos más sensibles de `legajos` | ✅ Completado | Slice 41 ejecutado el 2026-03-13 con wrapper compatible y smoke test de exports |
+| DX-042 | Como equipo de desarrollo quiero mover `views_programas.py` y `views_solapas.py` al paquete nuevo antes de entrar en el núcleo más sensible de `legajos` | ✅ Completado | Slice 42 ejecutado el 2026-03-13 con wrappers compatibles y smoke tests de exports |
 
 ## Impedimentos
 
