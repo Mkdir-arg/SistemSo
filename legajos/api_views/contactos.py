@@ -6,17 +6,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Count
 from datetime import datetime, timedelta
 
-from .models_contactos import (
+from ..models_contactos import (
     HistorialContacto, VinculoFamiliar, ProfesionalTratante,
     DispositivoVinculado, ContactoEmergencia
 )
-from .serializers_contactos import (
+from ..serializers_contactos import (
     HistorialContactoSerializer, HistorialContactoListSerializer,
     VinculoFamiliarSerializer, ProfesionalTratanteSerializer,
     DispositivoVinculadoSerializer, ContactoEmergenciaSerializer,
     CiudadanoBasicoSerializer, UserBasicoSerializer
 )
-from .models import Ciudadano
+from ..models import Ciudadano
 from django.contrib.auth.models import User
 
 

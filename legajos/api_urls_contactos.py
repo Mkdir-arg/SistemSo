@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .api_views_contactos import (
+from .api_views.contactos import (
     HistorialContactoViewSet, VinculoFamiliarViewSet, ProfesionalTratanteViewSet,
     DispositivoVinculadoViewSet, ContactoEmergenciaViewSet
 )

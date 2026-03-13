@@ -5,16 +5,16 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models import Count
-from .models import (
+from ..models import (
     Ciudadano, LegajoAtencion, EvaluacionInicial,
     PlanIntervencion, SeguimientoContacto, Derivacion, EventoCritico, AlertaCiudadano
 )
-from .serializers import (
+from ..serializers import (
     CiudadanoSerializer, LegajoAtencionSerializer, EvaluacionInicialSerializer,
     PlanIntervencionSerializer, SeguimientoContactoSerializer, 
     DerivacionSerializer, EventoCriticoSerializer, AlertaCiudadanoSerializer
 )
-from .services import AlertasService, FiltrosUsuarioService
+from ..services import AlertasService, FiltrosUsuarioService
 
 
 @extend_schema_view(
