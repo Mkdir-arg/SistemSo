@@ -1,4 +1,6 @@
-from .views_actividades import (
+"""Paquete de vistas para la app de configuracion."""
+
+from .actividades import (
     ActividadDetailView,
     ActividadEditarView,
     DerivacionAceptarView,
@@ -7,13 +9,13 @@ from .views_actividades import (
     StaffActividadCreateView,
     buscar_personal_ajax,
 )
-from .views_extra import (
+from .extra import (
     AsistenciaView,
     StaffDesasignarView,
     StaffEditarView,
     TomarAsistenciaView,
 )
-from .views_geografia import (
+from .geografia import (
     LocalidadCreateView,
     LocalidadDeleteView,
     LocalidadListView,
@@ -27,7 +29,7 @@ from .views_geografia import (
     ProvinciaListView,
     ProvinciaUpdateView,
 )
-from .views_institucional import (
+from .institucional import (
     DispositivoCreateView,
     DispositivoForm,
     DispositivoListView,
