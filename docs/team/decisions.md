@@ -295,3 +295,10 @@
 - Decisión: el slice 42 los migró a `legajos/views/` y dejó wrappers compatibles, pero consideró ese corte como el último paso barato antes del dominio más sensible.
 - Regla derivada: si un módulo todavía puede moverse físicamente sin reabrir reglas de negocio complejas, conviene cerrarlo antes de declarar agotada la estrategia incremental.
 - Consecuencia: se maximiza el avance del packaging sin entrar todavía en el terreno de mayor riesgo.
+
+## 2026-03-13 — antes de mover un borde sensible, extraer su workflow a services
+
+- Contexto: `views_derivacion_programa.py` ya no era un simple candidato a packaging; mezclaba aceptación normal, branch especial de `ÑACHEC`, validación de duplicados, creación de tareas con SLA e historial.
+- Decisión: el slice 43 extrajo ese workflow a `services/derivaciones_programa.py` y dejó la view como coordinadora delgada.
+- Regla derivada: cuando un módulo pendiente concentra transiciones de estado y side effects reales, conviene extraer primero la lógica a services y recién después considerar un movimiento físico del archivo.
+- Consecuencia: se baja riesgo, se gana testabilidad y se prepara una futura modularización sin arrastrar lógica de negocio pegada a la capa HTTP.

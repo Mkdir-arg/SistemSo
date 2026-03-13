@@ -236,6 +236,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el cuadragésimo segundo slice del refactor DX sobre `legajos`
 - `views_programas.py` y `views_solapas.py` ahora viven también dentro de `legajos/views/`, con wrappers legacy compatibles
 - El comportamiento visible no cambió, pero lo pendiente en `legajos` ya quedó casi exclusivamente en bloques muy sensibles del dominio
+- Se ejecutó el cuadragésimo tercer slice del refactor DX sobre `legajos`
+- La lógica de aceptación/rechazo de derivaciones de programa y el branch especial de `ÑACHEC` salió de `views_derivacion_programa.py` a un service dedicado
+- El comportamiento visible no cambió, pero el borde entre programas y `ÑACHEC` quedó más testeable y listo para un corte físico posterior
 
 ---
 

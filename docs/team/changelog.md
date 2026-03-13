@@ -14,6 +14,17 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 43: service layer para derivaciones de programa
+
+**Archivos modificados:**
+- `legajos/services/__init__.py`
+- `legajos/services/derivaciones_programa.py`
+- `legajos/services_derivaciones_programa.py`
+- `legajos/views_derivacion_programa.py`
+- `legajos/tests/test_derivaciones_programa_service.py`
+
+**Descripción:** Se extrajo de `views_derivacion_programa.py` la orquestación de aceptación, rechazo y flujo especial de `ÑACHEC` hacia un service dedicado. El cambio fija el borde entre programas y `ÑACHEC`, reduce lógica sensible en la view y agrega tests del workflow crítico antes de una futura modularización física.
+
 ## 2026-03-13 — Refactor DX Slice 42: packaging de `views_programas` y `views_solapas` en `legajos`
 
 **Archivos modificados:**
