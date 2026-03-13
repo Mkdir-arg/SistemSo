@@ -200,6 +200,13 @@ SistemSo/
 
 **Consecuencia:** El módulo queda más testeable y navegable sin asumir todavía un hardening de CSRF o un rediseño de sus endpoints.
 
+### DT-021 — el hardening de `chatbot` se apoya en URLs renderizadas y contrato explícito de respuesta (2026-03-13)
+**Contexto:** Tras modularizar `chatbot`, apareció una inconsistencia funcional real: el JS del chat consumía un endpoint hardcodeado inexistente y esperaba un shape de JSON distinto al devuelto por la view.
+
+**Decisión:** El slice 14 pasó URLs al frontend desde templates, alineó la respuesta de `send_message` con lo que el JS necesita y retiró `@csrf_exempt` donde el frontend ya enviaba token CSRF.
+
+**Consecuencia:** Se elimina una fuente concreta de bugs silenciosos y el módulo gana una base más segura para seguir endureciendo endpoints JSON.
+
 ---
 
 ## Deudas técnicas documentadas

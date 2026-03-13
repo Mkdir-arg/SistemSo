@@ -92,3 +92,10 @@
 - Decisión: el slice 13 separó vistas públicas y administrativas y movió lectura/orquestación a selectors/services con forms livianos para JSON.
 - Regla derivada: cuando una app combina superficie de usuario y de administración, separar primero por superficie antes de rediseñar endpoints.
 - Consecuencia: la app queda consistente con el patrón del refactor DX y con mejor base para hardening posterior.
+
+## 2026-03-13 — endurecer `chatbot` después de alinear contrato real con frontend
+
+- Contexto: tras la modularización apareció una inconsistencia funcional entre `chat.js` y `chatbot/urls.py`/`views_public.py`.
+- Decisión: el slice 14 corrigió primero el contrato real de rutas y respuesta JSON y, sobre esa base, quitó `@csrf_exempt` en los endpoints principales del módulo.
+- Regla derivada: no endurecer seguridad sobre una integración rota; primero alinear contrato, después activar la protección.
+- Consecuencia: `chatbot` queda funcionalmente más coherente y con mejor postura de seguridad sin tocar su UX.

@@ -25,6 +25,7 @@ _Se define en el sprint planning._
 | DX-011 | Como equipo de desarrollo quiero habilitar namespaces consistentes en `users`, `core` y `healthcheck` sin romper los names legacy mientras se migra el proyecto | ✅ Completado | Slice 11 ejecutado el 2026-03-13 con compatibilidad dual namespaced/legacy |
 | DX-012 | Como equipo de desarrollo quiero migrar consumidores claros a `core:*` y `users:*` para empezar a retirar dependencia de names legacy | ✅ Completado | Slice 12 ejecutado el 2026-03-13 solo sobre templates con names no ambiguos |
 | DX-013 | Como equipo de desarrollo quiero modularizar `chatbot` y validar payloads JSON para bajar acoplamiento entre chat público y administración | ✅ Completado | Slice 13 ejecutado el 2026-03-13 sin cambios de rutas ni modelos |
+| DX-014 | Como equipo de desarrollo quiero corregir el contrato real frontend/backend de `chatbot` y endurecer CSRF en sus endpoints principales | ✅ Completado | Slice 14 ejecutado el 2026-03-13 alineando rutas, shape JSON y protección CSRF |
 
 ## Impedimentos
 

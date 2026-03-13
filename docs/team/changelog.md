@@ -14,6 +14,21 @@
 
 ---
 
+## 2026-03-13 — Refactor DX slice 14: `chatbot` contrato frontend/backend y CSRF
+
+**User Story:** Como equipo de desarrollo quiero alinear el contrato entre frontend y backend del módulo `chatbot` y retirar `@csrf_exempt` en sus endpoints principales para evitar deuda funcional y mejorar seguridad.
+
+**Archivos modificados:**
+- `chatbot/views_public.py`
+- `chatbot/views_admin.py`
+- `chatbot/services_chatbot.py`
+- `chatbot/templates/chatbot/chat_interface.html`
+- `chatbot/templates/chatbot/admin_dashboard.html`
+- `chatbot/static/chatbot/js/chat.js`
+- `chatbot/tests/test_chatbot_services.py`
+
+**Descripcion:** Se implementó el slice 14 del refactor DX sobre `chatbot`, corrigiendo una inconsistencia real: el JS del chat consumía rutas y shape de respuesta distintos a los expuestos por Django. Se pasaron URLs al frontend desde templates, se alineó la respuesta de `send_message` con lo que consume el JS, se agregaron tests de contrato/CSRF y se retiró `@csrf_exempt` de los endpoints principales del módulo. El cambio mantiene la misma superficie funcional visible pero elimina una fuente concreta de rotura silenciosa.
+
 ## 2026-03-13 — Refactor DX slice 13: `chatbot` modularización y validación de payloads
 
 **User Story:** Como equipo de desarrollo quiero separar la superficie pública y administrativa de `chatbot`, extraer lecturas reutilizables y validar payloads JSON para reducir lógica en `views.py` sin cambiar las rutas del módulo.
