@@ -64,6 +64,8 @@
 - El módulo legacy ahora usa selectors para lectura compuesta, un service de adjuntos y una fachada compatible para no romper URLs/imports.
 - Se completó el vigésimo octavo slice sobre consumers transversales de rutas.
 - `users:logout`, `chatbot:send_message` y `conversaciones:detalle` ya están consumidos desde namespaces/config renderizada en los puntos más visibles.
+- Se completó el vigésimo noveno slice sobre `legajos/urls.py`.
+- El conflicto nominal de `cerrar_alerta` quedó resuelto con names explícitos por dominio.
 
 ## Próxima etapa sugerida
 
@@ -73,4 +75,5 @@
 - El siguiente hotspot real pasó a ser `legajos/views_simple_contactos.py` o la deuda transversal remanente de namespaces/auth.
 - El siguiente hotspot real pasó a ser la deuda transversal remanente de namespaces/auth y algunos hardcodes legacy de rutas, porque los grandes monolitos internos ya bajaron mucho.
 - El siguiente hotspot real pasó a ser la limpieza de `legajos/urls.py`, pero ahí ya hay riesgo alto por names duplicados y consumidores legacy sin cobertura suficiente.
+- El siguiente hotspot real ya no es tan claro: queda sobre todo deuda de reordenamiento profundo de `legajos/urls.py` y algunos consumidores legacy con cobertura insuficiente.
 - En paralelo, sigue pendiente definir una política única de responsables de legajo y evaluar si conviene separar `legajos` por apps en una etapa posterior.

@@ -197,3 +197,10 @@
 - Decisión: el slice 28 migró esos consumidores a namespaces estables o a configuración renderizada por Django, y amplió los smoke tests de rutas críticas.
 - Regla derivada: antes de endurecer o renombrar URLs, conviene barrer los consumidores transversales más visibles y fijar con tests los namespaces que ya deben considerarse públicos.
 - Consecuencia: baja el riesgo de la futura etapa de limpieza de URLs y se reducen los puntos de rotura silenciosa ante cambios de routing.
+
+## 2026-03-13 — desambiguar names duplicados antes de reordenar URLs legacy
+
+- Contexto: `legajos/urls.py` todavía retenía un conflicto nominal concreto: dos rutas distintas compartían el name `cerrar_alerta`.
+- Decisión: el slice 29 renombró esos endpoints a `cerrar_alerta_evento` y `cerrar_alerta_ciudadano`, actualizando el único consumidor explícito y agregando smoke tests.
+- Regla derivada: cuando una app mantiene URLs legacy extensas, el primer saneamiento debe ser eliminar `name=` duplicados antes de intentar reorganizaciones más ambiciosas.
+- Consecuencia: el routing queda más predecible y se reduce el riesgo de `reverse()` ambiguos en etapas posteriores.

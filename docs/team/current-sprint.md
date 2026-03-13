@@ -40,6 +40,7 @@ _Se define en el sprint planning._
 | DX-026 | Como equipo de desarrollo quiero modularizar el backoffice de `turnos` y usar CBVs donde el CRUD repetible ya está claro | ✅ Completado | Slice 26 ejecutado el 2026-03-13 con `views_backoffice.py` como fachada, mixins reutilizables y CRUD en CBVs |
 | DX-027 | Como equipo de desarrollo quiero refactorizar el módulo legacy de contactos separando queries, archivos y panel para bajar acoplamiento y corregir inconsistencias con el modelo real | ✅ Completado | Slice 27 ejecutado el 2026-03-13 con selectors/services dedicados y fachada compatible |
 | DX-028 | Como equipo de desarrollo quiero retirar hardcodes residuales y migrar consumidores transversales a namespaces estables | ✅ Completado | Slice 28 ejecutado el 2026-03-13 sobre logout, chatbot bubble, alertas y tests de namespaces |
+| DX-029 | Como equipo de desarrollo quiero eliminar names duplicados en `legajos/urls.py` para que el routing sea predecible y más seguro de refactorizar | ✅ Completado | Slice 29 ejecutado el 2026-03-13 desambiguando `cerrar_alerta_evento` y `cerrar_alerta_ciudadano` |
 
 ## Impedimentos
 

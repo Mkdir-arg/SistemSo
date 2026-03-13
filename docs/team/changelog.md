@@ -518,3 +518,14 @@
 - `core/tests/test_url_namespaces.py`
 
 **Descripción:** Se migraron consumidores residuales a namespaces estables y se retiraron hardcodes de rutas en puntos transversales del proyecto. El logout del backoffice ahora usa `users:logout`, el bubble de chatbot recibe su endpoint desde Django y el dashboard de alertas dejó de embeber rutas fijas de `conversaciones` y de cierre de alertas. Además se ampliaron los smoke tests de namespaces para fijar rutas críticas de `users`, `chatbot` y `conversaciones`.
+
+---
+
+## 2026-03-13 — Refactor DX Slice 29: desambiguación de names en `legajos`
+
+**Archivos modificados:**
+- `legajos/urls.py`
+- `templates/components/alertas_eventos.html`
+- `core/tests/test_url_namespaces.py`
+
+**Descripción:** Se eliminó el conflicto de names duplicados en `legajos/urls.py`, renombrando las dos rutas `cerrar_alerta` a nombres explícitos según su dominio: `cerrar_alerta_evento` y `cerrar_alerta_ciudadano`. También se actualizó el único consumidor explícito del nombre anterior y se fijó el contrato con smoke tests.

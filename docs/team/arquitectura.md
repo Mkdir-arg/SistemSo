@@ -327,3 +327,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: en apps donde la capa service/selectors ya existe y el patrón CRUD es repetible, conviene introducir CBVs solo en esos flujos y dejar las acciones POST atómicas como FBVs delgadas.
 - 2026-03-13: en módulos legacy con APIs JSON heterogéneas, conviene extraer primero selectors de lectura y un service pequeño para side effects repetidos antes de intentar rediseñar contratos o permisos.
 - 2026-03-13: cuando una ruta ya tiene namespace estable, los templates y scripts deben consumirla desde Django o desde configuración renderizada, no embutir paths del proyecto en HTML/JS.
+- 2026-03-13: cuando una app conserva routes legacy, los `name=` deben ser únicos y explícitos por dominio antes de intentar una limpieza más profunda del archivo de URLs.

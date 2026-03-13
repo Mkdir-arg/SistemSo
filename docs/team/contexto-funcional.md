@@ -194,6 +194,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el vigésimo octavo slice del refactor DX sobre consumidores transversales de rutas
 - El logout del backoffice, el bubble de chatbot y el dashboard de alertas ya consumen namespaces/rutas renderizadas por Django en lugar de paths hardcodeados
 - El comportamiento visible no cambió, pero la base quedó más preparada para cerrar la migración de URLs y namespaces sin roturas silenciosas
+- Se ejecutó el vigésimo noveno slice del refactor DX sobre `legajos/urls.py`
+- Las rutas de cierre de alertas dejaron de compartir el mismo `name=` y ahora distinguen explícitamente entre evento crítico y alerta de ciudadano
+- El comportamiento visible no cambió, pero el routing de `legajos` quedó menos ambiguo y más seguro para futuros refactors
 
 ---
 
