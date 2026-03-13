@@ -14,6 +14,24 @@
 
 ---
 
+## 2026-03-13 — Refactor DX Slice 40: packaging de views de soporte en `legajos`
+
+**Archivos modificados:**
+- `legajos/views/__init__.py`
+- `legajos/views/acompanamiento.py`
+- `legajos/views/alertas.py`
+- `legajos/views/api_derivaciones.py`
+- `legajos/views/cursos.py`
+- `legajos/views/derivacion.py`
+- `legajos/views_acompanamiento.py`
+- `legajos/views_alertas.py`
+- `legajos/views_api_derivaciones.py`
+- `legajos/views_cursos.py`
+- `legajos/views_derivacion.py`
+- `legajos/tests/test_support_views_package.py`
+
+**Descripción:** Se movió a `legajos/views/` otro bloque de views de bajo riesgo: alertas, cursos, derivación simple, API de derivaciones y acompañamiento. Los wrappers legacy se mantienen, y las zonas más sensibles de la app quedaron explícitamente fuera de este corte.
+
 ## 2026-03-13 — Refactor DX Slice 39: packaging de views auxiliares de contactos en `legajos`
 
 **Archivos modificados:**

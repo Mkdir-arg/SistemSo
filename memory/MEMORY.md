@@ -90,6 +90,9 @@
 - Se completó el trigésimo noveno slice sobre `legajos`.
 - El bloque auxiliar de contactos y dashboards simples ahora vive en `legajos/views/`, con wrappers legacy compatibles.
 - El siguiente corte seguro sigue siendo selectivo sobre `views`, pero ya más cerca de zonas sensibles como `programas`, `operativa` o `institucional`.
+- Se completó el cuadragésimo slice sobre `legajos`.
+- Alertas, cursos, derivación simple, API de derivaciones y acompañamiento ahora viven también en `legajos/views/`, con wrappers legacy compatibles.
+- El siguiente corte ya deja de ser tan barato: lo pendiente entra en `programas`, `operativa`, `institucional`, clínica y `ÑACHEC`.
 
 ## Próxima etapa sugerida
 

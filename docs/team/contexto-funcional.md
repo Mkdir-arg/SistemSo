@@ -227,6 +227,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el trigésimo noveno slice del refactor DX sobre `legajos`
 - El bloque auxiliar de contactos y dashboards simples ahora vive en `legajos/views/`, manteniendo wrappers de compatibilidad para rutas e imports legacy
 - El comportamiento visible no cambió, pero la migración de views de la app ya empezó por la superficie menos sensible
+- Se ejecutó el cuadragésimo slice del refactor DX sobre `legajos`
+- Alertas, cursos, derivación simple, API de derivaciones y acompañamiento ahora viven también en `legajos/views/`, con wrappers de compatibilidad
+- El comportamiento visible no cambió, pero otra capa de soporte salió de módulos planos legacy antes de entrar en áreas más sensibles
 
 ---
 

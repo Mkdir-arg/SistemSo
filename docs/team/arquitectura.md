@@ -336,3 +336,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: en apps grandes como `legajos`, el packaging físico debe empezar por `services` y `selectors` ya estabilizados, dejando `views` y `signals` para una etapa posterior con mejor cobertura.
 - 2026-03-13: cuando una app ya tiene `forms_*` divididos por dominio y wrappers compatibles, el siguiente paso seguro es convertirlos en paquete real antes de tocar `views` o `signals`.
 - 2026-03-13: en `legajos`, el packaging de `views` debe empezar por subdominios auxiliares ya separados, como contactos y dashboards simples, antes de tocar clínica, institucional o `ÑACHEC`.
+- 2026-03-13: una vez cerradas las views auxiliares en `legajos`, todavía conviene seguir por bloques de soporte pequeños antes de pasar a `programas`, `operativa` o `institucional`.

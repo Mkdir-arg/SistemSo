@@ -51,6 +51,7 @@ _Se define en el sprint planning._
 | DX-037 | Como equipo de desarrollo quiero agrupar `legajos` en paquetes reales de services/selectors antes de tocar wiring sensible de views y signals | ✅ Completado | Slice 37 ejecutado el 2026-03-13 con wrappers compatibles y smoke test de exports |
 | DX-038 | Como equipo de desarrollo quiero agrupar `legajos` en un paquete real de forms para cerrar la capa de formularios antes de tocar views o signals | ✅ Completado | Slice 38 ejecutado el 2026-03-13 con wrappers compatibles y tests de fachada ampliados |
 | DX-039 | Como equipo de desarrollo quiero agrupar en `legajos/views/` las views auxiliares de contactos y dashboards simples antes de mover bloques más sensibles | ✅ Completado | Slice 39 ejecutado el 2026-03-13 con wrappers compatibles y tests de fachada ampliados |
+| DX-040 | Como equipo de desarrollo quiero seguir agrupando en `legajos/views/` las views de soporte de bajo riesgo antes de entrar en subdominios más sensibles | ✅ Completado | Slice 40 ejecutado el 2026-03-13 con wrappers compatibles y smoke test de exports |
 
 ## Impedimentos
 

@@ -274,3 +274,10 @@
 - Decisión: el slice 39 empezó la migración de views por el bloque de contactos y dashboards simples, que ya estaba separado en módulos pequeños y con menor riesgo operativo.
 - Regla derivada: cuando una app grande entra en la etapa de packaging de views, conviene empezar por subdominios auxiliares con poco wiring implícito antes de tocar superficies críticas del negocio.
 - Consecuencia: el proyecto gana consistencia estructural y tests de export sin abrir todavía un frente de regresión alto en las rutas principales de `legajos`.
+
+## 2026-03-13 — en `legajos`, extender el packaging de views por bloques de soporte antes de entrar en dominio pesado
+
+- Contexto: después del bloque de contactos, todavía quedaban en archivos planos varias views pequeñas pero estables de soporte, como alertas, cursos, derivación simple y acompañamiento.
+- Decisión: el slice 40 movió esas views a `legajos/views/` y dejó intactos los bloques más delicados de programas, operativa, institucional, clínica y `ÑACHEC`.
+- Regla derivada: cuando ya existe un paquete de views parcial en una app grande, conviene ampliarlo primero con bloques chicos y estables antes de tocar módulos largos con reglas de negocio más densas.
+- Consecuencia: el packaging avanza con riesgo controlado y deja más explícito cuál es la superficie verdaderamente sensible que queda pendiente.
