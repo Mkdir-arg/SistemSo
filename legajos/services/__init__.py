@@ -9,5 +9,6 @@ from .contactos import (  # noqa: F401
     eliminar_archivo_por_id,
     subir_archivos_para_objeto,
 )
+from .derivaciones_programa import DerivacionProgramaResult, DerivacionProgramaService  # noqa: F401
 from .legajos import LegajoWorkflowService  # noqa: F401
 from .solapas import SolapasService  # noqa: F401
