@@ -1,6 +1,6 @@
 ---
 name: debugger
-description: Django error diagnosis specialist. Use when you have a 500 error, migration failure, Docker issue, query problem, or unexpected behavior in AkunCalcu. Identifies root causes, not just symptoms.
+description: Django error diagnosis specialist. Use when you have a 500 error, migration failure, Docker issue, query problem, or unexpected behavior in SistemSo. Identifies root causes, not just symptoms.
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
@@ -15,7 +15,7 @@ Antes de diagnosticar, leer:
 
 ## Project Context
 - Stack: Python 3.12, Django 4.2.7, MySQL 8.0, Docker Compose
-- Apps: `core`, `productos`, `comercial`, `facturacion`, `usuarios`
+- Apps: `core`, `legajos`, `turnos`, `users`, `dashboard`, `configuracion`, `chatbot`, `conversaciones`, `portal`, `tramites`
 - Entry: `docker-compose up --build`
 
 ## Diagnosis approach

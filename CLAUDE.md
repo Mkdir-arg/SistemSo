@@ -1,10 +1,12 @@
-# Equipo de Desarrollo - AkunCalcu
+# Equipo de Desarrollo - SistemSo
 
 ## Identidad del proyecto
-**AkunCalcu** es un sistema de gestión comercial para Akuna Aberturas.
-- Stack: Python 3.12, Django 4.2.7, MySQL 8.0, Tailwind CSS
+**SistemSo** es un sistema de gestión estatal. Permite a organismos de gobierno gestionar ciudadanos, programas sociales e instituciones.
+- Stack: Python 3.12, Django 4.2.7, MySQL 8.0, Tailwind CSS + Alpine.js
 - Entorno: Docker Compose (`docker-compose up --build`)
-- App Django: `akuna_calc/` con apps: `core`, `productos`, `comercial`, `facturacion`, `usuarios`
+- Apps Django: `core`, `legajos`, `turnos`, `users`, `dashboard`, `configuracion`, `chatbot`, `conversaciones`, `portal`, `tramites`
+- Dos superficies: **backoffice** (operadores/profesionales) y **portal ciudadano** (público)
+- Tres dominios centrales: **Ciudadanos**, **Programas**, **Instituciones**
 
 ## Equipo de agentes
 
@@ -17,7 +19,7 @@ El equipo opera en modo **auto-orquestado**. Los agentes se activan automáticam
 | 🎯 Analista Funcional | `functional-analyst` | Refina requerimientos, detecta ambiguedades, escribe user stories y criterios de aceptacion |
 | 🏗️ Arquitecto | `backend-architect` | Diseña la solución técnica, identifica archivos a modificar |
 | 🗄️ DB Architect | `database-architect` | Schema, migrations, indexes, query optimization |
-| 💻 Desarrollador | `django-developer` | Implementa el código según el diseño aprobado |
+| 💻 Desarrollador | *(inline)* | Implementa el código según el diseño aprobado — ejecutado directamente por Claude |
 | 🔍 Reviewer | `code-reviewer` | Revisa calidad, seguridad y convenciones del código |
 | 📝 Documentador | *(inline)* | Actualiza backlog, changelog y decisiones técnicas |
 
@@ -28,6 +30,7 @@ El equipo opera en modo **auto-orquestado**. Los agentes se activan automáticam
 | `test-engineer` | Cuando se pide escribir o revisar tests |
 | `security-auditor` | Auditoría de seguridad antes de deploy o ante cambios de auth/permisos |
 | `debugger` | Errores 500, migrations fallidas, problemas Docker, queries lentas |
+| `ui-designer` | Diseño o mejora de templates completos — backoffice y portal ciudadano |
 
 ---
 
@@ -38,14 +41,17 @@ El equipo opera en modo **auto-orquestado**. Los agentes se activan automáticam
 | Comando | Cuándo usarlo |
 |---------|--------------|
 | `/definir [tema]` | Antes de implementar — clarificar reglas de negocio, debatir opciones, documentar sin codear |
+| `/planificar [idea]` | Cuando querés el diseño técnico aprobado pero NO el código todavía — Fases 1+2 y se detiene |
 | `/feature [idea]` | Cuando ya está claro qué se quiere — implementación completa en 5 fases |
 | `/fix [problema]` | Bug o comportamiento incorrecto en producción/desarrollo |
 | `/hotfix [problema]` | Bug crítico urgente |
+| `/roadmap` | Ver el mapa de dependencias del backlog, camino crítico y próximos pasos |
 | `/sprint-plan` | Planificar el sprint de la semana |
 | `/sprint-review` | Revisar qué se completó en el sprint |
 | `/status` | Estado actual del proyecto |
+| `/tomarcafe` | Repaso completo de toda la documentación — propone con qué arrancar la sesión |
 
-**Flujo recomendado:** `/definir` → (acuerdo) → `/feature` → (implementación)
+**Flujo recomendado:** `/definir` → `/planificar` → (aprobación) → `/feature` → (implementación)
 
 ---
 
@@ -190,8 +196,6 @@ Reglas no negociables:
 - No agregar nuevas librerías JS/CSS sin pasar por el Arquitecto y registrar ADR
 - Los `<select>` tienen Select2 automático desde base.html — no duplicar
 
-## Archivos clave de memoria
-
 ## Formato de sprint
 
 - Sprints de 1 semana
@@ -271,7 +275,9 @@ FIN DE TAREA → volver a escanear → si hay ítems nuevos, procesar antes de c
 
 ### Reglas del loop
 
-- **Al detectar un error ABIERTO** → cambiar estado a `EN_PROCESO`, activar `debugger`, aplicar fix, cambiar estado a `CERRADO` y registrar en `docs/fix/`.
+- **Al detectar un error ABIERTO** → revisar si tiene prerequisitos bloqueantes:
+  - Si tiene prerequisito pendiente → cambiar estado a `ABIERTO (bloqueado por US-XXX)` y notificar al usuario sin intentar el fix.
+  - Si no tiene bloqueo → cambiar estado a `EN_PROCESO`, activar `debugger`, aplicar fix, cambiar estado a `CERRADO` y registrar en `docs/fix/`.
 - **Al detectar un requerimiento ABIERTO** → cambiar estado a `EN_PROCESO`, evaluar complejidad: si es pequeño ejecutar directamente con el workflow de feature; si es mediano/grande agregar al backlog y notificar al usuario.
 - **Un ítem CERRADO nunca se reabre** — se crea uno nuevo si el problema regresa.
 - **Si hay múltiples ítems ABIERTOS** → procesar errores primero (por severidad), luego requerimientos (por prioridad).
