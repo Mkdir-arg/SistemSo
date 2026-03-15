@@ -64,18 +64,23 @@
         <!-- Formulario -->
         <form method="post" action="{% url 'portal:ciudadano_confirmar_turno' recurso_id=recurso.pk %}">
             {% csrf_token %}
-            <input type="hidden" name="fecha" value="{{ fecha }}">
-            <input type="hidden" name="hora_inicio" value="{{ hora_inicio }}">
-            <input type="hidden" name="hora_fin" value="{{ hora_fin }}">
+            {{ form.fecha }}
+            {{ form.hora_inicio }}
+            {{ form.hora_fin }}
 
             <div class="mb-5">
                 <label for="motivo" class="block text-sm font-medium text-[#252F40] mb-1.5">
                     Motivo de la consulta <span class="text-[#8C8C8C] font-normal">(opcional)</span>
                 </label>
+                {% if form.motivo.errors %}
+                <div class="mb-2 text-sm text-red-600">
+                    {{ form.motivo.errors|join:', ' }}
+                </div>
+                {% endif %}
                 <textarea id="motivo" name="motivo" rows="3"
                           placeholder="Describí brevemente el motivo de tu turno..."
                           class="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] text-sm text-[#252F40] placeholder-[#C0C0C0] focus:outline-none focus:ring-2 focus:border-transparent transition-colors"
-                          style="--tw-ring-color: {{ branding.portal.primary_button_gradient_start }};"></textarea>
+                          style="--tw-ring-color: {{ branding.portal.primary_button_gradient_start }};">{{ form.motivo.value|default:'' }}</textarea>
             </div>
 
             <button type="submit"

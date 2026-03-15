@@ -4,9 +4,13 @@ let ultimosValores = {
     atendidos_mes: 0,
     tiempo_promedio: 0
 };
+const conversacionesRealtimeConfig = window.conversacionesConfig || {};
 
 function actualizarDatos() {
-    fetch('/conversaciones/api/estadisticas/', {
+    const statsUrl = conversacionesRealtimeConfig.statsUrl;
+    if (!statsUrl) return;
+
+    fetch(statsUrl, {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',

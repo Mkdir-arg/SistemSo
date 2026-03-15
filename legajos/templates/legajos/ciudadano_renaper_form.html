@@ -70,7 +70,7 @@
                     </label>
                     <input type="text" name="dni" id="{{ form.dni.id_for_label }}" 
                            class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all" 
-                           placeholder="12345678" required>
+                           placeholder="12345678" value="{{ form.dni.value|default:'' }}" required>
                 </div>
 
                 <div>
@@ -80,8 +80,9 @@
                     <select name="sexo" id="{{ form.sexo.id_for_label }}" 
                             class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all" required>
                         <option value="">Seleccionar...</option>
-                        <option value="M">Masculino</option>
-                        <option value="F">Femenino</option>
+                        <option value="M" {% if form.sexo.value == 'M' %}selected{% endif %}>Masculino</option>
+                        <option value="F" {% if form.sexo.value == 'F' %}selected{% endif %}>Femenino</option>
+                        <option value="X" {% if form.sexo.value == 'X' %}selected{% endif %}>No binario</option>
                     </select>
                 </div>
             </div>
@@ -103,40 +104,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Validación del CUIT
-    const cuitInput = document.getElementById('{{ form.cuit.id_for_label }}');
-    if (cuitInput) {
-        cuitInput.addEventListener('input', function(e) {
-            // Obtener solo números
-            let numbers = e.target.value.replace(/\D/g, '');
-            
-            // Limitar a 11 dígitos
-            if (numbers.length > 11) {
-                numbers = numbers.slice(0, 11);
-            }
-            
-            // Formatear automáticamente XX-XXXXXXXX-X
-            let formatted = '';
-            if (numbers.length > 0) {
-                if (numbers.length <= 2) {
-                    formatted = numbers;
-                } else if (numbers.length <= 10) {
-                    formatted = numbers.slice(0, 2) + '-' + numbers.slice(2);
-                } else {
-                    formatted = numbers.slice(0, 2) + '-' + numbers.slice(2, 10) + '-' + numbers.slice(10);
-                }
-            }
-            
-            e.target.value = formatted;
-        });
-        
-        // Validar formato al perder el foco
-        cuitInput.addEventListener('blur', function(e) {
-            const value = e.target.value.replace(/\D/g, '');
-            if (value.length > 0 && value.length !== 11) {
-                e.target.setCustomValidity('El CUIT debe tener 11 dígitos');
-            } else {
-                e.target.setCustomValidity('');
+    const dniInput = document.getElementById('{{ form.dni.id_for_label }}');
+    if (dniInput) {
+        dniInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+            if (e.target.value.length > 8) {
+                e.target.value = e.target.value.slice(0, 8);
             }
         });
     }

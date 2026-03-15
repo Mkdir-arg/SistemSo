@@ -1,6 +1,6 @@
 from django.urls import path
 from . import api_views
-from .api_extra import conversacion_detalle
+from .api_views.extra import conversacion_detalle
 
 app_name = 'conversaciones_api'
 

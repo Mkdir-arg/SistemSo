@@ -1,6 +1,13 @@
 from django.urls import path
 
-from . import views
+from .views_public import (
+    ConsultarTramiteView,
+    CrearUsuarioInstitucionView,
+    PortalHomeView,
+    RegistroInstitucionView,
+    get_localidades,
+    get_municipios,
+)
 from .views_ciudadano import (
     CiudadanoLoginView,
     CiudadanoLogoutView,
@@ -33,12 +40,12 @@ from .views_ciudadano import (
 app_name = 'portal'
 
 urlpatterns = [
-    path('', views.PortalHomeView.as_view(), name='home'),
-    path('crear-usuario/', views.crear_usuario_institucion, name='crear_usuario'),
-    path('registro-institucion/', views.registro_institucion, name='registro_institucion'),
-    path('consultar-tramite/', views.consultar_tramite, name='consultar_tramite'),
-    path('api/municipios/', views.get_municipios, name='get_municipios'),
-    path('api/localidades/', views.get_localidades, name='get_localidades'),
+    path('', PortalHomeView.as_view(), name='home'),
+    path('crear-usuario/', CrearUsuarioInstitucionView.as_view(), name='crear_usuario'),
+    path('registro-institucion/', RegistroInstitucionView.as_view(), name='registro_institucion'),
+    path('consultar-tramite/', ConsultarTramiteView.as_view(), name='consultar_tramite'),
+    path('api/municipios/', get_municipios, name='get_municipios'),
+    path('api/localidades/', get_localidades, name='get_localidades'),
     # Portal ciudadano
     path('mi-perfil/login/', CiudadanoLoginView.as_view(), name='ciudadano_login'),
     path('mi-perfil/logout/', CiudadanoLogoutView.as_view(), name='ciudadano_logout'),

@@ -6,6 +6,8 @@
  */
 
 (function () {
+    const conversacionesAlertasConfig = window.conversacionesConfig || {};
+
     class AlertasConversacionesFallback {
         constructor() {
             this.polling = null;
@@ -60,8 +62,12 @@
                 this.detenerPolling();
                 return;
             }
+            const alertsCountUrl = conversacionesAlertasConfig.alertsCountUrl;
+            if (!alertsCountUrl) {
+                return;
+            }
             try {
-                const r = await fetch('/conversaciones/api/alertas/count/');
+                const r = await fetch(alertsCountUrl);
                 if (!r.ok) return;
                 const data = await r.json();
                 const count = data.count || 0;

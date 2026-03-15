@@ -82,17 +82,17 @@
                             </div>
                         </div>
 
-                        {% if evaluacion.motivo_consulta %}
+                        {% if evaluacion.situacion_consumo %}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Motivo de Consulta</label>
-                            <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.motivo_consulta }}</p>
+                            <label class="block text-sm font-medium text-gray-700">Situación de Consumo</label>
+                            <div class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.situacion_consumo|linebreaks }}</div>
                         </div>
                         {% endif %}
 
                         {% if evaluacion.antecedentes %}
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Antecedentes</label>
-                            <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.antecedentes }}</p>
+                            <div class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.antecedentes|linebreaks }}</div>
                         </div>
                         {% endif %}
                     </div>
@@ -101,24 +101,50 @@
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Evaluación Clínica</h3>
                         
-                        {% if evaluacion.diagnostico %}
+                        {% if evaluacion.red_apoyo %}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Diagnóstico</label>
-                            <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.diagnostico }}</p>
+                            <label class="block text-sm font-medium text-gray-700">Red de Apoyo</label>
+                            <div class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.red_apoyo|linebreaks }}</div>
                         </div>
                         {% endif %}
 
-                        {% if evaluacion.observaciones %}
+                        {% if evaluacion.condicion_social %}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Observaciones</label>
-                            <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.observaciones }}</p>
+                            <label class="block text-sm font-medium text-gray-700">Condición Social</label>
+                            <div class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.condicion_social|linebreaks }}</div>
                         </div>
                         {% endif %}
 
-                        {% if evaluacion.recomendaciones %}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Recomendaciones</label>
-                            <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ evaluacion.recomendaciones }}</p>
+                            <label class="block text-sm font-medium text-gray-700">Riesgos Detectados</label>
+                            <div class="bg-gray-50 p-3 rounded-lg space-y-2">
+                                {% if evaluacion.riesgo_suicida %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    Riesgo suicida
+                                </span>
+                                {% endif %}
+                                {% if evaluacion.violencia %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                                    Situación de violencia
+                                </span>
+                                {% endif %}
+                                {% if not evaluacion.riesgo_suicida and not evaluacion.violencia %}
+                                <span class="text-gray-500">Sin riesgos críticos marcados</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if evaluacion.tamizajes %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tamizajes</label>
+                            <div class="bg-gray-50 p-3 rounded-lg space-y-2">
+                                {% for nombre, resultado in evaluacion.tamizajes.items %}
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="font-medium text-gray-900">{{ nombre }}</span>
+                                    <span class="text-gray-600">Puntaje: {{ resultado.puntaje }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                         {% endif %}
                     </div>

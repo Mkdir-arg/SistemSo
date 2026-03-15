@@ -24,6 +24,7 @@
 | Dashboard | `dashboard/` | v1.0 | 2026-03-09 |
 | Auditoría | `auditoria/` | v1.0 | 2026-03-09 |
 | Configuración del Sistema | `configuracion-sistema/` | v1.0 | 2026-03-09 |
+| Refactor DX Interno | `refactor-dx/` | v1.53 | 2026-03-13 |
 
 ---
 
@@ -53,3 +54,4 @@ El archivo mas reciente es el estado actual.
 | `configuracion` | Vistas de configuracion del sistema (geografía, instituciones) |
 | `users` | Usuarios del backoffice y permisos |
 | `dashboard` | Panel principal |
+| `refactor-dx` | Documentación de slices internos de arquitectura y DX |

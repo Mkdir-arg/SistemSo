@@ -1,5 +1,26 @@
 // WebSocket global para lista de conversaciones (sin recargar la página)
 (function() {
+    if (window.__conversacionesListaWsInitialized) {
+        return;
+    }
+    window.__conversacionesListaWsInitialized = true;
+
+    const listaApp = document.getElementById('conversaciones-lista-app');
+
+    function buildConversationUrl(template, conversacionId) {
+        if (!template) return '';
+        return template.replace('/0/', `/${conversacionId}/`);
+    }
+
+    function getListaConfig() {
+        return {
+            detailApiTemplate: listaApp ? listaApp.dataset.detailApiUrlTemplate : '',
+            detailTemplate: listaApp ? listaApp.dataset.detailUrlTemplate : '',
+            closeTemplate: listaApp ? listaApp.dataset.closeUrlTemplate : '',
+            wsPath: listaApp ? listaApp.dataset.listWsPath : '/ws/conversaciones/',
+        };
+    }
+
     function incChatsNoAtendidos(delta) {
         const el = document.querySelector('[data-stat="chats-no-atendidos"]');
         if (!el) return;
@@ -22,6 +43,7 @@
     }
 
     function agregarFilaDesktop(conv) {
+        const config = getListaConfig();
         const tbody = document.querySelector('table tbody');
         if (!tbody) return;
         // Evitar duplicados
@@ -48,9 +70,9 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-2">
-                    <a href="/conversaciones/${conv.id}/" class="text-blue-600 hover:text-blue-900"><i class="fas fa-eye"></i> Ver</a>
+                    <a href="${buildConversationUrl(config.detailTemplate, conv.id)}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-eye"></i> Ver</a>
                     ${(!conv.operador || conv.operador === 'Sin asignar' || conv.operador === null) ? `<button onclick="asignarConversacion(${conv.id})" class="text-green-600 hover:text-green-900"><i class="fas fa-user-plus"></i> Asignar</button>` : ''}
-                    ${conv.estado === 'activa' ? `<a href="/conversaciones/${conv.id}/cerrar/" class="text-red-600 hover:text-red-900" onclick="return confirm('¿Estás seguro de cerrar esta conversación?')"><i class="fas fa-times"></i> Cerrar</a>` : ''}
+                    ${conv.estado === 'activa' ? `<a href="${buildConversationUrl(config.closeTemplate, conv.id)}" class="text-red-600 hover:text-red-900" onclick="return confirm('¿Estás seguro de cerrar esta conversación?')"><i class="fas fa-times"></i> Cerrar</a>` : ''}
                 </div>
             </td>
         `;
@@ -58,8 +80,11 @@
     }
 
     async function cargarYAgregarConversacion(conversacionId) {
+        const config = getListaConfig();
+        const url = buildConversationUrl(config.detailApiTemplate, conversacionId);
+        if (!url) return;
         try {
-            const r = await fetch(`/conversaciones/api/conversacion/${conversacionId}/`);
+            const r = await fetch(url);
             if (!r.ok) return;
             const data = await r.json();
             if (data && data.conversacion) {
@@ -69,8 +94,11 @@
     }
 
     async function actualizarFilaConversacion(conversacionId) {
+        const config = getListaConfig();
+        const url = buildConversationUrl(config.detailApiTemplate, conversacionId);
+        if (!url) return;
         try {
-            const r = await fetch(`/conversaciones/api/conversacion/${conversacionId}/`);
+            const r = await fetch(url);
             if (!r.ok) return;
             const data = await r.json();
             if (data && data.conversacion) {
@@ -95,9 +123,10 @@
     }
 
     function conectarWS() {
-        if (window.conversacionesListaWS && window.conversacionesListaWS.readyState === 1) return;
+        if (window.conversacionesListaWS && [0, 1].includes(window.conversacionesListaWS.readyState)) return;
+        const config = getListaConfig();
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/conversaciones/`;
+        const wsUrl = `${protocol}//${window.location.host}${config.wsPath}`;
         const ws = new WebSocket(wsUrl);
         window.conversacionesListaWS = ws;
 
@@ -138,4 +167,3 @@
         conectarWS();
     });
 })();
-

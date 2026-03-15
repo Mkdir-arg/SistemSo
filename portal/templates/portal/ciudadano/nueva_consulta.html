@@ -69,13 +69,18 @@
                     <label for="motivo" class="block text-sm font-medium text-[#252F40] mb-2">
                         Motivo de la consulta <span class="text-red-500">*</span>
                     </label>
+                    {% if form.motivo.errors %}
+                    <div class="mb-2 text-sm text-red-600">
+                        {{ form.motivo.errors|join:', ' }}
+                    </div>
+                    {% endif %}
                     <textarea name="motivo"
                               id="motivo"
                               rows="5"
                               required
                               placeholder="Describí brevemente tu consulta o reclamo. Cuanta más información brindes, mejor podremos ayudarte."
                               class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:border-transparent bg-white"
-                              style="--tw-ring-color: {{ branding.portal.primary_button_gradient_start }};"></textarea>
+                              style="--tw-ring-color: {{ branding.portal.primary_button_gradient_start }};">{{ form.motivo.value|default:'' }}</textarea>
                     <p class="text-xs text-[#8C8C8C] mt-1.5">Mínimo 10 caracteres. Sé específico/a para agilizar la atención.</p>
                 </div>
 

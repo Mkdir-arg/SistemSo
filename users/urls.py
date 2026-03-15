@@ -10,6 +10,8 @@ from users.views import (
     GroupListView,
 )
 
+app_name = "users"
+
 urlpatterns = [
     path("", UsuariosLoginView.as_view(), name="login"),
     path("logout", (LogoutView.as_view()), name="logout"),

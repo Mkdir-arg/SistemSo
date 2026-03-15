@@ -2,7 +2,9 @@
 
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
+
 > Última actualización: 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
+
 
 ---
 
@@ -474,72 +476,171 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se documentaron 17 funcionalidades del sistema en `docs/funcionalidades/`
 - Se agregó la burbuja de mejora automática al CLAUDE.md
 
-### 2026-03-09 (sesión 2 — /definir estructura general y programas)
-- Se redefinió el propósito del sistema: plataforma de gestión estatal, dos superficies (backoffice / portal ciudadano), tres dominios (ciudadanos, programas, instituciones)
-- Se definió la naturaleza de los programas: un solo acto (cierre automático post-flujo) vs. persistente (sigue abierto hasta baja manual)
-- Se estableció que todo programa tiene un flujo obligatorio — sin flujo = estado BORRADOR
-- Se definió la jerarquía organizacional: Secretaría → Subsecretaría (dos niveles fijos)
-- Se definió que las tareas territoriales son un nodo dentro del flujo, no configuración separada
-- Se adoptó el motor de flujos del sistema NODO como referencia para implementación futura
-- Se estableció el rol `ConfiguracionPrograma` como único autorizado para crear/configurar programas
-
-### 2026-03-09 (sesión 3 — /definir ciudadano y legajo ciudadano)
-- Se expandió la ficha del ciudadano: situación habitacional, laboral, educativa, médica, documentación, notas, foto
-- Se definió el hub del ciudadano con 4 solapas estáticas + 7 dinámicas con badge behavior
-- Se definieron los roles: `ciudadanoVer`, `ciudadanoCrear`, `ciudadanoSensible`
-- Se definió el acceso por ámbito: institución ve sus ciudadanos, backoffice ve todos
-- Se estableció deuda planificada: `LegajoAtencion` migra al motor de flujos en el futuro
-- Se resolvió que el DNI único previene duplicados — no hay proceso de deduplicación manual
-
-### 2026-03-12 (sesión 9 — /definir editor visual de flujos)
-- Stack decidido: React Flow + Vite para el editor, Alpine.js para el resto del sistema
-- Definidos 10 tipos de nodo: Inicio, Formulario, Evaluación, Condición, Aprobación, Tarea territorial, Email, Espera, Asignación, Fin
-- El form builder del nodo Formulario vive en el panel lateral del mismo editor (sin navegación fuera)
-- Flujos versionados — instancias en curso no se ven afectadas al publicar nueva versión
-- Registrada decisión técnica DT-004 y DT-005 en arquitectura.md
-
-### 2026-03-12 (sesión 8 — /definir instituciones)
-- Definida la tercera superficie del sistema: Panel Institución en `/institucion/` con middleware propio
-- Definidos tres roles internos: EncargadoInstitucion (todo + usuarios), AdministrativoInstitucion (configuración), ProfesorInstitucion (asistencia)
-- Definido flujo de reactivación de institución rechazada (desde panel o desde backoffice)
-- Definidas las evaluaciones periódicas: tareas territoriales aplicadas a instituciones via app móvil → legajo institución
-- Agregadas US-025, US-026, US-027 al backlog
-
-### 2026-03-12 (sesión 7 — /definir actividades)
-- Se definió el flujo completo de inscripción: LIBRE desde portal, REQUIERE_PROGRAMA solo por operador/encargado
-- Se definió la entidad Clase (fecha + hora + duración + título opcional) como unidad de asistencia
-- Se definieron los cuatro estados del ciudadano en actividad: INSCRITO → ACTIVO → FINALIZADO / ABANDONADO
-- Se definió que FINALIZADO ocurre automáticamente al llegar la fecha fin, o manualmente al completar
-- Se definió la lista de espera con dos modos: automático y manual (configurable por actividad)
-- Se definió código de inscripción como confirmación al ciudadano
-- Se definió que el ciudadano ve % de asistencia desde el portal
-- Se agregaron US-022, US-023, US-024 al backlog
-
-### 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
-- Se cerró el modelo completo de derivación e inscripción directa: son la misma acción, diferente permiso y punto de entrada
-- Se definió que `InscripcionPrograma` se crea al ACEPTAR la derivación (no al completar el flujo)
-- Se definió que el operador del programa destino acepta/rechaza manualmente (sin automatismo)
-- Se definieron las reglas de validación: no si hay PENDIENTE al mismo programa, no si ya está ACTIVO
-- Se definieron los dos puntos de entrada UI: perfil ciudadano (cualquier operador) + dashboard del programa (origen automático)
-- Se definió que el ciudadano ve sus derivaciones en el portal sección Programas (sin notificación activa)
-- Se definió que el operador destino recibe badge + alerta en bandeja al recibir derivación nueva
-- Se definió que la cancelación no existe como acción directa — el rechazo ocurre dentro del flujo si se configura
-
-### 2026-03-11 (sesión 5 — análisis instituciones, actividades y derivaciones)
-- Confirmado: actividades siempre pertenecen a una institución, nunca son flotantes
-- Confirmado: actividades tienen dos tipos de acceso — LIBRE (inscripción directa) y REQUIERE_PROGRAMA (debe estar inscripto en el programa primero)
-- Confirmado: los dos modelos de derivación (`Derivacion` legacy y `DerivacionInstitucional`) se unifican en uno solo que sale desde `Ciudadano`
-- Detectados bugs de permisos en turnos: `turnoConfigurar` usa nombre viejo, `turnoOperar` no aplicado (documentados en `docs/errores/`)
-- Detectado: portal ciudadano de turnos funciona solo con modelo legacy `RecursoTurnos` (documentado en `docs/requerimientos/`)
-- Agregadas US-018 a US-021 al backlog: permisos instituciones, panel encargado, tipo_acceso en actividades, unificación derivaciones
-
-### 2026-03-09 (sesión 4 — /definir roles y permisos, mapa completo del sistema)
-- Se cerró el mapa completo de roles del sistema: 14 roles operativos + 3 roles especiales
-- Roles organizados por módulo: Ciudadanos, Instituciones, Programas (configuración/operativa), Turnos (configuración/operativa), Conversaciones, Dashboard, Configuración sistema, Usuarios y roles, Reportes
-- Se acordaron los nombres definitivos en español-técnico (ej: `secretariaConfigurar`, `programaConfigurar`, `turnoConfigurar`) — rompiendo con los nombres mixtos anteriores
-- Se confirmó que todos los roles son grupos Django independientes (sin jerarquía entre ellos)
-- Se clarificó que el portal ciudadano usa el grupo `Ciudadanos` separado del backoffice
-- Se agregó US-011 como prerequisito de todos los features de permisos
+### 2026-03-13
+- Se ejecutó el primer slice del refactor interno de DX sobre `users`, `portal` institucional y `turnos`
+- El registro institucional público dejó de depender de FBVs con POST raw y se migró a `FormView` + services/selectors
+- La administración de usuarios movió persistencia de grupos y `Profile` fuera de los forms
+- El backoffice de turnos separó lecturas reutilizables (`selectors_turnos`) y acciones de negocio (`services_turnos`)
+- No se modificaron reglas de negocio ni modelos; el objetivo fue reducir acoplamiento y preparar una base más testeable para siguientes features
+- Se ejecutó el segundo slice del refactor DX sobre `configuracion`, focalizado en detalle institucional, detalle de actividad, staff, derivaciones e inscriptos
+- Los flujos operativos del módulo dejaron de depender de `POST` raw en las pantallas principales y pasaron a forms explícitos más services transaccionales
+- No se alteraron reglas de negocio institucionales ni estados funcionales; el cambio fue estructural para mejorar mantenibilidad y testabilidad
+- Se ejecutó el tercer slice del refactor DX sobre `legajos`, acotado a ciudadanos y admisión
+- El flujo de RENAPER y el wizard de admisión dejaron de repartir manejo de sesión y orquestación en múltiples views
+- La carga manual del ciudadano quedó separada del formulario de confirmación RENAPER, corrigiendo una inconsistencia de UI con el campo DNI
+- Se ejecutó el cuarto slice del refactor DX sobre `legajos`, enfocado en legajo de atención, evaluación, planes, seguimientos, derivaciones y cierre/reapertura
+- La edición del plan de intervención dejó de depender de inputs hardcodeados que ignoraban los datos existentes
+- Las acciones clínicas base del legajo ahora comparten services/selectors reutilizables y forms más acotados a validación/mapeo
+- Se ejecutó el quinto slice del refactor DX sobre `legajos`, enfocado en eventos críticos, reportes, exportación y cambio de responsable
+- Los templates clínicos dejaron de referenciar campos inexistentes del dominio y ahora reflejan la estructura real de los modelos
+- Reportes y acciones AJAX del módulo ya no concentran orquestación inline en `views.py`
+- Se ejecutó el sexto slice del refactor DX sobre `legajos`, enfocado en separar físicamente las views por dominios
+- `legajos/views.py` quedó como fachada compatible y el código se repartió entre `views_ciudadanos.py` y `views_clinico.py`
+- El cambio no altera rutas ni comportamiento funcional, pero reduce fricción para futuros refactors y tests del módulo
+- Se ejecutó el séptimo slice del refactor DX sobre `legajos`, enfocado en completar la modularización física de las views
+- La operativa institucional y de actividades pasó a `views_operativa.py` y `legajos/views.py` quedó como fachada pura de compatibilidad
+- El cambio tampoco altera reglas funcionales ni rutas, pero deja el módulo listo para seguir atacando deuda por subdominio en lugar de por archivo monolítico
+- Se ejecutó el octavo slice del refactor DX sobre `conversaciones`, enfocado en separar chat público, backoffice, métricas y orquestación
+- El módulo dejó de concentrar parsing manual de payloads y queries repetidas en un solo `views.py`; ahora usa selectors, services y forms livianos sin cambiar las URLs
+- Se mantuvo explícitamente el contrato actual del chat y los endpoints AJAX/WebSocket legacy para no introducir regresiones funcionales en el frontend
+- Se ejecutó el noveno slice del refactor DX sobre `conversaciones`, enfocado en alinear la API auxiliar de alertas y detalle en vivo
+- Las APIs internas del chat ya no repiten permisos, queries ni marcado de mensajes leídos por fuera de la nueva capa del módulo
+- El comportamiento visible no cambió; el beneficio fue coherencia interna y menor costo de mantenimiento
+- Se ejecutó el décimo slice del refactor DX sobre `configuracion`, enfocado en modularización física de las views
+- La app dejó de concentrar geografía, institucional y actividades en un solo `views.py`; ahora usa módulos por dominio con una fachada compatible
+- Tampoco hubo cambios funcionales visibles; el valor del corte fue bajar el costo cognitivo y alinear la estructura interna con el resto del refactor
+- Se ejecutó el undécimo slice del refactor DX sobre URLs y namespaces raíz del proyecto
+- `users`, `core` y `healthcheck` ya exponen namespaces consistentes sin retirar todavía los names legacy
+- El cambio fue deliberadamente incremental para evitar una rotura transversal en templates y `reverse()`
+- Se ejecutó el duodécimo slice del refactor DX sobre consumidores de URLs
+- Varias pantallas internas ya consumen `core:*` y `users:*` en lugar de names legacy sin namespace
+- Se dejó autenticación fuera de este corte porque `login/logout` requieren una decisión más cuidadosa por convivencia con Django auth
+- Se ejecutó el decimotercer slice del refactor DX sobre `chatbot`
+- El módulo ya no mezcla chat de usuario y panel administrativo en un solo `views.py`, y valida payloads JSON con forms livianos
+- El comportamiento visible no cambió; el objetivo fue bajar acoplamiento y preparar mejor base para futuras mejoras del bot
+- Se ejecutó el decimocuarto slice del refactor DX sobre `chatbot`, enfocado en alinear el contrato real entre frontend y backend
+- El chat del bot ya no depende de rutas hardcodeadas inconsistentes ni de `@csrf_exempt` en sus endpoints principales
+- Además se agregaron tests para cubrir el shape de respuesta esperado por el frontend y el enforcement de CSRF
+- Se ejecutó el decimoquinto slice del refactor DX sobre `conversaciones`, enfocado en el contrato real del chat ciudadano y operador
+- La evaluación del ciudadano volvió al dominio público real de la funcionalidad y dejó de chocar con una vista protegida de backoffice
+- Los POST JSON del chat ya no dependen de `@csrf_exempt`; ahora usan URLs renderizadas por Django y cabecera CSRF explícita
+- Se ejecutó el decimosexto slice del refactor DX sobre `conversaciones`, enfocado en la lista en vivo del backoffice
+- La pantalla dejó de cargar dos veces el runtime WebSocket de lista y ya no depende de URLs hardcodeadas para refrescar detalle/cierre
+- El comportamiento visible no cambió, pero baja el riesgo de conexiones duplicadas y facilita la migración de rutas
+- Se ejecutó el decimoséptimo slice del refactor DX sobre `conversaciones`, enfocado en consumidores residuales del módulo fuera de su lista principal
+- Los scripts globales de alertas/estadísticas y algunos consumidores en portal/backoffice ya no embeben rutas de `conversaciones` en archivos estáticos
+- El comportamiento visible tampoco cambió, pero el módulo quedó más coherente transversalmente y con menos acoplamiento a paths fijos
+- Se ejecutó el decimoctavo slice del refactor DX sobre `portal`, enfocado en consultas ciudadanas
+- La parte de consultas salió de `portal/views_ciudadano.py` y ahora usa forms, selectors y services dedicados
+- El flujo visible no cambió, pero ahora valida mejor los POST, fija ownership de conversaciones en un único lugar y suma tests del dominio
+- Se ejecutó el decimonoveno slice del refactor DX sobre `portal`, enfocado en turnos ciudadanos
+- La parte de turnos salió de `portal/views_ciudadano.py` y ahora usa forms, selectors y services dedicados
+- El flujo visible no cambió, pero ahora valida la confirmación con formularios Django y encapsula disponibilidad, reserva y cancelación en una capa reutilizable
+- Se ejecutó el vigésimo slice del refactor DX sobre `portal`, enfocado en autenticación y registro ciudadano
+- El login y el alta por pasos ya no viven dentro de `portal/views_ciudadano.py`; ahora usan un módulo de vistas propio y un service de auth/registro
+- El comportamiento visible no cambió, pero quedó aislada la lógica de throttling por IP, sesión de registro y creación/vinculación de cuentas ciudadanas
+- Se ejecutó el vigésimo primer slice del refactor DX sobre `portal`, enfocado en perfil, programas y mis datos
+- El resto del perfil ciudadano salió de `portal/views_ciudadano.py` y ahora vive en `views_ciudadano_perfil.py`, con selectors y services propios
+- El comportamiento visible no cambió, pero el archivo histórico del portal ciudadano quedó reducido a una fachada de compatibilidad
+- Se ejecutó el vigésimo segundo slice del refactor DX sobre `ÑACHEC`, enfocado en prestaciones, cierre/reapertura y dashboard
+- `legajos/views_nachec.py` dejó de concentrar esos bloques y ahora funciona parcialmente como fachada compatible
+- El comportamiento visible no cambió, pero el hotspot principal del módulo bajó de tamaño antes de entrar en validación, relevamiento y evaluación
+- Se ejecutó el vigésimo tercer slice del refactor DX sobre `ÑACHEC`, enfocado en evaluación y activación de plan
+- La evaluación profesional, la ampliación/rechazo y la activación del plan ahora viven en `views_nachec_decisiones.py`
+- El comportamiento visible no cambió, pero `legajos/views_nachec.py` quedó por debajo de las 1000 líneas antes de atacar asignación y relevamiento
+- Se ejecutó el vigésimo cuarto slice del refactor DX sobre `ÑACHEC`, enfocado en la operación territorial restante
+- Validación, asignación, reasignación, relevamiento y evidencias ahora viven en `views_nachec_operacion.py`
+- El comportamiento visible no cambió, pero `legajos/views_nachec.py` quedó finalmente como fachada pura y el hotspot principal de `ÑACHEC` dejó de concentrar la implementación real
+- Se ejecutó el vigésimo quinto slice del refactor DX sobre `legajos`, enfocado en cleanup de formularios
+- `legajos/forms.py` dejó de concentrar ciudadanía, clínica y operativa en un solo archivo; ahora funciona como fachada compatible hacia módulos por dominio
+- El comportamiento visible no cambió, pero se alineó la estructura de forms con las views ya modularizadas y bajó el costo cognitivo del módulo
+- Se ejecutó el vigésimo sexto slice del refactor DX sobre `turnos`, enfocado en el backoffice
+- El backoffice dejó de concentrar dashboard, configuración, disponibilidad, agenda y acciones en un solo `views_backoffice.py`; ahora usa módulos dedicados y CBVs en el CRUD repetible
+- El comportamiento visible no cambió, pero la app ganó mixins de permisos reutilizables y una estructura más coherente con el resto del refactor
+- Se ejecutó el vigésimo séptimo slice del refactor DX sobre `contactos`
+- El módulo legacy de contactos dejó de mezclar panel, APIs, queries pesadas y uploads en un solo archivo; ahora usa selectors, un service de adjuntos y una fachada compatible
+- El comportamiento visible no cambió salvo correcciones necesarias para alinearlo con el modelo real, eliminando referencias a campos inexistentes dentro de ese módulo
+- Se ejecutó el vigésimo octavo slice del refactor DX sobre consumidores transversales de rutas
+- El logout del backoffice, el bubble de chatbot y el dashboard de alertas ya consumen namespaces/rutas renderizadas por Django en lugar de paths hardcodeados
+- El comportamiento visible no cambió, pero la base quedó más preparada para cerrar la migración de URLs y namespaces sin roturas silenciosas
+- Se ejecutó el vigésimo noveno slice del refactor DX sobre `legajos/urls.py`
+- Las rutas de cierre de alertas dejaron de compartir el mismo `name=` y ahora distinguen explícitamente entre evento crítico y alerta de ciudadano
+- El comportamiento visible no cambió, pero el routing de `legajos` quedó menos ambiguo y más seguro para futuros refactors
+- Se ejecutó el trigésimo slice del refactor DX sobre `users`
+- El service que alimenta la tabla/listado de usuarios dejó de publicar URLs legacy y ahora expone acciones y reverses con namespace explícito
+- El comportamiento visible no cambió, pero el contrato interno del módulo quedó más coherente con la estandarización de rutas del proyecto
+- Se ejecutó el trigésimo primer slice del refactor DX sobre `turnos` y `users`
+- Ambas apps dejaron de depender de módulos raíz únicos para views/services/selectors y ahora exponen paquetes reales con fachadas compatibles
+- El comportamiento visible no cambió, pero la cartografía interna del proyecto quedó más predecible para futuros slices de modularización física
+- Se ejecutó el trigésimo segundo slice del refactor DX sobre `chatbot`
+- La app ahora agrupa views, forms, services y selectors en paquetes reales, manteniendo compatibilidad con los módulos legacy y con los tests existentes
+- El comportamiento visible no cambió, pero el módulo quedó listo para seguir la misma estrategia de packaging en otras apps ya modularizadas
+- Se ejecutó el trigésimo tercer slice del refactor DX sobre `configuracion`
+- La app ahora agrupa views, forms, services y selectors en paquetes reales, manteniendo wrappers de compatibilidad para las entradas legacy por dominio
+- El comportamiento visible no cambió, pero el módulo quedó alineado con el patrón de packaging ya aplicado en `turnos`, `users` y `chatbot`
+- Se ejecutó el trigésimo cuarto slice del refactor DX sobre `portal`
+- La app ahora agrupa views, forms, services y selectors en paquetes reales tanto para registro institucional como para los subdominios ciudadanos
+- El comportamiento visible no cambió, pero los tests del portal ya apuntan a los paths reales del paquete y no a wrappers históricos
+- Se ejecutó el trigésimo quinto slice del refactor DX sobre `conversaciones`
+- La app ahora agrupa views, forms, services, selectors y signals en paquetes reales, manteniendo compatibilidad con rutas e imports legacy del módulo
+- Además se corrigió una inconsistencia real de inicialización: `ConversacionesConfig` tenía dos `ready()` y solo uno se ejecutaba
+- Se ejecutó el trigésimo sexto slice del refactor DX sobre `core`
+- La app ahora agrupa views, forms y selectors del flujo principal en paquetes reales, sin tocar todavía la auditoría pesada ni sus signals
+- El comportamiento visible no cambió, pero la capa compartida del proyecto quedó más consistente con el packaging del resto de apps
+- Se ejecutó el trigésimo séptimo slice del refactor DX sobre `legajos`
+- La app ahora agrupa `services` y `selectors` reales para ciudadanía, admisión, legajos, contactos y solapas, manteniendo wrappers de compatibilidad para imports legacy
+- El comportamiento visible no cambió, pero el núcleo reutilizable del dominio quedó alineado con el packaging ya aplicado en el resto del proyecto
+- Se ejecutó el trigésimo octavo slice del refactor DX sobre `legajos`
+- La app ahora agrupa también `forms` reales por dominio, manteniendo wrappers compatibles para los módulos históricos
+- El comportamiento visible no cambió, pero la capa de formularios dejó de depender solo de módulos planos y quedó alineada con el packaging de services/selectors
+- Se ejecutó el trigésimo noveno slice del refactor DX sobre `legajos`
+- El bloque auxiliar de contactos y dashboards simples ahora vive en `legajos/views/`, manteniendo wrappers de compatibilidad para rutas e imports legacy
+- El comportamiento visible no cambió, pero la migración de views de la app ya empezó por la superficie menos sensible
+- Se ejecutó el cuadragésimo slice del refactor DX sobre `legajos`
+- Alertas, cursos, derivación simple, API de derivaciones y acompañamiento ahora viven también en `legajos/views/`, con wrappers de compatibilidad
+- El comportamiento visible no cambió, pero otra capa de soporte salió de módulos planos legacy antes de entrar en áreas más sensibles
+- Se ejecutó el cuadragésimo primer slice del refactor DX sobre `legajos`
+- `views_operativa.py` ahora vive también dentro de `legajos/views/`, con wrapper legacy compatible
+- El comportamiento visible no cambió, pero el margen de slices baratos en `legajos` quedó prácticamente agotado
+- Se ejecutó el cuadragésimo segundo slice del refactor DX sobre `legajos`
+- `views_programas.py` y `views_solapas.py` ahora viven también dentro de `legajos/views/`, con wrappers legacy compatibles
+- El comportamiento visible no cambió, pero lo pendiente en `legajos` ya quedó casi exclusivamente en bloques muy sensibles del dominio
+- Se ejecutó el cuadragésimo tercer slice del refactor DX sobre `legajos`
+- La lógica de aceptación/rechazo de derivaciones de programa y el branch especial de `ÑACHEC` salió de `views_derivacion_programa.py` a un service dedicado
+- El comportamiento visible no cambió, pero el borde entre programas y `ÑACHEC` quedó más testeable y listo para un corte físico posterior
+- Se ejecutó el cuadragésimo cuarto slice del refactor DX sobre `legajos`
+- `views_derivacion_programa.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible
+- El comportamiento visible no cambió, y ya casi no quedan views movibles sin entrar en dominios bastante más sensibles
+- Se ejecutó el cuadragésimo quinto slice del refactor DX sobre `legajos`
+- `views_institucional.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible
+- El comportamiento visible no cambió, pero la superficie institucional ya quedó alineada con el paquete nuevo sin tocar todavía sus reglas internas
+- Se ejecutó el cuadragésimo sexto slice del refactor DX sobre `legajos`
+- `views_clinico.py` ahora vive dentro de `legajos/views/`, con wrapper legacy compatible
+- El comportamiento visible no cambió, y el frente pendiente en `legajos` quedó todavía más concentrado en la familia `ÑACHEC`
+- Se ejecutó el cuadragésimo séptimo slice del refactor DX sobre `legajos`
+- La familia `views_nachec_*` ahora vive dentro de `legajos/views/`, con wrappers legacy compatibles
+- El comportamiento visible no cambió, y el packaging estructural de `legajos` quedó prácticamente completo
+- Se ejecutó el cuadragésimo octavo slice del refactor DX sobre `legajos`
+- La familia restante de servicios (`alertas`, `filtros_usuario`, `institucional`, `nachec`) ahora vive dentro de `legajos/services/`, con wrappers legacy compatibles
+- El comportamiento visible no cambió, y el siguiente frente estructural quedó concentrado en `signals`
+- Se ejecutó el cuadragésimo noveno slice del refactor DX sobre `legajos`
+- La familia de señales ahora vive dentro de `legajos/signals/`, con `ready()` explícito y wrappers legacy secundarios donde todavía tenían valor
+- El comportamiento visible no cambió, y el packaging estructural de `legajos` quedó prácticamente agotado
+- Se ejecutó el quincuagésimo slice del refactor DX sobre apps chicas
+- `dashboard`, `tramites` y `healthcheck` ahora siguen también la convención de packaging por carpeta
+- El comportamiento visible no cambió, y la deuda estructural restante quedó mucho más concentrada en hotspots funcionales
+- Se ejecutó el quincuagésimo primer slice del refactor DX sobre `core`
+- Auditoría, performance y señales de `core` ahora viven también dentro de paquetes reales, con `ready()` explícito
+- El comportamiento visible no cambió, y el refactor estructural repo-wide quedó prácticamente agotado
+- Se ejecutó el quincuagésimo segundo slice del refactor DX sobre APIs chicas
+- `dashboard`, `users` y `chatbot` ahora también agrupan sus `api_views` en paquetes reales
+- El comportamiento visible no cambió, y la deuda estructural restante quedó todavía más concentrada en APIs más sensibles o deuda funcional
+- Se ejecutó el quincuagésimo tercer slice del refactor DX sobre APIs compartidas
+- `core` y `conversaciones` ahora también agrupan sus `api_views` en paquetes reales
+- El comportamiento visible no cambió, y la deuda estructural restante quedó casi totalmente reducida a `legajos` o deuda funcional
+- Se ejecutó el quincuagésimo cuarto slice del refactor DX sobre `legajos`
+- `legajos` ahora también agrupa sus `api_views` en paquetes reales, incluyendo contactos
+- El comportamiento visible no cambió, y la deuda estructural repo-wide quedó prácticamente agotada
 
 ---
 

@@ -4,7 +4,13 @@
 {% block title %}Conversación #{{ conversacion.id }}{% endblock %}
 
 {% block main-content %}
-<div class="space-y-6" x-data="chatOperador()">
+<div
+    id="conversaciones-detalle-app"
+    class="space-y-6"
+    x-data="chatOperador()"
+    data-reply-url="{% url 'conversaciones:enviar_mensaje_operador' conversacion.id %}"
+    data-ws-path-template="/ws/conversaciones/0/"
+>
     <!-- Header -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between">
@@ -89,10 +95,19 @@
 
 <script>
     function chatOperador() {
+        const detailApp = document.getElementById('conversaciones-detalle-app');
+
+        function getCSRFToken() {
+            const match = document.cookie.match(/(?:^|;)\s*csrftoken=([^;]+)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
         return {
             nuevoMensaje: '',
             conversacionId: {{ conversacion.id }},
             socket: null,
+            replyUrl: detailApp.dataset.replyUrl,
+            wsPathTemplate: detailApp.dataset.wsPathTemplate,
             
             init() {
                 this.$nextTick(() => {
@@ -103,8 +118,8 @@
             
             conectarWebSocket() {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                // Ruta WebSocket debe coincidir con routing.py: ws/conversaciones/<id>/
-                const wsUrl = `${protocol}//${window.location.host}/ws/conversaciones/${this.conversacionId}/`;
+                const wsPath = this.wsPathTemplate.replace('/0/', `/${this.conversacionId}/`);
+                const wsUrl = `${protocol}//${window.location.host}${wsPath}`;
                 
                 this.socket = new WebSocket(wsUrl);
                 
@@ -147,10 +162,11 @@
                 if (!this.nuevoMensaje.trim()) return;
                 
                 try {
-                    const response = await fetch(`/conversaciones/${this.conversacionId}/responder/`, {
+                    const response = await fetch(this.replyUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'X-CSRFToken': getCSRFToken(),
                         },
                         body: JSON.stringify({
                             mensaje: this.nuevoMensaje

@@ -18,7 +18,15 @@
     </style>
 </head>
 <body class="min-h-screen bg-white">
-    <div class="min-h-screen flex flex-col">
+    <div
+        id="conversaciones-chat-app"
+        class="min-h-screen flex flex-col"
+        data-renaper-url="{% url 'conversaciones:consultar_renaper' %}"
+        data-start-url="{% url 'conversaciones:iniciar_conversacion' %}"
+        data-send-url-template="{% url 'conversaciones:enviar_mensaje_ciudadano' 0 %}"
+        data-messages-url-template="{% url 'conversaciones:obtener_mensajes_ciudadano' 0 %}"
+        data-evaluate-url-template="{% url 'conversaciones:evaluar' 0 %}"
+    >
         <!-- Header -->
         <header class="bg-white border-b border-[#E5E7EB] sticky top-0 z-40 shadow-sm">
             <div class="max-w-6xl mx-auto px-4 py-4">
@@ -436,6 +444,32 @@
             }
         };
 
+        const chatApp = document.getElementById('conversaciones-chat-app');
+        const chatUrls = {
+            renaper: chatApp.dataset.renaperUrl,
+            start: chatApp.dataset.startUrl,
+            sendTemplate: chatApp.dataset.sendUrlTemplate,
+            messagesTemplate: chatApp.dataset.messagesUrlTemplate,
+            evaluateTemplate: chatApp.dataset.evaluateUrlTemplate,
+        };
+
+        function buildConversationUrl(template, conversacionId) {
+            return template.replace('/0/', `/${conversacionId}/`);
+        }
+
+        function getCSRFToken() {
+            const match = document.cookie.match(/(?:^|;)\s*csrftoken=([^;]+)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        function jsonHeaders() {
+            const csrfToken = getCSRFToken();
+            return {
+                'Content-Type': 'application/json',
+                ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
+            };
+        }
+
         function seleccionarTipo(tipo) {
             tipoConsulta = tipo;
             document.getElementById('paso1').classList.add('hidden');
@@ -467,11 +501,9 @@
             }
 
             try {
-                const response = await fetch('/conversaciones/consultar-renaper/', {
+                const response = await fetch(chatUrls.renaper, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: jsonHeaders(),
                     body: JSON.stringify({ dni, sexo })
                 });
 
@@ -509,11 +541,9 @@
                     payload.datos_renaper = datosRenaper || {};
                 }
 
-                const response = await fetch('/conversaciones/iniciar/', {
+                const response = await fetch(chatUrls.start, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: jsonHeaders(),
                     body: JSON.stringify(payload)
                 });
 
@@ -559,11 +589,9 @@
             if (!mensaje || !conversacionId) return;
 
             try {
-                const response = await fetch(`/conversaciones/${conversacionId}/enviar/`, {
+                const response = await fetch(buildConversationUrl(chatUrls.sendTemplate, conversacionId), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: jsonHeaders(),
                     body: JSON.stringify({ mensaje })
                 });
 
@@ -607,7 +635,7 @@
             if (!conversacionId) return;
 
             try {
-                const response = await fetch(`/conversaciones/${conversacionId}/mensajes/`);
+                const response = await fetch(buildConversationUrl(chatUrls.messagesTemplate, conversacionId));
                 const data = await response.json();
 
                 // Solo agregar mensajes nuevos
@@ -673,11 +701,9 @@
             const comentario = document.getElementById('comentario').value.trim();
             
             try {
-                const response = await fetch(`/conversaciones/${conversacionId}/evaluar/`, {
+                const response = await fetch(buildConversationUrl(chatUrls.evaluateTemplate, conversacionId), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: jsonHeaders(),
                     body: JSON.stringify({
                         satisfaccion: puntuacionSeleccionada,
                         comentario: comentario

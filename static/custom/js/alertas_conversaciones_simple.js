@@ -1,6 +1,7 @@
 /**
  * Sistema de alertas para conversaciones (versión simple sin WebSocket)
  */
+const conversacionesSimpleConfig = window.conversacionesConfig || {};
 
 class AlertasConversacionesSimple {
     constructor() {
@@ -35,8 +36,11 @@ class AlertasConversacionesSimple {
     }
 
     async verificarAlertas() {
+        const alertsCountUrl = conversacionesSimpleConfig.alertsCountUrl;
+        if (!alertsCountUrl) return;
+
         try {
-            const response = await fetch('/conversaciones/api/alertas/count/');
+            const response = await fetch(alertsCountUrl);
             if (!response.ok) return;
             
             const data = await response.json();
@@ -83,9 +87,12 @@ class AlertasConversacionesSimple {
     async actualizarPreview() {
         const preview = document.getElementById('alertas-preview');
         if (!preview) return;
+        const alertsPreviewUrl = conversacionesSimpleConfig.alertsPreviewUrl;
+        const detailTemplate = conversacionesSimpleConfig.detailUrlTemplate;
+        if (!alertsPreviewUrl || !detailTemplate) return;
         
         try {
-            const response = await fetch('/conversaciones/api/alertas/preview/');
+            const response = await fetch(alertsPreviewUrl);
             if (!response.ok) return;
             
             const data = await response.json();
@@ -102,7 +109,7 @@ class AlertasConversacionesSimple {
                     
                     return `
                         <div class="p-3 border-b border-gray-100 ${claseRiesgo} cursor-pointer" 
-                             onclick="window.location.href='/conversaciones/${alerta.conversacion_id}/'">
+                             onclick="window.location.href='${detailTemplate.replace('/0/', `/${alerta.conversacion_id}/`)}'">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-gray-900">
