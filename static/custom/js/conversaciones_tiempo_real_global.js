@@ -1,8 +1,12 @@
 // Sistema global de notificaciones para conversaciones
 let ultimoConteoConversaciones = 0;
+const conversacionesGlobalConfig = window.conversacionesConfig || {};
 
 function verificarNuevasConversaciones() {
-    fetch('/conversaciones/api/estadisticas/', {
+    const statsUrl = conversacionesGlobalConfig.statsUrl;
+    if (!statsUrl) return;
+
+    fetch(statsUrl, {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
@@ -35,6 +39,7 @@ function verificarNuevasConversaciones() {
 }
 
 function mostrarNotificacionGlobal(mensaje, tipo = 'info') {
+    const listUrl = conversacionesGlobalConfig.listUrl || '#';
     // Remover notificaciones anteriores
     const notificacionesAnteriores = document.querySelectorAll('.notificacion-global-conversaciones');
     notificacionesAnteriores.forEach(n => n.remove());
@@ -46,7 +51,7 @@ function mostrarNotificacionGlobal(mensaje, tipo = 'info') {
     notificacion.innerHTML = `
         <div class="flex items-center">
             <span>${mensaje}</span>
-            <a href="/conversaciones/" class="ml-3 bg-white text-blue-600 px-3 py-1 rounded text-sm hover:bg-gray-100">
+            <a href="${listUrl}" class="ml-3 bg-white text-blue-600 px-3 py-1 rounded text-sm hover:bg-gray-100">
                 Ver
             </a>
             <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">

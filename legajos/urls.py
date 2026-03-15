@@ -70,16 +70,6 @@ urlpatterns = [
          views_institucional.api_programa_indicadores, 
          name='api_programa_indicadores'),
     
-    # ========================================================================
-    path('', views.LegajoListView.as_view(), name='lista'),
-    path('nuevo/', views.LegajoCreateView.as_view(), name='nuevo'),
-    path('ciudadanos/', views.CiudadanoListView.as_view(), name='ciudadanos'),
-    path('ciudadanos/nuevo/', views.CiudadanoCreateView.as_view(), name='ciudadano_nuevo'),
-    path('ciudadanos/confirmar/', views.CiudadanoConfirmarView.as_view(), name='ciudadano_confirmar'),
-    path('ciudadanos/manual/', views.CiudadanoManualView.as_view(), name='ciudadano_manual'),
-    path('ciudadanos/<int:pk>/', views.CiudadanoDetailView.as_view(), name='ciudadano_detalle'),
-    path('ciudadanos/<int:pk>/editar/', views.CiudadanoUpdateView.as_view(), name='ciudadano_editar'),
-    
     # Derivación a Programas
     path('ciudadanos/<int:ciudadano_id>/derivar-programa/', views_derivacion.derivar_programa_view, name='derivar_programa'),
     
@@ -126,7 +116,7 @@ urlpatterns = [
     path('reportes/', views.ReportesView.as_view(), name='reportes'),
     path('exportar-csv/', views.ExportarCSVView.as_view(), name='exportar_csv'),
     path('dispositivo/<int:dispositivo_id>/derivaciones/', views.DispositivoDerivacionesView.as_view(), name='dispositivo_derivaciones'),
-    path('cerrar-alerta/', views.CerrarAlertaEventoView.as_view(), name='cerrar_alerta'),
+    path('cerrar-alerta/', views.CerrarAlertaEventoView.as_view(), name='cerrar_alerta_evento'),
     
     # Dashboard Contactos
     path('dashboard-contactos/', views_contactos_simple.dashboard_contactos_simple, name='dashboard_contactos'),
@@ -153,7 +143,7 @@ urlpatterns = [
     
     # API Alertas
     path('ciudadanos/<int:ciudadano_id>/alertas/', views_contactos_simple.alertas_ciudadano_api, name='alertas_ciudadano'),
-    path('alertas/<int:alerta_id>/cerrar/', views_contactos_simple.cerrar_alerta_api, name='cerrar_alerta'),
+    path('alertas/<int:alerta_id>/cerrar/', views_contactos_simple.cerrar_alerta_api, name='cerrar_alerta_ciudadano'),
     
     # API Cursos y Actividades
     path('ciudadanos/<int:pk>/cursos-actividades/', views_cursos.cursos_actividades_ciudadano, name='cursos_actividades_ciudadano'),

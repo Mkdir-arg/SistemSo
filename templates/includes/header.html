@@ -5,7 +5,7 @@
              style="display: flex;
                     align-items: center;
                     justify-content: space-between">
-            <a href="{% url 'inicio' %}"
+            <a href="{% url 'core:inicio' %}"
                class="brand-link"
                style="display: flex;
                       align-items: center">
@@ -50,7 +50,7 @@
             </a>
         </li -->
 <li class="nav-item circle-btn">
-<a class="nav-link nav-link-rounded" href="{% url 'logout' %}">
+<a class="nav-link nav-link-rounded" href="{% url 'users:logout' %}">
 <img src="{% static 'custom/img/iconos_navbar/exit.svg' %}" alt="Chat" />
 </a>
 </li>

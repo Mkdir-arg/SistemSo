@@ -1,10 +1,11 @@
 from django.urls import path
-from . import views, api_views
+from . import api_views
+from .views import DashboardView
 
 app_name = 'dashboard'
 
 urlpatterns = [
-    path('', views.DashboardView.as_view(), name='inicio'),
+    path('', DashboardView.as_view(), name='inicio'),
     
     # APIs para el dashboard
     path('api/metricas/', api_views.metricas_dashboard, name='api_metricas'),

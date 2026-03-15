@@ -2,9 +2,19 @@ class ChatInterface {
     constructor() {
         this.currentConversationId = null;
         this.isLoading = false;
+        this.appElement = document.getElementById('chatbot-app');
         this.initializeElements();
         this.bindEvents();
         this.loadActiveConversation();
+    }
+
+    get urls() {
+        return {
+            sendMessage: this.appElement.dataset.sendUrl,
+            submitFeedback: this.appElement.dataset.feedbackUrl,
+            newConversation: this.appElement.dataset.newUrl,
+            conversationTemplate: this.appElement.dataset.conversationUrlTemplate,
+        };
     }
 
     initializeElements() {
@@ -62,7 +72,7 @@ class ChatInterface {
         }
 
         try {
-            const response = await fetch('/chatbot/send/', {
+            const response = await fetch(this.urls.sendMessage, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -136,7 +146,7 @@ class ChatInterface {
 
     async submitFeedback(messageId, rating) {
         try {
-            await fetch('/chatbot/feedback/', {
+            await fetch(this.urls.submitFeedback, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -157,7 +167,7 @@ class ChatInterface {
 
     async loadConversation(conversationId) {
         try {
-            const response = await fetch(`/chatbot/conversation/${conversationId}/`);
+            const response = await fetch(this.urls.conversationTemplate.replace('__ID__', conversationId));
             const data = await response.json();
 
             this.currentConversationId = conversationId;
@@ -180,7 +190,7 @@ class ChatInterface {
 
     async createNewConversation() {
         try {
-            const response = await fetch('/chatbot/new/', {
+            const response = await fetch(this.urls.newConversation, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': this.getCSRFToken()

@@ -7,8 +7,8 @@ class LegajosConfig(AppConfig):
     verbose_name = 'Legajos'
     
     def ready(self):
-        import legajos.signals
-        import legajos.signals_alertas
-        import legajos.signals_historial
-        import legajos.signals_programas
-        import legajos.signals_nachec
+        import legajos.signals  # noqa: F401
+        import legajos.signals.alerts  # noqa: F401
+        import legajos.signals.historial  # noqa: F401
+        import legajos.signals.programas  # noqa: F401
+        import legajos.signals.nachec  # noqa: F401

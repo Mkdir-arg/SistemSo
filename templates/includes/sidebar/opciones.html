@@ -39,7 +39,7 @@
         <nav class="space-y-2 sidebar-nav">
             <!-- Inicio -->
             <div class="relative">
-                <a href="{% url 'inicio' %}" class="{% if 'inicio' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center p-3 text-sm font-semibold transition-all" :class="sidebarCollapsed ? 'justify-center' : 'gap-x-3'">
+                <a href="{% url 'core:inicio' %}" class="{% if 'inicio' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center p-3 text-sm font-semibold transition-all" :class="sidebarCollapsed ? 'justify-center' : 'gap-x-3'">
                     <i class="fas fa-home text-base {% if 'inicio' in pagina_actual %}text-[#FF0080]{% endif %}"></i>
                     <template x-if="!sidebarCollapsed">
                         <span>Inicio</span>
@@ -138,7 +138,7 @@
 
             <!-- Relevamientos -->
             <div class="relative">
-                <a href="{% url 'relevamientos' %}" class="{% if 'relevamientos' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center p-3 text-sm font-semibold transition-all" :class="sidebarCollapsed ? 'justify-center' : 'gap-x-3'">
+                <a href="{% url 'core:relevamientos' %}" class="{% if 'relevamientos' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center p-3 text-sm font-semibold transition-all" :class="sidebarCollapsed ? 'justify-center' : 'gap-x-3'">
                     <i class="fas fa-clipboard-check text-base {% if 'relevamientos' in pagina_actual %}text-[#FF0080]{% endif %}"></i>
                     <template x-if="!sidebarCollapsed">
                         <span>Relevamientos</span>
@@ -228,10 +228,10 @@
                                 <i class="fas fa-chevron-down text-xs transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
                             </button>
                             <div x-show="open" x-transition class="mt-1 ml-6 space-y-1">
-                                <a href="{% url 'usuarios' %}" class="{% if 'usuarios' in pagina_actual or 'password' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                <a href="{% url 'users:usuarios' %}" class="{% if 'usuarios' in pagina_actual or 'password' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
                                     <i class="fas fa-users mr-2 text-xs {% if 'usuarios' in pagina_actual or 'password' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Usuarios
                                 </a>
-                                <a href="{% url 'grupos' %}" class="{% if 'grupos' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                <a href="{% url 'users:grupos' %}" class="{% if 'grupos' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
                                     <i class="fas fa-user-tag mr-2 text-xs {% if 'grupos' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Grupos
                                 </a>
                                 <a href="{% url 'chatbot:admin_panel' %}" class="{% if 'chatbot/admin' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
@@ -242,7 +242,7 @@
                     </template>
                     
                     <template x-if="sidebarCollapsed">
-                        <a href="{% url 'usuarios' %}" class="{% if 'usuarios' in pagina_actual or 'grupos' in pagina_actual or 'chatbot/admin' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center justify-center p-3 text-sm font-semibold transition-all">
+                        <a href="{% url 'users:usuarios' %}" class="{% if 'usuarios' in pagina_actual or 'grupos' in pagina_actual or 'chatbot/admin' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center justify-center p-3 text-sm font-semibold transition-all">
                             <i class="fas fa-cog text-base {% if 'usuarios' in pagina_actual or 'grupos' in pagina_actual or 'chatbot/admin' in pagina_actual %}text-[#FF0080]{% endif %}"></i>
                         </a>
                     </template>
@@ -263,4 +263,3 @@
         </nav>
     </div>
 {% endwith %}
-

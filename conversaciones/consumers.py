@@ -98,7 +98,7 @@ class ConversacionConsumer(AsyncWebsocketConsumer):
     def generar_alerta_asignacion(self, conversacion, operador):
         try:
             from legajos.models import AlertaCiudadano
-            from legajos.services_alertas import AlertasService
+            from legajos.services import AlertasService
 
             ciudadano = conversacion.ciudadano_relacionado if hasattr(conversacion, "ciudadano_relacionado") else None
 
@@ -125,7 +125,7 @@ class ConversacionConsumer(AsyncWebsocketConsumer):
             from datetime import timedelta
 
             from legajos.models import AlertaCiudadano
-            from legajos.services_alertas import AlertasService
+            from legajos.services import AlertasService
 
             conversacion = mensaje.conversacion
             ciudadano = conversacion.ciudadano_relacionado if hasattr(conversacion, "ciudadano_relacionado") else None
