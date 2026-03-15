@@ -27,6 +27,7 @@
 | Búsqueda Rápida Ciudadano | `busqueda-rapida-ciudadano/` | v1.0 | 2026-03-15 |
 | Refactor DX Interno | `refactor-dx/` | v1.53 | 2026-03-13 |
 | Motor de Flujos | `motor-flujos/` | v1.0 | 2026-03-15 |
+| Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
 
 ---
 
