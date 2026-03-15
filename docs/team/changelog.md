@@ -14,6 +14,24 @@
 
 ---
 
+## 2026-03-15 — US-007 Editor Visual de Flujos
+
+**User Story:** Como usuario con rol `programaConfigurar` quiero un editor visual drag & drop para diseñar el flujo de un programa para poder configurar visualmente la secuencia de pasos sin editar JSON manualmente.
+
+**Archivos creados:**
+- `flujos/views_urls.py` — URL HTML del editor
+- `flujos/templates/flujos/editor.html` — template con mount point React
+- `frontend/flow-editor/` — proyecto React + Vite completo (14 archivos)
+
+**Archivos modificados:**
+- `flujos/views.py` — view `editor_flujo` + imports
+- `config/urls.py` — include `flujos_editor`
+- `configuracion/templates/configuracion/programa_list.html` — enlace al editor
+
+**Descripción:** Editor visual con React Flow embebido en el backoffice Django. Panel izquierdo con 5 tipos de nodo arrastrables (inicio, fin, accion_humana, espera, decision). Panel derecho de propiedades con editor de condiciones para nodos decision. Validación en tiempo real del grafo. Guardar borrador y publicar via API REST. Bundle compilado con Vite hacia `static/flujos/dist/`. CSRF via cookie. URLs inyectadas desde Django (no hardcodeadas).
+
+---
+
 ## 2026-03-15 — US-006 Motor de Flujos Backend
 
 **User Story:** Como desarrollador quiero un motor de flujos backend (app `flujos/`) con modelos, runtime y tipos de nodo para que los programas puedan tener flujos configurables que guíen la atención de un ciudadano desde su inscripción hasta el cierre del caso.
