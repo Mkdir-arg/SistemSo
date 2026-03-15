@@ -10,6 +10,7 @@ from . import views_institucional
 from . import views_programas
 from . import views_derivacion_programa
 from . import views_acompanamiento
+from . import views_ciudadanos_api
 
 app_name = 'legajos'
 
@@ -17,6 +18,7 @@ urlpatterns = [
     path('', views.LegajoListView.as_view(), name='lista'),
     path('nuevo/', views.LegajoCreateView.as_view(), name='nuevo'),
     path('ciudadanos/', views.CiudadanoListView.as_view(), name='ciudadanos'),
+    path('ciudadanos/buscar/', views_ciudadanos_api.ciudadano_buscar_api, name='ciudadano_buscar_api'),
     path('ciudadanos/nuevo/', views.CiudadanoCreateView.as_view(), name='ciudadano_nuevo'),
     path('ciudadanos/confirmar/', views.CiudadanoConfirmarView.as_view(), name='ciudadano_confirmar'),
     path('ciudadanos/manual/', views.CiudadanoManualView.as_view(), name='ciudadano_manual'),

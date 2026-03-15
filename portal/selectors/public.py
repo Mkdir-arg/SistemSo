@@ -7,13 +7,13 @@ from .models import RecursoTurnos
 
 def get_portal_home_context():
     return {
-        "programas": Programa.objects.filter(activo=True).order_by("orden"),
+        "programas": Programa.objects.filter(estado='ACTIVO').order_by("orden"),
         "instituciones": Institucion.objects.all()[:6],
         "recursos_turnos": RecursoTurnos.objects.filter(activo=True)[:6],
         "stats": {
             "ciudadanos": Ciudadano.objects.count(),
             "instituciones": Institucion.objects.count(),
-            "programas": Programa.objects.filter(activo=True).count(),
+            "programas": Programa.objects.filter(estado='ACTIVO').count(),
             "inscripciones_activas": InscripcionPrograma.objects.filter(
                 estado__in=["ACTIVO", "EN_SEGUIMIENTO"]
             ).count(),

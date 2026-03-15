@@ -28,17 +28,16 @@ from ..forms_institucional import (
     CambiarEstadoCasoForm
 )
 from ..services import CasoService, DerivacionService
+from core.decorators import group_required
 from ..permissions_institucional import (
-    puede_ver_institucion,
     puede_ver_programa,
     puede_operar_programa,
-    require_ver_institucion,
     require_operar_programa
 )
 
 
 @login_required
-@require_ver_institucion
+@group_required(['institucionVer', 'institucionAdministrar'], redirect_to='configuracion:dispositivos')
 def institucion_detalle_programatico(request, pk):
     """
     Vista principal de detalle institucional con solapas dinámicas por programa.

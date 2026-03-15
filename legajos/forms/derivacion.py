@@ -41,5 +41,5 @@ class DerivarProgramaForm(forms.ModelForm):
             self.fields['programa_origen'].empty_label = "Derivación espontánea"
             
             # Todos los programas activos disponibles para derivación
-            self.fields['programa_destino'].queryset = Programa.objects.filter(activo=True).order_by('orden', 'nombre')
+            self.fields['programa_destino'].queryset = Programa.objects.filter(estado='ACTIVO').order_by('orden', 'nombre')
             self.fields['programa_destino'].empty_label = "Seleccionar programa..."

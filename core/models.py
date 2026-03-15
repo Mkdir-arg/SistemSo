@@ -381,3 +381,7 @@ class DocumentoRequerido(TimeStamped):
     
     def __str__(self):
         return f"{self.get_tipo_display()} - {self.institucion.nombre}"
+
+
+# Re-exportar para que `from core.models import Secretaria` funcione
+from .models_secretaria import Secretaria, Subsecretaria  # noqa: E402, F401

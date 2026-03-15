@@ -3,10 +3,13 @@ from functools import wraps
 from django.core.exceptions import PermissionDenied
 
 
-def group_required(group_names):
+def group_required(group_names, redirect_to=None):
     """
     Permite el acceso solo a usuarios autenticados que pertenezcan a alguno de los grupos indicados,
     o que sean superusuarios.
+
+    Si se pasa redirect_to, redirige con messages.error en lugar de lanzar PermissionDenied.
+    Sin redirect_to: comportamiento original (PermissionDenied / 403).
     """
 
     def in_group(user):
@@ -17,8 +20,12 @@ def group_required(group_names):
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
-            is_in = in_group(request.user)
-            if not is_in:
+            if not in_group(request.user):
+                if redirect_to:
+                    from django.contrib import messages
+                    from django.shortcuts import redirect
+                    messages.error(request, 'No tiene permisos para acceder a esta sección.')
+                    return redirect(redirect_to)
                 raise PermissionDenied
             return view_func(request, *args, **kwargs)
 

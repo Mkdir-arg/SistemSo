@@ -132,7 +132,7 @@ class SolapasService:
         
         # Obtener programas activos que NO tiene
         programas_disponibles = Programa.objects.filter(
-            activo=True
+            estado='ACTIVO'
         ).exclude(
             id__in=programas_inscritos
         )

@@ -33,13 +33,13 @@ class ProgramaListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         if self.request.user.is_superuser:
             # SuperAdmin ve todos los programas
-            queryset = Programa.objects.filter(activo=True)
+            queryset = Programa.objects.filter(estado=Programa.Estado.ACTIVO)
         else:
             # Coordinador ve solo sus programas
             queryset = Programa.objects.filter(
                 coordinadores__usuario=self.request.user,
                 coordinadores__activo=True,
-                activo=True
+                estado=Programa.Estado.ACTIVO,
             )
         
         # Agregar métricas

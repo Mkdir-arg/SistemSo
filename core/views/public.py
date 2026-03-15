@@ -37,6 +37,19 @@ def load_localidad(request):
 
 
 @login_required
+@require_GET
+def load_subsecretarias(request):
+    """Carga subsecretarías activas filtradas por secretaría."""
+    from ..models_secretaria import Subsecretaria
+    secretaria_id = request.GET.get("secretaria")
+    qs = Subsecretaria.objects.filter(activo=True).order_by('nombre')
+    if secretaria_id:
+        qs = qs.filter(secretaria_id=secretaria_id)
+    data = list(qs.values('id', 'nombre'))
+    return JsonResponse(data, safe=False)
+
+
+@login_required
 def inicio_view(request):
     """Vista para la página de inicio del sistema"""
     from django.contrib.auth.models import User

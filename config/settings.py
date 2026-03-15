@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "core",
     "dashboard",
     "legajos",
+    "flujos",
     "configuracion",
     "chatbot",
     "conversaciones",

@@ -35,7 +35,11 @@ urlpatterns = [
     path("", include(("healthcheck.urls", "healthcheck"), namespace="healthcheck")),
     path("", include("healthcheck.urls")),
     
+    # Flujos — editor visual HTML
+    path("flujos/", include(("flujos.views_urls", "flujos_editor"), namespace="flujos_editor")),
+
     # API Routes
+    path("api/", include(("flujos.urls", "flujos"), namespace="flujos")),
     path("api/legajos/", include("legajos.api_urls")),
     path("api/core/", include("core.api_urls")),
     path("api/chatbot/", include("chatbot.api_urls")),

@@ -12,40 +12,97 @@ class Programa(TimeStamped):
     Catálogo UNIFICADO de programas sociales del sistema.
     Sirve tanto para ciudadanos (InscripcionPrograma) como para instituciones (InstitucionPrograma).
     """
-    
+
     class TipoPrograma(models.TextChoices):
+        """Mantenido para compatibilidad con fixtures y tests existentes."""
         ACOMPANAMIENTO_SEDRONAR = "ACOMPANAMIENTO_SEDRONAR", "Acompañamiento SEDRONAR"
         NACHEC = "NACHEC", "ÑACHEC"
         ECONOMICO = "ECONOMICO", "Acompañamiento Económico"
         FAMILIAR = "FAMILIAR", "Acompañamiento Familiar"
-        ÑACHEC = "ÑACHEC", " ÑACHEC"
+        ÑACHEC = "ÑACHEC", "ÑACHEC"
         REDUCCION_DANOS = "REDUCCION_DANOS", "Reducción de Daños"
         REINSERCION_SOCIAL = "REINSERCION_SOCIAL", "Reinserción Social"
         CAPACITACION_COMUNITARIA = "CAPACITACION_COMUNITARIA", "Capacitación Comunitaria"
-    
+
+    class Naturaleza(models.TextChoices):
+        UN_SOLO_ACTO = "UN_SOLO_ACTO", "Un solo acto"
+        PERSISTENTE = "PERSISTENTE", "Persistente"
+
+    class Estado(models.TextChoices):
+        BORRADOR = "BORRADOR", "Borrador"
+        ACTIVO = "ACTIVO", "Activo"
+        SUSPENDIDO = "SUSPENDIDO", "Suspendido"
+        INACTIVO = "INACTIVO", "Inactivo"
+
     # Identificación
-    codigo = models.CharField(max_length=50, unique=True, db_index=True)
-    nombre = models.CharField(max_length=200, unique=True)
-    tipo = models.CharField(max_length=50, choices=TipoPrograma.choices, unique=True)
-    descripcion = models.TextField(blank=True)
-    
+    codigo = models.CharField(max_length=50, unique=True, db_index=True, verbose_name='Código')
+    nombre = models.CharField(max_length=200, unique=True, verbose_name='Nombre')
+    tipo = models.CharField(max_length=50, blank=True, verbose_name='Tipo')
+    descripcion = models.TextField(blank=True, verbose_name='Descripción')
+
+    # Configuración del programa
+    naturaleza = models.CharField(
+        max_length=20,
+        choices=Naturaleza.choices,
+        null=True,
+        blank=True,
+        verbose_name='Naturaleza',
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=Estado.choices,
+        default=Estado.BORRADOR,
+        db_index=True,
+        verbose_name='Estado',
+    )
+    tiene_turnos = models.BooleanField(default=False, verbose_name='Tiene turnos')
+    cupo_maximo = models.PositiveIntegerField(null=True, blank=True, verbose_name='Cupo máximo')
+    tiene_lista_espera = models.BooleanField(default=False, verbose_name='Tiene lista de espera')
+
     # UI - Campos para visualización en solapas dinámicas
     icono = models.CharField(
-        max_length=50, 
+        max_length=50,
         default='folder',
+        verbose_name='Ícono',
         help_text="Nombre del ícono (ej: people, assessment, school)"
     )
     color = models.CharField(
-        max_length=20, 
+        max_length=20,
         default="#6366f1",
+        verbose_name='Color',
         help_text="Color hex para la UI (ej: #6366f1)"
     )
     orden = models.PositiveIntegerField(
         default=0,
+        verbose_name='Orden',
         help_text="Orden de visualización en solapas (menor = primero)"
     )
-    
-    activo = models.BooleanField(default=True, db_index=True)
+
+    @property
+    def esta_activo(self):
+        """Compatibilidad: True si el programa está en estado ACTIVO."""
+        return self.estado == self.Estado.ACTIVO
+
+    @property
+    def flujo_activo(self):
+        """Devuelve la VersionFlujo PUBLICADA más reciente, o None."""
+        try:
+            return self.flujo.versiones.filter(
+                estado='PUBLICADA'
+            ).order_by('-numero_version').first()
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).debug('flujo_activo para programa %s: %s', self.pk, exc)
+            return None
+
+    # Jerarquía organizacional
+    subsecretaria = models.ForeignKey(
+        'core.Subsecretaria',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name='Subsecretaría',
+    )
 
     # Configuración de turnos (opcional)
     configuracion_turnos = models.OneToOneField(
@@ -73,7 +130,10 @@ class Programa(TimeStamped):
         verbose_name = "Programa"
         verbose_name_plural = "Programas"
         ordering = ['orden', 'nombre']
-    
+        indexes = [
+            models.Index(fields=['estado', 'orden']),
+        ]
+
     def __str__(self):
         return self.nombre
 

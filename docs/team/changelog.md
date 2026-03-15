@@ -14,6 +14,106 @@
 
 ---
 
+## 2026-03-15 — US-006 Motor de Flujos Backend
+
+**User Story:** Como desarrollador quiero un motor de flujos backend (app `flujos/`) con modelos, runtime y tipos de nodo para que los programas puedan tener flujos configurables que guíen la atención de un ciudadano desde su inscripción hasta el cierre del caso.
+
+**Archivos creados:**
+- `flujos/` (app nueva) — `models.py`, `runtime.py`, `forms.py`, `views.py`, `urls.py`, `admin.py`
+- `flujos/migrations/0001_initial.py` — DDL completo con 4 tablas, UniqueConstraint y 5 índices
+
+**Archivos modificados:**
+- `config/settings.py` — `'flujos'` en INSTALLED_APPS
+- `config/urls.py` — `path("api/", include("flujos.urls"))`
+- `legajos/models_programas.py` — property `flujo_activo`
+- `configuracion/views/programas.py` — validación flujo publicado en BORRADOR→ACTIVO
+- `legajos/signals/programas.py` — signal `iniciar_flujo_inscripcion`
+
+**Descripción:** App `flujos/` con 4 modelos (Flujo, VersionFlujo, InstanciaFlujo, InstanciaLog) y `FlowRuntime` para iniciar y avanzar instancias de ejecución. Evaluador de condiciones simple (`==`, `!=`, `>`, `>=`, `<`, `<=`, `in`). API REST JSON en 3 endpoints bajo `/api/flujos/`. La transición BORRADOR→ACTIVO en programas ahora requiere flujo publicado. Al crear una InscripcionPrograma se inicia el flujo automáticamente si el programa tiene flujo activo.
+
+---
+
+## 2026-03-15 — US-005 Wizard de configuración de programa
+
+**User Story:** Como usuario con rol `programaConfigurar` quiero crear y editar un programa social mediante un wizard de configuración por pasos para dar de alta programas correctamente tipificados y listos para operar.
+
+**Archivos modificados:**
+- `legajos/models_programas.py` — campos nuevos: `naturaleza`, `estado` (reemplaza `activo`), `tiene_turnos`, `cupo_maximo`, `tiene_lista_espera`; `tipo` pasa a CharField libre; `verbose_name` en `icono`, `color`, `orden`; property `esta_activo`
+- `legajos/views/programas.py` — filtros `activo=True` → `estado=ACTIVO`
+- `legajos/forms/derivacion.py` — queryset actualizado
+- `legajos/templatetags/programas_tags.py` — queryset actualizado
+- `legajos/services/solapas.py` — queryset actualizado
+- `portal/selectors/public.py` — 2 querysets actualizados
+- `configuracion/urls.py` — 10 rutas del wizard
+- `configuracion/views/__init__.py` — exports nuevos
+- `core/views/public.py` — endpoint AJAX `load_subsecretarias`
+- `core/urls.py` — ruta `ajax_load_subsecretarias`
+
+**Archivos creados:**
+- `legajos/migrations/0025_wizard_configuracion_programa.py` — RunPython para convertir `activo→estado`, luego RemoveField
+- `configuracion/forms_programas.py` — 4 forms (uno por paso del wizard)
+- `configuracion/views/programas.py` — wizard en FBVs con estado en sesión (creación + edición + cambio de estado)
+- `configuracion/templates/configuracion/programa_list.html`
+- `configuracion/templates/configuracion/programa_wizard_paso[1-4].html`
+
+**Descripción:** Wizard de 4 pasos para crear y editar programas sociales. Paso 1: identidad y jerarquía organizacional (Secretaría→Subsecretaría, filtrado dinámico vía AJAX). Paso 2: naturaleza (UN_SOLO_ACTO/PERSISTENTE). Paso 3: capacidades (turnos, cupo, lista de espera). Paso 4: visual + confirmación. Los programas se crean en estado BORRADOR y se activan manualmente desde el listado. Migración `0025` convierte el campo `activo` (BooleanField) a `estado` (CharField con 4 valores) conservando datos existentes.
+
+---
+
+## 2026-03-15 — US-013 + US-018 + US-004 Búsqueda rápida, permisos instituciones y ABM Secretarías
+
+**User Stories:**
+- US-013: Como operador quiero buscar un ciudadano por nombre o DNI de forma rápida para atender consultas sin demoras
+- US-018: Como administrador quiero que las vistas de instituciones estén protegidas por roles `institucionVer` e `institucionAdministrar`
+- US-004: Como usuario con rol `secretariaConfigurar` quiero gestionar Secretarías y Subsecretarías y vincular Programas a una Subsecretaría
+
+**Archivos creados:**
+- `legajos/selectors/ciudadanos.py` — `buscar_ciudadanos_rapido(q)` con búsqueda por DNI o nombre (max 10 resultados)
+- `legajos/views_ciudadanos_api.py` — endpoint AJAX `ciudadano_buscar_api` con `@login_required` + `@group_required`
+- `core/models_secretaria.py` — models `Secretaria` y `Subsecretaria` con `puede_eliminarse()`
+- `core/migrations/0008_secretaria_subsecretaria.py` — migración de ambas tablas
+- `legajos/migrations/0024_programa_subsecretaria.py` — FK `subsecretaria` en `Programa`
+- `configuracion/forms_secretaria.py` — `SecretariaForm` y `SubsecretariaForm`
+- `configuracion/views/secretaria.py` — 8 CBVs con `GroupRequiredMixin` + manejo de `ProtectedError`
+- `configuracion/templates/configuracion/secretaria_list.html` — lista con SweetAlert2
+- `configuracion/templates/configuracion/secretaria_form.html`
+- `configuracion/templates/configuracion/secretaria_confirm_delete.html`
+- `configuracion/templates/configuracion/subsecretaria_list.html` — lista con SweetAlert2
+- `configuracion/templates/configuracion/subsecretaria_form.html`
+- `configuracion/templates/configuracion/subsecretaria_confirm_delete.html`
+
+**Archivos modificados:**
+- `core/mixins.py` — `GroupRequiredMixin` ahora redirige a login para usuarios no autenticados
+- `core/decorators.py` — `group_required` extendido con `redirect_to` opcional (retrocompatible)
+- `core/models.py` — re-exporta `Secretaria` y `Subsecretaria`
+- `configuracion/views/institucional.py` — reemplazado control ad-hoc por `LoginRequiredMixin + GroupRequiredMixin` en todas las CBVs; fix de `success_url`
+- `configuracion/views/__init__.py` — exporta las 8 vistas nuevas
+- `configuracion/urls.py` — 8 rutas nuevas para secretarías/subsecretarías
+- `legajos/views/institucional.py` — `@require_ver_institucion` reemplazado por `@group_required` con `redirect_to`
+- `legajos/models_programas.py` — FK `subsecretaria` nullable en `Programa`
+- `legajos/urls.py` — ruta `ciudadano_buscar_api` (antes de `<int:pk>` para evitar colisión)
+- `templates/includes/navbar.html` — componente Alpine.js de búsqueda con debounce 300ms
+
+**Descripción:** Tres features implementadas simultáneamente. La búsqueda rápida (US-013) agrega un widget en la navbar con resultados en tiempo real. Los permisos de instituciones (US-018) reemplaza el control de acceso ad-hoc por el patrón `GroupRequiredMixin` consistente con el resto del sistema. El ABM de secretarías (US-004) agrega la jerarquía organizacional Secretaría→Subsecretaría→Programa con CRUD completo protegido por `secretariaConfigurar`.
+
+---
+
+## 2026-03-15 — US-011 Data migration de roles y permisos
+
+**User Story:** Como administrador del sistema quiero que todos los roles del backoffice existan como grupos Django con sus nombres definitivos acordados, y que los grupos con nombres viejos sean migrados automáticamente.
+
+**Archivos modificados:**
+- `turnos/mixins.py` — reemplazado `'Administradores de Turnos'` por `'turnoConfigurar'` en `admin_turnos_required` y `AdminTurnosRequiredMixin`
+
+**Archivos verificados (sin cambios necesarios):**
+- `users/management/commands/setup_grupos.py` — ya estaba completo con 15 roles operativos, 5 grupos especiales y 4 renombres legacy
+
+**Descripción:** Se unificaron los nombres de grupos Django con los acordados en la sesión de /definir roles. El management command `setup_grupos` crea idempotentemente todos los grupos del sistema y migra los 4 nombres legacy. El fix en mixins.py cierra los errores `2026-03-11_permisos-turnoconfigurar-nombre-viejo.md` y `2026-03-11_permisos-turnooperar-no-aplicado.md` (este último parcialmente — las vistas operativas de turnos quedan pendientes inline con US correspondientes).
+
+**Orden de deploy:** ejecutar `python manage.py setup_grupos` antes de deployar el código para evitar ventana de inconsistencia.
+
+---
+
 ## 2026-03-13 — Refactor DX Slice 47: packaging de la familia `views_nachec_*` en `legajos`
 
 **Archivos modificados:**

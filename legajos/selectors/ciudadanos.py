@@ -14,6 +14,46 @@ from ..models_nachec import (
 from ..services import SolapasService
 
 
+def buscar_ciudadanos_rapido(q):
+    """
+    Búsqueda rápida para el header del backoffice.
+    - Input numérico: busca por DNI exacto.
+    - Input texto (≥3 chars): busca por nombre o apellido (icontains).
+    Retorna máximo 10 ciudadanos activos con datos para el dropdown.
+    """
+    q = q.strip()
+    if not q:
+        return []
+
+    qs = Ciudadano.objects.filter(activo=True)
+
+    if q.isdigit():
+        qs = qs.filter(dni=q)
+    elif len(q) >= 3:
+        qs = qs.filter(Q(nombre__icontains=q) | Q(apellido__icontains=q))
+    else:
+        return []
+
+    from datetime import date as _date
+    hoy = _date.today()
+    resultados = []
+    for c in qs.order_by('apellido', 'nombre')[:10]:
+        edad = None
+        if c.fecha_nacimiento:
+            edad = hoy.year - c.fecha_nacimiento.year - (
+                (hoy.month, hoy.day) < (c.fecha_nacimiento.month, c.fecha_nacimiento.day)
+            )
+        resultados.append({
+            'id': c.pk,
+            'nombre': c.nombre,
+            'apellido': c.apellido,
+            'dni': c.dni,
+            'edad': edad,
+            'foto_url': None,
+        })
+    return resultados
+
+
 def get_ciudadanos_queryset(search=""):
     queryset = Ciudadano.objects.filter(activo=True)
     if search:

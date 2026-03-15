@@ -7,4 +7,4 @@ register = template.Library()
 @register.simple_tag
 def programas_activos():
     """Retorna todos los programas activos ordenados"""
-    return Programa.objects.filter(activo=True).order_by('orden', 'nombre')
+    return Programa.objects.filter(estado='ACTIVO').order_by('orden', 'nombre')
