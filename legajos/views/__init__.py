@@ -1,5 +1,17 @@
 """Views agrupadas de la app de legajos."""
 
+from ..views_ciudadanos import (  # noqa: F401
+    AdmisionPaso1View,
+    AdmisionPaso2View,
+    AdmisionPaso3View,
+    CiudadanoConfirmarView,
+    CiudadanoCreateView,
+    CiudadanoDetailView,
+    CiudadanoListView,
+    CiudadanoManualView,
+    CiudadanoUpdateView,
+    LegajoCreateView,
+)
 from .acompanamiento import crear_legajo_acompanamiento  # noqa: F401
 from .alertas import (  # noqa: F401
     alertas_count_ajax,
@@ -122,16 +134,10 @@ from .operativa import (  # noqa: F401
 )
 from .programas import ProgramaDetailView, ProgramaListView  # noqa: F401
 from .red_contactos import (  # noqa: F401
-    contacto_emergencia_api,
     crear_contacto_emergencia,
-    crear_dispositivo,
     crear_profesional,
     crear_vinculo,
     dispositivos_api,
-    eliminar_contacto_emergencia,
-    eliminar_dispositivo,
-    eliminar_profesional,
-    eliminar_vinculo,
     profesionales_api,
     red_contactos_view,
     vinculos_api,

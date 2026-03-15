@@ -1,5 +1,6 @@
 """Selectors para la app de portal."""
 
+from .actividades_ciudadano import get_actividades_accesibles  # noqa: F401
 from .ciudadano import (  # noqa: F401
     get_ciudadano_conversacion_or_404,
     get_ciudadano_conversaciones,

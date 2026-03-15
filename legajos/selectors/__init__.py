@@ -7,6 +7,10 @@ from .ciudadanos import (  # noqa: F401
 )
 from .contactos import (  # noqa: F401
     build_ciudadano_actividades_payload,
+    build_ciudadano_archivos_payload,
+    build_ciudadano_timeline_payload,
+    build_legajo_archivos_payload,
+    build_legajo_evolucion_payload,
     get_legajo_contactos_context,
 )
 from .legajos import (  # noqa: F401

@@ -5,7 +5,7 @@ type: requerimiento
 ---
 
 # Tipo de acceso en actividades
-> Estado: ABIERTO
+> Estado: CERRADO (implementado 2026-03-15)
 > Fecha: 2026-03-12
 > Prioridad: MEDIA
 > Tipo: MEJORA

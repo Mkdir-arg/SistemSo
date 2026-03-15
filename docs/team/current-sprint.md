@@ -68,6 +68,8 @@ _Se define en el sprint planning._
 | DX-054 | Como equipo de desarrollo quiero cerrar también `api_views` de `legajos` para agotar la deuda estructural repo-wide más obvia | ✅ Completado | Slice 54 ejecutado el 2026-03-13 con compatibilidad de routing DRF y smoke test ampliado |
 
 | US-012 | Derivación e inscripción de ciudadanos a programas — flujo completo con bandeja, aceptar/rechazar y creación de InscripcionPrograma | ✅ Completado | Implementado 2026-03-15 |
+| US-017 | Baja de ciudadano de un programa persistente — registra motivo, cancela turnos y flujo activo | ✅ Completado | Implementado 2026-03-15 |
+| US-020 | Tipo de acceso en actividades institucionales — LIBRE o REQUIERE_PROGRAMA con validación y selector anti-N+1 | ✅ Completado | Implementado 2026-03-15 |
 
 ## Impedimentos
 

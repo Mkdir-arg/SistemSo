@@ -7,9 +7,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
 from django.db.models import Count, Q
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
-from ..models_programas import Programa
+from ..models_programas import Programa, InscripcionPrograma
 from ..models_institucional import (
     InstitucionPrograma,
     CoordinadorPrograma,
@@ -306,6 +308,7 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
             'activos': InscripcionPrograma.objects.filter(programa=programa, estado='ACTIVO').count(),
             'seguimiento': InscripcionPrograma.objects.filter(programa=programa, estado='EN_SEGUIMIENTO').count(),
             'cerrados': InscripcionPrograma.objects.filter(programa=programa, estado='CERRADO').count(),
+            'bajas': InscripcionPrograma.objects.filter(programa=programa, estado='DADO_DE_BAJA').count(),
         }
         
         # DASHBOARD
@@ -334,5 +337,37 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
         context['total_acompanamientos_totales'] = InscripcionPrograma.objects.filter(programa=programa).count()
         
         context['es_superadmin'] = self.request.user.is_superuser
-        
+
         return context
+
+
+@login_required
+@require_http_methods(["POST"])
+def dar_de_baja_inscripcion(request, inscripcion_id):
+    """
+    Da de baja a un ciudadano de un programa persistente.
+    Espera campo POST 'motivo' (obligatorio).
+    """
+    from ..services.programas import BajaProgramaService
+
+    inscripcion = get_object_or_404(InscripcionPrograma, id=inscripcion_id)
+    motivo = request.POST.get('motivo', '').strip()
+
+    if not motivo:
+        messages.error(request, "Debe ingresar un motivo para la baja.")
+        return redirect('legajos:programa_detalle', pk=inscripcion.programa_id)
+
+    try:
+        BajaProgramaService.dar_de_baja(
+            inscripcion_id=inscripcion_id,
+            usuario=request.user,
+            motivo=motivo,
+        )
+        messages.success(
+            request,
+            f"{inscripcion.ciudadano.nombre_completo} fue dado de baja del programa correctamente.",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('legajos:programa_detalle', pk=inscripcion.programa_id)

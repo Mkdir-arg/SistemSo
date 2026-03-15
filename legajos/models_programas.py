@@ -147,6 +147,7 @@ class InscripcionPrograma(TimeStamped):
         EN_SEGUIMIENTO = "EN_SEGUIMIENTO", "En Seguimiento"
         SUSPENDIDO = "SUSPENDIDO", "Suspendido"
         CERRADO = "CERRADO", "Cerrado"
+        DADO_DE_BAJA = "DADO_DE_BAJA", "Dado de Baja"
     
     class ViaIngreso(models.TextChoices):
         DIRECTO = "DIRECTO", "Ingreso Directo"

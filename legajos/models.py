@@ -938,7 +938,11 @@ class PlanFortalecimiento(TimeStamped):
         ACTIVO = "ACTIVO", "Activo"
         SUSPENDIDO = "SUSPENDIDO", "Suspendido"
         FINALIZADO = "FINALIZADO", "Finalizado"
-    
+
+    class TipoAcceso(models.TextChoices):
+        LIBRE = "LIBRE", "Libre (sin requisito)"
+        REQUIERE_PROGRAMA = "REQUIERE_PROGRAMA", "Requiere inscripción a programa"
+
     legajo_institucional = models.ForeignKey(
         LegajoInstitucional,
         on_delete=models.CASCADE,
@@ -952,6 +956,24 @@ class PlanFortalecimiento(TimeStamped):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True, blank=True)
     estado = models.CharField(max_length=15, choices=Estado.choices, default=Estado.ACTIVO)
+
+    # Control de acceso
+    tipo_acceso = models.CharField(
+        max_length=20,
+        choices=TipoAcceso.choices,
+        default=TipoAcceso.LIBRE,
+        db_index=True,
+        verbose_name='Tipo de acceso',
+    )
+    programa_requerido = models.ForeignKey(
+        'legajos.Programa',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='actividades_que_requieren',
+        verbose_name='Programa requerido',
+        help_text='Solo aplica cuando tipo_acceso = Requiere inscripción a programa',
+    )
 
     # Configuración de turnos (opcional)
     configuracion_turnos = models.OneToOneField(

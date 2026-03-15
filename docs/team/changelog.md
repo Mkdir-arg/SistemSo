@@ -14,6 +14,43 @@
 
 ---
 
+## 2026-03-15 — US-020 Tipo de acceso en actividades institucionales
+
+**User Story:** Como administrador quiero configurar el tipo de acceso de una actividad (LIBRE o REQUIERE_PROGRAMA) para controlar qué ciudadanos pueden inscribirse.
+
+**Archivos modificados:**
+- `legajos/models.py` — `TipoAcceso` y campos `tipo_acceso`/`programa_requerido` en `PlanFortalecimiento`
+- `legajos/services/actividades.py` (nuevo) — `validar_acceso_actividad(actividad, ciudadano)`
+- `legajos/services/__init__.py` — export
+- `configuracion/forms/institucional.py` — campos nuevos en ambos forms con `clean()`
+- `configuracion/templates/configuracion/plan_form.html`, `actividad_editar_form.html` — sección Alpine.js
+- `portal/selectors/actividades_ciudadano.py` (nuevo) — `get_actividades_accesibles(ciudadano)`
+- `portal/selectors/__init__.py` — export
+
+**Migraciones:** `0031_planfortalecimiento_tipo_acceso_programa_requerido`
+
+**Descripción:** Prerequisito para US-022. Agrega control de acceso por programa en actividades institucionales. La función `validar_acceso_actividad` será consumida por el flujo de inscripción a actividades.
+
+---
+
+## 2026-03-15 — US-017 Baja de ciudadano de un programa persistente
+
+**User Story:** Como operador quiero dar de baja a un ciudadano de un programa persistente registrando motivo y fecha para cerrar su caso formalmente.
+
+**Archivos modificados:**
+- `legajos/models_programas.py` — agrega `DADO_DE_BAJA` al enum `InscripcionPrograma.Estado`
+- `legajos/services/programas.py` — nuevo `BajaProgramaService` con transacción atómica (baja + cancelar turnos + cancelar flujo)
+- `legajos/services/__init__.py` — export del nuevo service
+- `legajos/views/programas.py` — nueva FBV `dar_de_baja_inscripcion`
+- `legajos/urls.py` — nueva URL `acompanamiento/<int:inscripcion_id>/dar-de-baja/`
+- `legajos/templates/legajos/programas/programa_detail.html` — botón baja + modal SweetAlert2 + badge `DADO_DE_BAJA`
+
+**Migraciones:** `0030_inscripcionprograma_estado_dado_de_baja`
+
+**Descripción:** Operación formal de baja desde el tab Acompañamientos del panel de programa. Cancela turnos PENDIENTE/CONFIRMADO del ciudadano vinculados al programa y cierra el flujo activo con log de motivo.
+
+---
+
 ## 2026-03-15 — US-012 Derivación e inscripción de ciudadanos a programas
 
 **User Story:** Como operador del backoffice quiero derivar o inscribir directamente a un ciudadano en un programa para iniciar su proceso de admisión formal a través del flujo configurado del programa.
