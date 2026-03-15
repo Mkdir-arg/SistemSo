@@ -9,7 +9,7 @@ from django.views.generic import DetailView, TemplateView
 from portal.models import TurnoCiudadano
 
 from ..forms import AprobarTurnoForm, CancelarTurnoBackofficeForm, RechazarTurnoForm
-from ..mixins import OperadorRequiredMixin, operador_required
+from ..mixins import OperadorRequiredMixin, TurnoOperarRequiredMixin, operador_required, turno_operar_required
 from ..models import ConfiguracionTurnos
 from ..selectors_turnos import (
     build_agenda_context,
@@ -27,7 +27,7 @@ class BackofficeHomeView(OperadorRequiredMixin, TemplateView):
         return get_backoffice_home_context()
 
 
-class AgendaView(OperadorRequiredMixin, TemplateView):
+class AgendaView(TurnoOperarRequiredMixin, TemplateView):
     template_name = 'turnos/backoffice/agenda.html'
 
     def get_context_data(self, **kwargs):
@@ -42,14 +42,14 @@ class AgendaView(OperadorRequiredMixin, TemplateView):
         return build_agenda_context(fecha, config_id=config_id, estado_filter=estado_filter)
 
 
-class BandejaPendientesView(OperadorRequiredMixin, TemplateView):
+class BandejaPendientesView(TurnoOperarRequiredMixin, TemplateView):
     template_name = 'turnos/backoffice/bandeja_pendientes.html'
 
     def get_context_data(self, **kwargs):
         return build_bandeja_pendientes_context()
 
 
-class TurnoDetailView(OperadorRequiredMixin, DetailView):
+class TurnoDetailView(TurnoOperarRequiredMixin, DetailView):
     template_name = 'turnos/backoffice/turno_detalle.html'
     context_object_name = 'turno'
     pk_url_kwarg = 'pk'
@@ -85,7 +85,7 @@ class TurnoDetailView(OperadorRequiredMixin, DetailView):
         return context
 
 
-@operador_required
+@turno_operar_required
 @require_POST
 def turno_aprobar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
@@ -113,7 +113,7 @@ def turno_aprobar(request, pk):
     return redirect(request.POST.get('next', 'turnos:bandeja_pendientes'))
 
 
-@operador_required
+@turno_operar_required
 @require_POST
 def turno_rechazar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
@@ -136,7 +136,7 @@ def turno_rechazar(request, pk):
     return redirect(request.POST.get('next', 'turnos:bandeja_pendientes'))
 
 
-@operador_required
+@turno_operar_required
 @require_POST
 def turno_cancelar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
@@ -155,7 +155,7 @@ def turno_cancelar(request, pk):
     return redirect('turnos:agenda')
 
 
-@operador_required
+@turno_operar_required
 @require_POST
 def turno_completar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)

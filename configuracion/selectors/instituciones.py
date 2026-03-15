@@ -13,6 +13,7 @@ from legajos.models import (
 )
 from legajos.models_institucional import (
     CasoInstitucional,
+    DerivacionCiudadano,
     DerivacionInstitucional,
     InstitucionPrograma,
 )
@@ -96,9 +97,9 @@ def build_institucion_detail_context(institucion):
 
     for institucion_programa in programas_activos:
         programa = institucion_programa.programa
-        derivaciones_pendientes = DerivacionInstitucional.objects.filter(
+        derivaciones_pendientes = DerivacionCiudadano.objects.filter(
             institucion_programa=institucion_programa,
-            estado="PENDIENTE",
+            estado='PENDIENTE',
         ).count()
         casos_activos = CasoInstitucional.objects.filter(
             institucion_programa=institucion_programa,

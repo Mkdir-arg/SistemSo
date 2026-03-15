@@ -137,6 +137,14 @@
 - `legajos` ahora también expone sus APIs desde `legajos/api_views/`, incluyendo la API de contactos.
 - El packaging estructural repo-wide quedó prácticamente agotado; lo siguiente ya no es un refactor físico barato.
 
+## Estado funcional 2026-03-15
+
+- US-012 completado: flujo de derivación e inscripción de ciudadanos a programas usando `DerivacionCiudadano`.
+- `DerivacionPrograma` queda como tabla legacy (sin UI activa), solo usada por el flujo Ñachec.
+- `puede_operar_programa` corregido: ahora verifica grupo `programaOperar`, responsable local y `CoordinadorPrograma`. Antes siempre retornaba False para no-superusuarios.
+- El signal `iniciar_flujo_inscripcion` en `legajos/signals/programas.py` inicia el FlowRuntime automáticamente al crear `InscripcionPrograma`. El service no lo llama directamente.
+- Siguiente US candidata: US-008/009 (hub ciudadano), US-020 (tipo acceso actividades), US-022 (inscripción a actividades).
+
 ## Próxima etapa sugerida
 
 - El siguiente hotspot real pasó a ser el bloque territorial restante de `ÑACHEC`: validación, asignación, relevamiento y evidencias.

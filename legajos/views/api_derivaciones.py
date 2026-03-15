@@ -4,47 +4,48 @@ Vistas API para derivaciones de programas
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
+
 from ..models import Ciudadano
-from ..models_programas import DerivacionPrograma, Programa
+from ..models_institucional import DerivacionCiudadano
+from ..models_programas import Programa
 
 
 @login_required
 def derivaciones_programa_api(request, ciudadano_id, programa_id):
-    """
-    API para obtener derivaciones de un ciudadano a un programa específico
-    """
+    """API para obtener derivaciones de un ciudadano a un programa específico."""
     ciudadano = get_object_or_404(Ciudadano, id=ciudadano_id)
     programa = get_object_or_404(Programa, id=programa_id)
-    
-    # Obtener todas las derivaciones al programa (origen o destino)
-    derivaciones = DerivacionPrograma.objects.filter(
+
+    derivaciones = DerivacionCiudadano.objects.filter(
         ciudadano=ciudadano,
-        programa_destino=programa
+        programa=programa,
     ).select_related(
         'programa_origen',
         'derivado_por',
-        'respondido_por'
+        'quien_responde',
     ).order_by('-creado')
-    
+
     derivaciones_data = []
-    for derivacion in derivaciones:
+    for d in derivaciones:
         derivaciones_data.append({
-            'id': derivacion.id,
-            'creado': derivacion.creado.isoformat(),
-            'programa_origen': derivacion.programa_origen.nombre if derivacion.programa_origen else None,
-            'motivo': derivacion.motivo,
-            'urgencia': derivacion.urgencia,
-            'urgencia_display': derivacion.get_urgencia_display(),
-            'estado': derivacion.estado,
-            'estado_display': derivacion.get_estado_display(),
-            'derivado_por': derivacion.derivado_por.get_full_name() if derivacion.derivado_por else None,
-            'fecha_respuesta': derivacion.fecha_respuesta.isoformat() if derivacion.fecha_respuesta else None,
-            'respondido_por': derivacion.respondido_por.get_full_name() if derivacion.respondido_por else None,
-            'respuesta': derivacion.respuesta,
+            'id': d.id,
+            'creado': d.creado.isoformat(),
+            'programa_origen': d.programa_origen.nombre if d.programa_origen else None,
+            'motivo': d.motivo,
+            'urgencia': d.urgencia,
+            'urgencia_display': d.get_urgencia_display(),
+            'estado': d.estado,
+            'estado_display': d.get_estado_display(),
+            'tipo_inicio': d.tipo_inicio,
+            'tipo_inicio_display': d.get_tipo_inicio_display(),
+            'derivado_por': d.derivado_por.get_full_name() if d.derivado_por else None,
+            'fecha_respuesta': d.fecha_respuesta.isoformat() if d.fecha_respuesta else None,
+            'quien_responde': d.quien_responde.get_full_name() if d.quien_responde else None,
+            'respuesta': d.respuesta,
         })
-    
+
     return JsonResponse({
         'success': True,
         'derivaciones': derivaciones_data,
-        'total': len(derivaciones_data)
+        'total': len(derivaciones_data),
     })

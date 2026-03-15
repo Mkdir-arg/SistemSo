@@ -14,7 +14,7 @@
 | Legajo de Atención | `legajo-atencion/` | v1.0 | 2026-03-09 |
 | Programas Sociales | `programas-sociales/` | v1.1 | 2026-03-15 |
 | ÑACHEC | `nachec/` | v1.0 | 2026-03-09 |
-| Instituciones | `instituciones/` | v1.1 | 2026-03-15 |
+| Instituciones | `instituciones/` | v1.2 | 2026-03-15 |
 | Alertas | `alertas/` | v1.0 | 2026-03-09 |
 | Sistema de Turnos — Backoffice | `turnos-backoffice/` | v1.0 | 2026-03-09 |
 | Conversaciones — Chat Interno | `conversaciones-chat/` | v1.0 | 2026-03-09 |
@@ -28,6 +28,7 @@
 | Refactor DX Interno | `refactor-dx/` | v1.53 | 2026-03-13 |
 | Motor de Flujos | `motor-flujos/` | v1.0 | 2026-03-15 |
 | Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
+| Derivación e Inscripción a Programas | `derivacion-inscripcion-programas/` | v1.0 | 2026-03-15 |
 
 ---
 

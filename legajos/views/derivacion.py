@@ -1,56 +1,81 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
 from ..models import Ciudadano
-from ..models_programas import DerivacionPrograma
-from ..forms_derivacion import DerivarProgramaForm
-from ..services import SolapasService
+from ..models_institucional import DerivacionCiudadano, EstadoDerivacionCiudadano, TipoInicioDerivacion
+from ..forms.derivacion import DerivarProgramaForm
 
 
 @login_required
 def derivar_programa_view(request, ciudadano_id):
-    """Vista para derivar ciudadano a un programa"""
+    """Crea una DerivacionCiudadano al programa seleccionado."""
     ciudadano = get_object_or_404(Ciudadano, id=ciudadano_id)
-    
-    # Obtener programas activos y disponibles
-    programas_activos = SolapasService.obtener_programas_activos(ciudadano)
-    programas_disponibles = SolapasService.obtener_programas_disponibles_derivacion(ciudadano)
-    
-    if not programas_disponibles.exists():
-        messages.warning(request, 'El ciudadano ya está inscrito en todos los programas disponibles.')
-        return redirect('legajos:ciudadano_detalle', pk=ciudadano_id)
-    
+
+    puede_inscripcion_directa = (
+        request.user.is_superuser
+        or request.user.groups.filter(name='programaOperar').exists()
+    )
+
+    # Bloquear si ya tiene derivación pendiente al mismo programa (se valida en POST)
     if request.method == 'POST':
-        form = DerivarProgramaForm(request.POST, ciudadano=ciudadano)
+        form = DerivarProgramaForm(
+            request.POST,
+            ciudadano=ciudadano,
+            allow_inscripcion_directa=puede_inscripcion_directa,
+        )
         if form.is_valid():
+            ip = form.cleaned_data['institucion_programa']
+
+            # Bloquear si ya hay derivación pendiente al mismo programa
+            pendiente_existente = DerivacionCiudadano.objects.filter(
+                ciudadano=ciudadano,
+                institucion_programa=ip,
+                estado=EstadoDerivacionCiudadano.PENDIENTE,
+            ).exists()
+            if pendiente_existente:
+                messages.warning(
+                    request,
+                    f'Ya existe una derivación pendiente a {ip.programa.nombre} en {ip.institucion.nombre}.',
+                )
+                return redirect('legajos:ciudadano_detalle', pk=ciudadano_id)
+
+            # Bloquear si ya está activo en ese programa
+            from ..models_programas import InscripcionPrograma
+            activo_existente = InscripcionPrograma.objects.filter(
+                ciudadano=ciudadano,
+                programa=ip.programa,
+                estado__in=['ACTIVO', 'EN_SEGUIMIENTO'],
+            ).exists()
+            if activo_existente:
+                messages.warning(
+                    request,
+                    f'El ciudadano ya está activo en {ip.programa.nombre}.',
+                )
+                return redirect('legajos:ciudadano_detalle', pk=ciudadano_id)
+
             derivacion = form.save(commit=False)
             derivacion.ciudadano = ciudadano
             derivacion.derivado_por = request.user
-            
-            # Si hay programa origen, obtener la inscripción
-            if derivacion.programa_origen:
-                inscripcion_origen = programas_activos.filter(
-                    programa=derivacion.programa_origen
-                ).first()
-                if inscripcion_origen:
-                    derivacion.inscripcion_origen = inscripcion_origen
-            
+            if not puede_inscripcion_directa:
+                derivacion.tipo_inicio = TipoInicioDerivacion.DERIVACION
             derivacion.save()
-            
+
             messages.success(
                 request,
-                f'Derivación creada exitosamente a {derivacion.programa_destino.nombre}. '
-                f'Estado: Pendiente de aceptación.'
+                f'Derivación a {ip.programa.nombre} creada. Estado: Pendiente de aceptación.',
             )
             return redirect('legajos:ciudadano_detalle', pk=ciudadano_id)
     else:
-        form = DerivarProgramaForm(ciudadano=ciudadano)
-    
+        form = DerivarProgramaForm(
+            ciudadano=ciudadano,
+            allow_inscripcion_directa=puede_inscripcion_directa,
+        )
+
     context = {
         'ciudadano': ciudadano,
         'form': form,
-        'programas_activos': programas_activos,
-        'programas_disponibles': programas_disponibles,
+        'puede_inscripcion_directa': puede_inscripcion_directa,
     }
-    
+
     return render(request, 'legajos/derivar_programa.html', context)

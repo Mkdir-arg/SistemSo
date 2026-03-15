@@ -46,14 +46,22 @@ urlpatterns = [
          name='institucion_detalle_programatico'),
     
     # Derivaciones por programa
-    path('programa/<int:institucion_programa_id>/derivaciones/', 
-         views_institucional.programa_derivaciones, 
+    path('programa/<int:institucion_programa_id>/derivaciones/',
+         views_institucional.programa_derivaciones,
          name='programa_derivaciones'),
-    path('derivacion/<int:derivacion_id>/aceptar/', 
-         views_derivacion_programa.aceptar_derivacion_programa, 
+    # Derivaciones ciudadano→programa (US-012) — operan sobre DerivacionCiudadano
+    path('derivacion-ciudadano/<int:derivacion_id>/aceptar/',
+         views_derivacion_programa.aceptar_derivacion_ciudadano,
+         name='derivacion_ciudadano_aceptar'),
+    path('derivacion-ciudadano/<int:derivacion_id>/rechazar/',
+         views_derivacion_programa.rechazar_derivacion_ciudadano,
+         name='derivacion_ciudadano_rechazar'),
+    # Legacy — operan sobre DerivacionPrograma (Ñachec)
+    path('derivacion/<int:derivacion_id>/aceptar/',
+         views_derivacion_programa.aceptar_derivacion_programa,
          name='derivacion_aceptar'),
-    path('derivacion/<int:derivacion_id>/rechazar/', 
-         views_derivacion_programa.rechazar_derivacion_programa, 
+    path('derivacion/<int:derivacion_id>/rechazar/',
+         views_derivacion_programa.rechazar_derivacion_programa,
          name='derivacion_rechazar'),
     
     # Casos por programa

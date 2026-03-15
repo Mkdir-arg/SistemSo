@@ -14,6 +14,57 @@
 
 ---
 
+## 2026-03-15 — US-012 Derivación e inscripción de ciudadanos a programas
+
+**User Story:** Como operador del backoffice quiero derivar o inscribir directamente a un ciudadano en un programa para iniciar su proceso de admisión formal a través del flujo configurado del programa.
+
+**Archivos modificados:**
+- `legajos/models_institucional.py` — `inscripcion_creada` en `DerivacionCiudadano`
+- `legajos/permissions_institucional.py` — corrección de `puede_operar_programa` y compañeras
+- `legajos/services/institucional.py` — `aceptar_derivacion_programa`, `rechazar_derivacion_programa`
+- `legajos/forms/derivacion.py` — `DerivarProgramaForm` sobre `DerivacionCiudadano`
+- `legajos/views/derivacion.py`, `legajos/views/derivacion_programa.py`, `legajos/views/programas.py`, `legajos/views/api_derivaciones.py`
+- `legajos/urls.py` — nuevas URLs `derivacion_ciudadano_aceptar/rechazar`
+- `legajos/templates/legajos/programas/programa_detail.html`, `derivar_programa.html`, `derivar_rechazar_ciudadano.html` (nuevo)
+
+**Migraciones:** `0029_derivacionciudadano_inscripcion_creada`
+
+**Descripción:** Implementa el flujo completo de derivación e inscripción de ciudadanos a programas usando `DerivacionCiudadano`. Reemplaza el flujo previo basado en `DerivacionPrograma` (que queda legacy para Ñachec). Al aceptar una derivación se crea `InscripcionPrograma` y el FlowRuntime inicia el flujo via signal automático. Se corrigen los permisos `puede_operar_programa` que bloqueaban a todos los no-superusuarios.
+
+---
+
+## 2026-03-15 — US-021 Unificación modelo de derivación
+
+**User Story:** Como desarrollador quiero reemplazar `DerivacionInstitucional` por el nuevo modelo unificado `DerivacionCiudadano` para eliminar la duplicación de lógica y habilitar US-012.
+
+**Archivos modificados:**
+- `legajos/models_institucional.py` — nuevo modelo `DerivacionCiudadano`; `CasoInstitucional.derivacion_origen`; related_names legacy renombrados
+- `legajos/forms/institucional.py` — `DerivacionCiudadanoForm`
+- `legajos/services/institucional.py` — `DerivacionCiudadanoService`; fix bugs `responsable_caso` y `caso.notas`
+- `legajos/services/__init__.py` — exporta `DerivacionCiudadanoService`
+- `legajos/views/institucional.py` — queries y service al nuevo modelo; fix `select_related` inválidos; POST-only en `aceptar_derivacion`
+- `legajos/views/programas.py` — anotaciones y queries al nuevo modelo
+- `configuracion/selectors/instituciones.py` — badge derivaciones pendientes al nuevo modelo
+- `legajos/admin.py` — `DerivacionCiudadanoAdmin`
+
+**Migraciones:** `0026` (schema), `0027` (data), `0028` (AddField CasoInstitucional)
+
+**Descripción:** Se unificaron los dos modelos de derivación existentes. `DerivacionCiudadano` reemplaza `DerivacionInstitucional` en toda la capa activa. La tabla legacy se conserva con `related_name=*_legacy`. Datos históricos migrados sin pérdida. Se corrigieron 3 bugs preexistentes detectados durante el review.
+
+---
+
+## 2026-03-15 — Fix: turnoOperar no aplicado en vistas operativas
+
+**Tipo:** fix
+**Error:** `docs/errores/2026-03-11_permisos-turnooperar-no-aplicado.md`
+**Archivos modificados:**
+- `turnos/mixins.py` — agregado `turno_operar_required` decorator y `TurnoOperarRequiredMixin`
+- `turnos/views/turnos.py` — vistas operativas (agenda, bandeja, detalle, aprobar, rechazar, cancelar, completar) usan el nuevo guard de `turnoOperar`
+
+**Descripción:** Las vistas operativas de turnos usaban un guard permisivo que solo verificaba "no ciudadano". Se corrigió para exigir el grupo `turnoOperar`, alineando el comportamiento con lo definido en US-011.
+
+---
+
 ## 2026-03-15 — US-007 Editor Visual de Flujos
 
 **User Story:** Como usuario con rol `programaConfigurar` quiero un editor visual drag & drop para diseñar el flujo de un programa para poder configurar visualmente la secuencia de pasos sin editar JSON manualmente.

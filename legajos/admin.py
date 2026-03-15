@@ -3,9 +3,10 @@ from .models import Ciudadano, Profesional, LegajoAtencion, Consentimiento, Eval
 from .models_programas import Programa, InscripcionPrograma, DerivacionPrograma
 from .models_institucional import (
     InstitucionPrograma,
+    DerivacionCiudadano,
     DerivacionInstitucional,
     CasoInstitucional,
-    CoordinadorPrograma
+    CoordinadorPrograma,
 )
 
 
@@ -265,6 +266,40 @@ class DerivacionInstitucionalAdmin(admin.ModelAdmin):
         ('Auditoría', {
             'fields': ('derivado_por', 'creado', 'modificado'),
             'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(DerivacionCiudadano)
+class DerivacionCiudadanoAdmin(admin.ModelAdmin):
+    list_display = ('ciudadano', 'tipo_inicio', 'institucion', 'programa', 'estado', 'urgencia', 'creado')
+    list_filter = ('estado', 'tipo_inicio', 'urgencia', 'programa', 'creado')
+    search_fields = ('ciudadano__dni', 'ciudadano__nombre', 'ciudadano__apellido', 'institucion__nombre')
+    raw_id_fields = ('ciudadano', 'derivado_por', 'quien_responde', 'caso_creado')
+    readonly_fields = ('creado', 'modificado', 'fecha_respuesta')
+    date_hierarchy = 'creado'
+
+    fieldsets = (
+        ('Derivación', {
+            'fields': ('ciudadano', 'tipo_inicio', 'institucion_programa', 'actividad_destino', 'motivo', 'urgencia', 'observaciones')
+        }),
+        ('Origen', {
+            'fields': ('programa_origen',),
+            'classes': ('collapse',),
+        }),
+        ('Redundancia (BI)', {
+            'fields': ('institucion', 'programa'),
+            'classes': ('collapse',),
+        }),
+        ('Estado', {
+            'fields': ('estado', 'respuesta', 'fecha_respuesta', 'quien_responde')
+        }),
+        ('Caso Creado', {
+            'fields': ('caso_creado',)
+        }),
+        ('Auditoría', {
+            'fields': ('derivado_por', 'creado', 'modificado'),
+            'classes': ('collapse',),
         }),
     )
 

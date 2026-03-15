@@ -67,6 +67,8 @@ _Se define en el sprint planning._
 | DX-053 | Como equipo de desarrollo quiero mover `api_views` de `core` y `conversaciones` al mismo patrón de package sin tocar contratos HTTP | ✅ Completado | Slice 53 ejecutado el 2026-03-13 con compatibilidad desde `api_urls.py` y smoke tests ampliados |
 | DX-054 | Como equipo de desarrollo quiero cerrar también `api_views` de `legajos` para agotar la deuda estructural repo-wide más obvia | ✅ Completado | Slice 54 ejecutado el 2026-03-13 con compatibilidad de routing DRF y smoke test ampliado |
 
+| US-012 | Derivación e inscripción de ciudadanos a programas — flujo completo con bandeja, aceptar/rechazar y creación de InscripcionPrograma | ✅ Completado | Implementado 2026-03-15 |
+
 ## Impedimentos
 
 _Ninguno._

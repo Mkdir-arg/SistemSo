@@ -12,7 +12,7 @@ from .contactos import (  # noqa: F401
 )
 from .derivaciones_programa import DerivacionProgramaResult, DerivacionProgramaService  # noqa: F401
 from .filtros_usuario import FiltrosUsuarioService  # noqa: F401
-from .institucional import CasoService, DerivacionService  # noqa: F401
+from .institucional import CasoService, DerivacionCiudadanoService, DerivacionService  # noqa: F401
 from .legajos import LegajoWorkflowService  # noqa: F401
 from .nachec import (  # noqa: F401
     ServicioDeteccionDuplicados,
