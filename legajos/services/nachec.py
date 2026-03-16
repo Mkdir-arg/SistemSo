@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from ..models_nachec import (
@@ -315,6 +316,13 @@ class ServicioSLA:
 class ServicioOperacionNachec:
     """Orquesta tareas y transiciones operativas alrededor del caso."""
 
+    ESTADOS_CASOS_ACTIVOS = [
+        EstadoCaso.ASIGNADO,
+        EstadoCaso.EN_RELEVAMIENTO,
+        EstadoCaso.EN_EJECUCION,
+        EstadoCaso.EN_SEGUIMIENTO,
+    ]
+
     @staticmethod
     @transaction.atomic
     def completar_validacion(caso, usuario):
@@ -547,3 +555,110 @@ Instrucciones: {instrucciones[:100]}...""",
             "tarea_relevamiento": tarea_relevamiento,
             "sla_cumplido": sla_cumplido,
         }
+
+    @classmethod
+    def get_territoriales_con_carga(cls):
+        from django.contrib.auth import get_user_model
+
+        user_model = get_user_model()
+        return user_model.objects.filter(is_active=True).annotate(
+            casos_activos=Count(
+                "casos_nachec_territorial",
+                filter=Q(casos_nachec_territorial__estado__in=cls.ESTADOS_CASOS_ACTIVOS),
+            )
+        ).order_by("first_name", "last_name", "username")
+
+    @classmethod
+    def build_reasignacion_context(cls, caso):
+        return {
+            "territoriales": cls.get_territoriales_con_carga(),
+            "territorial_actual": caso.territorial,
+        }
+
+    @classmethod
+    @transaction.atomic
+    def reasignar_territorial(cls, caso, usuario, territorial, motivo):
+        motivo_limpio = (motivo or "").strip()
+        if not territorial:
+            raise ValidationError("Debe seleccionar un territorial")
+        if len(motivo_limpio) < 10:
+            raise ValidationError("El motivo debe tener al menos 10 caracteres")
+
+        territorial_anterior = caso.territorial
+        caso.territorial = territorial
+        caso.save(update_fields=["territorial", "modificado"])
+
+        TareaNachec.objects.filter(
+            caso=caso,
+            asignado_a=territorial_anterior,
+            estado__in=[EstadoTarea.PENDIENTE, EstadoTarea.EN_PROCESO],
+        ).update(asignado_a=territorial)
+
+        HistorialEstadoCaso.objects.create(
+            caso=caso,
+            estado_anterior=caso.estado,
+            estado_nuevo=caso.estado,
+            usuario=usuario,
+            observacion=(
+                "Reasignación por superadmin\n"
+                f"De: {territorial_anterior.get_full_name() if territorial_anterior else 'Sin asignar'}\n"
+                f"A: {territorial.get_full_name()}\n"
+                f"Motivo: {motivo_limpio}"
+            ),
+        )
+        return caso
+
+    @classmethod
+    def build_inicio_relevamiento_context(cls, caso):
+        if caso.sla_relevamiento:
+            dias_restantes = (caso.sla_relevamiento - timezone.now().date()).days
+            if dias_restantes < 0:
+                return {"sla_texto": f"Vencido hace {abs(dias_restantes)} días", "sla_vencido": True}
+            if dias_restantes == 0:
+                return {"sla_texto": "Vence hoy", "sla_vencido": False}
+            return {"sla_texto": f"Vence en {dias_restantes} días", "sla_vencido": False}
+        return {"sla_texto": "No definido", "sla_vencido": False}
+
+    @classmethod
+    @transaction.atomic
+    def iniciar_relevamiento(cls, caso, territorial):
+        if caso.estado != EstadoCaso.ASIGNADO:
+            raise ValidationError("El caso no está en estado ASIGNADO")
+        if caso.territorial_id != territorial.id:
+            raise ValidationError("Solo el territorial asignado puede iniciar el relevamiento")
+
+        tarea_relevamiento = TareaNachec.objects.filter(
+            caso=caso,
+            tipo=TipoTarea.RELEVAMIENTO,
+            estado__in=[EstadoTarea.PENDIENTE, EstadoTarea.EN_PROCESO],
+        ).first()
+        if not tarea_relevamiento:
+            raise ValidationError(
+                "No existe tarea de relevamiento para este caso. Contactar coordinación."
+            )
+
+        sla_vencido = bool(caso.sla_relevamiento and timezone.now().date() > caso.sla_relevamiento)
+        estado_anterior = caso.estado
+        caso.estado = EstadoCaso.EN_RELEVAMIENTO
+        caso.fecha_inicio_relevamiento = timezone.now()
+        caso.save(update_fields=["estado", "fecha_inicio_relevamiento", "modificado"])
+
+        if tarea_relevamiento.estado == EstadoTarea.PENDIENTE:
+            tarea_relevamiento.estado = EstadoTarea.EN_PROCESO
+            tarea_relevamiento.save(update_fields=["estado", "modificado"])
+
+        HistorialEstadoCaso.objects.create(
+            caso=caso,
+            estado_anterior=estado_anterior,
+            estado_nuevo=caso.estado,
+            usuario=territorial,
+            observacion=(
+                f"Relevamiento iniciado por {territorial.get_full_name()}\n"
+                f"SLA relevamiento: {caso.sla_relevamiento.strftime('%d/%m/%Y') if caso.sla_relevamiento else 'No definido'}\n"
+                f"Inicio fuera de SLA: {'Sí' if sla_vencido else 'No'}\n"
+                f"Tarea ID: {tarea_relevamiento.id}\n"
+                f"Prioridad: {caso.get_prioridad_display()}\n"
+                f"Municipio: {caso.municipio}"
+            ),
+        )
+        return {"caso": caso, "tarea": tarea_relevamiento, "sla_vencido": sla_vencido}

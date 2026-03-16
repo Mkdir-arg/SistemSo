@@ -109,3 +109,73 @@ class ServicioOperacionNachecTests(TestCase):
                 asignado_a=self.territorial,
             ).exists()
         )
+
+    def test_reasignar_territorial_actualiza_responsable_y_tareas_pendientes(self):
+        otra_territorial = get_user_model().objects.create_user(username="territorial-2", password="x")
+        self.caso.estado = EstadoCaso.ASIGNADO
+        self.caso.territorial = self.territorial
+        self.caso.save()
+        tarea = TareaNachec.objects.create(
+            caso=self.caso,
+            tipo="RELEVAMIENTO",
+            titulo="Tarea abierta",
+            descripcion="Pendiente de tomar",
+            asignado_a=self.territorial,
+            creado_por=self.operador,
+            estado=EstadoTarea.PENDIENTE,
+            prioridad=self.caso.prioridad,
+            fecha_vencimiento=date.today() + timedelta(days=1),
+        )
+
+        ServicioOperacionNachec.reasignar_territorial(
+            caso=self.caso,
+            usuario=self.operador,
+            territorial=otra_territorial,
+            motivo="Cambio por redistribucion de carga territorial",
+        )
+
+        self.caso.refresh_from_db()
+        tarea.refresh_from_db()
+        self.assertEqual(self.caso.territorial, otra_territorial)
+        self.assertEqual(tarea.asignado_a, otra_territorial)
+        self.assertTrue(
+            HistorialEstadoCaso.objects.filter(
+                caso=self.caso,
+                observacion__icontains="redistribucion de carga",
+            ).exists()
+        )
+
+    def test_iniciar_relevamiento_pasa_caso_y_tarea_a_en_proceso(self):
+        self.caso.estado = EstadoCaso.ASIGNADO
+        self.caso.territorial = self.territorial
+        self.caso.sla_relevamiento = date.today() - timedelta(days=1)
+        self.caso.save()
+        tarea = TareaNachec.objects.create(
+            caso=self.caso,
+            tipo="RELEVAMIENTO",
+            titulo="Relevamiento inicial",
+            descripcion="Tomar contacto y completar ficha",
+            asignado_a=self.territorial,
+            creado_por=self.operador,
+            estado=EstadoTarea.PENDIENTE,
+            prioridad=self.caso.prioridad,
+            fecha_vencimiento=date.today(),
+        )
+
+        result = ServicioOperacionNachec.iniciar_relevamiento(
+            caso=self.caso,
+            territorial=self.territorial,
+        )
+
+        self.caso.refresh_from_db()
+        tarea.refresh_from_db()
+        self.assertEqual(self.caso.estado, EstadoCaso.EN_RELEVAMIENTO)
+        self.assertEqual(tarea.estado, EstadoTarea.EN_PROCESO)
+        self.assertTrue(result["sla_vencido"])
+        self.assertTrue(
+            HistorialEstadoCaso.objects.filter(
+                caso=self.caso,
+                estado_anterior=EstadoCaso.ASIGNADO,
+                estado_nuevo=EstadoCaso.EN_RELEVAMIENTO,
+            ).exists()
+        )

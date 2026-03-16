@@ -2,6 +2,8 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from ..models_nachec import CasoNachec, HistorialEstadoCaso, RelevamientoNachec, TareaNachec
@@ -200,8 +202,6 @@ def asignar_territorial(request, caso_id):
 def reasignar_territorial(request, caso_id):
     """Reasignar territorial (solo superadmin)"""
     from django.contrib.auth.models import User
-    from django.db import transaction
-    from django.http import HttpResponseForbidden
 
     if not request.user.is_superuser:
         messages.error(request, 'Solo superadmin puede reasignar casos')
@@ -226,45 +226,29 @@ def reasignar_territorial(request, caso_id):
             messages.error(request, 'Territorial no válido')
             return redirect('legajos:nachec_reasignar_territorial', caso_id=caso.id)
 
-        with transaction.atomic():
-            territorial_anterior = caso.territorial
-            caso.territorial = territorial
-            caso.save()
-
-            TareaNachec.objects.filter(
+        try:
+            ServicioOperacionNachec.reasignar_territorial(
                 caso=caso,
-                asignado_a=territorial_anterior,
-                estado__in=['PENDIENTE', 'EN_PROCESO'],
-            ).update(asignado_a=territorial)
-
-            HistorialEstadoCaso.objects.create(
-                caso=caso,
-                estado_anterior=caso.estado,
-                estado_nuevo=caso.estado,
                 usuario=request.user,
-                observacion=f"""Reasignación por superadmin
-De: {territorial_anterior.get_full_name() if territorial_anterior else 'Sin asignar'}
-A: {territorial.get_full_name()}
-Motivo: {motivo}""",
+                territorial=territorial,
+                motivo=motivo,
             )
+        except ValidationError as exc:
+            messages.error(request, str(exc.message))
+            return redirect('legajos:nachec_reasignar_territorial', caso_id=caso.id)
 
         messages.success(request, f'Caso reasignado a {territorial.get_full_name()}')
         return redirect('legajos:programa_detalle', pk=2)
 
-    territoriales = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
-    for territorial in territoriales:
-        territorial.casos_activos = CasoNachec.objects.filter(
-            territorial=territorial,
-            estado__in=['ASIGNADO', 'EN_RELEVAMIENTO', 'EN_EJECUCION', 'EN_SEGUIMIENTO'],
-        ).count()
+    context = ServicioOperacionNachec.build_reasignacion_context(caso)
 
     return render(
         request,
         'legajos/nachec/reasignar_territorial.html',
         {
             'caso': caso,
-            'territoriales': territoriales,
-            'territorial_actual': caso.territorial,
+            'territoriales': context['territoriales'],
+            'territorial_actual': context['territorial_actual'],
         },
     )
 
@@ -272,10 +256,6 @@ Motivo: {motivo}""",
 @login_required
 def iniciar_relevamiento(request, caso_id):
     """ASIGNADO → EN_RELEVAMIENTO con control de acceso y validaciones"""
-    from django.db import transaction
-    from django.http import HttpResponseForbidden
-    from django.utils import timezone
-
     caso = get_object_or_404(CasoNachec, id=caso_id)
 
     if request.method == 'POST':
@@ -287,44 +267,13 @@ def iniciar_relevamiento(request, caso_id):
             messages.error(request, 'No estás asignado como territorial a este caso')
             return HttpResponseForbidden('Acceso denegado: no eres el territorial asignado')
 
-        tarea_relevamiento = TareaNachec.objects.filter(
-            caso=caso,
-            tipo='RELEVAMIENTO',
-            estado__in=['PENDIENTE', 'EN_PROCESO'],
-        ).first()
-
-        if not tarea_relevamiento:
-            messages.error(request, 'No existe tarea de relevamiento para este caso. Contactar coordinación.')
+        try:
+            result = ServicioOperacionNachec.iniciar_relevamiento(caso=caso, territorial=request.user)
+        except ValidationError as exc:
+            messages.error(request, str(exc.message))
             return redirect('legajos:programa_detalle', pk=2)
 
-        sla_vencido = False
-        if caso.sla_relevamiento and timezone.now().date() > caso.sla_relevamiento:
-            sla_vencido = True
-
-        with transaction.atomic():
-            estado_anterior = caso.estado
-            caso.estado = 'EN_RELEVAMIENTO'
-            caso.fecha_inicio_relevamiento = timezone.now()
-            caso.save()
-
-            if tarea_relevamiento.estado == 'PENDIENTE':
-                tarea_relevamiento.estado = 'EN_PROCESO'
-                tarea_relevamiento.save()
-
-            HistorialEstadoCaso.objects.create(
-                caso=caso,
-                estado_anterior=estado_anterior,
-                estado_nuevo=caso.estado,
-                usuario=request.user,
-                observacion=f"""Relevamiento iniciado por {request.user.get_full_name()}
-SLA relevamiento: {caso.sla_relevamiento.strftime('%d/%m/%Y') if caso.sla_relevamiento else 'No definido'}
-Inicio fuera de SLA: {'Sí' if sla_vencido else 'No'}
-Tarea ID: {tarea_relevamiento.id}
-Prioridad: {caso.get_prioridad_display()}
-Municipio: {caso.municipio}""",
-            )
-
-        if sla_vencido:
+        if result['sla_vencido']:
             messages.warning(request, 'Relevamiento iniciado. ADVERTENCIA: SLA vencido - el inicio se registró fuera de término.')
         else:
             messages.success(request, 'Relevamiento iniciado exitosamente. Tarea en proceso.')
@@ -337,26 +286,15 @@ Municipio: {caso.municipio}""",
         messages.error(request, 'El caso no está en estado ASIGNADO')
         return redirect('legajos:programa_detalle', pk=2)
 
-    sla_vencido = False
-    if caso.sla_relevamiento:
-        dias_restantes = (caso.sla_relevamiento - timezone.now().date()).days
-        if dias_restantes < 0:
-            sla_texto = f"Vencido hace {abs(dias_restantes)} días"
-            sla_vencido = True
-        elif dias_restantes == 0:
-            sla_texto = "Vence hoy"
-        else:
-            sla_texto = f"Vence en {dias_restantes} días"
-    else:
-        sla_texto = "No definido"
+    context = ServicioOperacionNachec.build_inicio_relevamiento_context(caso)
 
     return render(
         request,
         'legajos/nachec/iniciar_relevamiento.html',
         {
             'caso': caso,
-            'sla_texto': sla_texto,
-            'sla_vencido': sla_vencido,
+            'sla_texto': context['sla_texto'],
+            'sla_vencido': context['sla_vencido'],
         },
     )
 
