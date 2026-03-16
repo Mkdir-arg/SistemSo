@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Conversacion
+from ..models import Conversacion
 
 
 class RenaperConsultaForm(forms.Form):

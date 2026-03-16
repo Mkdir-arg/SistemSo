@@ -1,5 +1,5 @@
 from django import forms
-from .models import Institucion, Provincia, Municipio, Localidad
+from ..models import Institucion, Provincia, Municipio, Localidad
 
 
 class InstitucionForm(forms.ModelForm):

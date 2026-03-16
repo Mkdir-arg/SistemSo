@@ -22,6 +22,7 @@ db.sqlite3-journal
 .env.production
 venv/
 env/
+.venv/
 
 # IDE
 .vscode/
@@ -42,3 +43,6 @@ htmlcov/
 
 # Docker
 *.pid
+
+# Local tooling
+.codex-linux-first/
