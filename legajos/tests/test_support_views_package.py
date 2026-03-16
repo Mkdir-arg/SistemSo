@@ -1,23 +1,23 @@
 from django.test import SimpleTestCase
 
 from legajos.views import (
-    alertas_dashboard as alertas_dashboard_pkg,
-    crear_legajo_acompanamiento as crear_legajo_acompanamiento_pkg,
-    cursos_actividades_ciudadano as cursos_actividades_ciudadano_pkg,
-    derivaciones_programa_api as derivaciones_programa_api_pkg,
-    derivar_programa_view as derivar_programa_view_pkg,
+    alertas_dashboard,
+    crear_legajo_acompanamiento,
+    cursos_actividades_ciudadano,
+    derivaciones_programa_api,
+    derivar_programa_view,
 )
-from legajos.views_acompanamiento import crear_legajo_acompanamiento
-from legajos.views_alertas import alertas_dashboard
-from legajos.views_api_derivaciones import derivaciones_programa_api
-from legajos.views_cursos import cursos_actividades_ciudadano
-from legajos.views_derivacion import derivar_programa_view
+from legajos.views.acompanamiento import crear_legajo_acompanamiento as crear_legajo_acompanamiento_module
+from legajos.views.alertas import alertas_dashboard as alertas_dashboard_module
+from legajos.views.api_derivaciones import derivaciones_programa_api as derivaciones_programa_api_module
+from legajos.views.cursos import cursos_actividades_ciudadano as cursos_actividades_ciudadano_module
+from legajos.views.derivacion import derivar_programa_view as derivar_programa_view_module
 
 
 class LegajosSupportViewsPackageTests(SimpleTestCase):
     def test_package_expone_views_de_soporte(self):
-        self.assertIs(alertas_dashboard_pkg, alertas_dashboard)
-        self.assertIs(crear_legajo_acompanamiento_pkg, crear_legajo_acompanamiento)
-        self.assertIs(cursos_actividades_ciudadano_pkg, cursos_actividades_ciudadano)
-        self.assertIs(derivaciones_programa_api_pkg, derivaciones_programa_api)
-        self.assertIs(derivar_programa_view_pkg, derivar_programa_view)
+        self.assertIs(alertas_dashboard, alertas_dashboard_module)
+        self.assertIs(crear_legajo_acompanamiento, crear_legajo_acompanamiento_module)
+        self.assertIs(cursos_actividades_ciudadano, cursos_actividades_ciudadano_module)
+        self.assertIs(derivaciones_programa_api, derivaciones_programa_api_module)
+        self.assertIs(derivar_programa_view, derivar_programa_view_module)

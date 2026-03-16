@@ -3,6 +3,81 @@
 
 > Registro corto de decisiones arquitectónicas relevantes.
 
+## 2026-03-09 — Programas tienen flujo obligatorio
+
+**Decisión:** Todo programa social tiene un flujo configurable. Sin flujo configurado el programa queda en estado BORRADOR y no puede activarse.
+
+**Motivo:** Unificar el comportamiento de todos los programas bajo un motor de flujos común. Eliminar lógica ad-hoc por tipo de programa.
+
+---
+
+## 2026-03-09 — Jerarquía organizacional fija en dos niveles
+
+**Decisión:** Secretaría → Subsecretaría (exactamente dos niveles). No se puede agregar más niveles.
+
+**Motivo:** Refleja la estructura real del organismo. Evitar complejidad de árbol genérico innecesario.
+
+---
+
+## 2026-03-09 — Naturaleza de programa: un solo acto vs persistente
+
+**Decisión:** Los programas tienen dos naturalezas. "Un solo acto": el caso cierra automáticamente al completar el flujo. "Persistente": el caso permanece abierto hasta baja manual explícita.
+
+**Motivo:** Distintos programas sociales tienen ciclos de vida distintos que no deben forzarse al mismo comportamiento.
+
+---
+
+## 2026-03-09 — Roles como grupos Django independientes sin jerarquía
+
+**Decisión:** Todos los roles son grupos Django. No existe jerarquía entre roles — un usuario puede tener múltiples roles simultáneamente. El administrador (`is_staff`) asigna y revoca roles.
+
+**Motivo:** Flexibilidad operativa. Un operador puede tener simultáneamente `turnoOperar` y `ciudadanoVer` sin que un rol implique al otro.
+
+---
+
+## 2026-03-09 — Motor de flujos basado en sistema NODO
+
+**Decisión:** El motor de flujos del backend se adapta del sistema NODO (Django). El editor visual usa React solo para ese componente, el resto del sistema sigue con Alpine.js.
+
+**Motivo:** El sistema NODO ya tiene un motor de flujos probado en producción. React solo para el editor drag & drop porque Alpine.js no escala para ese caso de uso.
+
+---
+
+## 2026-03-09 — Tareas territoriales como nodo del flujo
+
+**Decisión:** Las tareas territoriales (formularios completados por operadores de campo en app móvil) son un tipo de nodo dentro del flujo de un programa, no una entidad de configuración separada.
+
+**Motivo:** Unifica la lógica de flujos. Evita una entidad paralela que duplique el concepto de "paso del flujo".
+
+---
+
+## 2026-03-11 — Actividades siempre pertenecen a una institución
+
+**Decisión:** Una actividad (`PlanFortalecimiento`) siempre requiere una institución. No existen actividades flotantes sin institución asociada.
+
+**Motivo:** Las actividades son la operativa institucional — representan lo que una institución hace. Sin institución, no hay contexto organizacional para la actividad.
+
+---
+
+## 2026-03-11 — Actividades tienen dos tipos de acceso: libre y por programa
+
+**Decisión:** Una actividad puede ser de acceso **libre** (cualquier ciudadano puede inscribirse directamente) o **requiere programa** (el ciudadano debe estar inscripto en un programa específico primero).
+
+**Campo a agregar:** `tipo_acceso = LIBRE | REQUIERE_PROGRAMA` en `PlanFortalecimiento`. Si es `REQUIERE_PROGRAMA`, FK opcional al `Programa` correspondiente.
+
+**Motivo:** Refleja la realidad operativa: algunas actividades son abiertas a la comunidad, otras son parte del flujo de atención de un programa específico.
+
+---
+
+## 2026-03-11 — Unificación del modelo de Derivación
+
+**Decisión:** Los dos modelos de derivación existentes (`Derivacion` legacy desde `LegajoAtencion`, y `DerivacionInstitucional` desde `Ciudadano`) deben unificarse en un único modelo de derivación.
+
+**Motivo:** Dos modelos paralelos para el mismo concepto generan confusión operativa y duplicación de lógica. Cuando el motor de flujos reemplace `LegajoAtencion`, la `Derivacion` legacy quedaría huérfana de todas formas.
+
+**Plan:** La unificación es parte del diseño del motor de flujos (US-006). El modelo unificado sale desde `Ciudadano`, no desde un legajo específico. La `Derivacion` legacy se depreca cuando `LegajoAtencion` migre al motor de flujos.
+
+
 ## 2026-03-13 — Refactor DX incremental por slices
 
 - Contexto: el repo real `SistemSo` no coincide con el contexto viejo de `AkunCalcu` y además concentra deuda en views/forms/urls monolíticos.
@@ -380,84 +455,24 @@
 - Decisión: el slice 54 la movió al paquete real porque seguía consumida solo por sus routers y no exigió tocar serializers, permisos ni contratos DRF.
 - Regla derivada: la última API grande de una app puede cerrarse estructuralmente si el cambio sigue siendo cartografía pura y el routing permanece estable.
 - Consecuencia: a partir de este punto, el refactor repo-wide deja de tener slices estructurales baratos y lo que queda es funcional, de contrato o de cleanup fino.
-=======
-# Decisiones Técnicas — SistemSo (ADRs)
 
-> Registro de decisiones de arquitectura y negocio tomadas. Nunca se borran — si se revierte una decisión se agrega una nueva entrada.
+## 2026-03-14 — después del packaging, empezar por subflujos operativos acotados
 
----
+- Contexto: tras el slice 54, el packaging repo-wide quedó prácticamente agotado y el siguiente hotspot real pasó a ser `legajos/views/nachec_operacion.py`, que todavía retenía mucha lógica de negocio.
+- Decisión: el slice 55 atacó primero el subflujo más acotado y reusable (`validación` → `envío a asignación` → `asignación territorial`) y lo movió a `ServicioOperacionNachec`.
+- Regla derivada: cuando ya no queda deuda estructural barata, conviene seguir por subflujos operativos con transiciones claras y poco acoplamiento a scoring/adjuntos, para maximizar impacto y mantener riesgo controlado.
+- Consecuencia: la view baja bastante de responsabilidad y el siguiente corte ya queda concentrado en relevamiento, scoring y evidencias.
 
-## 2026-03-09 — Programas tienen flujo obligatorio
+## 2026-03-16 — seguir `ÑACHEC` por operaciones sin scoring ni adjuntos
 
-**Decisión:** Todo programa social tiene un flujo configurable. Sin flujo configurado el programa queda en estado BORRADOR y no puede activarse.
+- Contexto: tras el slice 55, el siguiente bloque todavía relativamente acotado dentro de `nachec_operacion` era `reasignar_territorial` e `iniciar_relevamiento`, mientras `finalizar_relevamiento` y `adjuntar_evidencias` ya cruzan scoring, `ContentType`, archivos y contratos más frágiles.
+- Decisión: el slice 56 movió esos dos subflujos a `ServicioOperacionNachec` y dejó para un corte posterior el bloque de cierre/evidencias.
+- Regla derivada: en workflows largos de dominio, conviene separar primero transiciones operativas puras y dejar para el final los pasos que combinan persistencia, scoring y adjuntos.
+- Consecuencia: la view de operación queda más fina y el riesgo del siguiente corte queda mejor acotado al bloque de relevamiento final.
 
-**Motivo:** Unificar el comportamiento de todos los programas bajo un motor de flujos común. Eliminar lógica ad-hoc por tipo de programa.
+## 2026-03-16 — cerrar el frente estructural absorbiendo excepciones residuales
 
----
-
-## 2026-03-09 — Jerarquía organizacional fija en dos niveles
-
-**Decisión:** Secretaría → Subsecretaría (exactamente dos niveles). No se puede agregar más niveles.
-
-**Motivo:** Refleja la estructura real del organismo. Evitar complejidad de árbol genérico innecesario.
-
----
-
-## 2026-03-09 — Naturaleza de programa: un solo acto vs persistente
-
-**Decisión:** Los programas tienen dos naturalezas. "Un solo acto": el caso cierra automáticamente al completar el flujo. "Persistente": el caso permanece abierto hasta baja manual explícita.
-
-**Motivo:** Distintos programas sociales tienen ciclos de vida distintos que no deben forzarse al mismo comportamiento.
-
----
-
-## 2026-03-09 — Roles como grupos Django independientes sin jerarquía
-
-**Decisión:** Todos los roles son grupos Django. No existe jerarquía entre roles — un usuario puede tener múltiples roles simultáneamente. El administrador (`is_staff`) asigna y revoca roles.
-
-**Motivo:** Flexibilidad operativa. Un operador puede tener simultáneamente `turnoOperar` y `ciudadanoVer` sin que un rol implique al otro.
-
----
-
-## 2026-03-09 — Motor de flujos basado en sistema NODO
-
-**Decisión:** El motor de flujos del backend se adapta del sistema NODO (Django). El editor visual usa React solo para ese componente, el resto del sistema sigue con Alpine.js.
-
-**Motivo:** El sistema NODO ya tiene un motor de flujos probado en producción. React solo para el editor drag & drop porque Alpine.js no escala para ese caso de uso.
-
----
-
-## 2026-03-09 — Tareas territoriales como nodo del flujo
-
-**Decisión:** Las tareas territoriales (formularios completados por operadores de campo en app móvil) son un tipo de nodo dentro del flujo de un programa, no una entidad de configuración separada.
-
-**Motivo:** Unifica la lógica de flujos. Evita una entidad paralela que duplique el concepto de "paso del flujo".
-
----
-
-## 2026-03-11 — Actividades siempre pertenecen a una institución
-
-**Decisión:** Una actividad (`PlanFortalecimiento`) siempre requiere una institución. No existen actividades flotantes sin institución asociada.
-
-**Motivo:** Las actividades son la operativa institucional — representan lo que una institución hace. Sin institución, no hay contexto organizacional para la actividad.
-
----
-
-## 2026-03-11 — Actividades tienen dos tipos de acceso: libre y por programa
-
-**Decisión:** Una actividad puede ser de acceso **libre** (cualquier ciudadano puede inscribirse directamente) o **requiere programa** (el ciudadano debe estar inscripto en un programa específico primero).
-
-**Campo a agregar:** `tipo_acceso = LIBRE | REQUIERE_PROGRAMA` en `PlanFortalecimiento`. Si es `REQUIERE_PROGRAMA`, FK opcional al `Programa` correspondiente.
-
-**Motivo:** Refleja la realidad operativa: algunas actividades son abiertas a la comunidad, otras son parte del flujo de atención de un programa específico.
-
----
-
-## 2026-03-11 — Unificación del modelo de Derivación
-
-**Decisión:** Los dos modelos de derivación existentes (`Derivacion` legacy desde `LegajoAtencion`, y `DerivacionInstitucional` desde `Ciudadano`) deben unificarse en un único modelo de derivación.
-
-**Motivo:** Dos modelos paralelos para el mismo concepto generan confusión operativa y duplicación de lógica. Cuando el motor de flujos reemplace `LegajoAtencion`, la `Derivacion` legacy quedaría huérfana de todas formas.
-
-**Plan:** La unificación es parte del diseño del motor de flujos (US-006). El modelo unificado sale desde `Ciudadano`, no desde un legajo específico. La `Derivacion` legacy se depreca cuando `LegajoAtencion` migre al motor de flujos.
-
+- Contexto: tras más de cincuenta slices, el repo ya estaba casi completamente organizado por carpetas, pero seguían destacando tres excepciones visibles y transversales: `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py`.
+- Decisión: el slice 57 movió esos módulos a `users/forms/`, `turnos/forms/` y `core/services/auditoria.py`, actualizando exports y consumidores directos.
+- Regla derivada: al final de un refactor estructural largo, conviene cerrar primero las excepciones físicas más evidentes aunque no sean hotspots funcionales, para que la cartografía del proyecto quede coherente de punta a punta.
+- Consecuencia: lo que permanece plano en las apps pasa a ser principalmente fachada de compatibilidad o apps mínimas, no deuda estructural de primer orden.

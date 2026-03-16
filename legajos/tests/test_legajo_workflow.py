@@ -9,8 +9,8 @@ from django.utils import timezone
 from core.models import Institucion, Localidad, Municipio, Provincia
 from legajos.forms import EvaluacionInicialForm, EventoCriticoForm, PlanIntervencionForm, SeguimientoForm
 from legajos.models import Ciudadano, Derivacion, LegajoAtencion, SeguimientoContacto
-from legajos.selectors_legajos import get_legajos_report_stats, get_seguimientos_dashboard_metrics
-from legajos.services_legajos import LegajoWorkflowService
+from legajos.selectors import get_legajos_report_stats, get_seguimientos_dashboard_metrics
+from legajos.services import LegajoWorkflowService
 
 
 class LegajoWorkflowTests(TestCase):

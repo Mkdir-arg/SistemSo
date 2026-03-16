@@ -641,6 +641,15 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se ejecutó el quincuagésimo cuarto slice del refactor DX sobre `legajos`
 - `legajos` ahora también agrupa sus `api_views` en paquetes reales, incluyendo contactos
 - El comportamiento visible no cambió, y la deuda estructural repo-wide quedó prácticamente agotada
+- Se ejecutó el quincuagésimo quinto slice del refactor DX sobre `ÑACHEC`
+- El subflujo inicial de operación (`validación`, `envío a asignación`, `asignación territorial`) ahora vive en service layer reutilizable
+- Se corrigió una inconsistencia real de tareas de coordinación sin cambiar el flujo visible para el usuario final
+- Se ejecutó el quincuagésimo sexto slice del refactor DX sobre `ÑACHEC`
+- La reasignación territorial y el inicio de relevamiento ahora viven también en service layer reutilizable
+- El comportamiento visible no cambió, pero la view dejó de orquestar transacciones e historial en esos subflujos
+- Se ejecutó el quincuagésimo séptimo slice del refactor DX sobre organización física repo-wide
+- `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py` ya no viven como archivos sueltos en raíz de app
+- El comportamiento visible no cambió y la cartografía física del repo quedó todavía más consistente
 
 ---
 

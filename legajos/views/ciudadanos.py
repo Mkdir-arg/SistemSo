@@ -8,7 +8,7 @@ from django.views.generic import CreateView, DetailView, FormView, ListView, Upd
 from core.cache_decorators import cache_view, invalidate_cache_pattern
 from core.models import DispositivoRed
 
-from .forms import (
+from ..forms import (
     AdmisionLegajoForm,
     BuscarCiudadanoForm,
     CiudadanoConfirmarForm,
@@ -17,14 +17,13 @@ from .forms import (
     ConsultaRenaperForm,
     ConsentimientoForm,
 )
-from .models import Ciudadano, LegajoAtencion
-from .selectors_ciudadanos import (
+from ..models import Ciudadano, LegajoAtencion
+from ..selectors import (
     build_ciudadano_detail_context,
     get_ciudadanos_dashboard_metrics,
     get_ciudadanos_queryset,
 )
-from .services_admision import AdmisionSessionService
-from .services_ciudadanos import CiudadanosService
+from ..services import AdmisionSessionService, CiudadanosService
 
 
 @method_decorator(cache_view(timeout=300), name='dispatch')

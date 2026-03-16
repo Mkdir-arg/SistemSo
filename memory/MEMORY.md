@@ -136,6 +136,15 @@
 - Se completó el quincuagésimo cuarto slice sobre `legajos`.
 - `legajos` ahora también expone sus APIs desde `legajos/api_views/`, incluyendo la API de contactos.
 - El packaging estructural repo-wide quedó prácticamente agotado; lo siguiente ya no es un refactor físico barato.
+- Se completó el quincuagésimo quinto slice sobre `ÑACHEC`.
+- `ServicioOperacionNachec` ahora concentra validación inicial, envío a asignación y asignación territorial.
+- El siguiente frente ya no es estructural: queda el bloque de relevamiento, scoring y evidencias en `nachec_operacion`.
+- Se completó el quincuagésimo sexto slice sobre `ÑACHEC`.
+- `ServicioOperacionNachec` ahora también concentra reasignación territorial e inicio de relevamiento.
+- El siguiente frente sigue estando en el cierre de relevamiento, scoring y evidencias, que ya no es un corte barato ni de bajo riesgo.
+- Se completó el quincuagésimo séptimo slice sobre packaging residual.
+- `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py` ya quedaron absorbidos por carpetas reales.
+- La deuda estructural repo-wide quedó prácticamente cerrada; lo pendiente es mayormente funcional, de wrappers legacy o de validación runtime.
 
 ## Próxima etapa sugerida
 

@@ -1,1 +1,0 @@
-from .selectors.legajos import *  # noqa: F401,F403
