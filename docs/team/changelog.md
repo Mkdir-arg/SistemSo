@@ -1071,3 +1071,24 @@
 - `legajos/tests/test_nachec_operacion_services.py`
 
 **Descripción:** Se siguió adelgazando `legajos/views/nachec_operacion.py` moviendo a `ServicioOperacionNachec` la reasignación de territorial, la construcción de contexto para reasignación e inicio de relevamiento, y la transición transaccional `ASIGNADO -> EN_RELEVAMIENTO` con su actualización de tarea e historial. También se agregaron tests de service para fijar ese contrato operativo y se redujo la duplicación de cálculo de carga territorial/SLA en la view.
+
+---
+
+## 2026-03-16 — Refactor DX Slice 57: packaging final de `forms` y `services` residuales
+
+**Archivos modificados:**
+- `users/forms/__init__.py`
+- `turnos/forms/__init__.py`
+- `core/services/auditoria.py`
+- `core/services/__init__.py`
+- `core/management/commands/verificar_auditoria.py`
+- `users/tests/test_package_exports.py`
+- `turnos/tests/test_package_exports.py`
+- `core/tests/test_package_exports.py`
+
+**Archivos eliminados:**
+- `users/forms.py`
+- `turnos/forms.py`
+- `core/services_auditoria.py`
+
+**Descripción:** Se absorbieron dentro de carpetas reales las excepciones estructurales más relevantes que todavía quedaban fuera del patrón principal: `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py`. Desde este punto, la organización física del proyecto queda casi completamente alineada a carpetas por responsabilidad, y lo que persiste en raíz es principalmente fachada de compatibilidad o apps mínimas.

@@ -393,3 +393,10 @@
 - Decisión: el slice 56 movió esos dos subflujos a `ServicioOperacionNachec` y dejó para un corte posterior el bloque de cierre/evidencias.
 - Regla derivada: en workflows largos de dominio, conviene separar primero transiciones operativas puras y dejar para el final los pasos que combinan persistencia, scoring y adjuntos.
 - Consecuencia: la view de operación queda más fina y el riesgo del siguiente corte queda mejor acotado al bloque de relevamiento final.
+
+## 2026-03-16 — cerrar el frente estructural absorbiendo excepciones residuales
+
+- Contexto: tras más de cincuenta slices, el repo ya estaba casi completamente organizado por carpetas, pero seguían destacando tres excepciones visibles y transversales: `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py`.
+- Decisión: el slice 57 movió esos módulos a `users/forms/`, `turnos/forms/` y `core/services/auditoria.py`, actualizando exports y consumidores directos.
+- Regla derivada: al final de un refactor estructural largo, conviene cerrar primero las excepciones físicas más evidentes aunque no sean hotspots funcionales, para que la cartografía del proyecto quede coherente de punta a punta.
+- Consecuencia: lo que permanece plano en las apps pasa a ser principalmente fachada de compatibilidad o apps mínimas, no deuda estructural de primer orden.

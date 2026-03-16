@@ -141,6 +141,9 @@
 - Se completó el quincuagésimo sexto slice sobre `ÑACHEC`.
 - `ServicioOperacionNachec` ahora también concentra reasignación territorial e inicio de relevamiento.
 - El siguiente frente sigue estando en el cierre de relevamiento, scoring y evidencias, que ya no es un corte barato ni de bajo riesgo.
+- Se completó el quincuagésimo séptimo slice sobre packaging residual.
+- `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py` ya quedaron absorbidos por carpetas reales.
+- La deuda estructural repo-wide quedó prácticamente cerrada; lo pendiente es mayormente funcional, de wrappers legacy o de validación runtime.
 
 ## Próxima etapa sugerida
 
