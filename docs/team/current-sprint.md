@@ -67,6 +67,7 @@ _Se define en el sprint planning._
 | DX-053 | Como equipo de desarrollo quiero mover `api_views` de `core` y `conversaciones` al mismo patrón de package sin tocar contratos HTTP | ✅ Completado | Slice 53 ejecutado el 2026-03-13 con compatibilidad desde `api_urls.py` y smoke tests ampliados |
 | DX-054 | Como equipo de desarrollo quiero cerrar también `api_views` de `legajos` para agotar la deuda estructural repo-wide más obvia | ✅ Completado | Slice 54 ejecutado el 2026-03-13 con compatibilidad de routing DRF y smoke test ampliado |
 | DX-055 | Como equipo de desarrollo quiero sacar a service layer el subflujo inicial de `nachec_operacion` para reducir lógica de negocio en views y corregir inconsistencias de tareas | ✅ Completado | Slice 55 ejecutado el 2026-03-14 con tests de service para validación, envío y asignación |
+| DX-056 | Como equipo de desarrollo quiero extraer la reasignación territorial y el inicio de relevamiento de `nachec_operacion` para seguir adelgazando el flujo operativo más sensible | ✅ Completado | Slice 56 ejecutado el 2026-03-16 con service layer y tests de reasignación/inicio |
 
 ## Impedimentos
 

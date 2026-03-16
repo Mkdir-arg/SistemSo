@@ -275,6 +275,9 @@ SistemSo es una plataforma de gestión social municipal. Permite a organismos de
 - Se ejecutó el quincuagésimo quinto slice del refactor DX sobre `ÑACHEC`
 - El subflujo inicial de operación (`validación`, `envío a asignación`, `asignación territorial`) ahora vive en service layer reutilizable
 - Se corrigió una inconsistencia real de tareas de coordinación sin cambiar el flujo visible para el usuario final
+- Se ejecutó el quincuagésimo sexto slice del refactor DX sobre `ÑACHEC`
+- La reasignación territorial y el inicio de relevamiento ahora viven también en service layer reutilizable
+- El comportamiento visible no cambió, pero la view dejó de orquestar transacciones e historial en esos subflujos
 
 ---
 

@@ -386,3 +386,10 @@
 - Decisión: el slice 55 atacó primero el subflujo más acotado y reusable (`validación` → `envío a asignación` → `asignación territorial`) y lo movió a `ServicioOperacionNachec`.
 - Regla derivada: cuando ya no queda deuda estructural barata, conviene seguir por subflujos operativos con transiciones claras y poco acoplamiento a scoring/adjuntos, para maximizar impacto y mantener riesgo controlado.
 - Consecuencia: la view baja bastante de responsabilidad y el siguiente corte ya queda concentrado en relevamiento, scoring y evidencias.
+
+## 2026-03-16 — seguir `ÑACHEC` por operaciones sin scoring ni adjuntos
+
+- Contexto: tras el slice 55, el siguiente bloque todavía relativamente acotado dentro de `nachec_operacion` era `reasignar_territorial` e `iniciar_relevamiento`, mientras `finalizar_relevamiento` y `adjuntar_evidencias` ya cruzan scoring, `ContentType`, archivos y contratos más frágiles.
+- Decisión: el slice 56 movió esos dos subflujos a `ServicioOperacionNachec` y dejó para un corte posterior el bloque de cierre/evidencias.
+- Regla derivada: en workflows largos de dominio, conviene separar primero transiciones operativas puras y dejar para el final los pasos que combinan persistencia, scoring y adjuntos.
+- Consecuencia: la view de operación queda más fina y el riesgo del siguiente corte queda mejor acotado al bloque de relevamiento final.

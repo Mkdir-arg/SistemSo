@@ -138,6 +138,9 @@
 - Se completó el quincuagésimo quinto slice sobre `ÑACHEC`.
 - `ServicioOperacionNachec` ahora concentra validación inicial, envío a asignación y asignación territorial.
 - El siguiente frente ya no es estructural: queda el bloque de relevamiento, scoring y evidencias en `nachec_operacion`.
+- Se completó el quincuagésimo sexto slice sobre `ÑACHEC`.
+- `ServicioOperacionNachec` ahora también concentra reasignación territorial e inicio de relevamiento.
+- El siguiente frente sigue estando en el cierre de relevamiento, scoring y evidencias, que ya no es un corte barato ni de bajo riesgo.
 
 ## Próxima etapa sugerida
 

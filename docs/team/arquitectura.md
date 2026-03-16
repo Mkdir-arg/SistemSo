@@ -352,3 +352,4 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-13: las `api_views` de apps compartidas también pueden moverse a paquetes reales siempre que `api_urls.py` siga apuntando al mismo import lógico y no se toque el contrato DRF.
 - 2026-03-13: si una API grande todavía está acotada a routers propios y no reabre permisos/serializers, también puede cerrarse como último paso estructural antes de dar por agotado el packaging repo-wide.
 - 2026-03-14: una vez agotado el packaging repo-wide, el siguiente paso correcto en hotspots grandes es extraer a services los subflujos más acotados y testeables antes de tocar formularios, scoring o adjuntos.
+- 2026-03-16: dentro de `ÑACHEC`, los subflujos operativos con cambios de asignación o estado pero sin scoring/adjuntos deben migrarse primero a `ServicioOperacionNachec`, dejando en la view solo permisos HTTP, parseo y mensajes.

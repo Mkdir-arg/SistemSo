@@ -1060,3 +1060,14 @@
 - `legajos/tests/test_nachec_operacion_services.py`
 
 **Descripción:** Se extrajo a service layer el subflujo inicial de `ÑACHEC` en `nachec_operacion`: completar validación, completar tarea, construir contexto de envío a asignación, enviar a asignación y asignar territorial. En el mismo corte se corrigió una inconsistencia real: la tarea de asignación se creaba como `OTRO`, pero la reasignación/completado buscaba un tipo inexistente; ahora la coordinación vuelve a encontrar y completar la tarea correcta por criterio consistente.
+
+---
+
+## 2026-03-16 — Refactor DX Slice 56: service layer para reasignación e inicio de relevamiento `ÑACHEC`
+
+**Archivos modificados:**
+- `legajos/services/nachec.py`
+- `legajos/views/nachec_operacion.py`
+- `legajos/tests/test_nachec_operacion_services.py`
+
+**Descripción:** Se siguió adelgazando `legajos/views/nachec_operacion.py` moviendo a `ServicioOperacionNachec` la reasignación de territorial, la construcción de contexto para reasignación e inicio de relevamiento, y la transición transaccional `ASIGNADO -> EN_RELEVAMIENTO` con su actualización de tarea e historial. También se agregaron tests de service para fijar ese contrato operativo y se redujo la duplicación de cálculo de carga territorial/SLA en la view.
