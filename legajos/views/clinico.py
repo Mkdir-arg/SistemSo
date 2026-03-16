@@ -30,7 +30,7 @@ from ..forms import (
     SeguimientoForm,
 )
 from ..models import Derivacion, EvaluacionInicial, EventoCritico, LegajoAtencion, PlanIntervencion, SeguimientoContacto
-from ..selectors_legajos import (
+from ..selectors import (
     get_derivaciones_queryset,
     get_dispositivo_derivaciones_queryset,
     get_eventos_dashboard_metrics,
@@ -45,7 +45,7 @@ from ..selectors_legajos import (
     get_seguimientos_dashboard_metrics,
     get_seguimientos_queryset,
 )
-from ..services_legajos import LegajoWorkflowService
+from ..services import LegajoWorkflowService
 
 
 def _build_actividades_extra_context(request, actividades_base=None):

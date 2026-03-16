@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from ..models import Ciudadano
 from ..models_programas import DerivacionPrograma
-from ..forms_derivacion import DerivarProgramaForm
+from ..forms import DerivarProgramaForm
 from ..services import SolapasService
 
 

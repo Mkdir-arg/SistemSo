@@ -5,8 +5,7 @@ from django.urls import reverse
 from legajos.forms import AdmisionLegajoForm, CiudadanoConfirmarForm, CiudadanoManualForm
 from legajos.models import Ciudadano
 from legajos.models_programas import InscripcionPrograma, Programa
-from legajos.services_admision import AdmisionSessionService
-from legajos.services_ciudadanos import CiudadanosService
+from legajos.services import AdmisionSessionService, CiudadanosService
 
 
 class LegajosCiudadanosAdmisionTests(TestCase):

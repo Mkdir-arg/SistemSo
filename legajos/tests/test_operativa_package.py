@@ -1,22 +1,22 @@
 from django.test import SimpleTestCase
 
 from legajos.views import (
-    ActividadesInscritoListView as ActividadesInscritoListViewPkg,
-    InscribirActividadView as InscribirActividadViewPkg,
-    actividades_por_institucion as actividades_por_institucion_pkg,
-    marcar_etapa_plan as marcar_etapa_plan_pkg,
-)
-from legajos.views_operativa import (
     ActividadesInscritoListView,
     InscribirActividadView,
     actividades_por_institucion,
     marcar_etapa_plan,
 )
+from legajos.views.operativa import (
+    ActividadesInscritoListView as ActividadesInscritoListViewModule,
+    InscribirActividadView as InscribirActividadViewModule,
+    actividades_por_institucion as actividades_por_institucion_module,
+    marcar_etapa_plan as marcar_etapa_plan_module,
+)
 
 
 class LegajosOperativaPackageTests(SimpleTestCase):
     def test_package_expone_views_operativas(self):
-        self.assertIs(InscribirActividadViewPkg, InscribirActividadView)
-        self.assertIs(ActividadesInscritoListViewPkg, ActividadesInscritoListView)
-        self.assertIs(actividades_por_institucion_pkg, actividades_por_institucion)
-        self.assertIs(marcar_etapa_plan_pkg, marcar_etapa_plan)
+        self.assertIs(InscribirActividadView, InscribirActividadViewModule)
+        self.assertIs(ActividadesInscritoListView, ActividadesInscritoListViewModule)
+        self.assertIs(actividades_por_institucion, actividades_por_institucion_module)
+        self.assertIs(marcar_etapa_plan, marcar_etapa_plan_module)
