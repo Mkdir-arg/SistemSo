@@ -47,6 +47,18 @@ from .clinico import (  # noqa: F401
     SeguimientoListView,
     SeguimientoUpdateView,
 )
+from .ciudadanos import (  # noqa: F401
+    AdmisionPaso1View,
+    AdmisionPaso2View,
+    AdmisionPaso3View,
+    CiudadanoConfirmarView,
+    CiudadanoCreateView,
+    CiudadanoDetailView,
+    CiudadanoListView,
+    CiudadanoManualView,
+    CiudadanoUpdateView,
+    LegajoCreateView,
+)
 from .contactos_api import (  # noqa: F401
     actividades_ciudadano_api,
     alertas_ciudadano_api,

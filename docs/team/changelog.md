@@ -1254,3 +1254,47 @@
 - `legajos/tests/test_package_exports.py`
 
 **Descripción:** Se cerró también la capa de `api_views` en `legajos`, moviendo tanto la API principal como la de contactos al paquete real `legajos/api_views/`. El routing de DRF se mantuvo estable desde `api_urls.py` y `api_urls_contactos.py`, y se amplió el smoke test del paquete.
+
+---
+
+## 2026-03-14 — Refactor DX Slice 55: service layer inicial para operación `ÑACHEC`
+
+**Archivos modificados:**
+- `legajos/services/nachec.py`
+- `legajos/services/__init__.py`
+- `legajos/views/nachec_operacion.py`
+- `legajos/tests/test_nachec_operacion_services.py`
+
+**Descripción:** Se extrajo a service layer el subflujo inicial de `ÑACHEC` en `nachec_operacion`: completar validación, completar tarea, construir contexto de envío a asignación, enviar a asignación y asignar territorial. En el mismo corte se corrigió una inconsistencia real: la tarea de asignación se creaba como `OTRO`, pero la reasignación/completado buscaba un tipo inexistente; ahora la coordinación vuelve a encontrar y completar la tarea correcta por criterio consistente.
+
+---
+
+## 2026-03-16 — Refactor DX Slice 56: service layer para reasignación e inicio de relevamiento `ÑACHEC`
+
+**Archivos modificados:**
+- `legajos/services/nachec.py`
+- `legajos/views/nachec_operacion.py`
+- `legajos/tests/test_nachec_operacion_services.py`
+
+**Descripción:** Se siguió adelgazando `legajos/views/nachec_operacion.py` moviendo a `ServicioOperacionNachec` la reasignación de territorial, la construcción de contexto para reasignación e inicio de relevamiento, y la transición transaccional `ASIGNADO -> EN_RELEVAMIENTO` con su actualización de tarea e historial. También se agregaron tests de service para fijar ese contrato operativo y se redujo la duplicación de cálculo de carga territorial/SLA en la view.
+
+---
+
+## 2026-03-16 — Refactor DX Slice 57: packaging final de `forms` y `services` residuales
+
+**Archivos modificados:**
+- `users/forms/__init__.py`
+- `turnos/forms/__init__.py`
+- `core/services/auditoria.py`
+- `core/services/__init__.py`
+- `core/management/commands/verificar_auditoria.py`
+- `users/tests/test_package_exports.py`
+- `turnos/tests/test_package_exports.py`
+- `core/tests/test_package_exports.py`
+
+**Archivos eliminados:**
+- `users/forms.py`
+- `turnos/forms.py`
+- `core/services_auditoria.py`
+
+**Descripción:** Se absorbieron dentro de carpetas reales las excepciones estructurales más relevantes que todavía quedaban fuera del patrón principal: `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py`. Desde este punto, la organización física del proyecto queda casi completamente alineada a carpetas por responsabilidad, y lo que persiste en raíz es principalmente fachada de compatibilidad o apps mínimas.

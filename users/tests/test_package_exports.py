@@ -11,9 +11,12 @@ class UsersPackageExportsTests(SimpleTestCase):
         self.assertIsNotNone(GroupListView)
 
     def test_services_and_selectors_packages_export_public_symbols(self):
+        from users.forms import CustomUserChangeForm, UserCreationForm
         from users.selectors import get_usuarios_queryset
         from users.services import UsuariosAdminService, UsuariosService
 
+        self.assertIsNotNone(UserCreationForm)
+        self.assertIsNotNone(CustomUserChangeForm)
         self.assertIsNotNone(UsuariosService)
         self.assertIsNotNone(UsuariosAdminService)
         self.assertTrue(callable(get_usuarios_queryset))

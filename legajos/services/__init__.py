@@ -17,6 +17,7 @@ from .institucional import CasoService, DerivacionCiudadanoService, DerivacionSe
 from .legajos import LegajoWorkflowService  # noqa: F401
 from .nachec import (  # noqa: F401
     ServicioDeteccionDuplicados,
+    ServicioOperacionNachec,
     ServicioSLA,
     ServicioTransicionNachec,
 )

@@ -25,7 +25,7 @@
 | Auditoría | `auditoria/` | v1.0 | 2026-03-09 |
 | Configuración del Sistema | `configuracion-sistema/` | v1.1 | 2026-03-15 |
 | Búsqueda Rápida Ciudadano | `busqueda-rapida-ciudadano/` | v1.0 | 2026-03-15 |
-| Refactor DX Interno | `refactor-dx/` | v1.53 | 2026-03-13 |
+| Refactor DX Interno | `refactor-dx/` | v1.56 | 2026-03-16 |
 | Motor de Flujos | `motor-flujos/` | v1.0 | 2026-03-15 |
 | Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
 | Derivación e Inscripción a Programas | `derivacion-inscripcion-programas/` | v1.0 | 2026-03-15 |

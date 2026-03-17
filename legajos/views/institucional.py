@@ -24,8 +24,7 @@ from ..models_institucional import (
     EstadoCaso,
     EstadoPrograma,
 )
-from ..forms_institucional import (
-    DerivacionCiudadanoForm,
+from ..forms import (
     DerivacionInstitucionalForm,
     RechazarDerivacionForm,
     CambiarEstadoCasoForm,
