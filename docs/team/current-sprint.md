@@ -73,6 +73,7 @@ _Se define en el sprint planning._
 | US-012 | Derivación e inscripción de ciudadanos a programas — flujo completo con bandeja, aceptar/rechazar y creación de InscripcionPrograma | ✅ Completado | Implementado 2026-03-15 |
 | US-017 | Baja de ciudadano de un programa persistente — registra motivo, cancela turnos y flujo activo | ✅ Completado | Implementado 2026-03-15 |
 | US-020 | Tipo de acceso en actividades institucionales — LIBRE o REQUIERE_PROGRAMA con validación y selector anti-N+1 | ✅ Completado | Implementado 2026-03-15 |
+| US-023 | Clases y registro de asistencia en actividades institucionales | ✅ Completado | Implementado 2026-03-19 |
 
 ## Impedimentos
 

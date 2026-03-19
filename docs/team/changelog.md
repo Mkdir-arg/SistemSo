@@ -33,6 +33,25 @@
 
 ---
 
+## 2026-03-19 — US-023 Clases y registro de asistencia en actividades institucionales
+
+**User Story:** Como operador institucional quiero registrar clases dentro de una actividad y marcar asistencia por clase. Como ciudadano quiero ver mi historial de asistencia desde el portal.
+
+**Archivos nuevos:**
+- `legajos/models.py` — modelos `ClaseActividad` y `AsistenciaClase`
+- `legajos/migrations/0033_claseactividad_asistenciaclase.py`
+- `configuracion/selectors/clases.py`, `configuracion/services/clases.py`, `configuracion/forms/clases.py`, `configuracion/views/clases.py`
+- `configuracion/templates/configuracion/clase_lista.html`, `clase_form.html`, `clase_asistencia.html`
+- `portal/selectors/actividades_ciudadano.py` (función `get_asistencia_ciudadano_en_actividad`)
+- `portal/views/ciudadano_actividades.py` (vista `ciudadano_detalle_actividad`)
+- `portal/templates/portal/ciudadano/detalle_actividad.html`
+
+**Archivos modificados:** `configuracion/urls.py`, `portal/urls.py`, `portal/templates/.../mis_actividades.html`, `configuracion/templates/.../actividad_detail.html`, `__init__.py` de selectors/services/views
+
+**Descripción:** Capa de clases (sesiones) sobre las actividades institucionales. Gestión CRUD desde el backoffice con bloqueo de edición en clases futuras. Asistencia registrable con estados PRESENTE/AUSENTE/JUSTIFICADO/TARDANZA. Portal ciudadano muestra historial con porcentaje de asistencia.
+
+---
+
 ## 2026-03-19 — US-022 Inscripción de ciudadanos a actividades institucionales
 
 **User Story:** Como operador backoffice o ciudadano autenticado en el portal quiero inscribir un ciudadano a una actividad institucional para registrar su participación con código de confirmación, respetando tipo de acceso y cupo.

@@ -105,3 +105,14 @@
 
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+const colorMap = {
+    'PRESENTE':    'bg-green-50 text-green-800',
+    'AUSENTE':     'bg-red-50 text-red-800',
+    'JUSTIFICADO': 'bg-blue-50 text-blue-800',
+    'TARDANZA':    'bg-yellow-50 text-yellow-800',
+};
+</script>
+{% endblock %}
