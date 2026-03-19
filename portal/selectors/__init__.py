@@ -2,6 +2,7 @@
 
 from .actividades_ciudadano import (  # noqa: F401
     get_actividades_accesibles,
+    get_asistencia_ciudadano_en_actividad,
     get_inscripciones_ciudadano,
 )
 from .ciudadano import (  # noqa: F401

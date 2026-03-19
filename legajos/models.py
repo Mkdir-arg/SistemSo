@@ -1261,6 +1261,113 @@ class RegistroAsistencia(TimeStamped):
         super().save(*args, **kwargs)
 
 
+class ClaseActividad(TimeStamped):
+    """Una sesión/clase dentro de una actividad (PlanFortalecimiento)."""
+
+    actividad = models.ForeignKey(
+        PlanFortalecimiento,
+        on_delete=models.CASCADE,
+        related_name='clases',
+        verbose_name='Actividad',
+        db_index=True,
+    )
+    fecha = models.DateField(verbose_name='Fecha', db_index=True)
+    hora_inicio = models.TimeField(verbose_name='Hora de inicio')
+    duracion_minutos = models.PositiveSmallIntegerField(
+        null=True, blank=True, verbose_name='Duración (minutos)'
+    )
+    titulo = models.CharField(max_length=200, blank=True, verbose_name='Título')
+    creado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='clases_creadas',
+        verbose_name='Creado por',
+    )
+
+    class Meta:
+        verbose_name = 'Clase de actividad'
+        verbose_name_plural = 'Clases de actividad'
+        ordering = ['fecha', 'hora_inicio']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['actividad', 'fecha', 'hora_inicio'],
+                name='unique_clase_actividad_fecha_hora',
+            )
+        ]
+        indexes = [
+            models.Index(fields=['actividad', 'fecha'], name='idx_claseact_actividad_fecha'),
+        ]
+
+    def __str__(self):
+        titulo_str = f' — {self.titulo}' if self.titulo else ''
+        return f'{self.actividad.nombre} | {self.fecha} {self.hora_inicio}{titulo_str}'
+
+    @property
+    def es_futura(self):
+        from django.utils import timezone
+        return self.fecha > timezone.localdate()
+
+
+class AsistenciaClase(TimeStamped):
+    """Registro de asistencia de un inscripto a una clase específica."""
+
+    class Estado(models.TextChoices):
+        PRESENTE    = 'PRESENTE',    'Presente'
+        AUSENTE     = 'AUSENTE',     'Ausente'
+        JUSTIFICADO = 'JUSTIFICADO', 'Justificado'
+        TARDANZA    = 'TARDANZA',    'Tardanza'
+
+    clase = models.ForeignKey(
+        ClaseActividad,
+        on_delete=models.CASCADE,
+        related_name='asistencias',
+        verbose_name='Clase',
+        db_index=True,
+    )
+    inscripcion = models.ForeignKey(
+        InscriptoActividad,
+        on_delete=models.CASCADE,
+        related_name='asistencias_clase',
+        verbose_name='Inscripción',
+        db_index=True,
+    )
+    estado = models.CharField(
+        max_length=12,
+        choices=Estado.choices,
+        default=Estado.AUSENTE,
+        verbose_name='Estado de asistencia',
+        db_index=True,
+    )
+    registrado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asistencias_clase_registradas',
+        verbose_name='Registrado por',
+    )
+    observaciones = models.TextField(blank=True, verbose_name='Observaciones')
+
+    class Meta:
+        verbose_name = 'Asistencia a clase'
+        verbose_name_plural = 'Asistencias a clases'
+        ordering = ['clase__fecha', 'clase__hora_inicio']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['clase', 'inscripcion'],
+                name='unique_asistencia_clase_inscripcion',
+            )
+        ]
+        indexes = [
+            models.Index(fields=['clase', 'estado'], name='idx_asistclass_clase_estado'),
+        ]
+
+    def __str__(self):
+        return f'{self.inscripcion.ciudadano} — {self.clase} [{self.get_estado_display()}]'
+
+
 class AlertaAusentismo(TimeStamped):
     """Alertas por ausentismo prolongado"""
     

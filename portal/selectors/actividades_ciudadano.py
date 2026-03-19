@@ -58,3 +58,57 @@ def get_inscripciones_ciudadano(ciudadano):
         'actividad',
         'actividad__legajo_institucional__institucion',
     ).order_by('-fecha_inscripcion')
+
+
+def get_asistencia_ciudadano_en_actividad(ciudadano, actividad_pk):
+    """
+    Retorna el contexto de asistencia de un ciudadano en una actividad específica.
+
+    Returns:
+        dict con 'inscripcion', 'clases_con_asistencia', 'total_clases',
+        'total_presentes', 'porcentaje' — o None si el ciudadano no está inscripto.
+    """
+    from django.utils import timezone
+    from legajos.models import AsistenciaClase, ClaseActividad, InscriptoActividad
+
+    try:
+        inscripcion = InscriptoActividad.objects.select_related(
+            'actividad__legajo_institucional__institucion',
+        ).get(ciudadano=ciudadano, actividad_id=actividad_pk)
+    except InscriptoActividad.DoesNotExist:
+        return None
+
+    hoy = timezone.localdate()
+    clases = ClaseActividad.objects.filter(
+        actividad_id=actividad_pk,
+        fecha__lte=hoy,
+    ).order_by('fecha', 'hora_inicio')
+
+    # Un solo query para todas las asistencias de esta inscripcion
+    asistencias_dict = {
+        a.clase_id: a
+        for a in AsistenciaClase.objects.filter(
+            inscripcion=inscripcion,
+            clase__in=clases,
+        )
+    }
+
+    clases_con_asistencia = [
+        (clase, asistencias_dict.get(clase.pk))
+        for clase in clases
+    ]
+
+    total_clases = len(clases_con_asistencia)
+    total_presentes = sum(
+        1 for _, a in clases_con_asistencia
+        if a and a.estado in (AsistenciaClase.Estado.PRESENTE, AsistenciaClase.Estado.TARDANZA)
+    )
+    porcentaje = round(total_presentes / total_clases * 100) if total_clases else None
+
+    return {
+        'inscripcion': inscripcion,
+        'clases_con_asistencia': clases_con_asistencia,
+        'total_clases': total_clases,
+        'total_presentes': total_presentes,
+        'porcentaje': porcentaje,
+    }

@@ -40,6 +40,11 @@ urlpatterns = [
     path('actividades/<int:pk>/asistencia/', login_required(views.AsistenciaView.as_view()), name='asistencia'),
     path('actividades/<int:pk>/tomar-asistencia/', login_required(views.TomarAsistenciaView.as_view()), name='tomar_asistencia'),
     path('actividades/<int:actividad_pk>/inscribir/', login_required(views.InscripcionDirectaView.as_view()), name='inscripcion_directa'),
+    path('actividades/<int:pk>/clases/', login_required(views.ClaseListView.as_view()), name='clase_lista'),
+    path('actividades/<int:actividad_pk>/clases/crear/', login_required(views.ClaseCreateView.as_view()), name='clase_crear'),
+    path('clases/<int:pk>/editar/', login_required(views.ClaseEditarView.as_view()), name='clase_editar'),
+    path('clases/<int:pk>/eliminar/', login_required(views.ClaseEliminarView.as_view()), name='clase_eliminar'),
+    path('clases/<int:pk>/asistencia/', login_required(views.ClaseAsistenciaView.as_view()), name='clase_asistencia'),
     
     # Gestión de legajo institucional
     path('instituciones/<int:institucion_pk>/personal/crear/', login_required(views.PersonalInstitucionCreateView.as_view()), name='personal_crear'),

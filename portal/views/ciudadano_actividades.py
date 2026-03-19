@@ -5,7 +5,11 @@ from core.decorators import ciudadano_required
 from legajos.models import PlanFortalecimiento
 from legajos.services.actividades import InscripcionError, inscribir_ciudadano_a_actividad
 
-from ..selectors import get_actividades_accesibles, get_inscripciones_ciudadano
+from ..selectors import (
+    get_actividades_accesibles,
+    get_asistencia_ciudadano_en_actividad,
+    get_inscripciones_ciudadano,
+)
 
 
 @ciudadano_required
@@ -54,3 +58,13 @@ def ciudadano_inscribirse_actividad(request, actividad_pk):
         f'Tu código de inscripción es: {inscripto.codigo_inscripcion}',
     )
     return redirect('portal:ciudadano_mis_actividades')
+
+
+@ciudadano_required
+def ciudadano_detalle_actividad(request, actividad_pk):
+    ciudadano = request.user.ciudadano_perfil
+    contexto = get_asistencia_ciudadano_en_actividad(ciudadano, actividad_pk)
+    if contexto is None:
+        messages.error(request, 'No estás inscripto en esta actividad.')
+        return redirect('portal:ciudadano_mis_actividades')
+    return render(request, 'portal/ciudadano/detalle_actividad.html', contexto)

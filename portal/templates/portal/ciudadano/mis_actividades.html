@@ -71,10 +71,15 @@
                 {% endif %}
             </div>
             {% if inscripcion %}
-            <div class="text-xs text-[#8C8C8C] bg-gray-50 rounded-lg px-3 py-2">
+            <div class="text-xs text-[#8C8C8C] bg-gray-50 rounded-lg px-3 py-2 mb-2">
                 Código de inscripción:
                 <span class="font-mono font-bold text-indigo-700">{{ inscripcion.codigo_inscripcion }}</span>
             </div>
+            <a href="{% url 'portal:ciudadano_detalle_actividad' actividad.pk %}"
+               class="block w-full text-center py-2 rounded-lg text-xs font-semibold border transition-all"
+               style="border-color: {{ branding.portal.primary_button_gradient_start }}; color: {{ branding.portal.primary_button_gradient_start }};">
+                <i class="fas fa-clipboard-list mr-1"></i>Ver mi asistencia
+            </a>
             {% else %}
             <form method="post" action="{% url 'portal:ciudadano_inscribirse_actividad' actividad.pk %}">
                 {% csrf_token %}

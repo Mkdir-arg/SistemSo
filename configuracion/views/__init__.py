@@ -1,5 +1,12 @@
 """Paquete de vistas para la app de configuracion."""
 
+from .clases import (  # noqa: F401
+    ClaseAsistenciaView,
+    ClaseCreateView,
+    ClaseEditarView,
+    ClaseEliminarView,
+    ClaseListView,
+)
 from .actividades import (
     ActividadDetailView,
     ActividadEditarView,
