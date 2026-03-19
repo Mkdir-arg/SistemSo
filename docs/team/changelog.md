@@ -14,6 +14,25 @@
 
 ---
 
+## 2026-03-19 — Fix: Imports rotos post-refactor DX
+
+**Tipo:** fix
+**Severidad:** Alto — servidor no levantaba
+
+**Archivos corregidos:**
+- `legajos/views/__init__.py` — eliminado import stale `views_ciudadanos`; renombrado `contactos_api` a `historial_contactos_api` para evitar shadowing del módulo
+- `legajos/selectors/__init__.py` — agregados 9 exports faltantes de `legajos.py` usados por `clinico.py`
+- `portal/selectors/turnos_ciudadano.py`, `portal/services/turnos_ciudadano.py` — `from .models` → `from portal.models`
+- `conversaciones/selectors/conversaciones.py` — 3 lazy imports `from .models` → `from conversaciones.models`
+- `legajos/selectors/contactos.py` — lazy import `from .models` → `from legajos.models`
+- `legajos/admin_programas.py` — campo `activo` → `estado` en `ProgramaAdmin` (campo no existe en el modelo)
+- `flujos/models.py` — índice renombrado para cumplir límite de 30 chars
+- `flujos/migrations/0002_rename_long_index.py` — migración de rename creada
+
+**Descripción:** Consecuencia del refactor DX (slices 37–47). Los `__init__.py` de los nuevos paquetes no exportaban todos los símbolos necesarios y varios archivos usaban `from .models import` (punto simple) dentro de sub-paquetes. También se levantó el contenedor `nginx` (puerto 9000) que no había sido incluido en el startup inicial.
+
+---
+
 ## 2026-03-19 — US-022 Inscripción de ciudadanos a actividades institucionales
 
 **User Story:** Como operador backoffice o ciudadano autenticado en el portal quiero inscribir un ciudadano a una actividad institucional para registrar su participación con código de confirmación, respetando tipo de acceso y cupo.
