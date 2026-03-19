@@ -3,7 +3,7 @@ from datetime import date
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from .models import RecursoTurnos, TurnoCiudadano
+from portal.models import RecursoTurnos, TurnoCiudadano
 
 
 def get_turnos_ciudadano_contexto(ciudadano):

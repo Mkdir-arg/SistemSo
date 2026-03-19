@@ -43,3 +43,18 @@ def get_actividades_accesibles(ciudadano, institucion=None):
     )
 
     return qs.order_by('nombre')
+
+
+def get_inscripciones_ciudadano(ciudadano):
+    """
+    Retorna todas las inscripciones del ciudadano (historial completo, cualquier estado),
+    ordenadas por fecha descendente.
+    """
+    from legajos.models import InscriptoActividad
+
+    return InscriptoActividad.objects.filter(
+        ciudadano=ciudadano,
+    ).select_related(
+        'actividad',
+        'actividad__legajo_institucional__institucion',
+    ).order_by('-fecha_inscripcion')

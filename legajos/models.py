@@ -1136,33 +1136,52 @@ class HistorialDerivacion(TimeStamped):
 
 class InscriptoActividad(TimeStamped):
     """Ciudadanos inscritos en actividades"""
-    
+
     class Estado(models.TextChoices):
         INSCRITO = "INSCRITO", "Inscrito"
         ACTIVO = "ACTIVO", "Activo"
         FINALIZADO = "FINALIZADO", "Finalizado"
         ABANDONADO = "ABANDONADO", "Abandonado"
-    
+
     actividad = models.ForeignKey(
         PlanFortalecimiento,
         on_delete=models.CASCADE,
-        related_name="inscriptos"
+        related_name="inscriptos",
+        verbose_name='Actividad',
     )
     ciudadano = models.ForeignKey(
         Ciudadano,
         on_delete=models.CASCADE,
-        related_name="actividades_inscrito"
+        related_name="actividades_inscrito",
+        verbose_name='Ciudadano',
     )
     estado = models.CharField(max_length=20, choices=Estado.choices, default=Estado.INSCRITO)
     fecha_inscripcion = models.DateField(auto_now_add=True)
     fecha_finalizacion = models.DateField(null=True, blank=True)
     observaciones = models.TextField(blank=True)
-    
+    codigo_inscripcion = models.CharField(
+        max_length=8,
+        unique=True,
+        blank=True,
+        db_index=True,
+        verbose_name='Código de inscripción',
+    )
+    inscrito_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inscripciones_realizadas',
+        verbose_name='Inscripto por',
+    )
+
     class Meta:
         verbose_name = "Inscripto en Actividad"
         verbose_name_plural = "Inscriptos en Actividades"
-        unique_together = ['actividad', 'ciudadano']
         ordering = ["-fecha_inscripcion"]
+
+    def __str__(self):
+        return f"{self.ciudadano} en {self.actividad.nombre} [{self.codigo_inscripcion}]"
 
 
 class HistorialInscripto(TimeStamped):

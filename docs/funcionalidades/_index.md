@@ -29,7 +29,7 @@
 | Motor de Flujos | `motor-flujos/` | v1.0 | 2026-03-15 |
 | Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
 | Derivación e Inscripción a Programas | `derivacion-inscripcion-programas/` | v1.0 | 2026-03-15 |
-| Actividades Institucionales | `actividades-institucionales/` | v1.0 | 2026-03-15 |
+| Actividades Institucionales | `actividades-institucionales/` | v1.1 | 2026-03-19 |
 
 ---
 

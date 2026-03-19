@@ -174,7 +174,7 @@ class InstanciaFlujo(models.Model):
         verbose_name_plural = 'Instancias de flujo'
         ordering = ['-fecha_inicio']
         indexes = [
-            models.Index(fields=['version_flujo', 'estado'], name='ix_instanciaflujo_version_estado'),
+            models.Index(fields=['version_flujo', 'estado'], name='ix_instflujo_version_estado'),
             models.Index(fields=['estado', 'nodo_actual'], name='ix_instanciaflujo_estado_nodo'),
         ]
 

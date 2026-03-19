@@ -14,6 +14,32 @@
 
 ---
 
+## 2026-03-19 — US-022 Inscripción de ciudadanos a actividades institucionales
+
+**User Story:** Como operador backoffice o ciudadano autenticado en el portal quiero inscribir un ciudadano a una actividad institucional para registrar su participación con código de confirmación, respetando tipo de acceso y cupo.
+
+**Archivos modificados:**
+- `legajos/models.py` — `InscriptoActividad`: `codigo_inscripcion`, `inscrito_por`, elimina `unique_together`, agrega `__str__`
+- `legajos/services/actividades.py` — `inscribir_ciudadano_a_actividad`, `get_estado_inscripcion_ciudadano`, `InscripcionError`
+- `legajos/services/__init__.py` — exports actualizados
+- `configuracion/forms/institucional.py` — `InscripcionDirectaForm`
+- `configuracion/selectors/instituciones.py` — `cupo_disponible` y `cupos_restantes` en `build_actividad_detail_context`
+- `configuracion/services/actividades.py` — `aceptar_derivacion` refactorizado (reemplaza `get_or_create` por service)
+- `configuracion/views/actividades.py` — `InscripcionDirectaView` + context `inscripcion_form`
+- `configuracion/views/__init__.py`, `configuracion/urls.py` — export y URL nueva
+- `portal/selectors/actividades_ciudadano.py` — `get_inscripciones_ciudadano`
+- `portal/selectors/__init__.py`, `portal/views/ciudadano.py`, `portal/urls.py` — exports y URLs nuevas
+- `configuracion/templates/configuracion/actividad_detail.html` — form inscripción, código en nómina, badge cupo corregido
+
+**Archivos creados:**
+- `legajos/migrations/0032_inscriptoactividad_codigo_inscripto_por.py`
+- `portal/views/ciudadano_actividades.py`
+- `portal/templates/portal/ciudadano/mis_actividades.html`
+
+**Descripción:** Implementa el flujo completo de inscripción. Service central con `@transaction.atomic + select_for_update` para evitar race conditions en cupo. `unique_together` eliminado para permitir reinscripciones históricas. `aceptar_derivacion` corregido (ya no usa `get_or_create` que ignoraba estado). Bug de cupo=0 corregido en template.
+
+---
+
 ## 2026-03-15 — US-020 Tipo de acceso en actividades institucionales
 
 **User Story:** Como administrador quiero configurar el tipo de acceso de una actividad (LIBRE o REQUIERE_PROGRAMA) para controlar qué ciudadanos pueden inscribirse.

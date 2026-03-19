@@ -398,6 +398,37 @@ class StaffActividadUpdateForm(forms.ModelForm):
         }
 
 
+class InscripcionDirectaForm(forms.Form):
+    ciudadano_dni = forms.CharField(
+        label='DNI del ciudadano',
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full p-3 border border-gray-300 rounded-lg',
+            'placeholder': 'Ingrese el DNI del ciudadano',
+            'autofocus': True,
+        }),
+    )
+    observaciones = forms.CharField(
+        label='Observaciones',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'w-full p-3 border border-gray-300 rounded-lg',
+            'rows': 2,
+            'placeholder': 'Observaciones opcionales...',
+        }),
+    )
+
+    def clean_ciudadano_dni(self):
+        from legajos.models import Ciudadano
+
+        dni = self.cleaned_data.get('ciudadano_dni', '').strip()
+        try:
+            ciudadano = Ciudadano.objects.get(dni=dni)
+        except Ciudadano.DoesNotExist:
+            raise forms.ValidationError(f'No se encontró ningún ciudadano con DNI "{dni}".')
+        return ciudadano
+
+
 class DerivacionRechazoForm(forms.Form):
     motivo = forms.CharField(
         required=False,

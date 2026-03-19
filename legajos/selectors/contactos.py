@@ -456,7 +456,7 @@ def build_ciudadano_timeline_payload(ciudadano_id):
             )
 
     try:
-        from .models import AlertaCiudadano
+        from legajos.models import AlertaCiudadano
 
         for alerta in AlertaCiudadano.objects.filter(
             ciudadano=ciudadano,

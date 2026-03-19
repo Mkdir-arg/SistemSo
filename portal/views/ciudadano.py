@@ -32,3 +32,7 @@ from .ciudadano_turnos import (
     ciudadano_turno_confirmado,
     ciudadano_turno_slots,
 )
+from .ciudadano_actividades import (  # noqa: F401
+    ciudadano_inscribirse_actividad,
+    ciudadano_mis_actividades,
+)

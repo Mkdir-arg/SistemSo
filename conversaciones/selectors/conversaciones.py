@@ -153,7 +153,7 @@ def get_estadisticas_tiempo_real():
 
 
 def get_alertas_conversaciones_count(user):
-    from .models import HistorialAlertaConversacion
+    from conversaciones.models import HistorialAlertaConversacion
 
     return HistorialAlertaConversacion.objects.filter(
         operador=user,
@@ -162,7 +162,7 @@ def get_alertas_conversaciones_count(user):
 
 
 def get_alertas_preview_mensajes(user):
-    from .models import Mensaje
+    from conversaciones.models import Mensaje
 
     return Mensaje.objects.filter(
         conversacion__operador_asignado=user,
@@ -173,7 +173,7 @@ def get_alertas_preview_mensajes(user):
 
 
 def get_alertas_preview_nuevas_conversaciones(user):
-    from .models import NuevaConversacionAlerta
+    from conversaciones.models import NuevaConversacionAlerta
 
     return NuevaConversacionAlerta.objects.filter(
         operador=user,

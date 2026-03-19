@@ -39,6 +39,7 @@ urlpatterns = [
     path('staff/<int:pk>/desasignar/', login_required(views.StaffDesasignarView.as_view()), name='staff_desasignar'),
     path('actividades/<int:pk>/asistencia/', login_required(views.AsistenciaView.as_view()), name='asistencia'),
     path('actividades/<int:pk>/tomar-asistencia/', login_required(views.TomarAsistenciaView.as_view()), name='tomar_asistencia'),
+    path('actividades/<int:actividad_pk>/inscribir/', login_required(views.InscripcionDirectaView.as_view()), name='inscripcion_directa'),
     
     # Gestión de legajo institucional
     path('instituciones/<int:institucion_pk>/personal/crear/', login_required(views.PersonalInstitucionCreateView.as_view()), name='personal_crear'),

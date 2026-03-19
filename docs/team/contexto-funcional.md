@@ -3,7 +3,7 @@
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
 
-> Última actualización: 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
+> Última actualización: 2026-03-19 (sesión 7 — US-022 inscripcion actividades)
 
 
 ---
@@ -34,6 +34,13 @@ Los tres dominios centrales son:
 ## Reglas de negocio confirmadas
 
 > Estas decisiones fueron tomadas y NO deben cuestionarse sin revisión explícita del usuario.
+
+### Actividades institucionales — inscripción
+- Un ciudadano **puede reinscribirse** a una actividad si su inscripción anterior tiene estado ABANDONADO o FINALIZADO
+- Solo puede haber **una inscripción activa** (INSCRITO o ACTIVO) por (ciudadano, actividad) al mismo tiempo — garantizado por service con `select_for_update`
+- `cupo_ciudadanos = 0` en `PlanFortalecimiento` significa **sin límite de cupo**; un cupo real es siempre >= 1
+- El **código de inscripción** es de 8 caracteres alfanuméricos en mayúsculas, único globalmente, permanente
+- Los operadores del backoffice inscriben por DNI; los ciudadanos se inscriben desde el portal (solo actividades LIBRE)
 
 ### Búsqueda de ciudadanos
 - Los operadores pueden buscar ciudadanos por **nombre** (parcial) o por **DNI**
@@ -650,6 +657,15 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se ejecutó el quincuagésimo séptimo slice del refactor DX sobre organización física repo-wide
 - `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py` ya no viven como archivos sueltos en raíz de app
 - El comportamiento visible no cambió y la cartografía física del repo quedó todavía más consistente
+
+### 2026-03-19 (sesión 7)
+- Se implementó US-022: inscripción de ciudadanos a actividades institucionales
+- `InscriptoActividad` extendido con `codigo_inscripcion` (8 chars único) e `inscrito_por`; se eliminó `unique_together` para soportar reinscripciones históricas
+- Service central `inscribir_ciudadano_a_actividad` con `@transaction.atomic + select_for_update` para evitar race conditions
+- `aceptar_derivacion` en `configuracion/services` refactorizado para usar el service central en lugar de `get_or_create` directo
+- Vista de inscripción directa desde backoffice (búsqueda por DNI) y desde portal ciudadano
+- Bug corregido: cupo=0 en `PlanFortalecimiento` ahora se trata correctamente como "sin límite" en el template
+- Reglas confirmadas: cupo=0 = ilimitado; reinscripción permitida tras ABANDONADO/FINALIZADO; código = 8 chars alfanuméricos
 
 ---
 

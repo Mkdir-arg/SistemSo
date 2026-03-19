@@ -29,13 +29,17 @@
 | US-026 | Como institución quiero solicitar la reactivación de mi institución rechazada para volver a operar, y como backoffice quiero poder iniciarla también | Pequeño 🟡 | Requiere US-019. Historial diferenciado como REACTIVACION. Notificación a la institución. |
 | US-027 | Como administrador de programa quiero crear evaluaciones periódicas a instituciones asignadas a operadores territoriales para auditar su funcionamiento desde la app de campo | Grande 🟡 | Tarea territorial aplicada a institución → legajo. Requiere US-006 (motor de flujos) + /definir app-movil. |
 | US-021 | Como desarrollador quiero unificar los dos modelos de derivación en uno solo que salga desde Ciudadano para eliminar la duplicación de lógica | Grande ✅ | Implementado 2026-03-15. Ver `docs/funcionalidades/instituciones/v1.2_unificacion-modelo-derivacion.md` |
-| US-022 | Como operador quiero inscribir ciudadanos a actividades con validación de tipo de acceso, cupo y código de inscripción para gestionar el ingreso a cada actividad institucional | Mediano 🟡 | Requiere US-020. Incluye inscripción desde portal (LIBRE) y desde backoffice. Ver `docs/requerimientos/2026-03-12_actividades-flujo-completo.md` |
+| US-022 | Como operador quiero inscribir ciudadanos a actividades con validación de tipo de acceso, cupo y código de inscripción para gestionar el ingreso a cada actividad institucional | Mediano ✅ | Implementado 2026-03-19. Ver `docs/funcionalidades/actividades-institucionales/v1.1_inscripcion-ciudadanos.md` |
 | US-023 | Como staff de una actividad quiero crear clases y registrar asistencia por clase para llevar el seguimiento de participación de cada ciudadano | Mediano 🟡 | Entidad Clase (fecha + hora + duración + título opcional). Asistencia: PRESENTE/AUSENTE/JUSTIFICADO/TARDANZA. Requiere US-022. |
 | US-024 | Como encargado quiero configurar lista de espera en una actividad con modo automático o manual para gestionar los cupos disponibles cuando se liberan | Pequeño 🟡 | Dos modos: auto (asigna al siguiente) y manual (operador elige). Requiere US-022. |
 
 ---
 
 ## Completadas
+
+| US-022 | Inscripción de ciudadanos a actividades institucionales (backoffice + portal) | Mediano ✅ |
+
+
 
 | ID | User Story | Complejidad |
 |----|-----------|-------------|

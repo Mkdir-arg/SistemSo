@@ -146,6 +146,14 @@
 - `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py` ya quedaron absorbidos por carpetas reales.
 - La deuda estructural repo-wide quedó prácticamente cerrada; lo pendiente es mayormente funcional, de wrappers legacy o de validación runtime.
 
+## Estado funcional 2026-03-19
+
+- US-022 completado: inscripción de ciudadanos a actividades desde backoffice (por DNI) y portal ciudadano.
+- `InscriptoActividad` ya tiene `codigo_inscripcion` y `inscrito_por`; sin `unique_together` (reinscripciones históricas permitidas).
+- `inscribir_ciudadano_a_actividad` es el service central — usar siempre este, nunca crear `InscriptoActividad` directo.
+- Bug de cupo=0 corregido en `actividad_detail.html` y en `aceptar_derivacion` (ya no usa `get_or_create`).
+- Próximo candidato: US-023 (clases y asistencia) o US-008 (ficha ciudadana completa).
+
 ## Estado funcional 2026-03-15
 
 - US-012 completado: flujo de derivación e inscripción de ciudadanos a programas usando `DerivacionCiudadano`.

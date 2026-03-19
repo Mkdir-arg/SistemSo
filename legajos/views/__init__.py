@@ -1,17 +1,5 @@
 """Views agrupadas de la app de legajos."""
 
-from ..views_ciudadanos import (  # noqa: F401
-    AdmisionPaso1View,
-    AdmisionPaso2View,
-    AdmisionPaso3View,
-    CiudadanoConfirmarView,
-    CiudadanoCreateView,
-    CiudadanoDetailView,
-    CiudadanoListView,
-    CiudadanoManualView,
-    CiudadanoUpdateView,
-    LegajoCreateView,
-)
 from .acompanamiento import crear_legajo_acompanamiento  # noqa: F401
 from .alertas import (  # noqa: F401
     alertas_count_ajax,
@@ -92,7 +80,7 @@ from .derivacion_programa import (  # noqa: F401
     rechazar_derivacion_programa,
 )
 from .historial_contactos import (  # noqa: F401
-    contactos_api,
+    contactos_api as historial_contactos_api,
     crear_contacto,
     detalle_contacto,
     editar_contacto,

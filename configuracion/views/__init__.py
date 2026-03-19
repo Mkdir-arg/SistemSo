@@ -5,6 +5,7 @@ from .actividades import (
     ActividadEditarView,
     DerivacionAceptarView,
     DerivacionRechazarView,
+    InscripcionDirectaView,
     InscriptoEditarView,
     StaffActividadCreateView,
     buscar_personal_ajax,

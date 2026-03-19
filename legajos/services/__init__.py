@@ -1,6 +1,11 @@
 """Servicios para la app de legajos."""
 
-from .actividades import validar_acceso_actividad  # noqa: F401
+from .actividades import (  # noqa: F401
+    InscripcionError,
+    get_estado_inscripcion_ciudadano,
+    inscribir_ciudadano_a_actividad,
+    validar_acceso_actividad,
+)
 from .admision import AdmisionSessionService  # noqa: F401
 from .alertas import AlertasService  # noqa: F401
 from .ciudadanos import CiudadanosService, RenaperLookupError  # noqa: F401
