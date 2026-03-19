@@ -276,7 +276,7 @@ class DerivacionForm(forms.ModelForm):
         self.fields['destino'].queryset = self.fields['destino'].queryset.filter(activo=True)
         self.fields['actividad_destino'].required = False
 
-        from .models import PlanFortalecimiento
+        from ..models import PlanFortalecimiento
 
         if self.instance and self.instance.pk and self.instance.destino:
             self.fields['actividad_destino'].queryset = PlanFortalecimiento.objects.filter(

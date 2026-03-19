@@ -145,6 +145,9 @@
 - Se completó el quincuagésimo séptimo slice sobre packaging residual.
 - `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py` ya quedaron absorbidos por carpetas reales.
 - La deuda estructural repo-wide quedó prácticamente cerrada; lo pendiente es mayormente funcional, de wrappers legacy o de validación runtime.
+- Se completó el quincuagésimo octavo slice sobre `legajos`.
+- `legajos` dejó de depender de wrappers legacy internos y ahora consume solo sus paquetes reales de `views`, `forms`, `services`, `selectors` y `signals`.
+- La cartografía física final del repositorio quedó alineada casi por completo; el riesgo pendiente ya es más de runtime/contrato que de estructura.
 
 ## Próxima etapa sugerida
 
@@ -181,4 +184,3 @@
 | `docs/errores/` | Bugs abiertos detectados en análisis |
 | `docs/requerimientos/` | Requerimientos formales pendientes de implementar |
 | `docs/funcionalidades/_index.md` | Índice de todas las funcionalidades documentadas |
-

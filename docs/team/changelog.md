@@ -1092,3 +1092,81 @@
 - `core/services_auditoria.py`
 
 **Descripción:** Se absorbieron dentro de carpetas reales las excepciones estructurales más relevantes que todavía quedaban fuera del patrón principal: `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py`. Desde este punto, la organización física del proyecto queda casi completamente alineada a carpetas por responsabilidad, y lo que persiste en raíz es principalmente fachada de compatibilidad o apps mínimas.
+
+---
+
+## 2026-03-17 — Refactor DX Slice 58: retiro de compatibilidad legacy en `legajos`
+
+**Archivos modificados:**
+- `legajos/urls.py`
+- `legajos/urls_nachec.py`
+- `legajos/views/__init__.py`
+- `legajos/views/ciudadanos.py`
+- `legajos/views/clinico.py`
+- `legajos/views/derivacion.py`
+- `legajos/views/institucional.py`
+- `legajos/tests/test_ciudadanos_admision.py`
+- `legajos/tests/test_clinico_package.py`
+- `legajos/tests/test_derivacion_programa_package.py`
+- `legajos/tests/test_institucional_package.py`
+- `legajos/tests/test_legajo_workflow.py`
+- `legajos/tests/test_nachec_package.py`
+- `legajos/tests/test_operativa_package.py`
+- `legajos/tests/test_package_exports.py`
+- `legajos/tests/test_programas_package.py`
+- `legajos/tests/test_solapas_package.py`
+- `legajos/tests/test_support_views_package.py`
+
+**Archivos eliminados:**
+- `legajos/forms.py`
+- `legajos/forms_ciudadanos.py`
+- `legajos/forms_clinico.py`
+- `legajos/forms_contactos.py`
+- `legajos/forms_derivacion.py`
+- `legajos/forms_institucional.py`
+- `legajos/forms_operativa.py`
+- `legajos/selectors_ciudadanos.py`
+- `legajos/selectors_contactos.py`
+- `legajos/selectors_legajos.py`
+- `legajos/services_admision.py`
+- `legajos/services_alertas.py`
+- `legajos/services_ciudadanos.py`
+- `legajos/services_contactos.py`
+- `legajos/services_derivaciones_programa.py`
+- `legajos/services_filtros_usuario.py`
+- `legajos/services_institucional.py`
+- `legajos/services_legajos.py`
+- `legajos/services_nachec.py`
+- `legajos/services_solapas.py`
+- `legajos/signals_alertas.py`
+- `legajos/signals_historial.py`
+- `legajos/signals_nachec.py`
+- `legajos/signals_programas.py`
+- `legajos/views.py`
+- `legajos/views_acompanamiento.py`
+- `legajos/views_alertas.py`
+- `legajos/views_api_derivaciones.py`
+- `legajos/views_ciudadanos.py`
+- `legajos/views_clinico.py`
+- `legajos/views_contactos_api.py`
+- `legajos/views_contactos_panel.py`
+- `legajos/views_cursos.py`
+- `legajos/views_dashboard_contactos.py`
+- `legajos/views_dashboard_simple.py`
+- `legajos/views_derivacion.py`
+- `legajos/views_derivacion_programa.py`
+- `legajos/views_historial_contactos.py`
+- `legajos/views_institucional.py`
+- `legajos/views_nachec.py`
+- `legajos/views_nachec_cierre.py`
+- `legajos/views_nachec_dashboard.py`
+- `legajos/views_nachec_decisiones.py`
+- `legajos/views_nachec_operacion.py`
+- `legajos/views_nachec_prestaciones.py`
+- `legajos/views_operativa.py`
+- `legajos/views_programas.py`
+- `legajos/views_red_contactos.py`
+- `legajos/views_simple_contactos.py`
+- `legajos/views_solapas.py`
+
+**Descripción:** Se retiró la capa legacy de compatibilidad de `legajos`, dejando la app consumiendo solo los paquetes reales `legajos/views/`, `legajos/forms/`, `legajos/services/`, `legajos/selectors/` y `legajos/signals/`. También se actualizaron imports y tests para apuntar al layout definitivo, con lo que `legajos` deja de mantener dos cartografías internas en paralelo.

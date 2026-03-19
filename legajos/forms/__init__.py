@@ -22,7 +22,6 @@ from .clinico import (  # noqa: F401
 from .contactos import HistorialContactoForm  # noqa: F401
 from .derivacion import DerivarProgramaForm  # noqa: F401
 from .institucional import (  # noqa: F401
-    BuscarCiudadanoInstitucionalForm,
     CambiarEstadoCasoForm,
     DerivacionInstitucionalForm,
     RechazarDerivacionForm,

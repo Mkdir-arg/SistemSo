@@ -2,7 +2,7 @@ from core.models import Institucion
 from legajos.models import Ciudadano
 from legajos.models_programas import InscripcionPrograma, Programa
 
-from .models import RecursoTurnos
+from ..models import RecursoTurnos
 
 
 def get_portal_home_context():
