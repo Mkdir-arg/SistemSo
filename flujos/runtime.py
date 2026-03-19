@@ -163,16 +163,27 @@ class FlowRuntime:
     def _evaluar_transiciones(definicion: dict, nodo_actual_id: str, datos: dict) -> dict | None:
         """
         Evalúa las transiciones disponibles desde el nodo actual y devuelve el nodo destino.
-        Prioriza transiciones libres (condicion=null) y luego evalúa las condicionales.
+        Estrategia: evalúa primero las transiciones condicionales; si ninguna matchea,
+        usa la transición libre (condicion=null) como fallback.
+        Esto permite que los nodos `decision` tengan un camino por defecto sin que
+        bloquee la evaluación de condiciones.
         """
         transiciones = [
             t for t in definicion.get('transiciones', [])
             if t.get('desde') == nodo_actual_id
         ]
 
+        # 1. Evaluar condicionales primero
         for transicion in transiciones:
-            condicion = transicion.get('condicion')
-            if FlowRuntime._evaluar_condicion(condicion, datos):
+            if transicion.get('condicion') is not None:
+                if FlowRuntime._evaluar_condicion(transicion['condicion'], datos):
+                    nodo_destino = FlowRuntime._buscar_nodo_por_id(definicion, transicion['hasta'])
+                    if nodo_destino:
+                        return nodo_destino
+
+        # 2. Fallback: transición libre
+        for transicion in transiciones:
+            if transicion.get('condicion') is None:
                 nodo_destino = FlowRuntime._buscar_nodo_por_id(definicion, transicion['hasta'])
                 if nodo_destino:
                     return nodo_destino

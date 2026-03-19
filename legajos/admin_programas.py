@@ -36,7 +36,6 @@ class ProgramaAdmin(admin.ModelAdmin):
             obj.color
         )
     ver_derivaciones_button.short_description = 'Acciones'
-    ver_derivaciones_button.allow_tags = True
 
 
 @admin.register(InscripcionPrograma)

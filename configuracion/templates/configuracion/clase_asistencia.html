@@ -73,7 +73,7 @@
                                         class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-purple-500 focus:border-transparent
                                         {% if item.estado_actual == 'PRESENTE' %}bg-green-50 text-green-800{% elif item.estado_actual == 'TARDANZA' %}bg-yellow-50 text-yellow-800{% elif item.estado_actual == 'JUSTIFICADO' %}bg-blue-50 text-blue-800{% else %}bg-red-50 text-red-800{% endif %}"
                                         {% if bloqueado %}disabled{% endif %}
-                                        onchange="this.className=this.className.replace(/bg-\w+-50|text-\w+-\d+/g,'').trim() + ' ' + colorMap[this.value]">
+                                        onchange="this.className=this.className.replace(/bg-\w+-50|text-\w+-\d+/g,'').trim() + ' ' + (colorMap[this.value] || '')">
                                     {% for valor, etiqueta in estados %}
                                     <option value="{{ valor }}" {% if item.estado_actual == valor %}selected{% endif %}>{{ etiqueta }}</option>
                                     {% endfor %}

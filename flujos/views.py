@@ -117,6 +117,9 @@ def api_publicar(request, programa_id):
 @login_required
 @require_http_methods(['GET'])
 def api_instancia(request, instancia_id):
+    if not _tiene_permiso_editar(request.user):
+        return JsonResponse({'error': 'Sin permiso.'}, status=403)
+
     instancia = get_object_or_404(InstanciaFlujo, pk=instancia_id)
 
     definicion = instancia.version_flujo.definicion
