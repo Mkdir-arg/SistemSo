@@ -12,7 +12,13 @@
       "Bash(git add:*)",
       "Bash(git log:*)",
       "Bash(curl:*)",
-      "Bash(\"/c/Users/mkdir/Proyectos/SistemSo/docs/funcionalidades/hub-ciudadano/v1.0_hub-ciudadano-base.md\":*)"
+      "Bash(\"/c/Users/mkdir/Proyectos/SistemSo/docs/funcionalidades/hub-ciudadano/v1.0_hub-ciudadano-base.md\":*)",
+      "Bash(docker ps:*)",
+      "Bash(docker restart:*)",
+      "Bash(cmd.exe /c \"gh pr list\" 2>&1)",
+      "Bash(cmd.exe /c \"gh --version\" 2>&1)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(xargs -I{} python -c \":*)"
     ]
   }
 }

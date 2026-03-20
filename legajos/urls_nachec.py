@@ -43,7 +43,7 @@ urlpatterns = [
     path("caso/<int:caso_id>/evaluar/", evaluar_caso, name="nachec_evaluar_caso"),
     path("caso/<int:caso_id>/activar-plan/", activar_plan, name="nachec_activar_plan"),
     path("caso/<int:caso_id>/pasar-seguimiento/", pasar_a_seguimiento, name="nachec_pasar_seguimiento"),
-    path("caso/<int:caso_id>/cerrar/", cerrar_caso, name="nachec_cerrar_caso"),
+    path("caso/<int:caso_id>/cerrar/", cerrar_caso, name="nachec_cerrar_caso_legajo"),
     path("prestacion/<int:prestacion_id>/iniciar/", iniciar_prestacion, name="nachec_iniciar_prestacion"),
     path(
         "prestacion/<int:prestacion_id>/confirmar-entrega/",

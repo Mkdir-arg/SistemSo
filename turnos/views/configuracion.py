@@ -13,7 +13,7 @@ from ..models import ConfiguracionTurnos, DisponibilidadConfiguracion
 from ..selectors_turnos import get_configuraciones_list
 
 
-class ConfiguracionListView(TemplateView):
+class ConfiguracionListView(AdminTurnosRequiredMixin, TemplateView):
     template_name = 'turnos/backoffice/configuracion_lista.html'
 
     def get_context_data(self, **kwargs):

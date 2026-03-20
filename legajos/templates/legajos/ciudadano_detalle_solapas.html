@@ -92,7 +92,7 @@
                             (derivación espontánea)
                             {% endif %}
                             - Urgencia: {{ derivacion.get_urgencia_display }}
-                            <a href="{% url 'legajos:derivacion_programa_detalle' derivacion.id %}" class="underline ml-2">Ver detalle</a>
+                            <a href="#" class="underline ml-2 opacity-50 cursor-not-allowed" title="Próximamente">Ver detalle</a>{# TODO: implementar legajos:derivacion_programa_detalle #}
                         </li>
                         {% endfor %}
                     </ul>
@@ -217,8 +217,8 @@ function derivarPrograma() {
 }
 
 function inscribirPrograma() {
-    // Implementar modal de inscripción directa
-    window.location.href = "{% url 'legajos:inscribir_programa' ciudadano.id %}";
+    // TODO: implementar legajos:inscribir_programa
+    alert('Funcionalidad próximamente disponible.');
 }
 
 function cerrarModal() {
