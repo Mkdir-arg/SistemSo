@@ -9,6 +9,7 @@ from .views import (
     relevamientos_view,
     load_localidad,
     load_municipios,
+    load_subsecretarias,
     optimization_suggestions_api,
     performance_api,
     performance_dashboard,
@@ -38,6 +39,11 @@ urlpatterns = [
         "ajax/load-localidades/",
         login_required(load_localidad),
         name="ajax_load_localidades",
+    ),
+    path(
+        "ajax/load-subsecretarias/",
+        login_required(load_subsecretarias),
+        name="ajax_load_subsecretarias",
     ),
     # Performance Dashboard URLs
     path("performance-dashboard/", performance_dashboard, name="performance_dashboard"),

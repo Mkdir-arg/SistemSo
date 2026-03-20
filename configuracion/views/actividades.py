@@ -2,8 +2,9 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView
 
 from core.models import Institucion
@@ -12,11 +13,14 @@ from legajos.models import Derivacion, PlanFortalecimiento, StaffActividad
 from ..forms import (
     ActividadEditarForm,
     DerivacionRechazoForm,
+    InscripcionDirectaForm,
     InscriptoEstadoForm,
     PersonalInstitucionForm,
     StaffActividadForm,
 )
 from ..selectors import build_actividad_detail_context, search_personal_for_actividad
+from legajos.services.actividades import InscripcionError, inscribir_ciudadano_a_actividad
+
 from ..services import ConfiguracionInstitucionalService, ConfiguracionWorkflowError
 
 
@@ -28,6 +32,7 @@ class ActividadDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(build_actividad_detail_context(self.get_object()))
+        context['inscripcion_form'] = InscripcionDirectaForm()
         return context
 
 
@@ -206,6 +211,42 @@ class ActividadEditarView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('configuracion:actividad_detalle', kwargs={'pk': self.object.pk})
+
+
+class InscripcionDirectaView(LoginRequiredMixin, View):
+    def post(self, request, actividad_pk):
+        actividad = get_object_or_404(PlanFortalecimiento, pk=actividad_pk)
+        form = InscripcionDirectaForm(request.POST)
+
+        if not form.is_valid():
+            context = build_actividad_detail_context(actividad)
+            context['actividad'] = actividad
+            context['inscripcion_form'] = form
+            return render(request, 'configuracion/actividad_detail.html', context)
+
+        ciudadano = form.cleaned_data['ciudadano_dni']
+        observaciones = form.cleaned_data.get('observaciones', '')
+
+        try:
+            inscripto = inscribir_ciudadano_a_actividad(
+                actividad=actividad,
+                ciudadano=ciudadano,
+                usuario=request.user,
+                observaciones=observaciones,
+            )
+        except InscripcionError as exc:
+            form.add_error(None, str(exc))
+            context = build_actividad_detail_context(actividad)
+            context['actividad'] = actividad
+            context['inscripcion_form'] = form
+            return render(request, 'configuracion/actividad_detail.html', context)
+
+        messages.success(
+            request,
+            f'{ciudadano.nombre_completo} inscripto correctamente. '
+            f'Código: {inscripto.codigo_inscripcion}',
+        )
+        return redirect('configuracion:actividad_detalle', pk=actividad.pk)
 
 
 def buscar_personal_ajax(request, actividad_pk):

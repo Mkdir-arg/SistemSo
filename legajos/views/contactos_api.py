@@ -15,6 +15,7 @@ from ..services import AlertasService
 from ..services import ContactosFilesError, eliminar_archivo_por_id, subir_archivos_para_objeto
 
 
+@login_required
 def actividades_ciudadano_api(request, ciudadano_id):
     """API para obtener todas las actividades de un ciudadano"""
     try:
@@ -23,6 +24,7 @@ def actividades_ciudadano_api(request, ciudadano_id):
         return JsonResponse({'results': [], 'count': 0, 'error': str(exc)})
 
 
+@login_required
 def subir_archivos_ciudadano(request, ciudadano_id):
     """Vista para subir archivos a un ciudadano"""
     if request.method != 'POST':
@@ -46,6 +48,7 @@ def subir_archivos_ciudadano(request, ciudadano_id):
         return JsonResponse({'success': False, 'error': str(exc)})
 
 
+@login_required
 def subir_archivos_legajo(request, legajo_id):
     """Vista para subir archivos a un legajo"""
     if request.method != 'POST':
@@ -69,6 +72,7 @@ def subir_archivos_legajo(request, legajo_id):
         return JsonResponse({'success': False, 'error': str(exc)})
 
 
+@login_required
 def archivos_ciudadano_api(request, ciudadano_id):
     """API para obtener todos los archivos de un ciudadano"""
     try:
@@ -77,6 +81,7 @@ def archivos_ciudadano_api(request, ciudadano_id):
         return JsonResponse({'results': [], 'count': 0, 'error': str(exc)})
 
 
+@login_required
 def eliminar_archivo(request, archivo_id):
     """Vista para eliminar un archivo"""
     if request.method != 'DELETE':
@@ -89,6 +94,7 @@ def eliminar_archivo(request, archivo_id):
         return JsonResponse({'success': False, 'error': str(exc)})
 
 
+@login_required
 def alertas_ciudadano_api(request, ciudadano_id):
     """API para obtener alertas de un ciudadano"""
     try:
@@ -116,6 +122,7 @@ def alertas_ciudadano_api(request, ciudadano_id):
         return JsonResponse({'results': [], 'count': 0, 'error': str(exc)})
 
 
+@login_required
 def cerrar_alerta_api(request, alerta_id):
     """API para cerrar una alerta"""
     if request.method != 'POST':
@@ -130,6 +137,7 @@ def cerrar_alerta_api(request, alerta_id):
         return JsonResponse({'success': False, 'error': str(exc)})
 
 
+@login_required
 def prediccion_riesgo_api(request, ciudadano_id):
     """API para obtener predicción de riesgo con IA"""
     try:
@@ -146,6 +154,7 @@ def prediccion_riesgo_api(request, ciudadano_id):
         )
 
 
+@login_required
 def evolucion_legajo_api(request, legajo_id):
     """API para obtener datos de evolución de un legajo"""
     try:
@@ -163,6 +172,7 @@ def evolucion_legajo_api(request, legajo_id):
         )
 
 
+@login_required
 def timeline_ciudadano_api(request, ciudadano_id):
     """API para obtener línea temporal de eventos del ciudadano"""
     try:

@@ -13,6 +13,7 @@ from legajos.models import (
 )
 from legajos.models_institucional import (
     CasoInstitucional,
+    DerivacionCiudadano,
     DerivacionInstitucional,
     InstitucionPrograma,
 )
@@ -96,9 +97,9 @@ def build_institucion_detail_context(institucion):
 
     for institucion_programa in programas_activos:
         programa = institucion_programa.programa
-        derivaciones_pendientes = DerivacionInstitucional.objects.filter(
+        derivaciones_pendientes = DerivacionCiudadano.objects.filter(
             institucion_programa=institucion_programa,
-            estado="PENDIENTE",
+            estado='PENDIENTE',
         ).count()
         casos_activos = CasoInstitucional.objects.filter(
             institucion_programa=institucion_programa,
@@ -173,14 +174,23 @@ def build_actividad_detail_context(actividad):
         ),
     ).order_by("-fecha_inscripcion")
 
+    total_activos = nomina.filter(estado__in=["INSCRITO", "ACTIVO"]).count()
+    cupo = actividad.cupo_ciudadanos
+    if cupo == 0:
+        cupo_disponible = True
+        cupos_restantes = None  # ilimitado
+    else:
+        cupo_disponible = total_activos < cupo
+        cupos_restantes = max(0, cupo - total_activos)
+
     return {
         "staff": staff,
         "derivaciones": derivaciones,
         "nomina": nomina,
         "total_staff_activo": staff.filter(activo=True).count(),
-        "total_inscriptos_activos": nomina.filter(
-            estado__in=["INSCRITO", "ACTIVO"]
-        ).count(),
+        "total_inscriptos_activos": total_activos,
+        "cupo_disponible": cupo_disponible,
+        "cupos_restantes": cupos_restantes,
     }
 
 

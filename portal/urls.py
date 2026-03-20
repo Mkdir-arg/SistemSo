@@ -8,6 +8,11 @@ from .views_public import (
     get_localidades,
     get_municipios,
 )
+from .views.ciudadano_actividades import (
+    ciudadano_detalle_actividad,
+    ciudadano_inscribirse_actividad,
+    ciudadano_mis_actividades,
+)
 from .views_ciudadano import (
     CiudadanoLoginView,
     CiudadanoLogoutView,
@@ -74,4 +79,8 @@ urlpatterns = [
     path('mi-perfil/turnos/solicitar/<int:recurso_id>/confirmar/', ciudadano_confirmar_turno, name='ciudadano_confirmar_turno'),
     path('mi-perfil/turnos/<int:pk>/confirmado/', ciudadano_turno_confirmado, name='ciudadano_turno_confirmado'),
     path('mi-perfil/turnos/<int:pk>/cancelar/', ciudadano_cancelar_turno, name='ciudadano_cancelar_turno'),
+    # Actividades institucionales
+    path('mi-perfil/actividades/', ciudadano_mis_actividades, name='ciudadano_mis_actividades'),
+    path('mi-perfil/actividades/<int:actividad_pk>/inscribir/', ciudadano_inscribirse_actividad, name='ciudadano_inscribirse_actividad'),
+    path('mi-perfil/actividades/<int:actividad_pk>/', ciudadano_detalle_actividad, name='ciudadano_detalle_actividad'),
 ]

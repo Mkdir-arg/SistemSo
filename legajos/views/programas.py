@@ -7,16 +7,20 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
 from django.db.models import Count, Q
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
-from ..models_programas import Programa
+from ..models_programas import Programa, InscripcionPrograma
 from ..models_institucional import (
     InstitucionPrograma,
     CoordinadorPrograma,
+    DerivacionCiudadano,
     DerivacionInstitucional,
     CasoInstitucional,
+    EstadoDerivacionCiudadano,
     EstadoDerivacion,
-    EstadoCaso
+    EstadoCaso,
 )
 
 
@@ -33,19 +37,19 @@ class ProgramaListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         if self.request.user.is_superuser:
             # SuperAdmin ve todos los programas
-            queryset = Programa.objects.filter(activo=True)
+            queryset = Programa.objects.filter(estado=Programa.Estado.ACTIVO)
         else:
             # Coordinador ve solo sus programas
             queryset = Programa.objects.filter(
                 coordinadores__usuario=self.request.user,
                 coordinadores__activo=True,
-                activo=True
+                estado=Programa.Estado.ACTIVO,
             )
         
         # Agregar métricas
         queryset = queryset.annotate(
             total_instituciones=Count('instituciones_habilitadas', filter=Q(instituciones_habilitadas__activo=True)),
-            total_derivaciones_pendientes=Count('derivaciones_programa', filter=Q(derivaciones_programa__estado=EstadoDerivacion.PENDIENTE)),
+            total_derivaciones_pendientes=Count('derivaciones_ciudadanos', filter=Q(derivaciones_ciudadanos__estado=EstadoDerivacionCiudadano.PENDIENTE)),
             total_casos_activos=Count('instituciones_habilitadas__casos', filter=Q(instituciones_habilitadas__casos__estado__in=[EstadoCaso.ACTIVO, EstadoCaso.EN_SEGUIMIENTO]))
         ).order_by('orden', 'nombre')
         
@@ -234,9 +238,9 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
         
         context['total_instituciones'] = instituciones_habilitadas.count()
         
-        context['total_derivaciones_pendientes'] = DerivacionInstitucional.objects.filter(
+        context['total_derivaciones_pendientes'] = DerivacionCiudadano.objects.filter(
             programa=programa,
-            estado=EstadoDerivacion.PENDIENTE
+            estado=EstadoDerivacionCiudadano.PENDIENTE,
         ).count()
         
         context['total_casos_activos'] = CasoInstitucional.objects.filter(
@@ -248,30 +252,28 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
             institucion_programa__programa=programa
         ).count()
         
-        # BANDEJA DE DERIVACIONES (ciudadanos)
-        from ..models_programas import DerivacionPrograma, InscripcionPrograma
-        
-        # Derivaciones de ciudadanos al mismo programa
-        context['derivaciones_ciudadanos'] = DerivacionPrograma.objects.filter(
-            programa_destino=programa
-        ).select_related('ciudadano', 'programa_origen', 'derivado_por').order_by('-creado')[:20]
-        
-        # Stats de derivaciones ciudadanos
+        # BANDEJA DE DERIVACIONES (ciudadanos) — usa DerivacionCiudadano (US-012)
+        from ..models_programas import InscripcionPrograma
+
+        context['derivaciones_ciudadanos'] = DerivacionCiudadano.objects.filter(
+            programa=programa
+        ).select_related('ciudadano', 'programa_origen', 'derivado_por', 'institucion_programa__institucion').order_by('-creado')[:20]
+
         context['stats_ciudadanos'] = {
-            'pendientes': DerivacionPrograma.objects.filter(programa_destino=programa, estado='PENDIENTE').count(),
-            'aceptadas': DerivacionPrograma.objects.filter(programa_destino=programa, estado='ACEPTADA').count(),
-            'rechazadas': DerivacionPrograma.objects.filter(programa_destino=programa, estado='RECHAZADA').count(),
+            'pendientes': DerivacionCiudadano.objects.filter(programa=programa, estado=EstadoDerivacionCiudadano.PENDIENTE).count(),
+            'aceptadas': DerivacionCiudadano.objects.filter(programa=programa, estado=EstadoDerivacionCiudadano.ACEPTADA).count(),
+            'rechazadas': DerivacionCiudadano.objects.filter(programa=programa, estado=EstadoDerivacionCiudadano.RECHAZADA).count(),
         }
         
         # Derivaciones institucionales
-        context['derivaciones_institucionales'] = DerivacionInstitucional.objects.filter(
+        context['derivaciones_institucionales'] = DerivacionCiudadano.objects.filter(
             programa=programa
         ).select_related('ciudadano', 'institucion', 'derivado_por').order_by('-creado')[:20]
         
         # Instituciones participantes
         context['instituciones'] = instituciones_habilitadas.annotate(
             casos_activos=Count('casos', filter=Q(casos__estado__in=[EstadoCaso.ACTIVO, EstadoCaso.EN_SEGUIMIENTO])),
-            derivaciones_pendientes=Count('derivaciones', filter=Q(derivaciones__estado=EstadoDerivacion.PENDIENTE))
+            derivaciones_pendientes=Count('derivaciones', filter=Q(derivaciones__estado=EstadoDerivacionCiudadano.PENDIENTE))
         )
         
         # Casos activos
@@ -306,10 +308,15 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
             'activos': InscripcionPrograma.objects.filter(programa=programa, estado='ACTIVO').count(),
             'seguimiento': InscripcionPrograma.objects.filter(programa=programa, estado='EN_SEGUIMIENTO').count(),
             'cerrados': InscripcionPrograma.objects.filter(programa=programa, estado='CERRADO').count(),
+            'bajas': InscripcionPrograma.objects.filter(programa=programa, estado='DADO_DE_BAJA').count(),
         }
         
         # DASHBOARD
-        total_derivaciones = context['stats_ciudadanos']['pendientes'] + context['stats_ciudadanos']['aceptadas'] + context['stats_ciudadanos']['rechazadas']
+        total_derivaciones = (
+            context['stats_ciudadanos']['pendientes']
+            + context['stats_ciudadanos']['aceptadas']
+            + context['stats_ciudadanos']['rechazadas']
+        )
         context['total_derivaciones'] = total_derivaciones if total_derivaciones > 0 else 1
         context['tasa_aceptacion'] = round((context['stats_ciudadanos']['aceptadas'] / context['total_derivaciones']) * 100) if context['total_derivaciones'] > 1 else 0
         
@@ -321,8 +328,8 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
         context['max_casos_institucion'] = top_inst.first().casos_activos if top_inst.exists() and top_inst.first().casos_activos > 0 else 1
         
         # Últimas derivaciones
-        context['ultimas_derivaciones'] = DerivacionPrograma.objects.filter(
-            programa_destino=programa
+        context['ultimas_derivaciones'] = DerivacionCiudadano.objects.filter(
+            programa=programa
         ).select_related('ciudadano').order_by('-creado')[:5]
         
         # INDICADORES
@@ -330,5 +337,37 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
         context['total_acompanamientos_totales'] = InscripcionPrograma.objects.filter(programa=programa).count()
         
         context['es_superadmin'] = self.request.user.is_superuser
-        
+
         return context
+
+
+@login_required
+@require_http_methods(["POST"])
+def dar_de_baja_inscripcion(request, inscripcion_id):
+    """
+    Da de baja a un ciudadano de un programa persistente.
+    Espera campo POST 'motivo' (obligatorio).
+    """
+    from ..services.programas import BajaProgramaService
+
+    inscripcion = get_object_or_404(InscripcionPrograma, id=inscripcion_id)
+    motivo = request.POST.get('motivo', '').strip()
+
+    if not motivo:
+        messages.error(request, "Debe ingresar un motivo para la baja.")
+        return redirect('legajos:programa_detalle', pk=inscripcion.programa_id)
+
+    try:
+        BajaProgramaService.dar_de_baja(
+            inscripcion_id=inscripcion_id,
+            usuario=request.user,
+            motivo=motivo,
+        )
+        messages.success(
+            request,
+            f"{inscripcion.ciudadano.nombre_completo} fue dado de baja del programa correctamente.",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+
+    return redirect('legajos:programa_detalle', pk=inscripcion.programa_id)

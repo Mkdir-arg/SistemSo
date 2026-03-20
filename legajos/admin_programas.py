@@ -6,11 +6,11 @@ from .models_programas import Programa, InscripcionPrograma, DerivacionPrograma
 
 @admin.register(Programa)
 class ProgramaAdmin(admin.ModelAdmin):
-    list_display = ('codigo', 'nombre', 'tipo', 'activo', 'orden', 'ver_derivaciones_button')
-    list_filter = ('activo', 'tipo')
+    list_display = ('codigo', 'nombre', 'tipo', 'estado', 'orden', 'ver_derivaciones_button')
+    list_filter = ('estado', 'tipo')
     search_fields = ('codigo', 'nombre')
     ordering = ('orden', 'nombre')
-    
+
     fieldsets = (
         ('Información Básica', {
             'fields': ('codigo', 'nombre', 'tipo', 'descripcion')
@@ -22,7 +22,7 @@ class ProgramaAdmin(admin.ModelAdmin):
             'fields': ('requiere_evaluacion', 'requiere_plan', 'requiere_seguimientos', 'modelo_legajo')
         }),
         ('Estado', {
-            'fields': ('activo',)
+            'fields': ('estado',)
         }),
     )
     
@@ -36,7 +36,6 @@ class ProgramaAdmin(admin.ModelAdmin):
             obj.color
         )
     ver_derivaciones_button.short_description = 'Acciones'
-    ver_derivaciones_button.allow_tags = True
 
 
 @admin.register(InscripcionPrograma)

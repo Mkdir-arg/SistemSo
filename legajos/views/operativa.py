@@ -1,6 +1,7 @@
 import json
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
@@ -147,6 +148,7 @@ class InstitucionDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+@login_required
 @require_http_methods(['POST'])
 def marcar_etapa_plan(request, pk):
     try:
@@ -165,6 +167,7 @@ def marcar_etapa_plan(request, pk):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+@login_required
 @require_http_methods(['GET'])
 def actividades_por_institucion(request, institucion_id):
     actividades = PlanFortalecimiento.objects.filter(

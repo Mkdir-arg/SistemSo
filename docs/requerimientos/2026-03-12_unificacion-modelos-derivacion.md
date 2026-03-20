@@ -5,7 +5,7 @@ type: requerimiento
 ---
 
 # Unificación modelos de derivación
-> Estado: ABIERTO
+> Estado: CERRADO (implementado 2026-03-15)
 > Fecha: 2026-03-12
 > Prioridad: ALTA
 > Tipo: FEATURE

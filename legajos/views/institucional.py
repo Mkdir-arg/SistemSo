@@ -16,29 +16,30 @@ from core.models import Institucion
 from ..models import LegajoInstitucional
 from ..models_institucional import (
     InstitucionPrograma,
+    DerivacionCiudadano,
     DerivacionInstitucional,
     CasoInstitucional,
+    EstadoDerivacionCiudadano,
     EstadoDerivacion,
     EstadoCaso,
-    EstadoPrograma
+    EstadoPrograma,
 )
 from ..forms import (
     DerivacionInstitucionalForm,
     RechazarDerivacionForm,
-    CambiarEstadoCasoForm
+    CambiarEstadoCasoForm,
 )
-from ..services import CasoService, DerivacionService
+from ..services import CasoService, DerivacionCiudadanoService, DerivacionService
+from core.decorators import group_required
 from ..permissions_institucional import (
-    puede_ver_institucion,
     puede_ver_programa,
     puede_operar_programa,
-    require_ver_institucion,
     require_operar_programa
 )
 
 
 @login_required
-@require_ver_institucion
+@group_required(['institucionVer', 'institucionAdministrar'], redirect_to='configuracion:dispositivos')
 def institucion_detalle_programatico(request, pk):
     """
     Vista principal de detalle institucional con solapas dinámicas por programa.
@@ -106,13 +107,13 @@ def institucion_detalle_programatico(request, pk):
     hace_7_dias = hoy - timedelta(days=7)
     
     # Derivaciones por estado
-    derivaciones_stats = DerivacionInstitucional.objects.filter(
+    derivaciones_stats = DerivacionCiudadano.objects.filter(
         institucion=institucion
     ).aggregate(
         total=Count('id'),
-        pendientes=Count('id', filter=Q(estado=EstadoDerivacion.PENDIENTE)),
-        aceptadas=Count('id', filter=Q(estado=EstadoDerivacion.ACEPTADA)),
-        rechazadas=Count('id', filter=Q(estado=EstadoDerivacion.RECHAZADA)),
+        pendientes=Count('id', filter=Q(estado=EstadoDerivacionCiudadano.PENDIENTE)),
+        aceptadas=Count('id', filter=Q(estado=EstadoDerivacionCiudadano.ACEPTADA)),
+        rechazadas=Count('id', filter=Q(estado=EstadoDerivacionCiudadano.RECHAZADA)),
         ultimos_30_dias=Count('id', filter=Q(creado__gte=hace_30_dias)),
         ultimos_7_dias=Count('id', filter=Q(creado__gte=hace_7_dias))
     )
@@ -140,22 +141,22 @@ def institucion_detalle_programatico(request, pk):
     ).order_by('-cantidad')[:5]
     
     # Derivaciones por urgencia
-    derivaciones_urgencia = DerivacionInstitucional.objects.filter(
+    derivaciones_urgencia = DerivacionCiudadano.objects.filter(
         institucion=institucion,
-        estado=EstadoDerivacion.PENDIENTE
+        estado=EstadoDerivacionCiudadano.PENDIENTE,
     ).values('urgencia').annotate(
         cantidad=Count('id')
     )
-    
+
     # Tendencia de derivaciones (últimos 6 meses)
     meses_atras = [hoy - timedelta(days=30*i) for i in range(6)]
     derivaciones_tendencia = []
     for mes in reversed(meses_atras):
         mes_siguiente = mes + timedelta(days=30)
-        count = DerivacionInstitucional.objects.filter(
+        count = DerivacionCiudadano.objects.filter(
             institucion=institucion,
             creado__gte=mes,
-            creado__lt=mes_siguiente
+            creado__lt=mes_siguiente,
         ).count()
         derivaciones_tendencia.append({
             'mes': mes.strftime('%b'),
@@ -167,10 +168,10 @@ def institucion_detalle_programatico(request, pk):
     tasa_aceptacion = round((derivaciones_stats['aceptadas'] / total_respondidas * 100) if total_respondidas > 0 else 0, 1)
     
     # Tiempo promedio de respuesta (últimas 30 derivaciones respondidas)
-    derivaciones_recientes = DerivacionInstitucional.objects.filter(
+    derivaciones_recientes = DerivacionCiudadano.objects.filter(
         institucion=institucion,
-        estado__in=[EstadoDerivacion.ACEPTADA, EstadoDerivacion.RECHAZADA],
-        fecha_respuesta__isnull=False
+        estado__in=[EstadoDerivacionCiudadano.ACEPTADA, EstadoDerivacionCiudadano.RECHAZADA],
+        fecha_respuesta__isnull=False,
     ).order_by('-fecha_respuesta')[:30]
     
     tiempos_respuesta = []
@@ -220,19 +221,19 @@ def programa_derivaciones(request, institucion_programa_id):
     # Filtros
     estado = request.GET.get('estado', '')
     
-    derivaciones = DerivacionInstitucional.objects.filter(
+    derivaciones = DerivacionCiudadano.objects.filter(
         institucion_programa=ip
     ).select_related('ciudadano', 'derivado_por')
-    
+
     if estado:
         derivaciones = derivaciones.filter(estado=estado)
-    
+
     derivaciones = derivaciones.order_by('-creado')
-    
+
     context = {
         'institucion_programa': ip,
         'derivaciones': derivaciones,
-        'estados': EstadoDerivacion.choices,
+        'estados': EstadoDerivacionCiudadano.choices,
         'estado_filtro': estado,
     }
     
@@ -240,20 +241,20 @@ def programa_derivaciones(request, institucion_programa_id):
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST"])
 def aceptar_derivacion(request, derivacion_id):
     """Acepta una derivación institucional"""
-    derivacion = get_object_or_404(DerivacionInstitucional, id=derivacion_id)
-    
+    derivacion = get_object_or_404(DerivacionCiudadano, id=derivacion_id)
+
     # Verificar permisos
     if not puede_operar_programa(derivacion.institucion_programa, request.user):
         messages.error(request, 'No tiene permisos para operar este programa.')
         return redirect('legajos:programas')
-    
+
     try:
-        caso, created = DerivacionService.aceptar_derivacion(
+        caso, created = DerivacionCiudadanoService.aceptar_derivacion(
             derivacion_id=derivacion_id,
-            usuario=request.user
+            usuario=request.user,
         )
         
         if created:
@@ -272,21 +273,21 @@ def aceptar_derivacion(request, derivacion_id):
 @require_http_methods(["GET", "POST"])
 def rechazar_derivacion_view(request, derivacion_id):
     """Vista para rechazar derivación"""
-    derivacion = get_object_or_404(DerivacionInstitucional, id=derivacion_id)
-    
+    derivacion = get_object_or_404(DerivacionCiudadano, id=derivacion_id)
+
     # Verificar permisos
     if not puede_operar_programa(derivacion.institucion_programa, request.user):
         messages.error(request, 'No tiene permisos para operar este programa.')
         return redirect('legajos:programas')
-    
+
     if request.method == 'POST':
         form = RechazarDerivacionForm(request.POST)
         if form.is_valid():
             try:
-                DerivacionService.rechazar_derivacion(
+                DerivacionCiudadanoService.rechazar_derivacion(
                     derivacion_id=derivacion_id,
                     usuario=request.user,
-                    motivo_rechazo=form.cleaned_data['motivo_rechazo']
+                    motivo_rechazo=form.cleaned_data['motivo_rechazo'],
                 )
                 messages.success(request, 'Derivación rechazada exitosamente.')
                 return redirect('legajos:programa_derivaciones', 
@@ -315,7 +316,7 @@ def programa_casos(request, institucion_programa_id):
     
     casos = CasoInstitucional.objects.filter(
         institucion_programa=ip
-    ).select_related('ciudadano', 'responsable_caso')
+    ).select_related('ciudadano', 'responsable')
     
     if estado:
         casos = casos.filter(estado=estado)
@@ -343,8 +344,8 @@ def caso_detalle(request, caso_id):
             'ciudadano',
             'institucion_programa__institucion',
             'institucion_programa__programa',
-            'responsable_caso',
-            'derivacion_origen'
+            'responsable',
+            'derivacion_origen',
         ),
         id=caso_id
     )
@@ -414,8 +415,8 @@ def api_programa_indicadores(request, institucion_programa_id):
     
     # Calcular indicadores
     total_derivaciones = ip.derivaciones.count()
-    derivaciones_pendientes = ip.derivaciones.filter(estado=EstadoDerivacion.PENDIENTE).count()
-    derivaciones_aceptadas = ip.derivaciones.filter(estado=EstadoDerivacion.ACEPTADA).count()
+    derivaciones_pendientes = ip.derivaciones.filter(estado=EstadoDerivacionCiudadano.PENDIENTE).count()
+    derivaciones_aceptadas = ip.derivaciones.filter(estado=EstadoDerivacionCiudadano.ACEPTADA).count()
     
     total_casos = ip.casos.count()
     casos_activos = ip.casos.filter(estado__in=[EstadoCaso.ACTIVO, EstadoCaso.EN_SEGUIMIENTO]).count()

@@ -149,6 +149,22 @@
 - `legajos` dejó de depender de wrappers legacy internos y ahora consume solo sus paquetes reales de `views`, `forms`, `services`, `selectors` y `signals`.
 - La cartografía física final del repositorio quedó alineada casi por completo; el riesgo pendiente ya es más de runtime/contrato que de estructura.
 
+## Estado funcional 2026-03-19
+
+- US-022 completado: inscripción de ciudadanos a actividades desde backoffice (por DNI) y portal ciudadano.
+- `InscriptoActividad` ya tiene `codigo_inscripcion` y `inscrito_por`; sin `unique_together` (reinscripciones históricas permitidas).
+- `inscribir_ciudadano_a_actividad` es el service central — usar siempre este, nunca crear `InscriptoActividad` directo.
+- Bug de cupo=0 corregido en `actividad_detail.html` y en `aceptar_derivacion` (ya no usa `get_or_create`).
+- Próximo candidato: US-023 (clases y asistencia) o US-008 (ficha ciudadana completa).
+
+## Estado funcional 2026-03-15
+
+- US-012 completado: flujo de derivación e inscripción de ciudadanos a programas usando `DerivacionCiudadano`.
+- `DerivacionPrograma` queda como tabla legacy (sin UI activa), solo usada por el flujo Ñachec.
+- `puede_operar_programa` corregido: ahora verifica grupo `programaOperar`, responsable local y `CoordinadorPrograma`. Antes siempre retornaba False para no-superusuarios.
+- El signal `iniciar_flujo_inscripcion` en `legajos/signals/programas.py` inicia el FlowRuntime automáticamente al crear `InscripcionPrograma`. El service no lo llama directamente.
+- Siguiente US candidata: US-008/009 (hub ciudadano), US-020 (tipo acceso actividades), US-022 (inscripción a actividades).
+
 ## Próxima etapa sugerida
 
 - El siguiente hotspot real pasó a ser el bloque territorial restante de `ÑACHEC`: validación, asignación, relevamiento y evidencias.

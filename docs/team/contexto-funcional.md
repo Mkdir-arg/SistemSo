@@ -3,7 +3,7 @@
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
 
-> Última actualización: 2026-03-12 (sesión 6 — /definir derivacion-e-inscripcion)
+> Última actualización: 2026-03-19 (sesión 8 — US-008 perfil social ciudadano)
 
 
 ---
@@ -34,6 +34,13 @@ Los tres dominios centrales son:
 ## Reglas de negocio confirmadas
 
 > Estas decisiones fueron tomadas y NO deben cuestionarse sin revisión explícita del usuario.
+
+### Actividades institucionales — inscripción
+- Un ciudadano **puede reinscribirse** a una actividad si su inscripción anterior tiene estado ABANDONADO o FINALIZADO
+- Solo puede haber **una inscripción activa** (INSCRITO o ACTIVO) por (ciudadano, actividad) al mismo tiempo — garantizado por service con `select_for_update`
+- `cupo_ciudadanos = 0` en `PlanFortalecimiento` significa **sin límite de cupo**; un cupo real es siempre >= 1
+- El **código de inscripción** es de 8 caracteres alfanuméricos en mayúsculas, único globalmente, permanente
+- Los operadores del backoffice inscriben por DNI; los ciudadanos se inscriben desde el portal (solo actividades LIBRE)
 
 ### Búsqueda de ciudadanos
 - Los operadores pueden buscar ciudadanos por **nombre** (parcial) o por **DNI**
@@ -89,6 +96,16 @@ El perfil del ciudadano es el centro de toda su información. Tiene solapas est�
 #### Confidencialidad en dos capas
 - Campos de salud y documentación migratoria → sensibles por defecto (requieren `ciudadanoSensible`)
 - El operador puede marcar campos adicionales como sensibles al cargar el ciudadano
+
+#### Implementación del control de acceso a campos sensibles (confirmado US-008)
+- **Campos sensibles definidos:** `cobertura_medica`, `medicacion_habitual`, `estado_migratorio`
+- **Flag de acceso:** `puede_ver_sensible = user.is_superuser or user.groups.filter(name='ciudadanoSensible').exists()`
+- **Protección en tres capas independientes:**
+  1. **Form layer** — los fields sensibles no se inyectan en el form si el flag es `False`; `save()` tampoco los persiste sin el flag
+  2. **View layer** — la view calcula el flag y lo pasa como kwarg al form y como variable de contexto
+  3. **Template layer** — la sección sensible está envuelta en `{% if puede_ver_sensible %}`
+- **La foto del ciudadano NO es sensible** — la puede ver cualquier operador con acceso a la ficha (sin requerir `ciudadanoSensible`)
+- Este patrón de tres capas es el estándar a seguir para cualquier futuro campo sensible en el sistema
 
 ### Instituciones
 - Pasan por un flujo de aprobación: BORRADOR → ENVIADO → REVISION → APROBADO/RECHAZADO
@@ -653,6 +670,25 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se ejecutó el quincuagésimo octavo slice del refactor DX sobre `legajos`
 - `legajos` ya no depende de wrappers legacy en raíz y consume directamente sus paquetes reales de `views`, `forms`, `services`, `selectors` y `signals`
 - El comportamiento visible no cambió y la cartografía final de la app quedó alineada con el resto del repo
+
+### 2026-03-19 (sesión 7)
+- Se implementó US-022: inscripción de ciudadanos a actividades institucionales
+- `InscriptoActividad` extendido con `codigo_inscripcion` (8 chars único) e `inscrito_por`; se eliminó `unique_together` para soportar reinscripciones históricas
+- Service central `inscribir_ciudadano_a_actividad` con `@transaction.atomic + select_for_update` para evitar race conditions
+- `aceptar_derivacion` en `configuracion/services` refactorizado para usar el service central en lugar de `get_or_create` directo
+- Vista de inscripción directa desde backoffice (búsqueda por DNI) y desde portal ciudadano
+- Bug corregido: cupo=0 en `PlanFortalecimiento` ahora se trata correctamente como "sin límite" en el template
+- Reglas confirmadas: cupo=0 = ilimitado; reinscripción permitida tras ABANDONADO/FINALIZADO; código = 8 chars alfanuméricos
+
+### 2026-03-19 (sesión 8)
+- Se implementó US-008: perfil social ampliado del ciudadano
+- 14 nuevos campos en `Ciudadano`: foto, habitacional (tipo, tenencia, condiciones), laboral (situación, ingreso, obra social), educativo (nivel), médico-sensible (cobertura, medicación), documentación (DNI físico, estado RENAPER, estado migratorio-sensible), observaciones
+- Se estableció el patrón de tres capas para campos sensibles: form/view/template. La foto no es sensible.
+- `CiudadanoUpdateForm` inyecta campos sensibles condicionalmente en `__init__`; `save()` los persiste solo si el flag es verdadero
+- `build_ciudadano_detail_context` extendido para recibir `user` y calcular `puede_ver_sensible`
+- `buscar_ciudadanos_rapido` ahora retorna `foto_url` para el buscador rápido
+- 4 índices nuevos en `Ciudadano` para preparar filtros del hub (US-009)
+- Migración `0034_ciudadano_campos_perfil_ampliado` creada y aplicada
 
 ---
 

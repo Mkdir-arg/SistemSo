@@ -12,6 +12,7 @@ from legajos.models import (
     PersonalInstitucion,
     StaffActividad,
 )
+from legajos.services.actividades import InscripcionError, inscribir_ciudadano_a_actividad
 
 
 class ConfiguracionWorkflowError(Exception):
@@ -241,29 +242,20 @@ class ConfiguracionInstitucionalService:
                 "La derivación ya fue procesada por otro operador."
             )
 
-        actividad = derivacion.actividad_destino
-        inscritos_activos = InscriptoActividad.objects.filter(
-            actividad=actividad,
-            estado__in=[
-                InscriptoActividad.Estado.INSCRITO,
-                InscriptoActividad.Estado.ACTIVO,
-            ],
-        ).count()
-        if inscritos_activos >= actividad.cupo_ciudadanos:
-            raise ConfiguracionWorkflowError(
-                f"No se puede aceptar la derivación. Cupo completo ({actividad.cupo_ciudadanos} lugares)."
-            )
-
         estado_anterior = derivacion.estado
         derivacion.estado = Derivacion.Estado.ACEPTADA
         derivacion.fecha_aceptacion = timezone.now().date()
         derivacion.save(update_fields=["estado", "fecha_aceptacion", "modificado"])
 
-        inscripto, _ = InscriptoActividad.objects.get_or_create(
-            actividad=actividad,
-            ciudadano=derivacion.legajo.ciudadano,
-            defaults={"estado": InscriptoActividad.Estado.ACTIVO},
-        )
+        try:
+            inscripto = inscribir_ciudadano_a_actividad(
+                actividad=derivacion.actividad_destino,
+                ciudadano=derivacion.legajo.ciudadano,
+                usuario=usuario,
+                observaciones=f"Inscripto via derivación #{derivacion_id}",
+            )
+        except InscripcionError as exc:
+            raise ConfiguracionWorkflowError(str(exc)) from exc
 
         HistorialDerivacion.objects.create(
             derivacion=derivacion,

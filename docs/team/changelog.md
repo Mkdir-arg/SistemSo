@@ -14,6 +14,306 @@
 
 ---
 
+## 2026-03-19 — US-009 Hub del Ciudadano — Solapas dinámicas y badge behavior
+
+**User Story:** Como operador/profesional del backoffice quiero ver en el hub del ciudadano todas las solapas de información con badges que indican ítems de atención para priorizar la acción sin navegar entre módulos.
+
+**Archivos modificados:**
+- `legajos/services/solapas.py` — SOLAPAS_ESTATICAS expandida a 11 entradas; `obtener_solapas_ciudadano` refactorizado (copia dicts, inyecta badges); nuevo método `obtener_badges_ciudadano` con 5 tipos de badge
+- `legajos/selectors/ciudadanos.py` — `build_ciudadano_detail_context` genera alertas on-the-fly y construye querysets para 7 tabs nuevos + `linea_tiempo`
+- `legajos/templates/legajos/ciudadano_detail.html` — badges inline-style en botones de tab; 7 nuevos paneles de tab con empty states; loop de programa usa `solapas` (ID normalizado); `confirm()` migrado a SweetAlert2
+
+**Descripción:** Expande el hub con 7 solapas estáticas nuevas (Turnos, Instituciones, Conversaciones, Derivaciones, Alertas, Línea de tiempo, Red Familiar) y un sistema de badges que muestra conteos de atención urgente. El tab de ACOMPANAMIENTO_SEDRONAR usa ahora `solapa.id` (normalizado) para garantizar consistencia con el botón. Se corrigieron dos usos de `confirm()` nativo que violan la convención del design system.
+
+---
+
+## 2026-03-19 — US-008 Perfil social ampliado del ciudadano
+
+**User Story:** Como operador quiero que la ficha del ciudadano incluya situación habitacional, laboral, educativa, médica, documentación migratoria, notas y foto para tener toda la información social centralizada.
+
+**Archivos modificados:**
+- `legajos/models.py` — 14 nuevos campos en `Ciudadano`: `foto` (ImageField), `tipo_vivienda`, `tenencia_vivienda`, `condiciones_vivienda`, `situacion_laboral`, `ingreso_estimado`, `obra_social`, `nivel_educativo`, `cobertura_medica` (sensible), `medicacion_habitual` (sensible), `dni_fisico`, `estado_renaper`, `estado_migratorio` (sensible), `observaciones`. `TextChoices` para todos los campos enum. 4 nuevos índices.
+- `legajos/migrations/0034_ciudadano_campos_perfil_ampliado.py` — migración creada y aplicada
+- `legajos/forms/ciudadanos.py` — `CiudadanoUpdateForm` extendido con campos no-sensibles en `Meta.fields/widgets`; campos sensibles inyectados en `__init__` solo con `puede_ver_sensible=True`; `clean_foto` valida 5 MB máximo; `save()` persiste campos sensibles condicionalmente
+- `legajos/views/ciudadanos.py` — `CiudadanoUpdateView` pasa `puede_ver_sensible` al form y al contexto; `form_valid` invalida caché. `CiudadanoDetailView` pasa `user` al selector
+- `legajos/selectors/ciudadanos.py` — `build_ciudadano_detail_context` acepta `user` y retorna `puede_ver_sensible`; `buscar_ciudadanos_rapido` retorna `foto_url`
+- `legajos/templates/legajos/ciudadano_edit_form.html` — `enctype="multipart/form-data"`, fieldsets de foto/habitacional/laboral/educativo/documentación/sensibles/observaciones
+- `legajos/templates/legajos/ciudadano_detail.html` — foto en avatar, sección social con `{% if tiene_social %}`, sección sensible con `{% if puede_ver_sensible %}`
+
+**Descripción:** Amplía la ficha del ciudadano con toda la información de su perfil social. Los campos de salud (`cobertura_medica`, `medicacion_habitual`) y documentación migratoria (`estado_migratorio`) son sensibles y están protegidos en tres capas independientes: form (no se inyectan sin el flag), view (calcula el flag por grupo Django) y template (sección condicional). La foto tiene validación de peso en el form (5 MB máximo). Se agregaron 4 índices para preparar los filtros del hub ciudadano (US-009).
+
+---
+
+## 2026-03-19 — Fix: Imports rotos post-refactor DX
+
+**Tipo:** fix
+**Severidad:** Alto — servidor no levantaba
+
+**Archivos corregidos:**
+- `legajos/views/__init__.py` — eliminado import stale `views_ciudadanos`; renombrado `contactos_api` a `historial_contactos_api` para evitar shadowing del módulo
+- `legajos/selectors/__init__.py` — agregados 9 exports faltantes de `legajos.py` usados por `clinico.py`
+- `portal/selectors/turnos_ciudadano.py`, `portal/services/turnos_ciudadano.py` — `from .models` → `from portal.models`
+- `conversaciones/selectors/conversaciones.py` — 3 lazy imports `from .models` → `from conversaciones.models`
+- `legajos/selectors/contactos.py` — lazy import `from .models` → `from legajos.models`
+- `legajos/admin_programas.py` — campo `activo` → `estado` en `ProgramaAdmin` (campo no existe en el modelo)
+- `flujos/models.py` — índice renombrado para cumplir límite de 30 chars
+- `flujos/migrations/0002_rename_long_index.py` — migración de rename creada
+
+**Descripción:** Consecuencia del refactor DX (slices 37–47). Los `__init__.py` de los nuevos paquetes no exportaban todos los símbolos necesarios y varios archivos usaban `from .models import` (punto simple) dentro de sub-paquetes. También se levantó el contenedor `nginx` (puerto 9000) que no había sido incluido en el startup inicial.
+
+---
+
+## 2026-03-19 — US-023 Clases y registro de asistencia en actividades institucionales
+
+**User Story:** Como operador institucional quiero registrar clases dentro de una actividad y marcar asistencia por clase. Como ciudadano quiero ver mi historial de asistencia desde el portal.
+
+**Archivos nuevos:**
+- `legajos/models.py` — modelos `ClaseActividad` y `AsistenciaClase`
+- `legajos/migrations/0033_claseactividad_asistenciaclase.py`
+- `configuracion/selectors/clases.py`, `configuracion/services/clases.py`, `configuracion/forms/clases.py`, `configuracion/views/clases.py`
+- `configuracion/templates/configuracion/clase_lista.html`, `clase_form.html`, `clase_asistencia.html`
+- `portal/selectors/actividades_ciudadano.py` (función `get_asistencia_ciudadano_en_actividad`)
+- `portal/views/ciudadano_actividades.py` (vista `ciudadano_detalle_actividad`)
+- `portal/templates/portal/ciudadano/detalle_actividad.html`
+
+**Archivos modificados:** `configuracion/urls.py`, `portal/urls.py`, `portal/templates/.../mis_actividades.html`, `configuracion/templates/.../actividad_detail.html`, `__init__.py` de selectors/services/views
+
+**Descripción:** Capa de clases (sesiones) sobre las actividades institucionales. Gestión CRUD desde el backoffice con bloqueo de edición en clases futuras. Asistencia registrable con estados PRESENTE/AUSENTE/JUSTIFICADO/TARDANZA. Portal ciudadano muestra historial con porcentaje de asistencia.
+
+---
+
+## 2026-03-19 — US-022 Inscripción de ciudadanos a actividades institucionales
+
+**User Story:** Como operador backoffice o ciudadano autenticado en el portal quiero inscribir un ciudadano a una actividad institucional para registrar su participación con código de confirmación, respetando tipo de acceso y cupo.
+
+**Archivos modificados:**
+- `legajos/models.py` — `InscriptoActividad`: `codigo_inscripcion`, `inscrito_por`, elimina `unique_together`, agrega `__str__`
+- `legajos/services/actividades.py` — `inscribir_ciudadano_a_actividad`, `get_estado_inscripcion_ciudadano`, `InscripcionError`
+- `legajos/services/__init__.py` — exports actualizados
+- `configuracion/forms/institucional.py` — `InscripcionDirectaForm`
+- `configuracion/selectors/instituciones.py` — `cupo_disponible` y `cupos_restantes` en `build_actividad_detail_context`
+- `configuracion/services/actividades.py` — `aceptar_derivacion` refactorizado (reemplaza `get_or_create` por service)
+- `configuracion/views/actividades.py` — `InscripcionDirectaView` + context `inscripcion_form`
+- `configuracion/views/__init__.py`, `configuracion/urls.py` — export y URL nueva
+- `portal/selectors/actividades_ciudadano.py` — `get_inscripciones_ciudadano`
+- `portal/selectors/__init__.py`, `portal/views/ciudadano.py`, `portal/urls.py` — exports y URLs nuevas
+- `configuracion/templates/configuracion/actividad_detail.html` — form inscripción, código en nómina, badge cupo corregido
+
+**Archivos creados:**
+- `legajos/migrations/0032_inscriptoactividad_codigo_inscripto_por.py`
+- `portal/views/ciudadano_actividades.py`
+- `portal/templates/portal/ciudadano/mis_actividades.html`
+
+**Descripción:** Implementa el flujo completo de inscripción. Service central con `@transaction.atomic + select_for_update` para evitar race conditions en cupo. `unique_together` eliminado para permitir reinscripciones históricas. `aceptar_derivacion` corregido (ya no usa `get_or_create` que ignoraba estado). Bug de cupo=0 corregido en template.
+
+---
+
+## 2026-03-15 — US-020 Tipo de acceso en actividades institucionales
+
+**User Story:** Como administrador quiero configurar el tipo de acceso de una actividad (LIBRE o REQUIERE_PROGRAMA) para controlar qué ciudadanos pueden inscribirse.
+
+**Archivos modificados:**
+- `legajos/models.py` — `TipoAcceso` y campos `tipo_acceso`/`programa_requerido` en `PlanFortalecimiento`
+- `legajos/services/actividades.py` (nuevo) — `validar_acceso_actividad(actividad, ciudadano)`
+- `legajos/services/__init__.py` — export
+- `configuracion/forms/institucional.py` — campos nuevos en ambos forms con `clean()`
+- `configuracion/templates/configuracion/plan_form.html`, `actividad_editar_form.html` — sección Alpine.js
+- `portal/selectors/actividades_ciudadano.py` (nuevo) — `get_actividades_accesibles(ciudadano)`
+- `portal/selectors/__init__.py` — export
+
+**Migraciones:** `0031_planfortalecimiento_tipo_acceso_programa_requerido`
+
+**Descripción:** Prerequisito para US-022. Agrega control de acceso por programa en actividades institucionales. La función `validar_acceso_actividad` será consumida por el flujo de inscripción a actividades.
+
+---
+
+## 2026-03-15 — US-017 Baja de ciudadano de un programa persistente
+
+**User Story:** Como operador quiero dar de baja a un ciudadano de un programa persistente registrando motivo y fecha para cerrar su caso formalmente.
+
+**Archivos modificados:**
+- `legajos/models_programas.py` — agrega `DADO_DE_BAJA` al enum `InscripcionPrograma.Estado`
+- `legajos/services/programas.py` — nuevo `BajaProgramaService` con transacción atómica (baja + cancelar turnos + cancelar flujo)
+- `legajos/services/__init__.py` — export del nuevo service
+- `legajos/views/programas.py` — nueva FBV `dar_de_baja_inscripcion`
+- `legajos/urls.py` — nueva URL `acompanamiento/<int:inscripcion_id>/dar-de-baja/`
+- `legajos/templates/legajos/programas/programa_detail.html` — botón baja + modal SweetAlert2 + badge `DADO_DE_BAJA`
+
+**Migraciones:** `0030_inscripcionprograma_estado_dado_de_baja`
+
+**Descripción:** Operación formal de baja desde el tab Acompañamientos del panel de programa. Cancela turnos PENDIENTE/CONFIRMADO del ciudadano vinculados al programa y cierra el flujo activo con log de motivo.
+
+---
+
+## 2026-03-15 — US-012 Derivación e inscripción de ciudadanos a programas
+
+**User Story:** Como operador del backoffice quiero derivar o inscribir directamente a un ciudadano en un programa para iniciar su proceso de admisión formal a través del flujo configurado del programa.
+
+**Archivos modificados:**
+- `legajos/models_institucional.py` — `inscripcion_creada` en `DerivacionCiudadano`
+- `legajos/permissions_institucional.py` — corrección de `puede_operar_programa` y compañeras
+- `legajos/services/institucional.py` — `aceptar_derivacion_programa`, `rechazar_derivacion_programa`
+- `legajos/forms/derivacion.py` — `DerivarProgramaForm` sobre `DerivacionCiudadano`
+- `legajos/views/derivacion.py`, `legajos/views/derivacion_programa.py`, `legajos/views/programas.py`, `legajos/views/api_derivaciones.py`
+- `legajos/urls.py` — nuevas URLs `derivacion_ciudadano_aceptar/rechazar`
+- `legajos/templates/legajos/programas/programa_detail.html`, `derivar_programa.html`, `derivar_rechazar_ciudadano.html` (nuevo)
+
+**Migraciones:** `0029_derivacionciudadano_inscripcion_creada`
+
+**Descripción:** Implementa el flujo completo de derivación e inscripción de ciudadanos a programas usando `DerivacionCiudadano`. Reemplaza el flujo previo basado en `DerivacionPrograma` (que queda legacy para Ñachec). Al aceptar una derivación se crea `InscripcionPrograma` y el FlowRuntime inicia el flujo via signal automático. Se corrigen los permisos `puede_operar_programa` que bloqueaban a todos los no-superusuarios.
+
+---
+
+## 2026-03-15 — US-021 Unificación modelo de derivación
+
+**User Story:** Como desarrollador quiero reemplazar `DerivacionInstitucional` por el nuevo modelo unificado `DerivacionCiudadano` para eliminar la duplicación de lógica y habilitar US-012.
+
+**Archivos modificados:**
+- `legajos/models_institucional.py` — nuevo modelo `DerivacionCiudadano`; `CasoInstitucional.derivacion_origen`; related_names legacy renombrados
+- `legajos/forms/institucional.py` — `DerivacionCiudadanoForm`
+- `legajos/services/institucional.py` — `DerivacionCiudadanoService`; fix bugs `responsable_caso` y `caso.notas`
+- `legajos/services/__init__.py` — exporta `DerivacionCiudadanoService`
+- `legajos/views/institucional.py` — queries y service al nuevo modelo; fix `select_related` inválidos; POST-only en `aceptar_derivacion`
+- `legajos/views/programas.py` — anotaciones y queries al nuevo modelo
+- `configuracion/selectors/instituciones.py` — badge derivaciones pendientes al nuevo modelo
+- `legajos/admin.py` — `DerivacionCiudadanoAdmin`
+
+**Migraciones:** `0026` (schema), `0027` (data), `0028` (AddField CasoInstitucional)
+
+**Descripción:** Se unificaron los dos modelos de derivación existentes. `DerivacionCiudadano` reemplaza `DerivacionInstitucional` en toda la capa activa. La tabla legacy se conserva con `related_name=*_legacy`. Datos históricos migrados sin pérdida. Se corrigieron 3 bugs preexistentes detectados durante el review.
+
+---
+
+## 2026-03-15 — Fix: turnoOperar no aplicado en vistas operativas
+
+**Tipo:** fix
+**Error:** `docs/errores/2026-03-11_permisos-turnooperar-no-aplicado.md`
+**Archivos modificados:**
+- `turnos/mixins.py` — agregado `turno_operar_required` decorator y `TurnoOperarRequiredMixin`
+- `turnos/views/turnos.py` — vistas operativas (agenda, bandeja, detalle, aprobar, rechazar, cancelar, completar) usan el nuevo guard de `turnoOperar`
+
+**Descripción:** Las vistas operativas de turnos usaban un guard permisivo que solo verificaba "no ciudadano". Se corrigió para exigir el grupo `turnoOperar`, alineando el comportamiento con lo definido en US-011.
+
+---
+
+## 2026-03-15 — US-007 Editor Visual de Flujos
+
+**User Story:** Como usuario con rol `programaConfigurar` quiero un editor visual drag & drop para diseñar el flujo de un programa para poder configurar visualmente la secuencia de pasos sin editar JSON manualmente.
+
+**Archivos creados:**
+- `flujos/views_urls.py` — URL HTML del editor
+- `flujos/templates/flujos/editor.html` — template con mount point React
+- `frontend/flow-editor/` — proyecto React + Vite completo (14 archivos)
+
+**Archivos modificados:**
+- `flujos/views.py` — view `editor_flujo` + imports
+- `config/urls.py` — include `flujos_editor`
+- `configuracion/templates/configuracion/programa_list.html` — enlace al editor
+
+**Descripción:** Editor visual con React Flow embebido en el backoffice Django. Panel izquierdo con 5 tipos de nodo arrastrables (inicio, fin, accion_humana, espera, decision). Panel derecho de propiedades con editor de condiciones para nodos decision. Validación en tiempo real del grafo. Guardar borrador y publicar via API REST. Bundle compilado con Vite hacia `static/flujos/dist/`. CSRF via cookie. URLs inyectadas desde Django (no hardcodeadas).
+
+---
+
+## 2026-03-15 — US-006 Motor de Flujos Backend
+
+**User Story:** Como desarrollador quiero un motor de flujos backend (app `flujos/`) con modelos, runtime y tipos de nodo para que los programas puedan tener flujos configurables que guíen la atención de un ciudadano desde su inscripción hasta el cierre del caso.
+
+**Archivos creados:**
+- `flujos/` (app nueva) — `models.py`, `runtime.py`, `forms.py`, `views.py`, `urls.py`, `admin.py`
+- `flujos/migrations/0001_initial.py` — DDL completo con 4 tablas, UniqueConstraint y 5 índices
+
+**Archivos modificados:**
+- `config/settings.py` — `'flujos'` en INSTALLED_APPS
+- `config/urls.py` — `path("api/", include("flujos.urls"))`
+- `legajos/models_programas.py` — property `flujo_activo`
+- `configuracion/views/programas.py` — validación flujo publicado en BORRADOR→ACTIVO
+- `legajos/signals/programas.py` — signal `iniciar_flujo_inscripcion`
+
+**Descripción:** App `flujos/` con 4 modelos (Flujo, VersionFlujo, InstanciaFlujo, InstanciaLog) y `FlowRuntime` para iniciar y avanzar instancias de ejecución. Evaluador de condiciones simple (`==`, `!=`, `>`, `>=`, `<`, `<=`, `in`). API REST JSON en 3 endpoints bajo `/api/flujos/`. La transición BORRADOR→ACTIVO en programas ahora requiere flujo publicado. Al crear una InscripcionPrograma se inicia el flujo automáticamente si el programa tiene flujo activo.
+
+---
+
+## 2026-03-15 — US-005 Wizard de configuración de programa
+
+**User Story:** Como usuario con rol `programaConfigurar` quiero crear y editar un programa social mediante un wizard de configuración por pasos para dar de alta programas correctamente tipificados y listos para operar.
+
+**Archivos modificados:**
+- `legajos/models_programas.py` — campos nuevos: `naturaleza`, `estado` (reemplaza `activo`), `tiene_turnos`, `cupo_maximo`, `tiene_lista_espera`; `tipo` pasa a CharField libre; `verbose_name` en `icono`, `color`, `orden`; property `esta_activo`
+- `legajos/views/programas.py` — filtros `activo=True` → `estado=ACTIVO`
+- `legajos/forms/derivacion.py` — queryset actualizado
+- `legajos/templatetags/programas_tags.py` — queryset actualizado
+- `legajos/services/solapas.py` — queryset actualizado
+- `portal/selectors/public.py` — 2 querysets actualizados
+- `configuracion/urls.py` — 10 rutas del wizard
+- `configuracion/views/__init__.py` — exports nuevos
+- `core/views/public.py` — endpoint AJAX `load_subsecretarias`
+- `core/urls.py` — ruta `ajax_load_subsecretarias`
+
+**Archivos creados:**
+- `legajos/migrations/0025_wizard_configuracion_programa.py` — RunPython para convertir `activo→estado`, luego RemoveField
+- `configuracion/forms_programas.py` — 4 forms (uno por paso del wizard)
+- `configuracion/views/programas.py` — wizard en FBVs con estado en sesión (creación + edición + cambio de estado)
+- `configuracion/templates/configuracion/programa_list.html`
+- `configuracion/templates/configuracion/programa_wizard_paso[1-4].html`
+
+**Descripción:** Wizard de 4 pasos para crear y editar programas sociales. Paso 1: identidad y jerarquía organizacional (Secretaría→Subsecretaría, filtrado dinámico vía AJAX). Paso 2: naturaleza (UN_SOLO_ACTO/PERSISTENTE). Paso 3: capacidades (turnos, cupo, lista de espera). Paso 4: visual + confirmación. Los programas se crean en estado BORRADOR y se activan manualmente desde el listado. Migración `0025` convierte el campo `activo` (BooleanField) a `estado` (CharField con 4 valores) conservando datos existentes.
+
+---
+
+## 2026-03-15 — US-013 + US-018 + US-004 Búsqueda rápida, permisos instituciones y ABM Secretarías
+
+**User Stories:**
+- US-013: Como operador quiero buscar un ciudadano por nombre o DNI de forma rápida para atender consultas sin demoras
+- US-018: Como administrador quiero que las vistas de instituciones estén protegidas por roles `institucionVer` e `institucionAdministrar`
+- US-004: Como usuario con rol `secretariaConfigurar` quiero gestionar Secretarías y Subsecretarías y vincular Programas a una Subsecretaría
+
+**Archivos creados:**
+- `legajos/selectors/ciudadanos.py` — `buscar_ciudadanos_rapido(q)` con búsqueda por DNI o nombre (max 10 resultados)
+- `legajos/views_ciudadanos_api.py` — endpoint AJAX `ciudadano_buscar_api` con `@login_required` + `@group_required`
+- `core/models_secretaria.py` — models `Secretaria` y `Subsecretaria` con `puede_eliminarse()`
+- `core/migrations/0008_secretaria_subsecretaria.py` — migración de ambas tablas
+- `legajos/migrations/0024_programa_subsecretaria.py` — FK `subsecretaria` en `Programa`
+- `configuracion/forms_secretaria.py` — `SecretariaForm` y `SubsecretariaForm`
+- `configuracion/views/secretaria.py` — 8 CBVs con `GroupRequiredMixin` + manejo de `ProtectedError`
+- `configuracion/templates/configuracion/secretaria_list.html` — lista con SweetAlert2
+- `configuracion/templates/configuracion/secretaria_form.html`
+- `configuracion/templates/configuracion/secretaria_confirm_delete.html`
+- `configuracion/templates/configuracion/subsecretaria_list.html` — lista con SweetAlert2
+- `configuracion/templates/configuracion/subsecretaria_form.html`
+- `configuracion/templates/configuracion/subsecretaria_confirm_delete.html`
+
+**Archivos modificados:**
+- `core/mixins.py` — `GroupRequiredMixin` ahora redirige a login para usuarios no autenticados
+- `core/decorators.py` — `group_required` extendido con `redirect_to` opcional (retrocompatible)
+- `core/models.py` — re-exporta `Secretaria` y `Subsecretaria`
+- `configuracion/views/institucional.py` — reemplazado control ad-hoc por `LoginRequiredMixin + GroupRequiredMixin` en todas las CBVs; fix de `success_url`
+- `configuracion/views/__init__.py` — exporta las 8 vistas nuevas
+- `configuracion/urls.py` — 8 rutas nuevas para secretarías/subsecretarías
+- `legajos/views/institucional.py` — `@require_ver_institucion` reemplazado por `@group_required` con `redirect_to`
+- `legajos/models_programas.py` — FK `subsecretaria` nullable en `Programa`
+- `legajos/urls.py` — ruta `ciudadano_buscar_api` (antes de `<int:pk>` para evitar colisión)
+- `templates/includes/navbar.html` — componente Alpine.js de búsqueda con debounce 300ms
+
+**Descripción:** Tres features implementadas simultáneamente. La búsqueda rápida (US-013) agrega un widget en la navbar con resultados en tiempo real. Los permisos de instituciones (US-018) reemplaza el control de acceso ad-hoc por el patrón `GroupRequiredMixin` consistente con el resto del sistema. El ABM de secretarías (US-004) agrega la jerarquía organizacional Secretaría→Subsecretaría→Programa con CRUD completo protegido por `secretariaConfigurar`.
+
+---
+
+## 2026-03-15 — US-011 Data migration de roles y permisos
+
+**User Story:** Como administrador del sistema quiero que todos los roles del backoffice existan como grupos Django con sus nombres definitivos acordados, y que los grupos con nombres viejos sean migrados automáticamente.
+
+**Archivos modificados:**
+- `turnos/mixins.py` — reemplazado `'Administradores de Turnos'` por `'turnoConfigurar'` en `admin_turnos_required` y `AdminTurnosRequiredMixin`
+
+**Archivos verificados (sin cambios necesarios):**
+- `users/management/commands/setup_grupos.py` — ya estaba completo con 15 roles operativos, 5 grupos especiales y 4 renombres legacy
+
+**Descripción:** Se unificaron los nombres de grupos Django con los acordados en la sesión de /definir roles. El management command `setup_grupos` crea idempotentemente todos los grupos del sistema y migra los 4 nombres legacy. El fix en mixins.py cierra los errores `2026-03-11_permisos-turnoconfigurar-nombre-viejo.md` y `2026-03-11_permisos-turnooperar-no-aplicado.md` (este último parcialmente — las vistas operativas de turnos quedan pendientes inline con US correspondientes).
+
+**Orden de deploy:** ejecutar `python manage.py setup_grupos` antes de deployar el código para evitar ventana de inconsistencia.
+
+---
+
 ## 2026-03-13 — Refactor DX Slice 47: packaging de la familia `views_nachec_*` en `legajos`
 
 **Archivos modificados:**

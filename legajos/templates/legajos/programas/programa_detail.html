@@ -74,12 +74,12 @@
                 <button onclick="cambiarTab('derivaciones')" data-tab="derivaciones" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
                     <i class="fas fa-inbox mr-2"></i>Derivaciones
                     {% if total_derivaciones_pendientes > 0 %}
-                    <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">{{ total_derivaciones_pendientes }}</span>
+                    <span class="ml-2 badge-nodo badge-sm badge-warning">{{ total_derivaciones_pendientes }}</span>
                     {% endif %}
                 </button>
                 <button onclick="cambiarTab('acompanamientos')" data-tab="acompanamientos" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
                     <i class="fas fa-hands-helping mr-2"></i>Acompañamientos
-                    <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">{{ total_acompanamientos_activos }}</span>
+                    <span class="ml-2 badge-nodo badge-sm badge-success">{{ total_acompanamientos_activos }}</span>
                 </button>
                 <button onclick="cambiarTab('instituciones')" data-tab="instituciones" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
                     <i class="fas fa-building mr-2"></i>Instituciones
@@ -219,10 +219,7 @@
                                 <p class="text-xs text-[#8C8C8C]">{{ deriv.creado|timesince }} - {{ deriv.get_estado_display }}</p>
                             </div>
                         </div>
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full
-                            {% if deriv.estado == 'PENDIENTE' %}bg-yellow-100 text-yellow-800
-                            {% elif deriv.estado == 'ACEPTADA' %}bg-green-100 text-green-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
+                        <span class="badge-nodo badge-sm {% if deriv.estado == 'PENDIENTE' %}badge-warning{% elif deriv.estado == 'ACEPTADA' %}badge-success{% else %}badge-danger{% endif %}">
                             {{ deriv.get_estado_display }}
                         </span>
                     </div>
@@ -244,15 +241,9 @@
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-2xl font-bold text-[#252F40]">Derivaciones de Ciudadanos</h3>
                     <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-                            {{ stats_ciudadanos.pendientes }} Pendientes
-                        </span>
-                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                            {{ stats_ciudadanos.aceptadas }} Aceptadas
-                        </span>
-                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-                            {{ stats_ciudadanos.rechazadas }} Rechazadas
-                        </span>
+                        <span class="badge-nodo badge-sm badge-warning">{{ stats_ciudadanos.pendientes }} Pendientes</span>
+                        <span class="badge-nodo badge-sm badge-success">{{ stats_ciudadanos.aceptadas }} Aceptadas</span>
+                        <span class="badge-nodo badge-sm badge-danger">{{ stats_ciudadanos.rechazadas }} Rechazadas</span>
                     </div>
                 </div>
                 
@@ -279,26 +270,23 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.programa_origen.nombre|default:"Espontáneo" }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                        {% if derivacion.estado == 'PENDIENTE' %}bg-yellow-100 text-yellow-800
-                                        {% elif derivacion.estado == 'ACEPTADA' %}bg-green-100 text-green-800
-                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                    <span class="badge-nodo badge-sm {% if derivacion.estado == 'PENDIENTE' %}badge-warning{% elif derivacion.estado == 'ACEPTADA' %}badge-success{% else %}badge-danger{% endif %}">
                                         {{ derivacion.get_estado_display }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                        {% if derivacion.urgencia == 'ALTA' %}bg-red-100 text-red-800
-                                        {% elif derivacion.urgencia == 'MEDIA' %}bg-yellow-100 text-yellow-800
-                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    <span class="badge-nodo badge-sm {% if derivacion.urgencia == 'ALTA' %}badge-danger{% elif derivacion.urgencia == 'MEDIA' %}badge-warning{% else %}badge-gray{% endif %}">
                                         {{ derivacion.get_urgencia_display }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ derivacion.creado|date:"d/m/Y H:i" }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     {% if derivacion.estado == 'PENDIENTE' %}
-                                    <a href="{% url 'legajos:derivacion_aceptar' derivacion.pk %}" class="text-green-600 hover:underline mr-2">Aceptar</a>
-                                    <a href="{% url 'legajos:derivacion_rechazar' derivacion.pk %}" class="text-red-600 hover:underline">Rechazar</a>
+                                    <form method="post" action="{% url 'legajos:derivacion_ciudadano_aceptar' derivacion.pk %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-green-600 hover:underline mr-2">Aceptar</button>
+                                    </form>
+                                    <a href="{% url 'legajos:derivacion_ciudadano_rechazar' derivacion.pk %}" class="text-red-600 hover:underline">Rechazar</a>
                                     {% elif derivacion.inscripcion_creada and derivacion.inscripcion_creada.legajo_id %}
                                     <a href="{% url 'legajos:detalle' derivacion.inscripcion_creada.legajo_id %}" class="text-blue-600 hover:underline">
                                         <i class="fas fa-folder-open mr-1"></i>Ver Legajo
@@ -339,18 +327,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.ciudadano.nombre_completo }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.institucion.nombre }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                        {% if derivacion.estado == 'PENDIENTE' %}bg-yellow-100 text-yellow-800
-                                        {% elif derivacion.estado == 'ACEPTADA' %}bg-green-100 text-green-800
-                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                    <span class="badge-nodo badge-sm {% if derivacion.estado == 'PENDIENTE' %}badge-warning{% elif derivacion.estado == 'ACEPTADA' %}badge-success{% else %}badge-danger{% endif %}">
                                         {{ derivacion.get_estado_display }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                        {% if derivacion.urgencia == 'ALTA' %}bg-red-100 text-red-800
-                                        {% elif derivacion.urgencia == 'MEDIA' %}bg-yellow-100 text-yellow-800
-                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    <span class="badge-nodo badge-sm {% if derivacion.urgencia == 'ALTA' %}badge-danger{% elif derivacion.urgencia == 'MEDIA' %}badge-warning{% else %}badge-gray{% endif %}">
                                         {{ derivacion.get_urgencia_display }}
                                     </span>
                                 </td>
@@ -374,15 +356,10 @@
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-[#252F40]">Acompañamientos Activos</h3>
                 <div class="flex gap-2">
-                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                        {{ stats_acompanamientos.activos }} Activos
-                    </span>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                        {{ stats_acompanamientos.seguimiento }} En Seguimiento
-                    </span>
-                    <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">
-                        {{ stats_acompanamientos.cerrados }} Cerrados
-                    </span>
+                    <span class="badge-nodo badge-sm badge-success">{{ stats_acompanamientos.activos }} Activos</span>
+                    <span class="badge-nodo badge-sm badge-warning">{{ stats_acompanamientos.seguimiento }} En Seguimiento</span>
+                    <span class="badge-nodo badge-sm badge-gray">{{ stats_acompanamientos.cerrados }} Cerrados</span>
+                    {% if stats_acompanamientos.bajas %}<span class="badge-nodo badge-sm badge-danger">{{ stats_acompanamientos.bajas }} Bajas</span>{% endif %}
                 </div>
             </div>
             
@@ -411,25 +388,31 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ acomp.institucion_nombre|default:"-" }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                    {% if acomp.estado == 'ACTIVO' %}bg-green-100 text-green-800
-                                    {% elif acomp.estado == 'EN_SEGUIMIENTO' %}bg-blue-100 text-blue-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                <span class="badge-nodo badge-sm {% if acomp.estado == 'ACTIVO' %}badge-success{% elif acomp.estado == 'EN_SEGUIMIENTO' %}badge-warning{% elif acomp.estado == 'DADO_DE_BAJA' %}badge-danger{% else %}badge-gray{% endif %}">
                                     {{ acomp.get_estado_display }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ acomp.responsable.get_full_name|default:"-" }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ acomp.fecha_inscripcion|date:"d/m/Y" }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                {% if acomp.legajo_id %}
-                                <a href="{% url 'legajos:detalle' acomp.legajo_id %}" class="text-blue-600 hover:underline">
-                                    <i class="fas fa-folder-open mr-1"></i>Ver Detalle
-                                </a>
-                                {% else %}
-                                <a href="{% url 'legajos:crear_legajo_acompanamiento' acomp.id %}" class="text-green-600 hover:underline">
-                                    <i class="fas fa-plus mr-1"></i>Crear Acompañamiento
-                                </a>
-                                {% endif %}
+                                <div class="flex items-center gap-3">
+                                    {% if acomp.legajo_id %}
+                                    <a href="{% url 'legajos:detalle' acomp.legajo_id %}" class="text-blue-600 hover:underline">
+                                        <i class="fas fa-folder-open mr-1"></i>Ver Detalle
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'legajos:crear_legajo_acompanamiento' acomp.id %}" class="text-green-600 hover:underline">
+                                        <i class="fas fa-plus mr-1"></i>Crear Acompañamiento
+                                    </a>
+                                    {% endif %}
+                                    {% if acomp.estado == 'ACTIVO' or acomp.estado == 'EN_SEGUIMIENTO' or acomp.estado == 'PENDIENTE' %}
+                                    <button type="button"
+                                        onclick="confirmarBaja({{ acomp.id }}, '{{ acomp.ciudadano.nombre_completo|escapejs }}')"
+                                        class="text-red-600 hover:underline text-sm">
+                                        <i class="fas fa-user-times mr-1"></i>Dar de Baja
+                                    </button>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -555,10 +538,10 @@
                             <tr class="hover:bg-[#F9FAFB]">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#252F40]">{{ ip.institucion.nombre }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">{{ ip.casos_activos }}</span>
+                                    <span class="badge-nodo badge-sm badge-success">{{ ip.casos_activos }}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
-                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">{{ ip.derivaciones_pendientes }}</span>
+                                    <span class="badge-nodo badge-sm badge-warning">{{ ip.derivaciones_pendientes }}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">
                                     {% if ip.cupo_maximo %}
@@ -638,5 +621,43 @@ function cambiarTab(tabName) {
 function exportarIndicadores(formato) {
     alert(`Exportando indicadores en formato ${formato.toUpperCase()}...\nFuncionalidad próximamente.`);
 }
+
+function confirmarBaja(inscripcionId, nombreCiudadano) {
+    Swal.fire({
+        title: '¿Dar de baja?',
+        html: `<p class="text-gray-600 mb-4">Estás por dar de baja a <strong>${nombreCiudadano}</strong> del programa.</p>
+               <p class="text-gray-600 mb-2">Esta acción cancelará sus turnos y flujo activos.</p>
+               <textarea id="swal-motivo" class="swal2-textarea" placeholder="Motivo obligatorio..." rows="3"></textarea>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar baja',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#DC2626',
+        focusConfirm: false,
+        preConfirm: () => {
+            const motivo = document.getElementById('swal-motivo').value.trim();
+            if (!motivo) {
+                Swal.showValidationMessage('El motivo es obligatorio.');
+                return false;
+            }
+            return motivo;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.getElementById('form-dar-baja');
+            document.getElementById('baja-inscripcion-id').value = inscripcionId;
+            document.getElementById('baja-motivo').value = result.value;
+            form.action = `/legajos/acompanamiento/${inscripcionId}/dar-de-baja/`;
+            form.submit();
+        }
+    });
+}
 </script>
+
+<form id="form-dar-baja" method="post">
+    {% csrf_token %}
+    <input type="hidden" id="baja-inscripcion-id" name="inscripcion_id">
+    <input type="hidden" id="baja-motivo" name="motivo">
+</form>
+
 {% endblock %}

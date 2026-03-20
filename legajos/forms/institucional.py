@@ -5,12 +5,13 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from ..models_institucional import (
+    DerivacionCiudadano,
     DerivacionInstitucional,
     CasoInstitucional,
     InstitucionPrograma,
     EstadoDerivacion,
     EstadoCaso,
-    UrgenciaDerivacion
+    UrgenciaDerivacion,
 )
 from ..models import Ciudadano
 from legajos.models_programas import Programa
@@ -58,6 +59,59 @@ class DerivacionInstitucionalForm(forms.ModelForm):
             f"{obj.institucion.nombre} - {obj.programa.nombre}"
         )
         
+        if ciudadano:
+            self.fields['ciudadano'].initial = ciudadano
+            self.fields['ciudadano'].widget = forms.HiddenInput()
+
+
+class DerivacionCiudadanoForm(forms.ModelForm):
+    """Formulario para crear derivación usando el modelo unificado DerivacionCiudadano."""
+
+    class Meta:
+        model = DerivacionCiudadano
+        fields = ['ciudadano', 'tipo_inicio', 'institucion_programa', 'programa_origen', 'motivo', 'urgencia', 'observaciones']
+        widgets = {
+            'ciudadano': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+            }),
+            'tipo_inicio': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+            }),
+            'institucion_programa': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+            }),
+            'programa_origen': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+            }),
+            'motivo': forms.Textarea(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                'rows': 4,
+                'placeholder': 'Describa el motivo de la derivación...',
+            }),
+            'urgencia': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+            }),
+            'observaciones': forms.Textarea(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                'rows': 3,
+                'placeholder': 'Observaciones adicionales (opcional)',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        ciudadano = kwargs.pop('ciudadano', None)
+        super().__init__(*args, **kwargs)
+
+        self.fields['institucion_programa'].queryset = InstitucionPrograma.objects.filter(
+            activo=True,
+            estado_programa='ACTIVO',
+        ).select_related('institucion', 'programa').order_by('institucion__nombre', 'programa__orden')
+
+        self.fields['institucion_programa'].label_from_instance = lambda obj: (
+            f"{obj.institucion.nombre} - {obj.programa.nombre}"
+        )
+        self.fields['programa_origen'].required = False
+
         if ciudadano:
             self.fields['ciudadano'].initial = ciudadano
             self.fields['ciudadano'].widget = forms.HiddenInput()

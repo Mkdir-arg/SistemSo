@@ -5,98 +5,66 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from functools import wraps
 
-from .models_institucional import InstitucionPrograma  # , UsuarioInstitucionPrograma
+from .models_institucional import InstitucionPrograma
 
 
 def puede_ver_programa(institucion_programa, user):
     """
     Verifica si un usuario puede ver la solapa de un programa.
-    
-    Pueden ver:
-    - SuperAdmin
-    - Encargados de la institución
-    - Usuarios asignados al programa
-    
-    Args:
-        institucion_programa: Instancia de InstitucionPrograma
-        user: Usuario a verificar
-    
-    Returns:
-        bool: True si puede ver
+
+    Pueden ver: superusuarios, usuarios con grupo programaOperar,
+    encargados de la institución y responsables locales del InstitucionPrograma.
     """
     if user.is_superuser:
         return True
-    
-    # Encargado de la institución
+    if user.groups.filter(name='programaOperar').exists():
+        return True
     if institucion_programa.institucion.encargados.filter(id=user.id).exists():
         return True
-    
-    # TODO: Implementar UsuarioInstitucionPrograma
-    # Asignado al programa
-    # return UsuarioInstitucionPrograma.objects.filter(
-    #     usuario=user,
-    #     institucion_programa=institucion_programa,
-    #     activo=True
-    # ).exists()
+    if institucion_programa.responsable_local_id == user.id:
+        return True
     return False
 
 
 def puede_operar_programa(institucion_programa, user):
     """
-    Verifica si un usuario puede operar un programa (aceptar/rechazar derivaciones, modificar casos).
-    
-    Pueden operar:
-    - SuperAdmin
-    - Responsables locales del programa
-    - Coordinadores del programa
-    
-    Args:
-        institucion_programa: Instancia de InstitucionPrograma
-        user: Usuario a verificar
-    
-    Returns:
-        bool: True si puede operar
+    Verifica si un usuario puede operar un programa (aceptar/rechazar derivaciones,
+    modificar casos).
+
+    Pueden operar: superusuarios, usuarios con grupo programaOperar,
+    responsable local del InstitucionPrograma y coordinadores activos del programa.
     """
     if user.is_superuser:
         return True
-    
-    # TODO: Implementar UsuarioInstitucionPrograma
-    # Solo responsables locales y coordinadores
-    # return UsuarioInstitucionPrograma.objects.filter(
-    #     usuario=user,
-    #     institucion_programa=institucion_programa,
-    #     rol__in=['RESPONSABLE_LOCAL', 'COORDINADOR'],
-    #     activo=True
-    # ).exists()
+    if user.groups.filter(name='programaOperar').exists():
+        return True
+    if institucion_programa.responsable_local_id == user.id:
+        return True
+    from .models_institucional import CoordinadorPrograma
+    if CoordinadorPrograma.objects.filter(
+        usuario=user,
+        programa=institucion_programa.programa,
+        activo=True,
+    ).exists():
+        return True
     return False
 
 
 def puede_gestionar_programa(institucion_programa, user):
     """
     Verifica si un usuario puede gestionar un programa (cambiar estado, cupo, etc).
-    
-    Pueden gestionar:
-    - SuperAdmin
-    - Coordinadores del programa
-    
-    Args:
-        institucion_programa: Instancia de InstitucionPrograma
-        user: Usuario a verificar
-    
-    Returns:
-        bool: True si puede gestionar
+
+    Pueden gestionar: superusuarios y coordinadores activos del programa.
     """
     if user.is_superuser:
         return True
-    
-    # TODO: Implementar UsuarioInstitucionPrograma
-    # Solo coordinadores
-    # return UsuarioInstitucionPrograma.objects.filter(
-    #     usuario=user,
-    #     institucion_programa=institucion_programa,
-    #     rol='COORDINADOR',
-    #     activo=True
-    # ).exists()
+    from .models_institucional import CoordinadorPrograma
+    if CoordinadorPrograma.objects.filter(
+        usuario=user,
+        programa=institucion_programa.programa,
+        activo=True,
+    ).exists():
+        return True
     return False
 
 

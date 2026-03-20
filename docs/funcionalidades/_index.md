@@ -12,19 +12,26 @@
 | Portal Ciudadano — Autenticacion y Registro | `portal-ciudadano/` | v1.0 | 2026-03-08 |
 | Gestión de Ciudadanos | `gestion-ciudadanos/` | v1.0 | 2026-03-09 |
 | Legajo de Atención | `legajo-atencion/` | v1.0 | 2026-03-09 |
-| Programas Sociales | `programas-sociales/` | v1.0 | 2026-03-09 |
+| Programas Sociales | `programas-sociales/` | v1.2 | 2026-03-15 |
 | ÑACHEC | `nachec/` | v1.0 | 2026-03-09 |
-| Instituciones | `instituciones/` | v1.0 | 2026-03-09 |
+| Instituciones | `instituciones/` | v1.2 | 2026-03-15 |
 | Alertas | `alertas/` | v1.0 | 2026-03-09 |
 | Sistema de Turnos — Backoffice | `turnos-backoffice/` | v1.0 | 2026-03-09 |
 | Conversaciones — Chat Interno | `conversaciones-chat/` | v1.0 | 2026-03-09 |
 | Chatbot IA | `chatbot-ia/` | v1.0 | 2026-03-09 |
 | Contactos y Red de Vínculos | `contactos-red/` | v1.0 | 2026-03-09 |
-| Usuarios y Permisos | `usuarios-permisos/` | v1.0 | 2026-03-09 |
+| Usuarios y Permisos | `usuarios-permisos/` | v1.1 | 2026-03-15 |
 | Dashboard | `dashboard/` | v1.0 | 2026-03-09 |
 | Auditoría | `auditoria/` | v1.0 | 2026-03-09 |
-| Configuración del Sistema | `configuracion-sistema/` | v1.0 | 2026-03-09 |
+| Configuración del Sistema | `configuracion-sistema/` | v1.1 | 2026-03-15 |
+| Búsqueda Rápida Ciudadano | `busqueda-rapida-ciudadano/` | v1.0 | 2026-03-15 |
 | Refactor DX Interno | `refactor-dx/` | v1.57 | 2026-03-17 |
+| Motor de Flujos | `motor-flujos/` | v1.0 | 2026-03-15 |
+| Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
+| Derivación e Inscripción a Programas | `derivacion-inscripcion-programas/` | v1.0 | 2026-03-15 |
+| Actividades Institucionales | `actividades-institucionales/` | v1.2 | 2026-03-19 |
+| Ficha del Ciudadano — Perfil Social | `ficha-ciudadano/` | v1.0 | 2026-03-19 |
+| Hub del Ciudadano | `hub-ciudadano/` | v1.1 | 2026-03-19 |
 
 ---
 

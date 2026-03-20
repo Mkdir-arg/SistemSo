@@ -7,6 +7,7 @@ from legajos.models import (
     PlanFortalecimiento,
     StaffActividad,
 )
+from legajos.models_programas import Programa
 
 # Alias para compatibilidad
 DispositivoRed = Institucion
@@ -231,7 +232,11 @@ class StaffActividadForm(forms.ModelForm):
 class PlanFortalecimientoForm(forms.ModelForm):
     class Meta:
         model = PlanFortalecimiento
-        fields = ['nombre', 'tipo', 'subtipo', 'descripcion', 'cupo_ciudadanos', 'fecha_inicio', 'fecha_fin', 'estado']
+        fields = [
+            'nombre', 'tipo', 'subtipo', 'descripcion',
+            'cupo_ciudadanos', 'fecha_inicio', 'fecha_fin', 'estado',
+            'tipo_acceso', 'programa_requerido',
+        ]
         widgets = {
             'fecha_inicio': forms.DateInput(attrs={
                 'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
@@ -241,7 +246,34 @@ class PlanFortalecimientoForm(forms.ModelForm):
                 'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
                 'type': 'date'
             }),
+            'tipo_acceso': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500',
+                'x-model': 'tipoAcceso',
+            }),
+            'programa_requerido': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500',
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['programa_requerido'].queryset = Programa.objects.filter(
+            estado='ACTIVO'
+        ).order_by('nombre')
+        self.fields['programa_requerido'].required = False
+        self.fields['programa_requerido'].empty_label = 'Seleccionar programa...'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        tipo_acceso = cleaned_data.get('tipo_acceso')
+        programa_requerido = cleaned_data.get('programa_requerido')
+
+        if tipo_acceso == PlanFortalecimiento.TipoAcceso.LIBRE:
+            cleaned_data['programa_requerido'] = None
+        elif tipo_acceso == PlanFortalecimiento.TipoAcceso.REQUIERE_PROGRAMA and not programa_requerido:
+            self.add_error('programa_requerido', 'Debe seleccionar un programa cuando el tipo de acceso lo requiere.')
+
+        return cleaned_data
 
 
 class InscriptoEstadoForm(forms.ModelForm):
@@ -274,6 +306,8 @@ class ActividadEditarForm(forms.ModelForm):
             "fecha_inicio",
             "fecha_fin",
             "estado",
+            "tipo_acceso",
+            "programa_requerido",
         ]
         widgets = {
             "nombre": forms.TextInput(
@@ -311,7 +345,38 @@ class ActividadEditarForm(forms.ModelForm):
                     "class": "w-full p-3 border border-gray-300 rounded-lg",
                 }
             ),
+            "tipo_acceso": forms.Select(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                    "x-model": "tipoAcceso",
+                }
+            ),
+            "programa_requerido": forms.Select(
+                attrs={
+                    "class": "w-full p-3 border border-gray-300 rounded-lg",
+                }
+            ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['programa_requerido'].queryset = Programa.objects.filter(
+            estado='ACTIVO'
+        ).order_by('nombre')
+        self.fields['programa_requerido'].required = False
+        self.fields['programa_requerido'].empty_label = 'Seleccionar programa...'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        tipo_acceso = cleaned_data.get('tipo_acceso')
+        programa_requerido = cleaned_data.get('programa_requerido')
+
+        if tipo_acceso == PlanFortalecimiento.TipoAcceso.LIBRE:
+            cleaned_data['programa_requerido'] = None
+        elif tipo_acceso == PlanFortalecimiento.TipoAcceso.REQUIERE_PROGRAMA and not programa_requerido:
+            self.add_error('programa_requerido', 'Debe seleccionar un programa cuando el tipo de acceso lo requiere.')
+
+        return cleaned_data
 
 
 class StaffActividadUpdateForm(forms.ModelForm):
@@ -331,6 +396,37 @@ class StaffActividadUpdateForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class InscripcionDirectaForm(forms.Form):
+    ciudadano_dni = forms.CharField(
+        label='DNI del ciudadano',
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full p-3 border border-gray-300 rounded-lg',
+            'placeholder': 'Ingrese el DNI del ciudadano',
+            'autofocus': True,
+        }),
+    )
+    observaciones = forms.CharField(
+        label='Observaciones',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'w-full p-3 border border-gray-300 rounded-lg',
+            'rows': 2,
+            'placeholder': 'Observaciones opcionales...',
+        }),
+    )
+
+    def clean_ciudadano_dni(self):
+        from legajos.models import Ciudadano
+
+        dni = self.cleaned_data.get('ciudadano_dni', '').strip()
+        try:
+            ciudadano = Ciudadano.objects.get(dni=dni)
+        except Ciudadano.DoesNotExist:
+            raise forms.ValidationError(f'No se encontró ningún ciudadano con DNI "{dni}".')
+        return ciudadano
 
 
 class DerivacionRechazoForm(forms.Form):

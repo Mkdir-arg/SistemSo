@@ -49,6 +49,17 @@ class UrgenciaDerivacion(models.TextChoices):
     ALTA = 'ALTA', 'Alta'
 
 
+class TipoInicioDerivacion(models.TextChoices):
+    DERIVACION = 'DERIVACION', 'Derivación'
+    INSCRIPCION_DIRECTA = 'INSCRIPCION_DIRECTA', 'Inscripción Directa'
+
+
+class EstadoDerivacionCiudadano(models.TextChoices):
+    PENDIENTE = 'PENDIENTE', 'Pendiente'
+    ACEPTADA = 'ACEPTADA', 'Aceptada'
+    RECHAZADA = 'RECHAZADA', 'Rechazada'
+
+
 class RolUsuarioPrograma(models.TextChoices):
     RESPONSABLE_LOCAL = 'RESPONSABLE_LOCAL', 'Responsable Local'
     COORDINADOR = 'COORDINADOR', 'Coordinador'
@@ -173,26 +184,26 @@ class DerivacionInstitucional(TimeStamped):
     ciudadano = models.ForeignKey(
         'legajos.Ciudadano',
         on_delete=models.CASCADE,
-        related_name='derivaciones_institucionales'
+        related_name='derivaciones_institucionales_legacy'
     )
-    
+
     # Redundancia estratégica para BI
     institucion = models.ForeignKey(
         Institucion,
         on_delete=models.PROTECT,
-        related_name='derivaciones_recibidas'
+        related_name='derivaciones_recibidas_legacy'
     )
     programa = models.ForeignKey(
         Programa,
         on_delete=models.PROTECT,
-        related_name='derivaciones_programa'
+        related_name='derivaciones_programa_legacy'
     )
-    
+
     # Relación operativa
     institucion_programa = models.ForeignKey(
         InstitucionPrograma,
         on_delete=models.PROTECT,
-        related_name='derivaciones'
+        related_name='derivaciones_legacy'
     )
     
     # Estado y flujo
@@ -218,9 +229,9 @@ class DerivacionInstitucional(TimeStamped):
         User,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='derivaciones_institucionales_realizadas'
+        related_name='derivaciones_institucionales_realizadas_legacy'
     )
-    
+
     # Respuesta
     respuesta = models.TextField(blank=True)
     fecha_respuesta = models.DateTimeField(null=True, blank=True, db_index=True)
@@ -229,16 +240,16 @@ class DerivacionInstitucional(TimeStamped):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='derivaciones_institucionales_respondidas'
+        related_name='derivaciones_institucionales_respondidas_legacy'
     )
-    
+
     # Caso creado (si aplica)
     caso_creado = models.ForeignKey(
         'CasoInstitucional',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='derivacion_creadora'
+        related_name='derivacion_creadora_legacy'
     )
     
     class Meta:
@@ -315,7 +326,17 @@ class CasoInstitucional(TimeStamped):
     
     # Observaciones
     observaciones = models.TextField(blank=True)
-    
+
+    # Derivación que originó este caso (nullable — casos históricos no la tienen)
+    derivacion_origen = models.ForeignKey(
+        'DerivacionCiudadano',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='caso_originado',
+        verbose_name='Derivación de origen',
+    )
+
     class Meta:
         verbose_name = "Caso Institucional"
         verbose_name_plural = "Casos Institucionales"
@@ -344,6 +365,130 @@ class CasoInstitucional(TimeStamped):
             return (self.fecha_cierre - self.fecha_apertura).days
         return (datetime.now().date() - self.fecha_apertura).days
 
+
+
+class DerivacionCiudadano(TimeStamped):
+    """
+    Modelo unificado de derivación. Reemplaza a DerivacionInstitucional.
+    Soporta derivación desde cualquier operador e inscripción directa por gestores.
+    """
+    ciudadano = models.ForeignKey(
+        'legajos.Ciudadano',
+        on_delete=models.CASCADE,
+        related_name='derivaciones_ciudadanos'
+    )
+    tipo_inicio = models.CharField(
+        max_length=25,
+        choices=TipoInicioDerivacion.choices,
+        default=TipoInicioDerivacion.DERIVACION
+    )
+
+    # Destino — al menos uno debe tener valor
+    institucion_programa = models.ForeignKey(
+        InstitucionPrograma,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='derivaciones'
+    )
+    actividad_destino = models.ForeignKey(
+        'legajos.PlanFortalecimiento',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='derivaciones_ciudadanos'
+    )
+
+    # Redundancia BI (auto en save)
+    programa_origen = models.ForeignKey(
+        Programa,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='derivaciones_originadas'
+    )
+    institucion = models.ForeignKey(
+        Institucion,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='derivaciones_ciudadanos_recibidas'
+    )
+    programa = models.ForeignKey(
+        Programa,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='derivaciones_ciudadanos'
+    )
+
+    estado = models.CharField(
+        max_length=20,
+        choices=EstadoDerivacionCiudadano.choices,
+        default=EstadoDerivacionCiudadano.PENDIENTE,
+        db_index=True
+    )
+    urgencia = models.CharField(
+        max_length=10,
+        choices=UrgenciaDerivacion.choices,
+        default=UrgenciaDerivacion.MEDIA,
+        db_index=True
+    )
+
+    motivo = models.TextField()
+    observaciones = models.TextField(blank=True)
+
+    derivado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='derivaciones_ciudadanos_realizadas'
+    )
+    respuesta = models.TextField(blank=True)
+    fecha_respuesta = models.DateTimeField(null=True, blank=True, db_index=True)
+    quien_responde = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='derivaciones_ciudadanos_respondidas'
+    )
+
+    caso_creado = models.ForeignKey(
+        'CasoInstitucional',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='derivacion_ciudadano_creadora'
+    )
+    inscripcion_creada = models.OneToOneField(
+        'legajos.InscripcionPrograma',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='derivacion_ciudadano_origen'
+    )
+
+    class Meta:
+        verbose_name = 'Derivación Ciudadano'
+        verbose_name_plural = 'Derivaciones Ciudadano'
+        ordering = ['-creado']
+        indexes = [
+            models.Index(fields=['ciudadano', 'estado']),
+            models.Index(fields=['institucion_programa', 'estado']),
+            models.Index(fields=['estado', 'urgencia']),
+            models.Index(fields=['institucion', 'programa']),
+        ]
+
+    def __str__(self):
+        destino = str(self.institucion_programa) if self.institucion_programa else str(self.actividad_destino)
+        return f"{self.ciudadano.nombre_completo} → {destino}"
+
+    def save(self, *args, **kwargs):
+        if self.institucion_programa:
+            self.institucion = self.institucion_programa.institucion
+            self.programa = self.institucion_programa.programa
+        super().save(*args, **kwargs)
 
 
 class CoordinadorPrograma(TimeStamped):
