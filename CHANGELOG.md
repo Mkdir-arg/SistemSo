@@ -1,3 +1,19 @@
+## [1.3.0](https://github.com/Mkdir-arg/SistemSo/compare/v1.2.1...v1.3.0) (2026-03-20)
+
+### Features
+
+* agregar registro de fix para imports rotos post-refactor DX en changelog y documento específico ([ae06933](https://github.com/Mkdir-arg/SistemSo/commit/ae0693361363e3541977720d0462a7c8a668005e))
+* **docs:** add Editor Visual de Flujos to functionalities index ([010e589](https://github.com/Mkdir-arg/SistemSo/commit/010e589409c0d5a2de3ecc1ccf4fb2355b50729a))
+* **editor:** implement visual flow editor with drag & drop functionality ([b679f3a](https://github.com/Mkdir-arg/SistemSo/commit/b679f3a12b30fa7263efe49fdd1d1a877075dc0a))
+* **editor:** implement visual flow editor with drag & drop functionality ([f2feb60](https://github.com/Mkdir-arg/SistemSo/commit/f2feb603240f166d9809ecf303be4c5aa5113802))
+* Enhance Ciudadano Detail and Edit Views ([7fcaa93](https://github.com/Mkdir-arg/SistemSo/commit/7fcaa93cc9aeeaf6e3118395e25eb513270d5828))
+* **flujos:** implement flow engine with models, forms, and runtime logic ([7a63598](https://github.com/Mkdir-arg/SistemSo/commit/7a635988423633757f1c8c35108dbbfe4e3a1875))
+* Implement class management and attendance tracking for institutional activities ([2122d77](https://github.com/Mkdir-arg/SistemSo/commit/2122d7764d98e9606f8be611a6ecd3fa04ec8a94))
+* Implement class management for activities ([4597c1b](https://github.com/Mkdir-arg/SistemSo/commit/4597c1b8e4288e930ff04708ed23ee9f65966e34))
+* Implementar inscripción de ciudadanos a actividades institucionales ([0f7bc40](https://github.com/Mkdir-arg/SistemSo/commit/0f7bc4033d98e3f284b7368a9d0a893e02b11c00))
+* Implementar tipo de acceso en actividades institucionales ([79b01c8](https://github.com/Mkdir-arg/SistemSo/commit/79b01c8953ff2830781c6ecbf14ba7a3d0d88d3a))
+* Update onchange behavior in clase_asistencia.html and enhance transition evaluation strategy in FlowRuntime ([c3dd749](https://github.com/Mkdir-arg/SistemSo/commit/c3dd7490c84b99d0c7b4efe6ae57a04f4ab9b36d))
+
 ## [1.2.1](https://github.com/Mkdir-arg/SistemSo/compare/v1.2.0...v1.2.1) (2026-03-19)
 
 ### Bug Fixes
