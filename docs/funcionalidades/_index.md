@@ -30,6 +30,8 @@
 | Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
 | Derivación e Inscripción a Programas | `derivacion-inscripcion-programas/` | v1.0 | 2026-03-15 |
 | Actividades Institucionales | `actividades-institucionales/` | v1.2 | 2026-03-19 |
+| Ficha del Ciudadano — Perfil Social | `ficha-ciudadano/` | v1.0 | 2026-03-19 |
+| Hub del Ciudadano | `hub-ciudadano/` | v1.0 | 2026-03-19 |
 
 ---
 

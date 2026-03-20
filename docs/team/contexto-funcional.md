@@ -3,7 +3,7 @@
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
 
-> Última actualización: 2026-03-19 (sesión 7 — US-022 inscripcion actividades)
+> Última actualización: 2026-03-19 (sesión 8 — US-008 perfil social ciudadano)
 
 
 ---
@@ -96,6 +96,16 @@ El perfil del ciudadano es el centro de toda su información. Tiene solapas est�
 #### Confidencialidad en dos capas
 - Campos de salud y documentación migratoria → sensibles por defecto (requieren `ciudadanoSensible`)
 - El operador puede marcar campos adicionales como sensibles al cargar el ciudadano
+
+#### Implementación del control de acceso a campos sensibles (confirmado US-008)
+- **Campos sensibles definidos:** `cobertura_medica`, `medicacion_habitual`, `estado_migratorio`
+- **Flag de acceso:** `puede_ver_sensible = user.is_superuser or user.groups.filter(name='ciudadanoSensible').exists()`
+- **Protección en tres capas independientes:**
+  1. **Form layer** — los fields sensibles no se inyectan en el form si el flag es `False`; `save()` tampoco los persiste sin el flag
+  2. **View layer** — la view calcula el flag y lo pasa como kwarg al form y como variable de contexto
+  3. **Template layer** — la sección sensible está envuelta en `{% if puede_ver_sensible %}`
+- **La foto del ciudadano NO es sensible** — la puede ver cualquier operador con acceso a la ficha (sin requerir `ciudadanoSensible`)
+- Este patrón de tres capas es el estándar a seguir para cualquier futuro campo sensible en el sistema
 
 ### Instituciones
 - Pasan por un flujo de aprobación: BORRADOR → ENVIADO → REVISION → APROBADO/RECHAZADO
@@ -666,6 +676,16 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Vista de inscripción directa desde backoffice (búsqueda por DNI) y desde portal ciudadano
 - Bug corregido: cupo=0 en `PlanFortalecimiento` ahora se trata correctamente como "sin límite" en el template
 - Reglas confirmadas: cupo=0 = ilimitado; reinscripción permitida tras ABANDONADO/FINALIZADO; código = 8 chars alfanuméricos
+
+### 2026-03-19 (sesión 8)
+- Se implementó US-008: perfil social ampliado del ciudadano
+- 14 nuevos campos en `Ciudadano`: foto, habitacional (tipo, tenencia, condiciones), laboral (situación, ingreso, obra social), educativo (nivel), médico-sensible (cobertura, medicación), documentación (DNI físico, estado RENAPER, estado migratorio-sensible), observaciones
+- Se estableció el patrón de tres capas para campos sensibles: form/view/template. La foto no es sensible.
+- `CiudadanoUpdateForm` inyecta campos sensibles condicionalmente en `__init__`; `save()` los persiste solo si el flag es verdadero
+- `build_ciudadano_detail_context` extendido para recibir `user` y calcular `puede_ver_sensible`
+- `buscar_ciudadanos_rapido` ahora retorna `foto_url` para el buscador rápido
+- 4 índices nuevos en `Ciudadano` para preparar filtros del hub (US-009)
+- Migración `0034_ciudadano_campos_perfil_ampliado` creada y aplicada
 
 ---
 

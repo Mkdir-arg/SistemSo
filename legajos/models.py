@@ -62,6 +62,115 @@ class Ciudadano(TimeStamped):
         verbose_name='Usuario del portal',
     )
 
+    # --- Perfil ampliado ---
+
+    foto = models.ImageField(
+        upload_to='ciudadanos/fotos/',
+        blank=True,
+        null=True,
+        verbose_name='Foto',
+    )
+
+    # Situación habitacional
+    class TipoVivienda(models.TextChoices):
+        PROPIA = 'PROPIA', 'Propia'
+        ALQUILADA = 'ALQUILADA', 'Alquilada'
+        PRESTADA = 'PRESTADA', 'Prestada / cedida'
+        VILLA = 'VILLA', 'Villa / asentamiento'
+        SIN_TECHO = 'SIN_TECHO', 'Sin techo'
+        OTRO = 'OTRO', 'Otro'
+
+    class TenenciaVivienda(models.TextChoices):
+        TITULAR = 'TITULAR', 'Titular'
+        CONYUGE = 'CONYUGE', 'Cónyuge / conviviente'
+        FAMILIAR = 'FAMILIAR', 'Familiar'
+        INQUILINO = 'INQUILINO', 'Inquilino'
+        OCUPANTE = 'OCUPANTE', 'Ocupante sin título'
+        OTRO = 'OTRO', 'Otro'
+
+    tipo_vivienda = models.CharField(
+        max_length=20, choices=TipoVivienda.choices, blank=True, verbose_name='Tipo de vivienda',
+    )
+    tenencia_vivienda = models.CharField(
+        max_length=20, choices=TenenciaVivienda.choices, blank=True, verbose_name='Tenencia de vivienda',
+    )
+    condiciones_vivienda = models.TextField(blank=True, verbose_name='Condiciones de la vivienda')
+
+    # Situación laboral
+    class SituacionLaboral(models.TextChoices):
+        EMPLEADO_FORMAL = 'EMPLEADO_FORMAL', 'Empleado formal'
+        EMPLEADO_INFORMAL = 'EMPLEADO_INFORMAL', 'Empleado informal'
+        CUENTAPROPISTA = 'CUENTAPROPISTA', 'Cuenta propia'
+        DESEMPLEADO = 'DESEMPLEADO', 'Desempleado'
+        JUBILADO = 'JUBILADO', 'Jubilado / pensionado'
+        ESTUDIANTE = 'ESTUDIANTE', 'Estudiante'
+        SIN_ACTIVIDAD = 'SIN_ACTIVIDAD', 'Sin actividad'
+        OTRO = 'OTRO', 'Otro'
+
+    class IngresoEstimado(models.TextChoices):
+        SIN_INGRESO = 'SIN_INGRESO', 'Sin ingreso'
+        MENOS_CBT = 'MENOS_CBT', 'Menos de una CBT'
+        ENTRE_1_2_CBT = 'ENTRE_1_2_CBT', 'Entre 1 y 2 CBT'
+        MAS_2_CBT = 'MAS_2_CBT', 'Más de 2 CBT'
+
+    situacion_laboral = models.CharField(
+        max_length=20, choices=SituacionLaboral.choices, blank=True, verbose_name='Situación laboral',
+    )
+    ingreso_estimado = models.CharField(
+        max_length=20, choices=IngresoEstimado.choices, blank=True, verbose_name='Ingreso estimado',
+    )
+    obra_social = models.CharField(max_length=200, blank=True, verbose_name='Obra social / prepaga')
+
+    # Situación educativa
+    class NivelEducativo(models.TextChoices):
+        SIN_INSTRUCCION = 'SIN_INSTRUCCION', 'Sin instrucción'
+        PRIMARIO_INCOMPLETO = 'PRIMARIO_INCOMPLETO', 'Primario incompleto'
+        PRIMARIO_COMPLETO = 'PRIMARIO_COMPLETO', 'Primario completo'
+        SECUNDARIO_INCOMPLETO = 'SECUNDARIO_INCOMPLETO', 'Secundario incompleto'
+        SECUNDARIO_COMPLETO = 'SECUNDARIO_COMPLETO', 'Secundario completo'
+        TERCIARIO = 'TERCIARIO', 'Terciario / universitario'
+        POSGRADO = 'POSGRADO', 'Posgrado'
+
+    nivel_educativo = models.CharField(
+        max_length=25, choices=NivelEducativo.choices, blank=True, verbose_name='Nivel educativo',
+    )
+
+    # Cobertura médica (sensible)
+    cobertura_medica = models.CharField(max_length=200, blank=True, verbose_name='Cobertura médica')
+    medicacion_habitual = models.TextField(blank=True, verbose_name='Medicación habitual')
+
+    # Documentación migratoria
+    class DniFisico(models.TextChoices):
+        TIENE = 'TIENE', 'Tiene DNI'
+        EN_TRAMITE = 'EN_TRAMITE', 'En trámite'
+        NO_TIENE = 'NO_TIENE', 'No tiene'
+
+    class EstadoRenaper(models.TextChoices):
+        REGISTRADO = 'REGISTRADO', 'Registrado'
+        NO_REGISTRADO = 'NO_REGISTRADO', 'No registrado'
+        CON_OBSERVACION = 'CON_OBSERVACION', 'Con observación'
+        FALLECIDO = 'FALLECIDO', 'Fallecido'
+
+    class EstadoMigratorio(models.TextChoices):
+        NACIONAL = 'NACIONAL', 'Nacional'
+        RESIDENTE_PERMANENTE = 'RESIDENTE_PERMANENTE', 'Residente permanente'
+        RESIDENTE_TEMPORARIO = 'RESIDENTE_TEMPORARIO', 'Residente temporario'
+        SOLICITANTE_ASILO = 'SOLICITANTE_ASILO', 'Solicitante de asilo'
+        IRREGULAR = 'IRREGULAR', 'Situación irregular'
+
+    dni_fisico = models.CharField(
+        max_length=15, choices=DniFisico.choices, blank=True, verbose_name='DNI físico',
+    )
+    estado_renaper = models.CharField(
+        max_length=20, choices=EstadoRenaper.choices, blank=True, verbose_name='Estado RENAPER',
+    )
+    estado_migratorio = models.CharField(
+        max_length=25, choices=EstadoMigratorio.choices, blank=True, verbose_name='Estado migratorio',
+    )
+
+    # Observaciones generales
+    observaciones = models.TextField(blank=True, verbose_name='Observaciones')
+
     # Historial de cambios
     # history = HistoricalRecords()  # Comentado temporalmente
 
@@ -73,6 +182,10 @@ class Ciudadano(TimeStamped):
             models.Index(fields=["apellido", "nombre"]),
             models.Index(fields=["activo", "apellido"]),
             models.Index(fields=["email"]),
+            models.Index(fields=["tipo_vivienda"]),
+            models.Index(fields=["situacion_laboral"]),
+            models.Index(fields=["nivel_educativo"]),
+            models.Index(fields=["estado_renaper"]),
         ]
     
     def __str__(self):

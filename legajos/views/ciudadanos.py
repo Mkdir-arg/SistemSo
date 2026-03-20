@@ -49,7 +49,7 @@ class CiudadanoDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(build_ciudadano_detail_context(self.object))
+        context.update(build_ciudadano_detail_context(self.object, user=self.request.user))
         return context
 
 
@@ -165,6 +165,25 @@ class CiudadanoUpdateView(LoginRequiredMixin, UpdateView):
     model = Ciudadano
     form_class = CiudadanoUpdateForm
     template_name = 'legajos/ciudadano_edit_form.html'
+
+    def _puede_ver_sensible(self):
+        user = self.request.user
+        return user.is_superuser or user.groups.filter(name='ciudadanoSensible').exists()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['puede_ver_sensible'] = self._puede_ver_sensible()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['puede_ver_sensible'] = self._puede_ver_sensible()
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        CiudadanosService.invalidate_ciudadanos_cache()
+        return response
 
     def get_success_url(self):
         return reverse_lazy('legajos:ciudadano_detalle', kwargs={'pk': self.object.pk})

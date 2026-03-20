@@ -51,7 +51,7 @@
             <p class="text-sm text-gray-600 mt-1">Modifique los campos necesarios</p>
         </div>
         
-        <form method="post" class="p-6 space-y-6">
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-6">
             {% csrf_token %}
             
             {% if form.errors %}
@@ -176,6 +176,129 @@
                         {{ form.localidad }}
                     </div>
                 </div>
+            </div>
+
+            <!-- Foto de perfil -->
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Foto de perfil</h3>
+                <div class="flex items-center gap-6">
+                    {% if object.foto %}
+                    <img src="{{ object.foto.url }}" alt="Foto actual" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+                    {% else %}
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                        <span class="text-2xl font-bold text-white">{{ object.nombre.0 }}{{ object.apellido.0 }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.foto.label }}</label>
+                        {{ form.foto }}
+                        <p class="mt-1 text-xs text-gray-500">JPG, PNG o GIF. Máximo 5 MB.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Situación habitacional -->
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-home text-orange-500 mr-2"></i>Situación habitacional
+                </h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.tipo_vivienda.label }}</label>
+                        {{ form.tipo_vivienda }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.tenencia_vivienda.label }}</label>
+                        {{ form.tenencia_vivienda }}
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.condiciones_vivienda.label }}</label>
+                    {{ form.condiciones_vivienda }}
+                </div>
+            </div>
+
+            <!-- Situación laboral -->
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-briefcase text-blue-500 mr-2"></i>Situación laboral
+                </h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.situacion_laboral.label }}</label>
+                        {{ form.situacion_laboral }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.ingreso_estimado.label }}</label>
+                        {{ form.ingreso_estimado }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.obra_social.label }}</label>
+                        {{ form.obra_social }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Situación educativa -->
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-graduation-cap text-green-500 mr-2"></i>Situación educativa
+                </h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.nivel_educativo.label }}</label>
+                        {{ form.nivel_educativo }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentación -->
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-id-card text-purple-500 mr-2"></i>Documentación
+                </h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.dni_fisico.label }}</label>
+                        {{ form.dni_fisico }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.estado_renaper.label }}</label>
+                        {{ form.estado_renaper }}
+                    </div>
+                </div>
+            </div>
+
+            {% if puede_ver_sensible %}
+            <!-- Datos sensibles -->
+            <div class="border-t border-gray-200 pt-6 bg-gray-50 -mx-6 px-6 rounded-b-lg">
+                <h3 class="text-lg font-medium text-gray-700 mb-1 flex items-center">
+                    <i class="fas fa-lock text-gray-500 mr-2"></i>Datos sensibles
+                </h3>
+                <p class="text-xs text-gray-500 mb-4">Solo visible para usuarios con permiso <code>ciudadanoSensible</code>.</p>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.cobertura_medica.label }}</label>
+                        {{ form.cobertura_medica }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.estado_migratorio.label }}</label>
+                        {{ form.estado_migratorio }}
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.medicacion_habitual.label }}</label>
+                    {{ form.medicacion_habitual }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Observaciones -->
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-sticky-note text-yellow-500 mr-2"></i>Observaciones
+                </h3>
+                {{ form.observaciones }}
             </div>
 
             <!-- Botones -->

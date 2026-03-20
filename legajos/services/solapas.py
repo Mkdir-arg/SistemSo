@@ -13,38 +13,17 @@ class SolapasService:
     
     # Solapas estáticas (siempre visibles)
     SOLAPAS_ESTATICAS = [
-        {
-            'id': 'resumen',
-            'nombre': 'Resumen',
-            'icono': 'dashboard',
-            'url_name': 'legajos:ciudadano_detalle',
-            'orden': 0,
-            'estatica': True
-        },
-        {
-            'id': 'cursos_actividades',
-            'nombre': 'Cursos y Actividades',
-            'icono': 'school',
-            'url_name': 'legajos:actividades_inscrito',
-            'orden': 900,
-            'estatica': True
-        },
-        {
-            'id': 'red_familiar',
-            'nombre': 'Red Familiar',
-            'icono': 'people',
-            'url_name': 'legajos:red_contactos',
-            'orden': 998,
-            'estatica': True
-        },
-        {
-            'id': 'archivos',
-            'nombre': 'Archivos',
-            'icono': 'folder',
-            'url_name': 'legajos:archivos',
-            'orden': 999,
-            'estatica': True
-        }
+        {'id': 'resumen',          'nombre': 'Resumen',           'icono': 'tachometer-alt', 'orden': 0,   'estatica': True},
+        {'id': 'legajos',          'nombre': 'Legajos',            'icono': 'folder-open',    'orden': 50,  'estatica': True},
+        {'id': 'turnos',           'nombre': 'Turnos',             'icono': 'calendar-alt',   'orden': 800, 'estatica': True},
+        {'id': 'instituciones',    'nombre': 'Instituciones',      'icono': 'building',       'orden': 850, 'estatica': True},
+        {'id': 'conversaciones',   'nombre': 'Conversaciones',     'icono': 'comments',       'orden': 860, 'estatica': True},
+        {'id': 'derivaciones',     'nombre': 'Derivaciones',       'icono': 'share-alt',      'orden': 870, 'estatica': True},
+        {'id': 'alertas',          'nombre': 'Alertas',            'icono': 'bell',           'orden': 880, 'estatica': True},
+        {'id': 'cursos_actividades','nombre': 'Cursos y Actividades','icono': 'graduation-cap','orden': 900, 'estatica': True},
+        {'id': 'linea_tiempo',     'nombre': 'Línea de tiempo',    'icono': 'history',        'orden': 950, 'estatica': True},
+        {'id': 'red_familiar',     'nombre': 'Red Familiar',       'icono': 'users',          'orden': 998, 'estatica': True},
+        {'id': 'archivos',         'nombre': 'Archivos',           'icono': 'folder',         'orden': 999, 'estatica': True},
     ]
     
     @classmethod
@@ -59,42 +38,46 @@ class SolapasService:
             Lista de diccionarios con información de cada solapa
         """
         solapas = []
-        
-        # 1. Agregar solapa de Resumen (siempre primera)
-        solapas.append(cls.SOLAPAS_ESTATICAS[0])
-        
+
+        # 1. Agregar todas las solapas estáticas (copias para no mutar la lista de clase)
+        for s in cls.SOLAPAS_ESTATICAS:
+            solapas.append(dict(s))
+
         # 2. Obtener programas activos del ciudadano
         inscripciones_activas = InscripcionPrograma.objects.filter(
             ciudadano=ciudadano,
             estado__in=['ACTIVO', 'EN_SEGUIMIENTO']
         ).select_related('programa').order_by('programa__orden')
-        
-        # 3. Agregar solapas dinámicas de programas (entre Resumen y Cursos)
+
+        # 3. Agregar solapas dinámicas de programas (orden 100-799)
         for inscripcion in inscripciones_activas:
             programa = inscripcion.programa
             tipo_normalizado = cls._normalizar_tipo_programa(programa.tipo)
-            solapa = {
+            solapas.append({
                 'id': f'programa_{tipo_normalizado}',
                 'nombre': programa.nombre,
-                'icono': programa.icono or 'assignment',
+                'icono': programa.icono or 'star',
                 'color': programa.color,
                 'url_name': cls._obtener_url_programa(tipo_normalizado),
                 'url_params': {'ciudadano_id': ciudadano.id, 'inscripcion_id': inscripcion.id},
-                'orden': 100 + programa.orden,  # Orden entre 100-899 para programas dinámicos
+                'orden': 100 + programa.orden,
                 'estatica': False,
                 'programa': programa,
                 'inscripcion': inscripcion,
-                'badge': cls._obtener_badge_programa(inscripcion)
-            }
-            solapas.append(solapa)
-        
-        # 4. Agregar solapas estáticas finales (Cursos, Red Familiar, Archivos)
-        solapas.extend(cls.SOLAPAS_ESTATICAS[1:])
-        
+                'badge': cls._obtener_badge_programa(inscripcion),
+            })
+
+        # 4. Inyectar badges en solapas estáticas
+        badges = cls.obtener_badges_ciudadano(ciudadano)
+        solapas_final = []
+        for s in solapas:
+            if s['id'] in badges and 'badge' not in s:
+                s = {**s, 'badge': badges[s['id']]}
+            solapas_final.append(s)
+
         # 5. Ordenar por campo 'orden'
-        solapas.sort(key=lambda x: x['orden'])
-        
-        return solapas
+        solapas_final.sort(key=lambda x: x['orden'])
+        return solapas_final
     
     @classmethod
     def obtener_programas_activos(cls, ciudadano):
@@ -182,6 +165,63 @@ class SolapasService:
             'derivado_por'
         ).order_by('-creado')
     
+    @classmethod
+    def obtener_badges_ciudadano(cls, ciudadano):
+        """
+        Calcula los badges para las solapas estáticas del hub.
+        Retorna dict {tab_id: {'tipo': 'numero'|'punto', 'valor': N, 'color_hex': '#...'}}
+        """
+        import datetime
+        from django.utils import timezone
+
+        badges = {}
+
+        # Alertas activas → número rojo
+        alertas_count = ciudadano.alertas.filter(activa=True).count()
+        if alertas_count:
+            badges['alertas'] = {'tipo': 'numero', 'valor': alertas_count, 'color_hex': '#EF4444'}
+
+        # Derivaciones pendientes → número naranja
+        derivaciones_count = ciudadano.derivaciones_programas.filter(estado='PENDIENTE').count()
+        if derivaciones_count:
+            badges['derivaciones'] = {'tipo': 'numero', 'valor': derivaciones_count, 'color_hex': '#F97316'}
+
+        # Turnos próximos 7 días → número azul
+        hoy = timezone.now().date()
+        limite = hoy + datetime.timedelta(days=7)
+        try:
+            from portal.models import TurnoCiudadano
+            turnos_count = TurnoCiudadano.objects.filter(
+                ciudadano=ciudadano,
+                fecha__gte=hoy,
+                fecha__lte=limite,
+                estado__in=['PENDIENTE', 'CONFIRMADO'],
+            ).count()
+            if turnos_count:
+                badges['turnos'] = {'tipo': 'numero', 'valor': turnos_count, 'color_hex': '#3B82F6'}
+        except Exception:
+            pass
+
+        # Mensajes no leídos del ciudadano → número violeta
+        try:
+            from conversaciones.models import Mensaje
+            mensajes_count = Mensaje.objects.filter(
+                conversacion__dni_ciudadano=ciudadano.dni,
+                conversacion__estado__in=['pendiente', 'activa'],
+                remitente='ciudadano',
+                leido=False,
+            ).count()
+            if mensajes_count:
+                badges['conversaciones'] = {'tipo': 'numero', 'valor': mensajes_count, 'color_hex': '#8B5CF6'}
+        except Exception:
+            pass
+
+        # Legajos — punto gris si existe al menos 1
+        if ciudadano.legajos.exists():
+            badges['legajos'] = {'tipo': 'punto', 'color_hex': '#9CA3AF'}
+
+        return badges
+
     @classmethod
     def _obtener_url_programa(cls, tipo_programa):
         """

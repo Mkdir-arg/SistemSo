@@ -49,7 +49,7 @@ def buscar_ciudadanos_rapido(q):
             'apellido': c.apellido,
             'dni': c.dni,
             'edad': edad,
-            'foto_url': None,
+            'foto_url': c.foto.url if c.foto else None,
         })
     return resultados
 
@@ -92,15 +92,108 @@ def get_ciudadanos_dashboard_metrics():
     }
 
 
-def build_ciudadano_detail_context(ciudadano):
+def build_ciudadano_detail_context(ciudadano, user=None):
+    import datetime
+    from django.utils import timezone
+
+    puede_ver_sensible = (
+        user is not None
+        and (user.is_superuser or user.groups.filter(name='ciudadanoSensible').exists())
+    )
+
+    # Generar alertas on-the-fly antes de consultar (best-effort)
+    try:
+        from ..services.alertas import AlertasService
+        AlertasService.generar_alertas_ciudadano(ciudadano.pk)
+    except Exception:
+        pass
+
     context = {
-        "legajos": ciudadano.legajos.select_related(
-            "dispositivo",
-            "responsable",
-        ).order_by("-fecha_apertura"),
-        "solapas": SolapasService.obtener_solapas_ciudadano(ciudadano),
-        "programas_activos": SolapasService.obtener_programas_activos(ciudadano),
+        'puede_ver_sensible': puede_ver_sensible,
+        'legajos': ciudadano.legajos.select_related('dispositivo', 'responsable').order_by('-fecha_admision'),
+        'solapas': SolapasService.obtener_solapas_ciudadano(ciudadano),
+        'programas_activos': SolapasService.obtener_programas_activos(ciudadano),
     }
+
+    # --- Turnos ---
+    try:
+        from portal.models import TurnoCiudadano
+        context['turnos_ciudadano'] = (
+            ciudadano.turnos
+            .select_related('configuracion', 'recurso')
+            .order_by('-fecha', '-hora_inicio')[:20]
+        )
+    except Exception:
+        context['turnos_ciudadano'] = []
+
+    # --- Instituciones vinculadas (vía legajos) ---
+    from core.models import Institucion
+    institucion_ids = (
+        ciudadano.legajos
+        .exclude(dispositivo=None)
+        .values_list('dispositivo_id', flat=True)
+        .distinct()
+    )
+    context['instituciones_ciudadano'] = Institucion.objects.filter(pk__in=institucion_ids)
+
+    # --- Conversaciones ---
+    try:
+        from conversaciones.models import Conversacion
+        context['conversaciones_ciudadano'] = (
+            Conversacion.objects
+            .filter(dni_ciudadano=ciudadano.dni)
+            .order_by('-fecha_inicio')[:20]
+        )
+    except Exception:
+        context['conversaciones_ciudadano'] = []
+
+    # --- Derivaciones ---
+    context['derivaciones_ciudadano'] = (
+        ciudadano.derivaciones_programas
+        .select_related('programa_origen', 'programa_destino', 'derivado_por')
+        .order_by('-creado')[:20]
+    )
+
+    # --- Alertas ---
+    context['alertas_ciudadano'] = (
+        ciudadano.alertas
+        .filter(activa=True)
+        .order_by('prioridad', '-creado')
+    )
+
+    # --- Línea de tiempo ---
+    from ..models_programas import InscripcionPrograma
+    linea = []
+
+    for ins in InscripcionPrograma.objects.filter(ciudadano=ciudadano).select_related('programa').order_by('-fecha_inscripcion')[:20]:
+        linea.append({
+            'fecha': ins.fecha_inscripcion,
+            'icono': 'user-plus',
+            'color_hex': ins.programa.color or '#3B82F6',
+            'titulo': f'Inscripción a {ins.programa.nombre}',
+            'descripcion': ins.get_estado_display(),
+        })
+
+    for legajo in ciudadano.legajos.select_related('dispositivo').order_by('-fecha_admision')[:10]:
+        linea.append({
+            'fecha': legajo.fecha_admision,
+            'icono': 'folder-open',
+            'color_hex': '#6366F1',
+            'titulo': f'Legajo {legajo.codigo}',
+            'descripcion': legajo.dispositivo.nombre if legajo.dispositivo else '',
+        })
+
+    for deriv in ciudadano.derivaciones_programas.select_related('programa_destino').order_by('-creado')[:10]:
+        linea.append({
+            'fecha': deriv.creado.date() if hasattr(deriv.creado, 'date') else deriv.creado,
+            'icono': 'share-alt',
+            'color_hex': '#F97316',
+            'titulo': f'Derivación a {deriv.programa_destino.nombre}',
+            'descripcion': deriv.get_estado_display(),
+        })
+
+    linea.sort(key=lambda x: x['fecha'], reverse=True)
+    context['linea_tiempo'] = linea[:50]
 
     caso_nachec = (
         CasoNachec.objects.filter(ciudadano_titular=ciudadano)

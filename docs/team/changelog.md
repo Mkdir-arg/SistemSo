@@ -14,6 +14,36 @@
 
 ---
 
+## 2026-03-19 — US-009 Hub del Ciudadano — Solapas dinámicas y badge behavior
+
+**User Story:** Como operador/profesional del backoffice quiero ver en el hub del ciudadano todas las solapas de información con badges que indican ítems de atención para priorizar la acción sin navegar entre módulos.
+
+**Archivos modificados:**
+- `legajos/services/solapas.py` — SOLAPAS_ESTATICAS expandida a 11 entradas; `obtener_solapas_ciudadano` refactorizado (copia dicts, inyecta badges); nuevo método `obtener_badges_ciudadano` con 5 tipos de badge
+- `legajos/selectors/ciudadanos.py` — `build_ciudadano_detail_context` genera alertas on-the-fly y construye querysets para 7 tabs nuevos + `linea_tiempo`
+- `legajos/templates/legajos/ciudadano_detail.html` — badges inline-style en botones de tab; 7 nuevos paneles de tab con empty states; loop de programa usa `solapas` (ID normalizado); `confirm()` migrado a SweetAlert2
+
+**Descripción:** Expande el hub con 7 solapas estáticas nuevas (Turnos, Instituciones, Conversaciones, Derivaciones, Alertas, Línea de tiempo, Red Familiar) y un sistema de badges que muestra conteos de atención urgente. El tab de ACOMPANAMIENTO_SEDRONAR usa ahora `solapa.id` (normalizado) para garantizar consistencia con el botón. Se corrigieron dos usos de `confirm()` nativo que violan la convención del design system.
+
+---
+
+## 2026-03-19 — US-008 Perfil social ampliado del ciudadano
+
+**User Story:** Como operador quiero que la ficha del ciudadano incluya situación habitacional, laboral, educativa, médica, documentación migratoria, notas y foto para tener toda la información social centralizada.
+
+**Archivos modificados:**
+- `legajos/models.py` — 14 nuevos campos en `Ciudadano`: `foto` (ImageField), `tipo_vivienda`, `tenencia_vivienda`, `condiciones_vivienda`, `situacion_laboral`, `ingreso_estimado`, `obra_social`, `nivel_educativo`, `cobertura_medica` (sensible), `medicacion_habitual` (sensible), `dni_fisico`, `estado_renaper`, `estado_migratorio` (sensible), `observaciones`. `TextChoices` para todos los campos enum. 4 nuevos índices.
+- `legajos/migrations/0034_ciudadano_campos_perfil_ampliado.py` — migración creada y aplicada
+- `legajos/forms/ciudadanos.py` — `CiudadanoUpdateForm` extendido con campos no-sensibles en `Meta.fields/widgets`; campos sensibles inyectados en `__init__` solo con `puede_ver_sensible=True`; `clean_foto` valida 5 MB máximo; `save()` persiste campos sensibles condicionalmente
+- `legajos/views/ciudadanos.py` — `CiudadanoUpdateView` pasa `puede_ver_sensible` al form y al contexto; `form_valid` invalida caché. `CiudadanoDetailView` pasa `user` al selector
+- `legajos/selectors/ciudadanos.py` — `build_ciudadano_detail_context` acepta `user` y retorna `puede_ver_sensible`; `buscar_ciudadanos_rapido` retorna `foto_url`
+- `legajos/templates/legajos/ciudadano_edit_form.html` — `enctype="multipart/form-data"`, fieldsets de foto/habitacional/laboral/educativo/documentación/sensibles/observaciones
+- `legajos/templates/legajos/ciudadano_detail.html` — foto en avatar, sección social con `{% if tiene_social %}`, sección sensible con `{% if puede_ver_sensible %}`
+
+**Descripción:** Amplía la ficha del ciudadano con toda la información de su perfil social. Los campos de salud (`cobertura_medica`, `medicacion_habitual`) y documentación migratoria (`estado_migratorio`) son sensibles y están protegidos en tres capas independientes: form (no se inyectan sin el flag), view (calcula el flag por grupo Django) y template (sección condicional). La foto tiene validación de peso en el form (5 MB máximo). Se agregaron 4 índices para preparar los filtros del hub ciudadano (US-009).
+
+---
+
 ## 2026-03-19 — Fix: Imports rotos post-refactor DX
 
 **Tipo:** fix
