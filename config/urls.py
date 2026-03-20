@@ -28,13 +28,9 @@ urlpatterns = [
     # Root paths last
     path("", include("django.contrib.auth.urls")),
     path("", include(("users.urls", "users"), namespace="users")),
-    path("", include("users.urls")),
     path("", include(("core.urls", "core"), namespace="core")),
-    path("", include("core.urls")),
     path("", include("dashboard.urls")),
     path("", include(("healthcheck.urls", "healthcheck"), namespace="healthcheck")),
-    path("", include("healthcheck.urls")),
-    
     # Flujos — editor visual HTML
     path("flujos/", include(("flujos.views_urls", "flujos_editor"), namespace="flujos_editor")),
 

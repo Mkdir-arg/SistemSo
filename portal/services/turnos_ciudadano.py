@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from portal.models import DisponibilidadTurnos, TurnoCiudadano
+from ..models import DisponibilidadTurnos, TurnoCiudadano
 
 
 class TurnoNoDisponibleError(Exception):

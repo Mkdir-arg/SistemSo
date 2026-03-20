@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/Mkdir-arg/SistemSo/compare/v1.2.0...v1.2.1) (2026-03-19)
+
+### Bug Fixes
+
+* **dx:** cerrar namespaces legacy duplicados ([74dc361](https://github.com/Mkdir-arg/SistemSo/commit/74dc361eb0a6c9eb4566d025cc0d15fdd7cf4dd2))
+* **dx:** reparar imports de paquetes tras cleanup legacy ([e3c42da](https://github.com/Mkdir-arg/SistemSo/commit/e3c42daec4b2f3465332e22449bbe7e895965bac))
+
 ## [1.2.0](https://github.com/Mkdir-arg/SistemSo/compare/v1.1.0...v1.2.0) (2026-02-15)
 
 ### Features

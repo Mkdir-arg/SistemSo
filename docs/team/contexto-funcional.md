@@ -667,6 +667,9 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se ejecutó el quincuagésimo séptimo slice del refactor DX sobre organización física repo-wide
 - `users/forms.py`, `turnos/forms.py` y `core/services_auditoria.py` ya no viven como archivos sueltos en raíz de app
 - El comportamiento visible no cambió y la cartografía física del repo quedó todavía más consistente
+- Se ejecutó el quincuagésimo octavo slice del refactor DX sobre `legajos`
+- `legajos` ya no depende de wrappers legacy en raíz y consume directamente sus paquetes reales de `views`, `forms`, `services`, `selectors` y `signals`
+- El comportamiento visible no cambió y la cartografía final de la app quedó alineada con el resto del repo
 
 ### 2026-03-19 (sesión 7)
 - Se implementó US-022: inscripción de ciudadanos a actividades institucionales

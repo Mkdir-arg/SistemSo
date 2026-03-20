@@ -146,9 +146,9 @@ STATICFILES_STORAGE = (
     else "django.contrib.staticfiles.storage.StaticFilesStorage"
 )
 
-LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "inicio"
-LOGOUT_REDIRECT_URL = "login"
+LOGIN_URL = "users:login"
+LOGIN_REDIRECT_URL = "core:inicio"
+LOGOUT_REDIRECT_URL = "users:login"
 ACCOUNT_FORMS = {"login": "users.forms.UserLoginForm"}
 
 EMAIL_BACKEND = (

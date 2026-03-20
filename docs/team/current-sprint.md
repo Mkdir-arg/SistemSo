@@ -69,6 +69,7 @@ _Se define en el sprint planning._
 | DX-055 | Como equipo de desarrollo quiero sacar a service layer el subflujo inicial de `nachec_operacion` para reducir lógica de negocio en views y corregir inconsistencias de tareas | ✅ Completado | Slice 55 ejecutado el 2026-03-14 con tests de service para validación, envío y asignación |
 | DX-056 | Como equipo de desarrollo quiero extraer la reasignación territorial y el inicio de relevamiento de `nachec_operacion` para seguir adelgazando el flujo operativo más sensible | ✅ Completado | Slice 56 ejecutado el 2026-03-16 con service layer y tests de reasignación/inicio |
 | DX-057 | Como equipo de desarrollo quiero cerrar las excepciones físicas más visibles de `forms` y `services` para dejar la cartografía repo-wide casi totalmente alineada a carpetas | ✅ Completado | Slice 57 ejecutado el 2026-03-16 con `users/forms`, `turnos/forms` y `core/services/auditoria` movidos a paquetes reales |
+| DX-058 | Como equipo de desarrollo quiero retirar la capa legacy de compatibilidad de `legajos` para que la app dependa solo de sus paquetes reales | ✅ Completado | Slice 58 ejecutado el 2026-03-17 con imports, URLs y tests alineados al layout definitivo |
 
 | US-012 | Derivación e inscripción de ciudadanos a programas — flujo completo con bandeja, aceptar/rechazar y creación de InscripcionPrograma | ✅ Completado | Implementado 2026-03-15 |
 | US-017 | Baja de ciudadano de un programa persistente — registra motivo, cancela turnos y flujo activo | ✅ Completado | Implementado 2026-03-15 |

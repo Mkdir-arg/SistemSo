@@ -80,7 +80,6 @@ from .derivacion_programa import (  # noqa: F401
     rechazar_derivacion_programa,
 )
 from .historial_contactos import (  # noqa: F401
-    contactos_api as historial_contactos_api,
     crear_contacto,
     detalle_contacto,
     editar_contacto,
@@ -134,10 +133,13 @@ from .operativa import (  # noqa: F401
 )
 from .programas import ProgramaDetailView, ProgramaListView  # noqa: F401
 from .red_contactos import (  # noqa: F401
+    buscar_ciudadanos_api,
+    buscar_usuarios_api,
     crear_contacto_emergencia,
     crear_profesional,
     crear_vinculo,
     dispositivos_api,
+    emergencias_api,
     profesionales_api,
     red_contactos_view,
     vinculos_api,
