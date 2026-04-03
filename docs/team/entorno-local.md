@@ -21,7 +21,7 @@ En cada arranque local, el contenedor `app` ejecuta solo:
 3. `python manage.py crear_superadmin`
 4. `python manage.py setup_grupos`
 5. `python manage.py crear_programas`
-6. Inicia Daphne con `config.asgi:application`
+6. Inicia `python manage.py runserver 0.0.0.0:8000` con autoreload
 
 No ejecuta:
 
@@ -31,6 +31,12 @@ No ejecuta:
 - `load_initial_data`
 - `setup_system`
 - seeds demo pesados o frágiles
+
+## Runtime local
+
+- Default: `APP_RUNTIME=runserver`
+- Alternativa: `APP_RUNTIME=daphne docker compose up --build`
+- `runserver` se usa en local para tener autoreload sin volver a dividir el stack
 
 ## Credenciales y configuración
 

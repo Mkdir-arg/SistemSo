@@ -45,6 +45,12 @@ fi
 
 APP_BIND="${APP_BIND:-0.0.0.0}"
 APP_PORT="${APP_PORT:-8000}"
+APP_RUNTIME="${APP_RUNTIME:-runserver}"
+
+if [ "${APP_RUNTIME}" = "runserver" ]; then
+  echo "Bootstrap listo. Iniciando Django runserver con autoreload en ${APP_BIND}:${APP_PORT}..."
+  exec python manage.py runserver "${APP_BIND}:${APP_PORT}"
+fi
 
 echo "Bootstrap listo. Iniciando Daphne en ${APP_BIND}:${APP_PORT}..."
 exec daphne -b "${APP_BIND}" -p "${APP_PORT}" config.asgi:application

@@ -60,6 +60,7 @@ services:
       LOCAL_OPTIONAL_BOOTSTRAP_COMMANDS: ${LOCAL_OPTIONAL_BOOTSTRAP_COMMANDS:-}
       APP_BIND: 0.0.0.0
       APP_PORT: 8000
+      APP_RUNTIME: ${APP_RUNTIME:-runserver}
     ports:
       - "8000:8000"
     volumes:
