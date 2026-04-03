@@ -3,7 +3,7 @@
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
 
-> Última actualización: 2026-03-19 (sesión 8 — US-008 perfil social ciudadano)
+> Última actualización: 2026-04-03 (sesión 9 — DX-059 stack local docker)
 
 
 ---
@@ -689,6 +689,12 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - `buscar_ciudadanos_rapido` ahora retorna `foto_url` para el buscador rápido
 - 4 índices nuevos en `Ciudadano` para preparar filtros del hub (US-009)
 - Migración `0034_ciudadano_campos_perfil_ampliado` creada y aplicada
+
+### 2026-04-03 (sesión 9)
+- Se simplificó el stack local Docker para que el flujo recomendado sea `docker compose up`
+- El entorno local recomendado ahora levanta solo `app`, `mysql` y `redis`
+- HTTP y WebSocket comparten un mismo proceso ASGI en el contenedor `app`
+- El bootstrap diario queda reducido a migraciones y setup idempotente mínimo; los seeds demo o pesados salen del arranque automático
 
 ---
 

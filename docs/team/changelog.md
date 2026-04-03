@@ -14,6 +14,23 @@
 
 ---
 
+## 2026-04-03 — DX-059 Stack local Docker simplificado
+
+**User Story:** Como equipo de desarrollo quiero levantar el entorno local con `docker compose up` y con el menor bootstrap posible para reducir el tiempo hasta entorno usable.
+
+**Archivos modificados:**
+- `docker-compose.yml` — nuevo stack local por defecto con `app`, `mysql`, `redis`
+- `docker-compose.hybrid.yml` — alineado al mismo contrato local simple
+- `docker-entrypoint.sh` — espera DB, corre migraciones y bootstrap idempotente mínimo antes de levantar Daphne
+- `Dockerfile` — instala un entrypoint estable fuera del bind mount local
+- `legajos/management/commands/crear_programas.py` — reemplaza campo legacy `activo` por `estado` + `naturaleza`
+- `config/settings.py` — agrega `app` a hosts internos permitidos
+- `.env.local.example`, `docs/team/entorno-local.md`, `docs/funcionalidades/refactor-dx/v1.58_slice-59-stack-local-docker.md`
+
+**Descripción:** El entorno local deja de depender de `nginx` y de la separación artificial HTTP/WebSocket. El arranque diario ya no ejecuta `pip install`, `sleep`, `collectstatic`, `load_initial_data` ni `setup_system`. El backend local levanta con un solo proceso ASGI sobre un solo puerto y conserva solo un bootstrap mínimo e idempotente.
+
+---
+
 ## 2026-03-19 — US-009 Hub del Ciudadano — Solapas dinámicas y badge behavior
 
 **User Story:** Como operador/profesional del backoffice quiero ver en el hub del ciudadano todas las solapas de información con badges que indican ítems de atención para priorizar la acción sin navegar entre módulos.

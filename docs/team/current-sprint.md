@@ -71,6 +71,7 @@ _Se define en el sprint planning._
 | DX-057 | Como equipo de desarrollo quiero cerrar las excepciones físicas más visibles de `forms` y `services` para dejar la cartografía repo-wide casi totalmente alineada a carpetas | ✅ Completado | Slice 57 ejecutado el 2026-03-16 con `users/forms`, `turnos/forms` y `core/services/auditoria` movidos a paquetes reales |
 | DX-058 | Como equipo de desarrollo quiero retirar la capa legacy de compatibilidad de `legajos` para que la app dependa solo de sus paquetes reales | ✅ Completado | Slice 58 ejecutado el 2026-03-17 con imports, URLs y tests alineados al layout definitivo |
 
+| DX-059 | Como equipo de desarrollo quiero simplificar el stack local Docker a `app + mysql + redis` con un solo comando y bootstrap idempotente | ✅ Completado | Slice 59 ejecutado el 2026-04-03 con `docker compose up` como flujo recomendado |
 | US-012 | Derivación e inscripción de ciudadanos a programas — flujo completo con bandeja, aceptar/rechazar y creación de InscripcionPrograma | ✅ Completado | Implementado 2026-03-15 |
 | US-017 | Baja de ciudadano de un programa persistente — registra motivo, cancela turnos y flujo activo | ✅ Completado | Implementado 2026-03-15 |
 | US-020 | Tipo de acceso en actividades institucionales — LIBRE o REQUIERE_PROGRAMA con validación y selector anti-N+1 | ✅ Completado | Implementado 2026-03-15 |

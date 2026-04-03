@@ -476,3 +476,10 @@
 - Decisión: el slice 57 movió esos módulos a `users/forms/`, `turnos/forms/` y `core/services/auditoria.py`, actualizando exports y consumidores directos.
 - Regla derivada: al final de un refactor estructural largo, conviene cerrar primero las excepciones físicas más evidentes aunque no sean hotspots funcionales, para que la cartografía del proyecto quede coherente de punta a punta.
 - Consecuencia: lo que permanece plano en las apps pasa a ser principalmente fachada de compatibilidad o apps mínimas, no deuda estructural de primer orden.
+
+## 2026-04-03 — stack local Docker de un solo comando
+
+- Contexto: el arranque local estaba sobredimensionado con `nginx`, dos procesos de app y bootstrap pesado/no idempotente en cada restart.
+- Decisión: el entorno local recomendado pasa a usar `docker compose up` con `app`, `mysql` y `redis`, un solo proceso ASGI y un bootstrap automático mínimo.
+- Regla derivada: en desarrollo local, los seeds demo o tareas de mantenimiento pesadas no deben formar parte del camino crítico de startup.
+- Consecuencia: el entorno queda más simple de levantar, más estable y más rápido para el uso diario.

@@ -3,7 +3,7 @@
 > **Regla:** El Arquitecto lee este documento ANTES de proponer cualquier diseño técnico.
 > **Regla:** El Arquitecto actualiza este documento cuando toma una decisión técnica relevante.
 
-> Última actualización: 2026-03-12
+> Última actualización: 2026-04-03
 
 
 ---
@@ -17,7 +17,7 @@
 | Frontend | Tailwind CSS + Alpine.js | CDN |
 | WebSocket | Django Channels + Redis | — |
 | Cache | Redis | 7 |
-| Servidor | Nginx + Gunicorn | — |
+| Servidor | Daphne ASGI (local) / Nginx + Gunicorn (despliegues legados) | — |
 | Contenedores | Docker Compose | — |
 | Admin UI | Django Admin | — |
 
@@ -231,6 +231,13 @@ SistemSo/
 
 **Consecuencia:** Se elimina una fuente concreta de bugs silenciosos y el módulo gana una base más segura para seguir endureciendo endpoints JSON.
 
+### DT-022 — el entorno local usa un solo servicio ASGI con bootstrap mínimo (2026-04-03)
+**Contexto:** el stack local anterior mezclaba `nginx`, `gunicorn`, `daphne`, reinstalación de dependencias y seeds pesados en cada restart, lo que degradaba mucho el tiempo hasta entorno usable.
+
+**Decisión:** el entorno local recomendado pasa a ser `docker compose up` sobre `app`, `mysql` y `redis`. `app` sirve HTTP y WebSocket con un solo proceso ASGI (`daphne`) y ejecuta solo `migrate`, `crear_superadmin`, `setup_grupos` y `crear_programas` como bootstrap automático.
+
+**Consecuencia:** mejora la DX local, baja la fragilidad del startup y deja el seed pesado/demo fuera del camino crítico diario.
+
 ---
 
 ## Deudas técnicas documentadas
@@ -249,6 +256,7 @@ SistemSo/
 | DT-010 | Falta una política única y explícita para quién puede ser `responsable` de un legajo; hoy conviven criterios de modelo, form y views históricas | Media | Actualizada 2026-03-13 |
 | DT-011 | `conversaciones` ya no concentra toda la lógica en `views.py`, pero mantiene endpoints legacy con `@csrf_exempt` y mezcla polling HTTP con notificaciones realtime parciales | Media | Actualizada 2026-03-13 |
 | DT-012 | La migración a paquetes reales (`views/`, `services/`, `selectors/`, `signals/`) ya alcanzó `turnos`, `users`, `chatbot`, `configuracion`, `portal`, `conversaciones` y parte de `core`; sigue incompleta en `legajos` y en la capa de auditoría/signals de `core` | Media | Actualizada 2026-03-13 |
+| DT-013 | El entorno local con Docker ya fue simplificado, pero el runtime de desarrollo usa Daphne sin autoreload y todavía conserva comandos de bootstrap opcional separados del arranque diario | Baja | 2026-04-03 |
 
 ---
 

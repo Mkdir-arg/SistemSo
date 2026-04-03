@@ -41,7 +41,7 @@ if DEBUG:
             hosts.append(h)
 
 # Nombres de servicios Docker internos
-for h in ("sedronar-http", "sedronar-ws", "nodo-web", "nodo-websocket", "web", "websocket"):
+for h in ("app", "sedronar-http", "sedronar-ws", "nodo-web", "nodo-websocket", "web", "websocket"):
     if h not in hosts:
         hosts.append(h)
 
