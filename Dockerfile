@@ -27,8 +27,10 @@ COPY . .
 # Crear directorio para logs
 RUN mkdir -p logs
 
-# Normalizar fin de linea en Windows y hacer ejecutable el script de entrada
-RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
+# Normalizar fin de linea en Windows y dejar un entrypoint fuera del bind mount local
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh \
+    && cp /app/docker-entrypoint.sh /usr/local/bin/sistemso-entrypoint \
+    && chmod +x /usr/local/bin/sistemso-entrypoint
 
 # Exponer puertos
-EXPOSE 8000 8001
+EXPOSE 8000

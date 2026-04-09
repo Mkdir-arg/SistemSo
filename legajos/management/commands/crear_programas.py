@@ -1,7 +1,6 @@
-"""
-Comando para crear programas de ejemplo en el sistema
-"""
+"""Comando idempotente para garantizar programas base en desarrollo local."""
 from django.core.management.base import BaseCommand
+
 from legajos.models_programas import Programa
 
 
@@ -70,7 +69,8 @@ class Command(BaseCommand):
                     'icono': data['icono'],
                     'color': data['color'],
                     'orden': data['orden'],
-                    'activo': True
+                    'estado': Programa.Estado.ACTIVO,
+                    'naturaleza': Programa.Naturaleza.PERSISTENTE,
                 }
             )
             
