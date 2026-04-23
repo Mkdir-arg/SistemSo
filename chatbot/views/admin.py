@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from system_modules.guards import module_required
 
 from ..forms import ApiKeyForm, KnowledgeForm
 from ..selectors import build_admin_dashboard_payload, get_chat_logs_payload
@@ -36,6 +37,7 @@ def staff_required(view_func):
 
 
 @login_required
+@module_required("chatbot")
 @staff_required
 def admin_panel(request):
     return render(
@@ -57,18 +59,21 @@ def admin_panel(request):
 
 
 @login_required
+@module_required("chatbot")
 @staff_required
 def admin_data(request):
     return JsonResponse(build_admin_dashboard_payload())
 
 
 @login_required
+@module_required("chatbot")
 @staff_required
 def chat_logs(request):
     return JsonResponse({"logs": get_chat_logs_payload()})
 
 
 @login_required
+@module_required("chatbot")
 @staff_required
 def update_api_key(request):
     if request.method != "POST":
@@ -89,6 +94,7 @@ def update_api_key(request):
 
 
 @login_required
+@module_required("chatbot")
 @staff_required
 def test_api_key(request):
     try:
@@ -115,6 +121,7 @@ def test_api_key(request):
 
 
 @login_required
+@module_required("chatbot")
 @staff_required
 def add_knowledge(request):
     if request.method != "POST":
@@ -133,6 +140,7 @@ def add_knowledge(request):
 
 
 @login_required
+@module_required("chatbot")
 @staff_required
 def delete_knowledge(request, knowledge_id):
     if request.method != "DELETE":

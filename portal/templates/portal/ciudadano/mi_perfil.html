@@ -1,8 +1,10 @@
 {% extends 'portal/ciudadano/base_ciudadano.html' %}
+{% load module_flags %}
 
 {% block title %}Mi Perfil - Portal Ciudadano{% endblock %}
 
 {% block ciudadano_content %}
+{% module_active "conversaciones" as conversaciones_active %}
 
 <!-- Saludo -->
 <div class="mb-8 animate-fadeInUp">
@@ -145,16 +147,24 @@
                 </div>
                 <h3 class="text-lg font-semibold text-[#252F40]">Mis consultas recientes</h3>
             </div>
-            <a href="{% url 'conversaciones:chat_ciudadano' %}"
-               class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
-               style="background: linear-gradient(90deg, {{ branding.portal.primary_button_gradient_start }} 0%, {{ branding.portal.primary_button_gradient_end }} 100%);"
-               onmouseover="this.style.background='linear-gradient(90deg, {{ branding.portal.primary_button_hover_start }} 0%, {{ branding.portal.primary_button_hover_end }} 100%)'"
-               onmouseout="this.style.background='linear-gradient(90deg, {{ branding.portal.primary_button_gradient_start }} 0%, {{ branding.portal.primary_button_gradient_end }} 100%)'">
-                <i class="fas fa-plus mr-1.5"></i>Nueva consulta
-            </a>
+            {% if conversaciones_active %}
+                <a href="{% url 'conversaciones:chat_ciudadano' %}"
+                   class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
+                   style="background: linear-gradient(90deg, {{ branding.portal.primary_button_gradient_start }} 0%, {{ branding.portal.primary_button_gradient_end }} 100%);"
+                   onmouseover="this.style.background='linear-gradient(90deg, {{ branding.portal.primary_button_hover_start }} 0%, {{ branding.portal.primary_button_hover_end }} 100%)'"
+                   onmouseout="this.style.background='linear-gradient(90deg, {{ branding.portal.primary_button_gradient_start }} 0%, {{ branding.portal.primary_button_gradient_end }} 100%)'">
+                    <i class="fas fa-plus mr-1.5"></i>Nueva consulta
+                </a>
+            {% endif %}
         </div>
 
-        {% if conversaciones_recientes %}
+        {% if not conversaciones_active %}
+            <div class="text-center py-8 text-[#8C8C8C]">
+                <i class="fas fa-ban text-3xl mb-3 opacity-40"></i>
+                <p class="text-sm">El modulo de consultas no esta disponible.</p>
+                <p class="text-xs mt-2">Si necesitas usarlo, contacta a un administrador.</p>
+            </div>
+        {% elif conversaciones_recientes %}
             <ul class="space-y-3">
                 {% for conv in conversaciones_recientes %}
                 <li class="flex items-center justify-between p-3 rounded-xl bg-[#F9FAFB]">

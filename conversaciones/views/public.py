@@ -4,6 +4,7 @@ import logging
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import ensure_csrf_cookie
+from system_modules.guards import module_required
 
 from ..forms import (
     EvaluarConversacionForm,
@@ -37,10 +38,12 @@ def _first_form_error(form, default_message):
 
 
 @ensure_csrf_cookie
+@module_required("conversaciones")
 def chat_ciudadano(request):
     return render(request, 'conversaciones/chat_ciudadano.html')
 
 
+@module_required("conversaciones")
 def consultar_renaper(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'})
@@ -86,6 +89,7 @@ def consultar_renaper(request):
         return JsonResponse({'success': False, 'error': 'Error interno del servidor'})
 
 
+@module_required("conversaciones")
 def iniciar_conversacion(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'})
@@ -115,6 +119,7 @@ def iniciar_conversacion(request):
         })
 
 
+@module_required("conversaciones")
 def enviar_mensaje_ciudadano(request, conversacion_id):
     if request.method != 'POST':
         return JsonResponse({'success': False})
@@ -148,6 +153,7 @@ def enviar_mensaje_ciudadano(request, conversacion_id):
         return JsonResponse({'success': False, 'error': 'Error interno del servidor'})
 
 
+@module_required("conversaciones")
 def obtener_mensajes_ciudadano(request, conversacion_id):
     conversacion = get_object_or_404(get_conversacion_detalle_queryset(), id=conversacion_id)
     mensajes = conversacion.mensajes.all()
@@ -164,6 +170,7 @@ def obtener_mensajes_ciudadano(request, conversacion_id):
     })
 
 
+@module_required("conversaciones")
 def evaluar_conversacion(request, conversacion_id):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'})

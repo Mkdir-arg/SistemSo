@@ -24,7 +24,10 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "dev")  # dev|qa|prd
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    raise ValueError("DJANGO_SECRET_KEY debe estar configurada en variables de entorno")
+    if os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings_test":
+        SECRET_KEY = "test-secret-key"
+    else:
+        raise ValueError("DJANGO_SECRET_KEY debe estar configurada en variables de entorno")
 
 LANGUAGE_CODE = "es-ar"
 TIME_ZONE = "America/Argentina/Buenos_Aires"
@@ -61,6 +64,14 @@ if DEBUG:
     ]
 CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
 
+SYSTEM_MODULES = [
+    "turnos.module:TURNOS_MODULE",
+    "chatbot.module:CHATBOT_MODULE",
+    "conversaciones.module:CONVERSACIONES_MODULE",
+    "tramites.module:TRAMITES_MODULE",
+    "flujos.module:FLUJOS_MODULE",
+]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -77,6 +88,7 @@ INSTALLED_APPS = [
     "health_check.db",
     "health_check.cache",
     "silk",
+    "system_modules",
     "turnos",
     "users",
     "core",
@@ -123,6 +135,7 @@ TEMPLATES = [
                 "core.context_processors.dispositivos_context",
                 "core.context_processors.branding_context",
                 "conversaciones.context_processors.user_groups",
+                "system_modules.context_processors.module_capabilities",
             ],
         },
     },

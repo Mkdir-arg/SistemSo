@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 
 from core.decorators import ciudadano_required
+from system_modules.guards import module_required
 
 from ..forms import CiudadanoConfirmarTurnoForm
 from ..selectors import (
@@ -22,6 +23,7 @@ from ..turnos_utils import get_calendario_mensual, get_slots_disponibles
 
 
 @ciudadano_required
+@module_required("turnos")
 def ciudadano_mis_turnos(request):
     ciudadano = request.user.ciudadano_perfil
     context = {'ciudadano': ciudadano}
@@ -30,6 +32,7 @@ def ciudadano_mis_turnos(request):
 
 
 @ciudadano_required
+@module_required("turnos")
 def ciudadano_solicitar_turno(request):
     ciudadano = request.user.ciudadano_perfil
     return render(
@@ -43,6 +46,7 @@ def ciudadano_solicitar_turno(request):
 
 
 @ciudadano_required
+@module_required("turnos")
 def ciudadano_turno_calendario(request, recurso_id):
     ciudadano = request.user.ciudadano_perfil
     recurso = get_recurso_turnos_activo_or_404(recurso_id)
@@ -72,6 +76,7 @@ def ciudadano_turno_calendario(request, recurso_id):
 
 
 @ciudadano_required
+@module_required("turnos")
 def ciudadano_turno_slots(request, recurso_id):
     recurso = get_recurso_turnos_activo_or_404(recurso_id)
     fecha_str = request.GET.get('fecha')
@@ -100,6 +105,7 @@ def ciudadano_turno_slots(request, recurso_id):
 
 
 @ciudadano_required
+@module_required("turnos")
 def ciudadano_confirmar_turno(request, recurso_id):
     ciudadano = request.user.ciudadano_perfil
     recurso = get_recurso_turnos_activo_or_404(recurso_id)
@@ -139,6 +145,7 @@ def ciudadano_confirmar_turno(request, recurso_id):
 
 
 @ciudadano_required
+@module_required("turnos")
 def ciudadano_turno_confirmado(request, pk):
     ciudadano = request.user.ciudadano_perfil
     return render(
@@ -152,6 +159,7 @@ def ciudadano_turno_confirmado(request, pk):
 
 
 @ciudadano_required
+@module_required("turnos")
 def ciudadano_cancelar_turno(request, pk):
     ciudadano = request.user.ciudadano_perfil
     turno = get_turno_ciudadano_or_404(ciudadano, pk)

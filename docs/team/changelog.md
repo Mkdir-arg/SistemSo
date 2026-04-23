@@ -1487,3 +1487,15 @@
 - `legajos/views_solapas.py`
 
 **Descripción:** Se retiró la capa legacy de compatibilidad de `legajos`, dejando la app consumiendo solo los paquetes reales `legajos/views/`, `legajos/forms/`, `legajos/services/`, `legajos/selectors/` y `legajos/signals/`. También se actualizaron imports y tests para apuntar al layout definitivo, con lo que `legajos` deja de mantener dos cartografías internas en paralelo.
+## 2026-04-23 â€” DX-060 Monolito modular activable
+
+**User Story:** Como equipo de desarrollo quiero un monolito modular activable para poder clonar el repo por cliente, prender o apagar modulos opcionales sin romper shells compartidos y bajar el acoplamiento transversal.
+
+**Archivos modificados:**
+- `system_modules/*` â€” nueva app con catalogo, estado, guards, admin, sync y tests
+- `config/settings.py`, `config/urls.py`, `manage.py`, `config/settings_test.py` â€” wiring del control plane y validacion
+- `turnos/domain/*`, `turnos/application/*`, `turnos/infrastructure/*`, `turnos/interfaces/*`, `turnos/module.py` â€” piloto hexagonal real
+- `portal/*`, `templates/includes/base.html`, `templates/legajos/alertas_dashboard.html`, `configuracion/templates/configuracion/programa_list.html` â€” shells resilientes a modulos inactivos
+- `docs/funcionalidades/arquitectura-modular/*`, `docs/team/*.md`, `README.md`, `*/README.md` â€” documentacion canonica del nuevo diseno
+
+**DescripciÃ³n:** Se agregÃ³ un control plane explicito para modulos instalados y activos, con degradaciÃ³n controlada en HTML y JSON. Los shells del sistema ahora renderizan navegaciÃ³n, widgets y capacidades segÃºn `module_capabilities`, y `turnos` pasa a ser el piloto real con layout `domain/application/infrastructure/interfaces`.

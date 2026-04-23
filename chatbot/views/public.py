@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from system_modules.guards import module_required
 
 from ..forms import FeedbackForm, SendMessageForm
 from ..selectors import get_user_conversation_queryset, get_user_conversations
@@ -24,6 +25,7 @@ def _first_form_error(form, default_message):
 
 
 @login_required
+@module_required("chatbot")
 def chat_interface(request):
     conversations = get_user_conversations(request.user)
     active_conversation = conversations.first() if conversations.exists() else None
@@ -46,6 +48,7 @@ def chat_interface(request):
 
 
 @login_required
+@module_required("chatbot")
 def send_message(request):
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido"}, status=405)
@@ -96,6 +99,7 @@ def send_message(request):
 
 
 @login_required
+@module_required("chatbot")
 def load_conversation(request, conversation_id):
     conversation = get_object_or_404(
         get_user_conversation_queryset(request.user), id=conversation_id
@@ -118,6 +122,7 @@ def load_conversation(request, conversation_id):
 
 
 @login_required
+@module_required("chatbot")
 def new_conversation(request):
     from ..models import Conversation
 
@@ -134,6 +139,7 @@ def new_conversation(request):
 
 
 @login_required
+@module_required("chatbot")
 def submit_feedback(request):
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido"}, status=405)

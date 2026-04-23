@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 
 from core.decorators import ciudadano_required
+from system_modules.guards import module_required
 
 from ..forms import CiudadanoEnviarMensajeForm, CiudadanoNuevaConsultaForm
 from ..selectors import (
@@ -15,6 +16,7 @@ from ..services.consultas import (
 
 
 @ciudadano_required
+@module_required("conversaciones")
 def ciudadano_mis_consultas(request):
     ciudadano = get_ciudadano_perfil(request.user)
     context = {
@@ -25,6 +27,7 @@ def ciudadano_mis_consultas(request):
 
 
 @ciudadano_required
+@module_required("conversaciones")
 def ciudadano_consulta_detalle(request, pk):
     ciudadano = get_ciudadano_perfil(request.user)
     conversacion = get_ciudadano_conversacion_or_404(request.user, ciudadano, pk)
@@ -39,6 +42,7 @@ def ciudadano_consulta_detalle(request, pk):
 
 
 @ciudadano_required
+@module_required("conversaciones")
 def ciudadano_nueva_consulta(request):
     ciudadano = get_ciudadano_perfil(request.user)
     form = CiudadanoNuevaConsultaForm(request.POST or None)
@@ -62,6 +66,7 @@ def ciudadano_nueva_consulta(request):
 
 
 @ciudadano_required
+@module_required("conversaciones")
 def ciudadano_enviar_mensaje(request, pk):
     ciudadano = get_ciudadano_perfil(request.user)
     conversacion = get_ciudadano_conversacion_or_404(request.user, ciudadano, pk)

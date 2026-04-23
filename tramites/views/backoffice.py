@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from system_modules.guards import module_required
 
 from core.models import Institucion
 
@@ -13,6 +14,7 @@ def es_staff(user):
 
 
 @login_required
+@module_required("tramites")
 @user_passes_test(es_staff)
 def lista_tramites(request):
     tramites_activos = Institucion.objects.filter(
@@ -38,6 +40,7 @@ def lista_tramites(request):
 
 
 @login_required
+@module_required("tramites")
 @user_passes_test(es_staff)
 def detalle_tramite(request, tramite_id):
     tramite = get_object_or_404(Institucion, id=tramite_id)
@@ -45,6 +48,7 @@ def detalle_tramite(request, tramite_id):
 
 
 @login_required
+@module_required("tramites")
 @user_passes_test(es_staff)
 def aprobar_tramite(request, tramite_id):
     if request.method == "POST":
@@ -100,6 +104,7 @@ def aprobar_tramite(request, tramite_id):
 
 
 @login_required
+@module_required("tramites")
 @user_passes_test(es_staff)
 def rechazar_tramite(request, tramite_id):
     if request.method == "POST":

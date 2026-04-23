@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from system_modules.guards import module_required
 
 from ..forms import (
     AsignarConversacionForm,
@@ -46,6 +47,7 @@ def tiene_permiso_conversaciones(user):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def lista_conversaciones(request):
     filtros = {
@@ -68,6 +70,7 @@ def lista_conversaciones(request):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def detalle_conversacion(request, conversacion_id):
     conversacion = get_object_or_404(get_conversacion_detalle_queryset(), id=conversacion_id)
@@ -80,6 +83,7 @@ def detalle_conversacion(request, conversacion_id):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def asignar_conversacion(request, conversacion_id):
     conversacion = get_object_or_404(Conversacion, id=conversacion_id, estado='activa')
@@ -95,6 +99,7 @@ def asignar_conversacion(request, conversacion_id):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def enviar_mensaje_operador(request, conversacion_id):
     if request.method != 'POST':
@@ -125,6 +130,7 @@ def enviar_mensaje_operador(request, conversacion_id):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def cerrar_conversacion(request, conversacion_id):
     conversacion = get_object_or_404(Conversacion, id=conversacion_id)
@@ -134,6 +140,7 @@ def cerrar_conversacion(request, conversacion_id):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def reasignar_conversacion(request, conversacion_id):
     conversacion = get_object_or_404(Conversacion, id=conversacion_id, estado='activa')
@@ -147,12 +154,14 @@ def reasignar_conversacion(request, conversacion_id):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def metricas_conversaciones(request):
     return render(request, 'conversaciones/metricas.html', get_metricas_contexto())
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def configurar_cola(request):
     if request.method == 'POST':
@@ -167,6 +176,7 @@ def configurar_cola(request):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def asignacion_automatica(request):
     try:
@@ -183,6 +193,7 @@ def asignacion_automatica(request):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def evaluar_conversacion(request, conversacion_id):
     conversacion = get_object_or_404(Conversacion, id=conversacion_id)
@@ -195,6 +206,7 @@ def evaluar_conversacion(request, conversacion_id):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def api_metricas_tiempo_real(request):
     return JsonResponse({
@@ -204,6 +216,7 @@ def api_metricas_tiempo_real(request):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def api_conversacion_detalle(request, conversacion_id):
     try:
@@ -228,6 +241,7 @@ def api_conversacion_detalle(request, conversacion_id):
 
 
 @login_required
+@module_required("conversaciones")
 @user_passes_test(tiene_permiso_conversaciones)
 def api_estadisticas_tiempo_real(request):
     return JsonResponse({
