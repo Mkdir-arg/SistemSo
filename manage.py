@@ -13,10 +13,7 @@ def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-    # To debug in Docker
-    from django.conf import settings
-
-    if settings.DEBUG:
+    if os.environ.get("DJANGO_DEBUG", "False") == "True":
         if os.environ.get("RUN_MAIN") or os.environ.get("WERKZEUG_RUN_MAIN"):
             import debugpy
 

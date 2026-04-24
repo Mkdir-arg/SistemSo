@@ -118,15 +118,16 @@ class DerivacionProgramaService:
 
     @staticmethod
     def _sync_nachec_case_after_acceptance(derivacion, usuario, urgencia, tipo_atencion, comentario):
-        caso = CasoNachec.objects.filter(
+        casos = CasoNachec.objects.filter(
             ciudadano_titular=derivacion.ciudadano
-        ).first()
+        )
+        caso = casos.filter(estado='DERIVADO').order_by('-fecha_derivacion').first() or casos.first()
         if not caso:
             return
 
         sla_dias = {'ALTA': 1, 'MEDIA': 2, 'BAJA': 3}.get(urgencia, 2)
-        caso.prioridad = urgencia
-        caso.save(update_fields=['prioridad'])
+        casos.update(prioridad=urgencia)
+        caso.refresh_from_db()
 
         TareaNachec.objects.create(
             caso=caso,

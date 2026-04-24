@@ -11,7 +11,7 @@ from portal.models import TurnoCiudadano
 from ..forms import AprobarTurnoForm, CancelarTurnoBackofficeForm, RechazarTurnoForm
 from ..mixins import OperadorRequiredMixin, TurnoOperarRequiredMixin, operador_required, turno_operar_required
 from ..models import ConfiguracionTurnos
-from ..selectors_turnos import (
+from ..selectors.backoffice import (
     build_agenda_context,
     build_bandeja_pendientes_context,
     get_backoffice_home_context,

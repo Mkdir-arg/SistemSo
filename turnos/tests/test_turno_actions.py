@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from legajos.models import Ciudadano
 from portal.models import TurnoCiudadano
-from turnos.services_turnos import TurnoActionError, TurnosBackofficeService
+from turnos.services import TurnoActionError, TurnosBackofficeService
 
 
 class TurnosBackofficeServiceTests(TestCase):

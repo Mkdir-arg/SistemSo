@@ -10,7 +10,7 @@ from portal.models import TurnoCiudadano
 from ..forms import ConfiguracionTurnosForm, DisponibilidadConfiguracionForm
 from ..mixins import AdminTurnosRequiredMixin, admin_turnos_required, operador_required
 from ..models import ConfiguracionTurnos, DisponibilidadConfiguracion
-from ..selectors_turnos import get_configuraciones_list
+from ..selectors.backoffice import get_configuraciones_list
 
 
 class ConfiguracionListView(AdminTurnosRequiredMixin, TemplateView):

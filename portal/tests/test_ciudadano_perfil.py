@@ -12,7 +12,7 @@ from users.models import SolicitudCambioEmail
 
 class CiudadanoPerfilViewsTests(TestCase):
     def setUp(self):
-        grupo = Group.objects.create(name='Ciudadanos')
+        grupo, _ = Group.objects.get_or_create(name='Ciudadanos')
         self.user = User.objects.create_user(
             username='30111222',
             email='ana@old.test',

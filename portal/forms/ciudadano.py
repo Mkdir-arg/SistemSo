@@ -143,6 +143,9 @@ class CiudadanoNuevaConsultaForm(forms.Form):
         label='Motivo de la consulta',
         min_length=10,
         max_length=2000,
+        error_messages={
+            'min_length': 'Asegurate de que este valor tenga al menos 10 caracteres',
+        },
         widget=forms.Textarea(attrs={'rows': 5}),
     )
 

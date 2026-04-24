@@ -9,7 +9,7 @@ from legajos.models import Ciudadano
 
 class CiudadanoAuthViewsTests(TestCase):
     def setUp(self):
-        Group.objects.create(name='Ciudadanos')
+        Group.objects.get_or_create(name='Ciudadanos')
 
     def test_registro_step1_con_legajo_existente_guarda_sesion(self):
         ciudadano = Ciudadano.objects.create(

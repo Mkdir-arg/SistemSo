@@ -38,7 +38,7 @@ class DerivacionProgramaServiceTests(TestCase):
             nombre='Programa Ñachec',
             tipo=Programa.TipoPrograma.NACHEC,
             descripcion='Programa de asistencia',
-            activo=True,
+            estado=Programa.Estado.ACTIVO,
         )
         self.derivacion = DerivacionPrograma.objects.create(
             ciudadano=self.ciudadano,

@@ -3,7 +3,7 @@ import logging
 from django.urls import reverse
 
 from core.services.advanced_filters import AdvancedFilterEngine
-from users.selectors_usuarios import get_usuarios_queryset
+from users.selectors.usuarios import get_usuarios_queryset
 from users.users_filter_config import (
     FIELD_MAP as BENEFICIARIO_FILTER_MAP,
     FIELD_TYPES as BENEFICIARIO_FIELD_TYPES,

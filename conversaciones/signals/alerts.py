@@ -4,7 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from ..models import Conversacion, Mensaje
-from legajos.services import AlertasService
+from legajos.interfaces.module_api import crear_alerta_ciudadano
 
 
 @receiver(post_save, sender=Conversacion)
@@ -51,18 +51,17 @@ def alerta_conversacion_cerrada(sender, instance, **kwargs):
             conversacion_anterior = Conversacion.objects.get(pk=instance.pk)
             if conversacion_anterior.estado != 'CERRADA' and instance.estado == 'CERRADA':
                 if hasattr(instance, 'ciudadano_relacionado') and instance.ciudadano_relacionado:
-                    from legajos.models import AlertaCiudadano
+                    # La creacion/notificacion de alertas vive en el contrato publico de legajos.
                     
                     # Calcular duración de la conversación
                     duracion = timezone.now() - instance.creado
                     
-                    alerta = AlertaCiudadano.objects.create(
+                    crear_alerta_ciudadano(
                         ciudadano=instance.ciudadano_relacionado,
                         tipo='CONVERSACION_CERRADA',
                         prioridad='BAJA',
                         mensaje=f'Conversación cerrada. Duración: {duracion.seconds//60} minutos'
                     )
-                    AlertasService._enviar_notificacion_alerta(alerta)
         except Conversacion.DoesNotExist:
             pass
         except Exception as e:
@@ -98,15 +97,14 @@ def verificar_tiempo_respuesta(sender, instance, created, **kwargs):
                 
                 if tiempo_respuesta < timedelta(minutes=2):
                     if hasattr(conversacion, 'ciudadano_relacionado') and conversacion.ciudadano_relacionado:
-                        from legajos.models import AlertaCiudadano
+                        # La creacion/notificacion de alertas vive en el contrato publico de legajos.
                         
-                        alerta = AlertaCiudadano.objects.create(
+                        crear_alerta_ciudadano(
                             ciudadano=conversacion.ciudadano_relacionado,
                             tipo='RESPUESTA_RAPIDA_CIUDADANO',
                             prioridad='MEDIA',
                             mensaje=f'Ciudadano respondió muy rápido ({tiempo_respuesta.seconds}s) - posible urgencia'
                         )
-                        AlertasService._enviar_notificacion_alerta(alerta)
         except Exception as e:
             print(f"Error verificando tiempo de respuesta: {e}")
 
@@ -122,15 +120,14 @@ def _verificar_palabras_riesgo(conversacion, mensaje):
         if palabras_encontradas:
             # Crear alerta crítica en el sistema principal
             if hasattr(conversacion, 'ciudadano_relacionado') and conversacion.ciudadano_relacionado:
-                from legajos.models import AlertaCiudadano
+                # La creacion/notificacion de alertas vive en el contrato publico de legajos.
                 
-                alerta = AlertaCiudadano.objects.create(
+                crear_alerta_ciudadano(
                     ciudadano=conversacion.ciudadano_relacionado,
                     tipo='RIESGO_CRITICO_CONVERSACION',
                     prioridad='CRITICA',
                     mensaje=f'RIESGO CRÍTICO: Palabras de riesgo detectadas en conversación #{conversacion.id}'
                 )
-                AlertasService._enviar_notificacion_alerta(alerta)
     except Exception as e:
         print(f"Error verificando palabras de riesgo: {e}")
 

@@ -19,10 +19,6 @@ from .ciudadano_perfil import (  # noqa: F401
     confirmar_cambio_email,
     crear_solicitud_cambio_email,
 )
-from .consultas import (  # noqa: F401
-    crear_consulta_ciudadana,
-    crear_mensaje_ciudadano_desde_portal,
-)
 from .registro import PortalRegistroService  # noqa: F401
 from .turnos_ciudadano import (  # noqa: F401
     TurnoNoDisponibleError,

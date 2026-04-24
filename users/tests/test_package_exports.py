@@ -21,12 +21,6 @@ class UsersPackageExportsTests(SimpleTestCase):
         self.assertIsNotNone(UsuariosAdminService)
         self.assertTrue(callable(get_usuarios_queryset))
 
-    def test_signals_package_exports_receivers(self):
-        from users.signals import create_user_profile, save_user_profile
-
-        self.assertTrue(callable(create_user_profile))
-        self.assertTrue(callable(save_user_profile))
-
     def test_api_views_package_exports_viewsets(self):
         from users.api_views import GroupViewSet, ProfileViewSet, UserViewSet
 

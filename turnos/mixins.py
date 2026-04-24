@@ -4,6 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 
+from system_modules.guards import build_module_disabled_response
+from system_modules.services import module_is_active
+
+
+def _turnos_module_response(request):
+    return build_module_disabled_response(request, "turnos")
+
 
 def es_operador(user):
     return user.is_authenticated and (
@@ -14,6 +21,8 @@ def es_operador(user):
 def operador_required(view_func):
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
+        if not module_is_active("turnos"):
+            return _turnos_module_response(request)
         if not es_operador(request.user):
             raise PermissionDenied
         return view_func(request, *args, **kwargs)
@@ -24,6 +33,8 @@ def operador_required(view_func):
 def admin_turnos_required(view_func):
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
+        if not module_is_active("turnos"):
+            return _turnos_module_response(request)
         if not request.user.is_authenticated:
             raise PermissionDenied
         if not (
@@ -37,6 +48,11 @@ def admin_turnos_required(view_func):
 
 
 class OperadorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not module_is_active("turnos"):
+            return _turnos_module_response(request)
+        return super().dispatch(request, *args, **kwargs)
+
     def test_func(self):
         return es_operador(self.request.user)
 
@@ -45,6 +61,11 @@ class OperadorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class AdminTurnosRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not module_is_active("turnos"):
+            return _turnos_module_response(request)
+        return super().dispatch(request, *args, **kwargs)
+
     def test_func(self):
         user = self.request.user
         return user.is_authenticated and (
@@ -58,6 +79,8 @@ class AdminTurnosRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 def turno_operar_required(view_func):
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
+        if not module_is_active("turnos"):
+            return _turnos_module_response(request)
         if not request.user.is_authenticated:
             raise PermissionDenied
         if not (
@@ -71,6 +94,11 @@ def turno_operar_required(view_func):
 
 
 class TurnoOperarRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not module_is_active("turnos"):
+            return _turnos_module_response(request)
+        return super().dispatch(request, *args, **kwargs)
+
     def test_func(self):
         user = self.request.user
         return user.is_authenticated and (

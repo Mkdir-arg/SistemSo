@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import Group, User
 
 from core.models import Provincia
+from system_modules.services import get_assignable_groups_queryset
 
 from ..models import Profile
 
@@ -147,6 +148,7 @@ class UserCreationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         args, kwargs = _normalize_groups_args(args, kwargs)
         super().__init__(*args, **kwargs)
+        self.fields["groups"].queryset = get_assignable_groups_queryset()
 
     def clean(self):
         cleaned = super().clean()
@@ -252,6 +254,7 @@ class CustomUserChangeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         args, kwargs = _normalize_groups_args(args, kwargs)
         super().__init__(*args, **kwargs)
+        self.fields["groups"].queryset = get_assignable_groups_queryset(instance=self.instance)
         self._original_password_hash = self.instance.password
         self.fields["password"].initial = ""
 

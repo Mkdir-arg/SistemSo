@@ -5,6 +5,11 @@ from pathlib import Path
 
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
+from config.modules import (
+    CORE_PROJECT_APPS,
+    INSTALLED_PROJECT_MODULES,
+    get_installed_project_app_configs,
+)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,7 +29,10 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "dev")  # dev|qa|prd
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    raise ValueError("DJANGO_SECRET_KEY debe estar configurada en variables de entorno")
+    if os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings_test":
+        SECRET_KEY = "test-secret-key"
+    else:
+        raise ValueError("DJANGO_SECRET_KEY debe estar configurada en variables de entorno")
 
 LANGUAGE_CODE = "es-ar"
 TIME_ZONE = "America/Argentina/Buenos_Aires"
@@ -61,7 +69,7 @@ if DEBUG:
     ]
 CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -69,6 +77,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.admindocs",
+]
+
+THIRD_PARTY_APPS = [
     "django_extensions",
     "rest_framework",
     "channels",
@@ -77,19 +88,14 @@ INSTALLED_APPS = [
     "health_check.db",
     "health_check.cache",
     "silk",
-    "turnos",
-    "users",
-    "core",
-    "dashboard",
-    "legajos",
-    "flujos",
-    "configuracion",
-    "chatbot",
-    "conversaciones",
-    "portal",
-    "tramites",
-    "healthcheck",
 ]
+
+INSTALLED_APPS = (
+    DJANGO_APPS
+    + THIRD_PARTY_APPS
+    + list(CORE_PROJECT_APPS)
+    + get_installed_project_app_configs()
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -123,6 +129,7 @@ TEMPLATES = [
                 "core.context_processors.dispositivos_context",
                 "core.context_processors.branding_context",
                 "conversaciones.context_processors.user_groups",
+                "system_modules.context_processors.module_capabilities",
             ],
         },
     },

@@ -52,3 +52,4 @@ class UsuariosAdminService:
         )
         profile.rol = cleaned_data.get("rol")
         profile.save()
+        user._state.fields_cache.pop("profile", None)

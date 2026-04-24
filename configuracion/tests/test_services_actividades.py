@@ -18,7 +18,7 @@ from legajos.models import (
     StaffActividad,
 )
 
-from configuracion.services_actividades import (
+from configuracion.services.actividades import (
     ConfiguracionInstitucionalService,
     ConfiguracionWorkflowError,
 )

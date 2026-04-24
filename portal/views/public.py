@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import FormView, TemplateView
 
-from core.selectors_geografia import get_localidades_values, get_municipios_values
+from core.selectors.geografia import get_localidades_values, get_municipios_values
 from ..forms import (
     ConsultarTramiteForm,
     CrearUsuarioInstitucionForm,

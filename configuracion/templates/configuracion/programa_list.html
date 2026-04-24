@@ -1,9 +1,10 @@
 {% extends "includes/main.html" %}
-{% load static %}
+{% load static module_flags %}
 
 {% block title %}Programas{% endblock %}
 
 {% block content %}
+{% module_active "flujos" as flujos_active %}
 <div class="p-6">
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Programas</h1>
@@ -101,8 +102,10 @@
                     <td class="px-6 py-4 text-right text-sm space-x-2">
                         <a href="{% url 'configuracion:programa_editar_paso1' programa.pk %}"
                            class="text-indigo-600 hover:text-indigo-900" title="Editar datos"><i class="fas fa-edit"></i></a>
-                        <a href="{% url 'flujos_editor:editor_flujo' programa.pk %}"
-                           class="text-purple-600 hover:text-purple-900 ml-1" title="Editar flujo"><i class="fas fa-project-diagram"></i></a>
+                        {% if flujos_active %}
+                            <a href="{% url 'flujos_editor:editor_flujo' programa.pk %}"
+                               class="text-purple-600 hover:text-purple-900 ml-1" title="Editar flujo"><i class="fas fa-project-diagram"></i></a>
+                        {% endif %}
                         {% if programa.estado == 'BORRADOR' %}
                         <button type="button"
                                 onclick="cambiarEstado({{ programa.pk }}, 'ACTIVO', '{{ programa.nombre|escapejs }}')"

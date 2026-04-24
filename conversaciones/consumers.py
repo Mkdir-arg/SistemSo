@@ -97,19 +97,17 @@ class ConversacionConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def generar_alerta_asignacion(self, conversacion, operador):
         try:
-            from legajos.models import AlertaCiudadano
-            from legajos.services import AlertasService
+            from legajos.interfaces.module_api import crear_alerta_ciudadano
 
             ciudadano = conversacion.ciudadano_relacionado if hasattr(conversacion, "ciudadano_relacionado") else None
 
             if ciudadano:
-                alerta = AlertaCiudadano.objects.create(
+                crear_alerta_ciudadano(
                     ciudadano=ciudadano,
                     tipo="OPERADOR_ASIGNADO",
                     prioridad="BAJA",
                     mensaje=f"Operador {operador.get_full_name() or operador.username} asignado a conversacion",
                 )
-                AlertasService._enviar_notificacion_alerta(alerta)
         except Exception:
             logger.exception("Error generando alerta de asignacion")
 
@@ -124,8 +122,7 @@ class ConversacionConsumer(AsyncWebsocketConsumer):
         try:
             from datetime import timedelta
 
-            from legajos.models import AlertaCiudadano
-            from legajos.services import AlertasService
+            from legajos.interfaces.module_api import crear_alerta_ciudadano
 
             conversacion = mensaje.conversacion
             ciudadano = conversacion.ciudadano_relacionado if hasattr(conversacion, "ciudadano_relacionado") else None
@@ -136,13 +133,12 @@ class ConversacionConsumer(AsyncWebsocketConsumer):
                 if ultimo_mensaje_ciudadano:
                     tiempo_respuesta = mensaje.fecha_envio - ultimo_mensaje_ciudadano.fecha_envio
                     if tiempo_respuesta < timedelta(minutes=1):
-                        alerta = AlertaCiudadano.objects.create(
+                        crear_alerta_ciudadano(
                             ciudadano=ciudadano,
                             tipo="RESPUESTA_RAPIDA",
                             prioridad="BAJA",
                             mensaje=f"Respuesta muy rapida del operador ({tiempo_respuesta.seconds}s)",
                         )
-                        AlertasService._enviar_notificacion_alerta(alerta)
         except Exception:
             logger.exception("Error creando alerta de respuesta")
 

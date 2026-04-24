@@ -172,25 +172,24 @@ class PlanIntervencionForm(forms.ModelForm):
 
     def get_actividades_payload(self):
         actividades = []
-        index = 1
-        while True:
+        if self.is_bound:
+            indices = sorted(
+                {
+                    int(field_name.rsplit('_', 1)[1])
+                    for field_name in self.data
+                    if field_name.rsplit('_', 1)[0] in {'actividad', 'frecuencia', 'responsable'}
+                    and field_name.rsplit('_', 1)[1].isdigit()
+                }
+            )
+        else:
+            indices = range(1, 4)
+
+        for index in indices:
             if self.is_bound:
-                has_activity_slot = any(
-                    field_name in self.data
-                    for field_name in (
-                        f'actividad_{index}',
-                        f'frecuencia_{index}',
-                        f'responsable_{index}',
-                    )
-                )
-                if not has_activity_slot:
-                    break
                 accion = (self.data.get(f'actividad_{index}') or '').strip()
                 frecuencia = (self.data.get(f'frecuencia_{index}') or '').strip()
                 responsable = (self.data.get(f'responsable_{index}') or '').strip()
             else:
-                if index > 3:
-                    break
                 accion = (self.cleaned_data.get(f'actividad_{index}') or '').strip()
                 frecuencia = (self.cleaned_data.get(f'frecuencia_{index}') or '').strip()
                 responsable = (self.cleaned_data.get(f'responsable_{index}') or '').strip()
@@ -202,7 +201,6 @@ class PlanIntervencionForm(forms.ModelForm):
                         'responsable': responsable,
                     }
                 )
-            index += 1
         return actividades or None
 
 

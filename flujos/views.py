@@ -14,6 +14,7 @@ from django.views.decorators.http import require_http_methods
 
 from core.decorators import group_required
 from legajos.models_programas import Programa
+from system_modules.guards import module_required
 
 from .forms import DefinicionFlujoForm
 from .models import Flujo, InstanciaFlujo, VersionFlujo
@@ -27,6 +28,7 @@ def _tiene_permiso_editar(user):
 
 @login_required
 @require_http_methods(['GET', 'POST'])
+@module_required("flujos")
 def api_definicion(request, programa_id):
     programa = get_object_or_404(Programa, pk=programa_id)
 
@@ -81,6 +83,7 @@ def api_definicion(request, programa_id):
 
 @login_required
 @require_http_methods(['POST'])
+@module_required("flujos")
 def api_publicar(request, programa_id):
     if not _tiene_permiso_editar(request.user):
         return JsonResponse({'error': 'Sin permiso.'}, status=403)
@@ -116,6 +119,7 @@ def api_publicar(request, programa_id):
 
 @login_required
 @require_http_methods(['GET'])
+@module_required("flujos")
 def api_instancia(request, instancia_id):
     if not _tiene_permiso_editar(request.user):
         return JsonResponse({'error': 'Sin permiso.'}, status=403)
@@ -144,6 +148,7 @@ def api_instancia(request, instancia_id):
 
 @login_required
 @group_required(['programaConfigurar'])
+@module_required("flujos")
 def editor_flujo(request, programa_id):
     programa = get_object_or_404(Programa, pk=programa_id)
 

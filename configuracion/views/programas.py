@@ -11,7 +11,7 @@ from core.decorators import group_required
 from core.models_secretaria import Subsecretaria
 from legajos.models_programas import Programa
 
-from ..forms_programas import (
+from ..forms.programas import (
     ProgramaPaso1Form,
     ProgramaPaso2Form,
     ProgramaPaso3Form,

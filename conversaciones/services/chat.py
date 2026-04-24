@@ -27,7 +27,7 @@ def _notificar_grupo(nombre_grupo, payload):
 
 
 def consultar_renaper_para_chat(dni, sexo):
-    from legajos.services.consulta_renaper import consultar_datos_renaper
+    from legajos.interfaces.module_api import consultar_datos_renaper
 
     return consultar_datos_renaper(dni, sexo)
 
@@ -43,17 +43,13 @@ def iniciar_conversacion_publica(cleaned_data):
 
     if conversacion.tipo == 'personal' and conversacion.dni_ciudadano and conversacion.sexo_ciudadano:
         try:
-            from legajos.models import Ciudadano
+            from legajos.interfaces.module_api import get_or_create_ciudadano_basico
 
             datos_renaper = cleaned_data.get('datos_renaper') or {}
-            Ciudadano.objects.get_or_create(
+            get_or_create_ciudadano_basico(
                 dni=conversacion.dni_ciudadano,
-                defaults={
-                    'nombre': datos_renaper.get('nombre', 'Usuario'),
-                    'apellido': datos_renaper.get('apellido', 'Chat'),
-                    'genero': conversacion.sexo_ciudadano,
-                    'domicilio': datos_renaper.get('domicilio', ''),
-                },
+                genero=conversacion.sexo_ciudadano,
+                datos_renaper=datos_renaper,
             )
         except Exception as exc:
             logger.warning('No se pudo vincular/crear ciudadano para conversación %s: %s', conversacion.id, exc)

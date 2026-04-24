@@ -1,4 +1,4 @@
-{% load static %}
+{% load static module_flags %}
 <!DOCTYPE html>
 <html lang="es" class="h-full bg-gray-50">
     <head>
@@ -6,7 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="shortcut icon" type="image/png" href="{% static branding.favicon_path %}" />
-        
+
         <!-- Tailwind CSS -->
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
@@ -89,6 +89,8 @@
         <title>{{ branding.application_name }} - {% block title %}{% endblock %}</title>
     </head>
     <body class="min-h-screen bg-white font-montserrat" x-data="{ sidebarOpen: false, sidebarCollapsed: false }" style="background: var(--fondo-principal);">
+        {% module_active "chatbot" as chatbot_active %}
+        {% module_active "conversaciones" as conversaciones_active %}
         <div class="min-h-full">
             {% include 'includes/navbar.html' %}
             {% include 'includes/sidebar/base.html' %}
@@ -128,7 +130,9 @@
         {% include 'components/alertas_eventos.html' %}
         
         <!-- Chatbot Bubble -->
-        {% include 'components/chatbot_bubble.html' %}
+        {% if chatbot_active %}
+            {% include 'components/chatbot_bubble.html' %}
+        {% endif %}
         
         <!-- Sistema de Modales Modernos -->
         <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden transition-opacity duration-300">
@@ -167,6 +171,9 @@
         
         <!-- CSRF Token para AJAX -->
         {% csrf_token %}
+        <script>
+            window.systemModules = {{ module_capabilities_json|default:"{}"|safe }};
+        </script>
         
         <!-- Mobile Enhancements Script -->
         <script src="{% static 'custom/js/mobile-enhancements.js' %}"></script>
@@ -269,24 +276,27 @@
         {% if user.is_authenticated %}
             <script>
                 // Pasar grupos del usuario al JavaScript
-                window.userGroups = {{ user_groups_json|safe }};
-                window.conversacionesConfig = {
-                    listUrl: "{% url 'conversaciones:lista' %}",
-                    statsUrl: "{% url 'conversaciones:api_estadisticas' %}",
-                    alertsCountUrl: "{% url 'conversaciones_api:alertas_count' %}",
-                    alertsPreviewUrl: "{% url 'conversaciones_api:alertas_preview' %}",
-                    detailUrlTemplate: "{% url 'conversaciones:detalle' 0 %}",
-                };
+                window.userGroups = {{ user_groups_json|default:"[]"|safe }};
             </script>
-            <script src="{% static 'custom/js/notification_sound.js' %}"></script>
-            <script src="{% static 'custom/js/alertas_websocket.js' %}"></script>
-            <script src="{% static 'custom/js/alertas_conversaciones_rt.js' %}"></script>
-            <script src="{% static 'custom/js/alertas_conversaciones_fallback.js' %}"></script>
-            
-            <!-- Sistema de tiempo real para conversaciones -->
-            {% if 'Conversaciones' in user_groups_list or 'OperadorCharla' in user_groups_list or user.is_superuser %}
-                <script src="{% static 'custom/js/conversaciones_tiempo_real_global.js' %}"></script>
-                <script src="{% static 'custom/js/conversaciones_lista_ws.js' %}"></script>
+            {% if conversaciones_active %}
+                <script>
+                    window.conversacionesConfig = {
+                        listUrl: "{% url 'conversaciones:lista' %}",
+                        statsUrl: "{% url 'conversaciones:api_estadisticas' %}",
+                        alertsCountUrl: "{% url 'conversaciones_api:alertas_count' %}",
+                        alertsPreviewUrl: "{% url 'conversaciones_api:alertas_preview' %}",
+                        detailUrlTemplate: "{% url 'conversaciones:detalle' 0 %}",
+                    };
+                </script>
+                <script src="{% static 'custom/js/notification_sound.js' %}"></script>
+                <script src="{% static 'custom/js/alertas_websocket.js' %}"></script>
+                <script src="{% static 'custom/js/alertas_conversaciones_rt.js' %}"></script>
+                <script src="{% static 'custom/js/alertas_conversaciones_fallback.js' %}"></script>
+                <!-- Sistema de tiempo real para conversaciones -->
+                {% if 'Conversaciones' in user_groups_list or 'OperadorCharla' in user_groups_list or user.is_superuser %}
+                    <script src="{% static 'custom/js/conversaciones_tiempo_real_global.js' %}"></script>
+                    <script src="{% static 'custom/js/conversaciones_lista_ws.js' %}"></script>
+                {% endif %}
             {% endif %}
         {% endif %}
         

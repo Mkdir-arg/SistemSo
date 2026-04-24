@@ -4,7 +4,7 @@ from django.test import TestCase
 from core.models import Provincia
 from users.forms import CustomUserChangeForm, UserCreationForm
 from users.models import Profile
-from users.services_admin import UsuariosAdminService
+from users.services.admin import UsuariosAdminService
 
 
 class UsuariosAdminServiceTests(TestCase):
@@ -50,7 +50,7 @@ class UsuariosAdminServiceTests(TestCase):
             last_name="Gomez",
         )
         user.groups.add(self.group_view)
-        profile = Profile.objects.create(user=user)
+        profile, _ = Profile.objects.get_or_create(user=user)
         profile.es_usuario_provincial = True
         profile.provincia = self.provincia
         profile.rol = "Analista"

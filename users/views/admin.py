@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from core.mixins import TimestampedSuccessUrlMixin
+from system_modules.services import get_assignable_groups_queryset
 from ..forms import CustomUserChangeForm, UserCreationForm
 from ..services import UsuariosService
 from ..services.admin import UsuariosAdminService
@@ -42,7 +43,7 @@ class UserCreateView(TimestampedSuccessUrlMixin, AdminRequiredMixin, CreateView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["all_groups"] = Group.objects.all().order_by("name")
+        context["all_groups"] = get_assignable_groups_queryset()
         return context
 
     def form_valid(self, form):
@@ -64,7 +65,7 @@ class UserUpdateView(TimestampedSuccessUrlMixin, AdminRequiredMixin, UpdateView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["all_groups"] = Group.objects.all().order_by("name")
+        context["all_groups"] = get_assignable_groups_queryset(instance=self.object)
         return context
 
     def form_valid(self, form):

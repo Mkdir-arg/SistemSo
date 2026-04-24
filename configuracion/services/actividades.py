@@ -102,18 +102,26 @@ class ConfiguracionInstitucionalService:
             InscriptoActividad.Estado.ABANDONADO: HistorialInscripto.TipoAccion.ABANDONO,
             InscriptoActividad.Estado.ACTIVO: HistorialInscripto.TipoAccion.ACTIVACION,
         }
-        HistorialInscripto.objects.create(
+        accion = accion_map.get(estado, HistorialInscripto.TipoAccion.INSCRIPCION)
+        historial, created = HistorialInscripto.objects.get_or_create(
             inscripto=inscripto,
-            accion=accion_map.get(
-                estado, HistorialInscripto.TipoAccion.INSCRIPCION
-            ),
-            usuario=usuario,
-            descripcion=(
+            accion=accion,
+            estado_anterior=estado_anterior,
+            defaults={
+                "usuario": usuario,
+                "descripcion": (
+                    f"Estado cambiado a {inscripto.get_estado_display()}. "
+                    f"{observaciones}"
+                ).strip(),
+            },
+        )
+        if not created:
+            historial.usuario = usuario
+            historial.descripcion = (
                 f"Estado cambiado a {inscripto.get_estado_display()}. "
                 f"{observaciones}"
-            ).strip(),
-            estado_anterior=estado_anterior,
-        )
+            ).strip()
+            historial.save(update_fields=["usuario", "descripcion"])
         return True
 
     @staticmethod
@@ -256,6 +264,15 @@ class ConfiguracionInstitucionalService:
             )
         except InscripcionError as exc:
             raise ConfiguracionWorkflowError(str(exc)) from exc
+
+        if inscripto.estado == InscriptoActividad.Estado.INSCRITO:
+            ConfiguracionInstitucionalService.update_inscripto_estado(
+                inscripto,
+                estado=InscriptoActividad.Estado.ACTIVO,
+                observaciones="Activacion automatica por derivacion aceptada.",
+                usuario=usuario,
+            )
+            inscripto.refresh_from_db()
 
         HistorialDerivacion.objects.create(
             derivacion=derivacion,

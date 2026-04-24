@@ -7,7 +7,7 @@ from django.utils.deprecation import MiddlewareMixin
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver
 from django.utils import timezone
-from core.signals_auditoria import set_current_request
+from core.signals.auditoria import set_current_request
 from core.models_auditoria import LogAccion, SesionUsuario
 from core.models_auditoria_extendida import AuditoriaAccesoSensible
 from django.contrib.contenttypes.models import ContentType

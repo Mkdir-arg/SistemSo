@@ -16,7 +16,6 @@ class PortalPackageExportsTests(SimpleTestCase):
         from portal.selectors import get_ciudadano_perfil, get_portal_home_context
         from portal.services import (
             PortalRegistroService,
-            crear_consulta_ciudadana,
             preparar_registro_ciudadano,
         )
 
@@ -26,4 +25,3 @@ class PortalPackageExportsTests(SimpleTestCase):
         self.assertTrue(callable(get_ciudadano_perfil))
         self.assertTrue(callable(get_portal_home_context))
         self.assertTrue(callable(preparar_registro_ciudadano))
-        self.assertTrue(callable(crear_consulta_ciudadana))
