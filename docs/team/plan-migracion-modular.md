@@ -50,4 +50,4 @@
 - Control plane implementado en `system_modules`.
 - Rutas de modulos movidas a adapters canonicos en `interfaces/`.
 - Test de arquitectura exige layout literal y prohibe rutas declaradas fuera de `interfaces/`.
-- Siguiente deuda controlada: mover progresivamente views/forms/serializers fisicos a `interfaces/` sin romper imports internos.
+- La frontera publica queda en `interfaces/`; cualquier reubicacion fisica posterior de adapters internos debe preservar esa frontera sin crear fachadas legacy.
