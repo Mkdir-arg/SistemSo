@@ -9,7 +9,7 @@
 ## Nivel 2
 
 1. Por que `portal`, `dashboard` y `configuracion` se tratan como shells y no como dominios.
-2. Cuando conviene crear `domain/application/infrastructure/interfaces` y cuando no.
+2. Por que todos los modulos tienen `domain/application/infrastructure/interfaces`, incluso si una capa queda fina.
 3. Que riesgo se evita al migrar consumidores antes de borrar una fachada publica.
 
 ## Nivel 3

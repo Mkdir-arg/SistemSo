@@ -12,11 +12,35 @@ MODULES_WITH_PUBLIC_CONTRACTS = (
     "core",
     "dashboard",
     "flujos",
+    "healthcheck",
     "legajos",
     "portal",
+    "system_modules",
     "tramites",
     "turnos",
     "users",
+)
+CANONICAL_LAYER_DIRS = (
+    "domain",
+    "application",
+    "infrastructure",
+    "interfaces",
+)
+CANONICAL_LAYER_FILES = (
+    "domain/entities.py",
+    "domain/policies.py",
+    "domain/errors.py",
+    "application/dto.py",
+    "application/ports.py",
+    "application/services.py",
+    "infrastructure/orm_repositories.py",
+    "infrastructure/signals.py",
+    "infrastructure/notifications.py",
+    "interfaces/module_api.py",
+    "interfaces/web/urls.py",
+    "interfaces/web/views.py",
+    "interfaces/web/forms.py",
+    "interfaces/api/urls.py",
 )
 OPTIONAL_ROUTE_MODULES = ("chatbot", "conversaciones", "flujos", "tramites")
 LEGACY_WRAPPER_PREFIXES = (
@@ -50,6 +74,47 @@ class ModularArchitectureTests(SimpleTestCase):
 
         self.assertEqual(missing, [])
 
+    def test_every_project_module_has_hexagonal_layout(self):
+        missing = []
+        for module in MODULES_WITH_PUBLIC_CONTRACTS:
+            module_path = PROJECT_ROOT / module
+            if not module_path.exists():
+                continue
+            for layer in CANONICAL_LAYER_DIRS:
+                if not (module_path / layer).is_dir():
+                    missing.append(f"{module}/{layer}")
+
+        self.assertEqual(missing, [])
+
+    def test_every_project_module_has_canonical_layer_files(self):
+        missing = []
+        for module in MODULES_WITH_PUBLIC_CONTRACTS:
+            module_path = PROJECT_ROOT / module
+            if not module_path.exists():
+                continue
+            for layer_file in CANONICAL_LAYER_FILES:
+                if not (module_path / layer_file).is_file():
+                    missing.append(f"{module}/{layer_file}")
+
+        self.assertEqual(missing, [])
+
+    def test_module_declared_routes_use_canonical_interfaces(self):
+        offenders = []
+        for module in MODULES_WITH_PUBLIC_CONTRACTS:
+            module_path = PROJECT_ROOT / module
+            module_file = module_path / "module.py"
+            if not module_file.exists():
+                continue
+            tree = ast.parse(module_file.read_text(encoding="utf-8"))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.keyword) or node.arg != "urlconf":
+                    continue
+                if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+                    if not node.value.value.startswith(f"{module}.interfaces."):
+                        offenders.append(f"{module}: {node.value.value}")
+
+        self.assertEqual(offenders, [])
+
     def test_domain_layers_do_not_import_django(self):
         offenders = []
         for domain_path in PROJECT_ROOT.glob("*/domain"):
@@ -64,6 +129,44 @@ class ModularArchitectureTests(SimpleTestCase):
                         continue
                     if any(name == "django" or name.startswith("django.") for name in names):
                         offenders.append(path.relative_to(PROJECT_ROOT).as_posix())
+
+        self.assertEqual(offenders, [])
+
+    def test_application_layers_do_not_import_django_or_adapters(self):
+        forbidden_modules = (
+            "django",
+            "rest_framework",
+        )
+        forbidden_segments = (
+            ".models",
+            ".views",
+            ".forms",
+            ".serializers",
+            ".templates",
+            ".consumers",
+            ".routing",
+        )
+        offenders = []
+        for application_path in PROJECT_ROOT.glob("*/application"):
+            module = application_path.parent.name
+            for path in application_path.rglob("*.py"):
+                tree = ast.parse(path.read_text(encoding="utf-8"))
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Import):
+                        imported_names = [alias.name for alias in node.names]
+                    elif isinstance(node, ast.ImportFrom):
+                        imported_names = [node.module or ""]
+                    else:
+                        continue
+                    for imported in imported_names:
+                        if any(imported == name or imported.startswith(f"{name}.") for name in forbidden_modules):
+                            offenders.append(f"{path.relative_to(PROJECT_ROOT).as_posix()} -> {imported}")
+                        if any(
+                            imported == f"{module}{segment}"
+                            or imported.startswith(f"{module}{segment}.")
+                            for segment in forbidden_segments
+                        ):
+                            offenders.append(f"{path.relative_to(PROJECT_ROOT).as_posix()} -> {imported}")
 
         self.assertEqual(offenders, [])
 

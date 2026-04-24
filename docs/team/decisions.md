@@ -2,7 +2,15 @@
 # Decisiones Técnicas
 
 > Registro corto de decisiones arquitectónicas relevantes.
+## 2026-04-24 - Hexagonal literal total por modulo
 
+**Decision:** Todos los modulos declarados adoptan layout fisico `domain/`, `application/`, `infrastructure/` e `interfaces/`, incluidos shells, core tecnico y control plane. Las URLConfs publicas se publican desde `interfaces/`; `models.py` puede seguir top-level solo como adapter ORM de Django.
+
+**Motivo:** El repositorio debe ser clonable por cliente y permitir instalar, activar/desactivar o quitar modulos opcionales desde un unico control plane sin imports top-level rotos ni fachadas legacy como contrato final.
+
+**ADR:** `docs/team/adr-2026-04-24-hexagonal-literal-total.md`
+
+---
 ## 2026-03-09 — Programas tienen flujo obligatorio
 
 **Decisión:** Todo programa social tiene un flujo configurable. Sin flujo configurado el programa queda en estado BORRADOR y no puede activarse.

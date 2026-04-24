@@ -1,14 +1,15 @@
-# SistemSo - Monolito modular activable
+# SistemSo - Monolito modular activable y hexagonal
 
-SistemSo evoluciona sobre un monolito modular pragmatico. La prioridad no es "volver todo hexagonal", sino bajar acoplamiento real, poder apagar modulos opcionales sin romper shells compartidos y dejar una estructura que se pueda clonar por cliente sin un big bang de datos ni de rutas.
+SistemSo evoluciona sobre un monolito modular activable con layout hexagonal literal por modulo. La prioridad es bajar acoplamiento real, poder apagar o quitar modulos opcionales desde un unico control plane y dejar una estructura replicable por cliente sin un big bang de datos ni de migrations.
 
 ## Principios
 
 - `system_modules/` es el control plane del monolito.
-- `portal`, `dashboard` y `configuracion` son shells/adapters. No son duenos del dominio.
-- Cada modulo vertical expone contratos publicos y oculta su infraestructura detras de adapters.
+- `portal`, `dashboard` y `configuracion` son shells/adapters con layout hexagonal fisico. No son duenos del dominio.
+- Cada modulo vertical expone contratos publicos desde `interfaces/module_api.py` y oculta su infraestructura detras de adapters.
 - `core` y `users` funcionan como shared kernel minimo.
-- La logica de dominio solo se desacopla de Django donde agrega valor real. El piloto completo es `turnos`.
+- Todo modulo declarado debe tener `domain/`, `application/`, `infrastructure/` e `interfaces/`, aunque alguna capa sea fina.
+- Los modelos Django historicos pueden seguir top-level por estabilidad de labels, migrations y contenttypes, pero son infraestructura ORM y no contrato publico entre modulos.
 
 ## Mapa general
 
@@ -25,19 +26,19 @@ flowchart LR
   chatbot --> shared
   tramites --> shared
   flujos --> shared
-  legajos["legajos (hotspot pendiente)"] --> shared
+  legajos["legajos"] --> shared
 ```
 
-## Estructura interna de un modulo con hexagono pragmatico
+## Estructura interna de un modulo
 
 ```mermaid
 flowchart TD
-  interfaces["interfaces/"] --> application["application/"]
-  application --> domain["domain/"]
-  application --> infrastructure["infrastructure/"]
-  infrastructure --> django["ORM / email / cache / HTTP"]
-  portal["portal adapter"] --> interfaces
-  backoffice["backoffice adapter"] --> interfaces
+  interfaces["interfaces/ web/api/module_api"] --> application["application/ use cases + ports"]
+  application --> domain["domain/ entities + policies + errors"]
+  infrastructure["infrastructure/ ORM + email + cache + signals"] --> application
+  infrastructure --> django["Django ORM / email / cache"]
+  shells["portal / dashboard / configuracion"] --> capabilities["system_modules capabilities"]
+  capabilities --> interfaces
 ```
 
 ## Estados de modulo
@@ -50,11 +51,19 @@ flowchart TD
 
 | Modulo | Rol actual | Estado arquitectonico |
 | --- | --- | --- |
-| `turnos` | Piloto vertical de dominio | `domain/ + application/ + infrastructure/ + interfaces/` |
-| `chatbot` | Modulo opcional | Catalogo + guards + shell awareness |
-| `conversaciones` | Modulo opcional | Catalogo + guards + shell awareness |
-| `tramites` | Modulo opcional | Catalogo + guards + shell awareness |
-| `flujos` | Modulo opcional | Catalogo + guards + shell awareness |
+| `core` | Shared kernel minimo | Layout hexagonal literal, rutas canonicales en `interfaces/` |
+| `users` | Auth/usuarios | Layout hexagonal literal, rutas canonicales en `interfaces/` |
+| `system_modules` | Control plane | Layout hexagonal literal, comando `modules` y registry |
+| `healthcheck` | Core tecnico | Layout hexagonal literal |
+| `portal` | Shell ciudadano | Layout hexagonal literal; consume capacidades |
+| `dashboard` | Shell backoffice | Layout hexagonal literal; consume capacidades |
+| `configuracion` | Shell/config base | Layout hexagonal literal; consume capacidades |
+| `turnos` | Modulo no removible por deuda de FKs | Dominio y aplicacion desacoplados de Django |
+| `legajos` | Hotspot no removible por deuda de FKs | Layout hexagonal literal; subdominios encapsulados gradualmente |
+| `chatbot` | Modulo opcional removible | Rutas canonicales y guards |
+| `conversaciones` | Modulo opcional removible | Rutas canonicales, API y WebSocket por `interfaces/` |
+| `tramites` | Modulo opcional removible | Rutas canonicales y guards |
+| `flujos` | Modulo opcional removible | Rutas web/API canonicales y guards |
 
 ## Documentacion clave
 
@@ -83,4 +92,5 @@ Para agregar un modulo nuevo:
 2. Agregar el slug en `config/modules.py::INSTALLED_PROJECT_MODULES`.
 3. Agregar guards y degradacion en los shells que consumen ese modulo.
 4. Exponer contratos publicos claros y tests minimos.
-5. Solo abrir `domain/application/infrastructure/interfaces` si el dominio lo justifica.
+5. Crear siempre `domain/`, `application/`, `infrastructure/` e `interfaces/`.
+6. Exponer rutas desde `interfaces/web/urls.py` y `interfaces/api/urls.py`; no desde `urls.py` top-level.

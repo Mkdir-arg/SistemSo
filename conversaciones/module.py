@@ -12,7 +12,7 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="conversaciones.web",
             route="conversaciones/",
-            urlconf="conversaciones.urls",
+            urlconf="conversaciones.interfaces.web.urls",
             namespace="conversaciones",
             app_name="conversaciones",
         ),
@@ -21,7 +21,7 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="conversaciones.api",
             route="api/conversaciones/",
-            urlconf="conversaciones.api_urls",
+            urlconf="conversaciones.interfaces.api.urls",
             namespace="conversaciones_api",
             app_name="conversaciones_api",
         ),
@@ -29,7 +29,7 @@ MODULE_DEFINITION = ModuleDefinition(
     websocket_routes=(
         WebsocketDefinition(
             handle="conversaciones.realtime",
-            urlconf="conversaciones.routing",
+            urlconf="conversaciones.interfaces.realtime.routing",
         ),
     ),
     adapter_points=(

@@ -1,13 +1,13 @@
 # turnos
 
-`turnos` es el piloto real de hexagono pragmatico dentro del monolito.
+`turnos` es un modulo no removible por deuda historica de FKs, pero su contrato operativo sigue el hexagono literal del monolito modular.
 
 ## Estructura
 
 - `domain/`: reglas de estado y validaciones de workflow.
 - `application/`: casos de uso ciudadanos y de backoffice.
-- `infrastructure/`: repositorios ORM y notificaciones.
-- `interfaces/`: API publica consumida por portal y backoffice.
+- `infrastructure/`: repositorios ORM, transacciones, reloj Django y notificaciones.
+- `interfaces/`: API publica y URLConf web canonica consumida por portal y backoffice.
 - `module.py`: descriptor para `system_modules`.
 
 ## Contrato publico

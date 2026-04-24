@@ -17,7 +17,14 @@ from ..selectors.backoffice import (
     get_backoffice_home_context,
     get_turno_detalle_queryset,
 )
-from ..services.workflow import TurnoActionError, TurnosBackofficeService
+from ..interfaces.module_api import (
+    TurnoActionError,
+    actualizar_notas_turno_backoffice,
+    aprobar_turno_backoffice,
+    cancelar_turno_backoffice,
+    completar_turno_backoffice,
+    rechazar_turno_backoffice,
+)
 
 
 class BackofficeHomeView(OperadorRequiredMixin, TemplateView):
@@ -60,7 +67,7 @@ class TurnoDetailView(TurnoOperarRequiredMixin, DetailView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         if 'notas_backoffice' in request.POST:
-            TurnosBackofficeService.actualizar_notas(
+            actualizar_notas_turno_backoffice(
                 self.object, request.POST.get('notas_backoffice', '')
             )
             messages.success(request, 'Notas actualizadas.')
@@ -99,7 +106,7 @@ def turno_aprobar(request, pk):
         return redirect('turnos:turno_detalle', pk=pk)
 
     try:
-        turno = TurnosBackofficeService.aprobar_turno(
+        turno = aprobar_turno_backoffice(
             pk, request.user, notas=form.cleaned_data.get('notas', '')
         )
     except TurnoActionError as exc:
@@ -127,7 +134,7 @@ def turno_rechazar(request, pk):
         return redirect('turnos:turno_detalle', pk=pk)
 
     try:
-        turno = TurnosBackofficeService.rechazar_turno(pk, request.user, form.cleaned_data['motivo'])
+        turno = rechazar_turno_backoffice(pk, request.user, form.cleaned_data['motivo'])
     except TurnoActionError as exc:
         messages.warning(request, str(exc))
         return redirect('turnos:turno_detalle', pk=pk)
@@ -146,7 +153,7 @@ def turno_cancelar(request, pk):
         return redirect('turnos:turno_detalle', pk=pk)
 
     try:
-        turno = TurnosBackofficeService.cancelar_turno(turno, form.cleaned_data['motivo'])
+        turno = cancelar_turno_backoffice(turno, form.cleaned_data['motivo'])
     except TurnoActionError as exc:
         messages.warning(request, str(exc))
         return redirect('turnos:turno_detalle', pk=pk)
@@ -160,7 +167,7 @@ def turno_cancelar(request, pk):
 def turno_completar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
     try:
-        turno = TurnosBackofficeService.completar_turno(turno)
+        turno = completar_turno_backoffice(turno)
     except TurnoActionError as exc:
         messages.warning(request, str(exc))
         return redirect('turnos:turno_detalle', pk=pk)

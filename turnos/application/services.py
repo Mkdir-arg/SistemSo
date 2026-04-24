@@ -1,6 +1,3 @@
-from django.db import transaction
-from django.utils import timezone
-
 from ..domain import (
     STATUS_CANCELLED_BY_CITIZEN,
     STATUS_CANCELLED_BY_SYSTEM,
@@ -11,7 +8,7 @@ from ..domain import (
     ensure_pending,
     resolve_initial_state,
 )
-from ..infrastructure import notifications, repositories
+from ..infrastructure import notifications, orm_repositories, unit_of_work
 
 
 class TurnoActionError(Exception):
@@ -24,14 +21,14 @@ class TurnoNoDisponibleError(Exception):
 
 class TurnosCiudadanoApplicationService:
     @staticmethod
-    @transaction.atomic
+    @unit_of_work.atomic
     def reservar_turno_ciudadano(*, ciudadano, recurso, fecha, hora_inicio, hora_fin, motivo):
-        ocupados = repositories.count_occupied_slots(
+        ocupados = orm_repositories.count_occupied_slots(
             recurso=recurso,
             fecha=fecha,
             hora_inicio=hora_inicio,
         )
-        disponibilidad = repositories.get_matching_disponibilidad(
+        disponibilidad = orm_repositories.get_matching_disponibilidad(
             recurso=recurso,
             fecha=fecha,
             hora_inicio=hora_inicio,
@@ -42,7 +39,7 @@ class TurnosCiudadanoApplicationService:
                 "Este turno ya no esta disponible. Por favor elegi otro horario."
             )
 
-        return repositories.create_turno_ciudadano(
+        return orm_repositories.create_turno_ciudadano(
             ciudadano=ciudadano,
             recurso=recurso,
             fecha=fecha,
@@ -62,7 +59,7 @@ class TurnosCiudadanoApplicationService:
             return False
 
         turno.estado = STATUS_CANCELLED_BY_CITIZEN
-        repositories.save_turno(turno, update_fields=["estado", "modificado"])
+        orm_repositories.save_turno(turno, update_fields=["estado", "modificado"])
         return True
 
 
@@ -70,13 +67,13 @@ class TurnosBackofficeApplicationService:
     @staticmethod
     def actualizar_notas(turno, notas):
         turno.notas_backoffice = notas.strip()
-        repositories.save_turno(turno, update_fields=["notas_backoffice", "modificado"])
+        orm_repositories.save_turno(turno, update_fields=["notas_backoffice", "modificado"])
         return turno
 
     @staticmethod
-    @transaction.atomic
+    @unit_of_work.atomic
     def aprobar_turno(turno_id, user, notas=""):
-        turno = repositories.get_turno_for_update(turno_id)
+        turno = orm_repositories.get_turno_for_update(turno_id)
         try:
             ensure_pending(turno.estado)
         except ValueError as exc:
@@ -86,15 +83,15 @@ class TurnosBackofficeApplicationService:
             turno.notas_backoffice = notas
         turno.estado = STATUS_CONFIRMED
         turno.aprobado_por = user
-        turno.fecha_aprobacion = timezone.now()
-        repositories.save_turno(turno)
-        transaction.on_commit(lambda: notifications.send_confirmation(turno))
+        turno.fecha_aprobacion = unit_of_work.now()
+        orm_repositories.save_turno(turno)
+        unit_of_work.on_commit(lambda: notifications.send_confirmation(turno))
         return turno
 
     @staticmethod
-    @transaction.atomic
+    @unit_of_work.atomic
     def rechazar_turno(turno_id, user, motivo):
-        turno = repositories.get_turno_for_update(turno_id)
+        turno = orm_repositories.get_turno_for_update(turno_id)
         try:
             ensure_pending(turno.estado)
         except ValueError as exc:
@@ -103,9 +100,9 @@ class TurnosBackofficeApplicationService:
         turno.estado = STATUS_CANCELLED_BY_SYSTEM
         turno.notas_backoffice = motivo
         turno.aprobado_por = user
-        turno.fecha_aprobacion = timezone.now()
-        repositories.save_turno(turno)
-        transaction.on_commit(lambda: notifications.send_cancellation(turno, motivo=motivo))
+        turno.fecha_aprobacion = unit_of_work.now()
+        orm_repositories.save_turno(turno)
+        unit_of_work.on_commit(lambda: notifications.send_cancellation(turno, motivo=motivo))
         return turno
 
     @staticmethod
@@ -117,7 +114,7 @@ class TurnosBackofficeApplicationService:
 
         turno.estado = STATUS_CANCELLED_BY_SYSTEM
         turno.notas_backoffice = motivo
-        repositories.save_turno(
+        orm_repositories.save_turno(
             turno,
             update_fields=["estado", "notas_backoffice", "modificado"],
         )
@@ -132,5 +129,5 @@ class TurnosBackofficeApplicationService:
             raise TurnoActionError(str(exc)) from exc
 
         turno.estado = STATUS_COMPLETED
-        repositories.save_turno(turno, update_fields=["estado", "modificado"])
+        orm_repositories.save_turno(turno, update_fields=["estado", "modificado"])
         return turno

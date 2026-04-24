@@ -37,23 +37,23 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     
     # Specific paths first
-    path("legajos/", include("legajos.urls")),
-    path("configuracion/", include("configuracion.urls")),
-    path("portal/", include("portal.urls")),
-    path("auditoria/", include("core.urls_auditoria")),
+    path("legajos/", include("legajos.interfaces.web.urls")),
+    path("configuracion/", include("configuracion.interfaces.web.urls")),
+    path("portal/", include("portal.interfaces.web.urls")),
+    path("auditoria/", include("core.interfaces.web.urls_auditoria")),
 ] + _module_web_paths() + [
     # Root paths last
     path("", include("django.contrib.auth.urls")),
-    path("", include(("users.urls", "users"), namespace="users")),
-    path("", include(("core.urls", "core"), namespace="core")),
-    path("", include("dashboard.urls")),
-    path("", include(("healthcheck.urls", "healthcheck"), namespace="healthcheck")),
+    path("", include(("users.interfaces.web.urls", "users"), namespace="users")),
+    path("", include(("core.interfaces.web.urls", "core"), namespace="core")),
+    path("", include("dashboard.interfaces.web.urls")),
+    path("", include(("healthcheck.interfaces.web.urls", "healthcheck"), namespace="healthcheck")),
     # Flujos - editor visual HTML
 
     # API Routes
-    path("api/legajos/", include("legajos.api_urls")),
-    path("api/core/", include("core.api_urls")),
-    path("api/users/", include("users.api_urls")),
+    path("api/legajos/", include("legajos.interfaces.api.urls")),
+    path("api/core/", include("core.interfaces.api.urls")),
+    path("api/users/", include("users.interfaces.api.urls")),
 
     # API Documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

@@ -12,7 +12,7 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="tramites.backoffice",
             route="tramites/",
-            urlconf="tramites.urls",
+            urlconf="tramites.interfaces.web.urls",
             namespace="tramites",
             app_name="tramites",
         ),

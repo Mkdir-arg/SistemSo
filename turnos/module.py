@@ -21,7 +21,7 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="turnos.backoffice",
             route="turnos/",
-            urlconf="turnos.urls",
+            urlconf="turnos.interfaces.web.urls",
             namespace="turnos",
             app_name="turnos",
         ),

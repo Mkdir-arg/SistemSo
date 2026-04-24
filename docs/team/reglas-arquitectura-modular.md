@@ -4,10 +4,13 @@
 
 ```mermaid
 flowchart LR
-  shared["core + users"] --> modulo["modulo vertical"]
-  modulo --> shell["portal / dashboard / configuracion"]
-  shell -. no domina .-> modulo
-  modulo -. prohibido .-> otherViews["views/forms/templates de otro modulo"]
+  shell["portal / dashboard / configuracion"] --> catalogo["system_modules capabilities"]
+  shell --> publicApi["modulo.interfaces.module_api"]
+  publicApi --> application["application"]
+  application --> domain["domain"]
+  infrastructure["infrastructure"] --> application
+  infrastructure --> orm["Django ORM / email / cache / signals"]
+  modulo["modulo A"] -. prohibido .-> otherViews["modulo B views/forms/services/models"]
 ```
 
 ## Permitido
@@ -16,27 +19,34 @@ flowchart LR
 - Compartir utilidades a traves de `core` o `users`.
 - Encapsular tablas historicas detras de contratos publicos cuando una migracion de datos sea riesgosa.
 - Usar `system_modules` para publicar capacidades y guards.
+- Mantener `models.py` top-level solo como adapter ORM requerido por Django.
 
 ## Prohibido
 
 - Importar `views`, `forms` o templates de otro modulo.
+- Importar `models`, `services`, `selectors`, `signals` o `serializers` internos de otro modulo.
 - Hacer autodiscovery por filesystem para registrar modulos.
 - Meter logica de negocio nueva en shells si ya existe modulo vertical.
-- Agregar interfaces vacias solo por "cumplir hexagonal".
 - Publicar wrappers o fachadas de compatibilidad como contrato final de un modulo migrado.
+- Publicar rutas opcionales desde `config/urls.py` por includes hardcodeados.
 
 ## Regla de shells
 
 - `portal`, `dashboard` y `configuracion` solo componen capacidades.
 - Todo acceso a modulo opcional debe vivir detras de un guard o una condicion de template.
 
-## Regla de dominio
+## Regla de capas
 
-- Si el dominio tiene reglas relevantes, crear `domain/` y `application/`.
-- Si solo tiene CRUD simple, alcanza con catalogo + services + guards.
+- Todo modulo declarado tiene `domain/`, `application/`, `infrastructure/` e `interfaces/`.
+- `domain/` no importa Django.
+- `application/` no importa Django, `models`, `views`, `forms`, `serializers`, `templates`, `consumers` ni `routing`.
+- ORM, email, cache, signals y clock/transaction de Django viven en `infrastructure/`.
+- Views, forms, serializers, URLConfs, templates y static viven en `interfaces/`.
+- Si una capa queda fina porque el modulo solo compone UI o health checks, el README del modulo debe decirlo.
 
 ## Regla de migracion
 
-- Mover primero contratos y services.
-- Mover despues templates/views.
-- Mover modelos o tablas al final, con una justificacion concreta.
+- Mover primero contratos publicos y URLConfs.
+- Mover despues casos de uso y acceso a ORM.
+- Mover views/forms/templates/static a `interfaces/`.
+- Mover modelos o tablas al final solo si no rompe labels, migrations ni contenttypes.

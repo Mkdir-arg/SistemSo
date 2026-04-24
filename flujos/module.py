@@ -12,7 +12,7 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="flujos.editor",
             route="flujos/",
-            urlconf="flujos.editor_urls",
+            urlconf="flujos.interfaces.web.urls",
             namespace="flujos_editor",
             app_name="flujos_editor",
         ),
@@ -21,7 +21,7 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="flujos.api",
             route="api/",
-            urlconf="flujos.urls",
+            urlconf="flujos.interfaces.api.urls",
             namespace="flujos",
             app_name="flujos",
         ),

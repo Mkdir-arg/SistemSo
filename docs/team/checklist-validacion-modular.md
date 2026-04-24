@@ -2,9 +2,13 @@
 
 ## Modularidad
 
-- [ ] Cada modulo activable tiene `module.py`.
+- [ ] Cada modulo declarado tiene `module.py`.
+- [ ] Cada modulo declarado tiene `domain/`, `application/`, `infrastructure/` e `interfaces/`.
+- [ ] Cada modulo declarado tiene URLConfs canonicas en `interfaces/web/urls.py` y `interfaces/api/urls.py`.
 - [ ] `config.modules.INSTALLED_PROJECT_MODULES` es la unica fuente de verdad de modulos instalados.
-- [ ] Ningun modulo nuevo importa `views/forms/templates` de otro modulo.
+- [ ] Ningun modulo importa `views/forms/templates/services/selectors/models` internos de otro modulo.
+- [ ] `domain/` y `application/` no importan Django.
+- [ ] `application/` no importa adapters internos del modulo.
 
 ## Activacion
 

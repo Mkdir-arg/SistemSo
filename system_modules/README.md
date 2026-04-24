@@ -12,6 +12,8 @@
 
 ## Piezas principales
 
+- `module.py`: descriptor del propio control plane como modulo core.
+- `domain/`, `application/`, `infrastructure/`, `interfaces/`: layout canonico del modulo, aunque varias capas sean finas porque el dominio real es el registry.
 - `definitions.py`: `ModuleDefinition` y `NavItemDefinition`.
 - `registry.py`: carga y cachea el catalogo instalado.
 - `services.py`: `ModuleResolver`, sincronizacion interna del catalogo, helpers de grupos y capacidades.

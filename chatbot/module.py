@@ -20,11 +20,17 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="chatbot.ui",
             route="chatbot/",
-            urlconf="chatbot.urls",
+            urlconf="chatbot.interfaces.web.urls",
             namespace="chatbot",
             app_name="chatbot",
         ),
     ),
-    api_routes=(UrlDefinition(handle="chatbot.api", route="api/chatbot/", urlconf="chatbot.api_urls"),),
+    api_routes=(
+        UrlDefinition(
+            handle="chatbot.api",
+            route="api/chatbot/",
+            urlconf="chatbot.interfaces.api.urls",
+        ),
+    ),
     adapter_points=("templates/components/chatbot_bubble.html",),
 )

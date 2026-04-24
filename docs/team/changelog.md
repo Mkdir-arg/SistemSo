@@ -1487,6 +1487,7 @@
 - `legajos/views_solapas.py`
 
 **Descripción:** Se retiró la capa legacy de compatibilidad de `legajos`, dejando la app consumiendo solo los paquetes reales `legajos/views/`, `legajos/forms/`, `legajos/services/`, `legajos/selectors/` y `legajos/signals/`. También se actualizaron imports y tests para apuntar al layout definitivo, con lo que `legajos` deja de mantener dos cartografías internas en paralelo.
+
 ## 2026-04-23 â€” DX-060 Monolito modular activable
 
 **User Story:** Como equipo de desarrollo quiero un monolito modular activable para poder clonar el repo por cliente, prender o apagar modulos opcionales sin romper shells compartidos y bajar el acoplamiento transversal.
@@ -1499,3 +1500,16 @@
 - `docs/funcionalidades/arquitectura-modular/*`, `docs/team/*.md`, `README.md`, `*/README.md` â€” documentacion canonica del nuevo diseno
 
 **DescripciÃ³n:** Se agregÃ³ un control plane explicito para modulos instalados y activos, con degradaciÃ³n controlada en HTML y JSON. Los shells del sistema ahora renderizan navegaciÃ³n, widgets y capacidades segÃºn `module_capabilities`, y `turnos` pasa a ser el piloto real con layout `domain/application/infrastructure/interfaces`.
+
+## 2026-04-24 - DX-061 Hexagonal literal total
+
+**User Story:** Como equipo de desarrollo quiero que todos los modulos tengan la misma frontera hexagonal para poder sostener el monolito modular sin imports legacy ni rutas opcionales hardcodeadas.
+
+**Archivos modificados:**
+- `*/domain`, `*/application`, `*/infrastructure`, `*/interfaces` - layout canonico en todos los modulos declarados.
+- `*/interfaces/web/urls.py`, `*/interfaces/api/urls.py` - URLConfs canonicas.
+- `config/urls.py` - includes hacia rutas canonicas.
+- `system_modules/tests/test_architecture.py` - tests de layout, rutas canonicas e imports prohibidos en `domain/application`.
+- `docs/team/*`, `README.md`, `*/README.md` - documentacion actualizada al criterio literal.
+
+**Descripcion:** Se deja el PR #35 con control plane y frontera hexagonal uniforme. Los modelos Django historicos siguen top-level por seguridad de labels y migrations, pero se documentan como adapters ORM, no como contrato publico entre modulos.

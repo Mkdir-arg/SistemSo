@@ -6,7 +6,7 @@ Agregar modulos nuevos sin romper el monolito ni depender de magia implicita.
 
 ## Paso 1 - Crear descriptor explicito
 
-Crear `mi_modulo/module.py`:
+Crear `mi_modulo/module.py` y apuntar rutas a `interfaces/`:
 
 ```python
 from system_modules.definitions import ModuleDefinition, NavItemDefinition, UrlDefinition
@@ -29,7 +29,7 @@ MODULE_DEFINITION = ModuleDefinition(
         UrlDefinition(
             handle="mi_modulo.ui",
             route="mi-modulo/",
-            urlconf="mi_modulo.urls",
+            urlconf="mi_modulo.interfaces.web.urls",
             namespace="mi_modulo",
             app_name="mi_modulo",
         ),
@@ -42,15 +42,36 @@ MODULE_DEFINITION = ModuleDefinition(
 
 Agregar el slug en `config/modules.py::INSTALLED_PROJECT_MODULES`.
 
-## Paso 3 - Definir frontera publica
+## Paso 3 - Crear layout hexagonal literal
 
-Elegir uno de estos cortes:
+Todo modulo debe crear esta base, incluso si alguna capa empieza fina:
 
-- Solo catalogo + guards + shell awareness.
-- Modulo con service layer.
-- Modulo con `domain/application/infrastructure/interfaces`.
+```text
+mi_modulo/
+  module.py
+  domain/
+    entities.py
+    policies.py
+    errors.py
+  application/
+    dto.py
+    ports.py
+    services.py
+  infrastructure/
+    orm_repositories.py
+    notifications.py
+    signals.py
+  interfaces/
+    module_api.py
+    web/
+      urls.py
+      views.py
+      forms.py
+    api/
+      urls.py
+```
 
-La opcion mas profunda solo se justifica si el dominio tiene reglas o side effects relevantes.
+La logica de dominio va en `domain/`; los casos de uso en `application/`; Django ORM, email, cache, signals, clock y transaction en `infrastructure/`; views, forms, serializers, templates, static y URLConfs en `interfaces/`.
 
 ## Paso 4 - Integrar shells
 
@@ -70,11 +91,14 @@ La opcion mas profunda solo se justifica si el dominio tiene reglas o side effec
 - README del modulo.
 - Entrada en `docs/funcionalidades/_index.md`.
 - Documento de version en `docs/funcionalidades/<slug>/`.
+- Si una capa queda fina, explicarlo en el README del modulo.
 
 ## Checklist rapido
 
 - Descriptor explicito
 - Registro en `config/modules.py`
+- Cuatro capas canonicas
+- Rutas en `interfaces/web/urls.py` y `interfaces/api/urls.py`
 - Guards aplicados
 - Shell degradado
 - Tests nuevos
