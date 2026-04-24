@@ -79,6 +79,10 @@ _Se define en el sprint planning._
 | US-008 | Perfil social ampliado del ciudadano (foto, habitacional, laboral, educativo, médico, documentación migratoria) | ✅ Completado | Implementado 2026-03-19 |
 | US-009 | Hub del Ciudadano — 11 solapas estáticas + solapas dinámicas por programa + badge behavior (alertas, derivaciones, turnos, conversaciones, legajos) | ✅ Completado | Implementado 2026-03-19 |
 
+## Actualizacion reciente
+
+- DX-060 completado el 2026-04-23: monolito modular activable con `system_modules`, shells resilientes y piloto hexagonal en `turnos`.
+
 ## Impedimentos
 
 _Ninguno._
@@ -88,3 +92,4 @@ _Ninguno._
 ## Historial de sprints anteriores
 
 Ver `docs/team/changelog.md` para el detalle de cada sprint.
+| DX-060 | Como equipo de desarrollo quiero un monolito modular activable con catalogo explicito, shells resilientes y un piloto hexagonal en `turnos` para poder apagar modulos opcionales sin romper el sistema | âœ… Completado | Ejecutado el 2026-04-23 con `system_modules`, guards, shell awareness y documentacion completa |

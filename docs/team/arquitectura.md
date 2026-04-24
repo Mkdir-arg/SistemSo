@@ -386,3 +386,40 @@ ciudadano = models.ForeignKey('legajos.Ciudadano', on_delete=models.PROTECT)
 - 2026-03-14: una vez agotado el packaging repo-wide, el siguiente paso correcto en hotspots grandes es extraer a services los subflujos más acotados y testeables antes de tocar formularios, scoring o adjuntos.
 - 2026-03-16: dentro de `ÑACHEC`, los subflujos operativos con cambios de asignación o estado pero sin scoring/adjuntos deben migrarse primero a `ServicioOperacionNachec`, dejando en la view solo permisos HTTP, parseo y mensajes.
 - 2026-03-16: cuando el repo ya está mayormente empaquetado, las excepciones residuales de `forms.py` o `services_*.py` deben absorberse dentro del paquete existente de la app antes de considerar cerrado el frente estructural.
+## Actualizacion 2026-04-23 - monolito modular activable
+
+### Principios agregados
+
+- `config.modules.INSTALLED_PROJECT_MODULES` es la fuente de verdad de modulos instalados.
+- `system_modules/` concentra catalogo, estado por instancia, guards y capacidades de shell.
+- `portal`, `dashboard` y `configuracion` son shells/adapters; componen capacidades, no dominio.
+- La arquitectura hexagonal completa se aplica solo donde agrega valor. El piloto actual es `turnos`.
+
+### Decision tecnica
+
+- Se agrega un control plane explicito para diferenciar modulo no instalado de modulo instalado pero inactivo.
+- Si un modulo sale del catalogo, sus rutas opcionales dejan de publicarse y el estado persistido queda marcado como no instalado.
+- Si un modulo sigue instalado pero se desactiva, la UI degrada con mensaje y las APIs responden `module_inactive`.
+
+### Mapa del monolito modular activable
+
+```mermaid
+flowchart LR
+  shell["Shells: portal / dashboard / configuracion"] --> registry["system_modules"]
+  registry --> turnos["turnos"]
+  registry --> conversaciones["conversaciones"]
+  registry --> chatbot["chatbot"]
+  registry --> tramites["tramites"]
+  registry --> flujos["flujos"]
+  turnos --> shared["core + users"]
+  conversaciones --> shared
+  chatbot --> shared
+  tramites --> shared
+  flujos --> shared
+  legajos["legajos (hotspot pendiente)"] --> shared
+```
+
+### Deuda tecnica abierta
+
+- `legajos` sigue pendiente de particion por `ciudadania/programas/nachec/institucional/contactos`.
+- El repo convive temporalmente con modulos a distinta profundidad arquitectonica: `turnos` ya tiene layout hexagonal y los otros modulos opcionales arrancan con catalogo + guards + shell awareness.

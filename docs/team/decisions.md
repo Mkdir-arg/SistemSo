@@ -483,3 +483,9 @@
 - Decisión: el entorno local recomendado pasa a usar `docker compose up` con `app`, `mysql` y `redis`, un solo proceso ASGI y un bootstrap automático mínimo.
 - Regla derivada: en desarrollo local, los seeds demo o tareas de mantenimiento pesadas no deben formar parte del camino crítico de startup.
 - Consecuencia: el entorno queda más simple de levantar, más estable y más rápido para el uso diario.
+## 2026-04-23 â€” monolito modular activable con catalogo explicito
+
+- Contexto: el repo necesitaba poder clonarse por cliente, activar o apagar modulos opcionales y dejar de depender de rutas, menus y grupos hardcodeados.
+- DecisiÃ³n: `config.modules.INSTALLED_PROJECT_MODULES` pasa a ser la fuente de verdad de modulos instalados y `system_modules.ModuleState` persiste el estado por instancia.
+- Regla derivada: si un modulo se quita del catalogo, no publica rutas y su estado queda marcado como no instalado; si sigue instalado pero se desactiva, responde `module_inactive`.
+- Consecuencia: los shells quedan resilientes y el siguiente refactor grande puede enfocarse en dominios reales, no en wiring transversal.

@@ -729,3 +729,18 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 | **Hub del ciudadano** | Perfil central del ciudadano con todas sus solapas — `/legajos/ciudadanos/<id>/` |
 | **Campo sensible** | Campo de la ficha del ciudadano que requiere el rol `ciudadanoSensible` para ser visible |
 | **LegajoAtencion** | Entidad clínico-social SEDRONAR-específica — deuda técnica planificada para migrar al motor de flujos |
+## Actualizacion 2026-04-23 - modularidad activable
+
+### Regla confirmada
+
+- Los modulos opcionales instalados pero inactivos deben degradar con mensaje controlado.
+- Si un modulo no esta instalado, el shell no debe publicar accesos ni widgets dependientes de ese modulo.
+- `portal`, `dashboard` y `configuracion` se tratan como shells/adapters y no deben acumular logica de dominio nueva de modulos verticales.
+
+### Sesion 10
+
+- Se implemento `system_modules` como control plane del monolito.
+- El sistema ahora diferencia modulo no instalado de modulo instalado pero inactivo.
+- `turnos` pasa a ser el piloto con `domain/application/infrastructure/interfaces`.
+- `chatbot`, `conversaciones`, `tramites` y `flujos` quedan integrados al catalogo modular con guards y shell awareness.
+- `legajos` queda documentado como hotspot pendiente para una particion posterior por subdominios.
