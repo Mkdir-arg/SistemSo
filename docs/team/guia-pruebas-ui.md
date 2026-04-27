@@ -3,9 +3,9 @@
 > Objetivo: probar el sistema desde la interfaz de forma rapida, repetible y con
 > evidencia suficiente para decidir si una branch esta lista para revisar.
 
-Esta guia combina smokes automatizados y validaciones manuales. Los smokes
-automatizados cubren el contrato minimo repetible; la validacion manual queda
-para flujos nuevos, dudas visuales o escenarios que todavia no tienen E2E.
+Esta guia combina un smoke modular automatizado y validaciones manuales. El
+smoke automatizado cubre el contrato minimo repetible; la validacion manual
+queda para flujos de interfaz, dudas visuales o escenarios con datos reales.
 
 ## Preparacion
 
@@ -52,39 +52,6 @@ Este smoke valida que:
 - Los JS globales no hardcodeen rutas opcionales de WebSocket o modulos
   removibles.
 
-### E2E UI de Turnos
-
-El primer flujo E2E automatizado cubre:
-
-1. Ciudadano solicita turno.
-2. Operador aprueba el turno.
-3. Ciudadano vuelve al portal y ve el turno confirmado.
-
-Instalar dependencias una vez:
-
-```powershell
-py -3 -m pip install -r requirements-e2e.txt
-py -3 -m playwright install chromium
-```
-
-Con Docker levantado, correr:
-
-```powershell
-.\run-ui-tests.ps1
-```
-
-Opciones utiles:
-
-```powershell
-.\run-ui-tests.ps1 -Headed
-.\run-ui-tests.ps1 -BaseUrl http://localhost:8000
-.\run-ui-tests.ps1 -SkipSeed
-```
-
-El script verifica `/health/`, siembra datos deterministas con
-`seed_e2e_turnos` y luego ejecuta `tests/ui` con Playwright. Ante una falla,
-guarda captura y traza en `test-results/`.
-
 ## Orden recomendado
 
 Probar primero lo mas barato y general. Avanzar a flujos largos solo si el smoke
@@ -130,8 +97,8 @@ Para cada pantalla tocada o cercana al cambio:
 
 ## Flujo base de Turnos
 
-Este es el primer flujo candidato para E2E automatizado porque cruza portal
-ciudadano, modulo Turnos y backoffice.
+Este flujo conviene probarlo manualmente cuando se toca portal ciudadano,
+modulo Turnos o backoffice porque cruza roles y estados persistentes.
 
 ### Ciudadano solicita turno
 
@@ -185,7 +152,7 @@ Evidencia:
 Bloquea release: si/no
 ```
 
-## Cuando automatizar mas flujos
+## Cuando automatizar
 
 Automatizar un flujo cuando cumpla al menos una condicion:
 

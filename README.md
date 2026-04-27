@@ -93,14 +93,6 @@ $env:PYTEST_RUNNING='1'
 py -3 manage.py test system_modules.tests.test_architecture system_modules.tests.test_functional_smokes --settings=config.settings_test
 ```
 
-Para el smoke UI de Turnos con Playwright:
-
-```powershell
-py -3 -m pip install -r requirements-e2e.txt
-py -3 -m playwright install chromium
-.\run-ui-tests.ps1
-```
-
 ## Regla de crecimiento
 
 Para agregar un modulo nuevo:

@@ -1,5 +1,0 @@
-pytest>=8.0,<9.0
-pytest-playwright>=0.5,<1.0
-
-# Install the Chromium browser once on the host:
-# python -m playwright install chromium
