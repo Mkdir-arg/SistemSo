@@ -40,3 +40,15 @@ class ChatbotModuleGuardsTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json()["code"], "module_inactive")
+
+    def test_rest_api_returns_module_inactive_when_module_is_disabled(self):
+        ModuleState.objects.filter(slug="chatbot").update(is_enabled=False)
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            "/api/chatbot/conversations/",
+            HTTP_ACCEPT="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()["code"], "module_inactive")

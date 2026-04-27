@@ -1,5 +1,5 @@
 from django.urls import re_path
-from conversaciones import consumers
+from . import consumers
 
 websocket_urlpatterns = [
     re_path(r'ws/conversaciones/(?P<conversacion_id>\w+)/$', consumers.ConversacionConsumer.as_asgi()),

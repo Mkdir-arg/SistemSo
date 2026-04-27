@@ -32,3 +32,15 @@ class ConversacionesModuleGuardsTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertContains(response, "Conversaciones", status_code=403)
+
+    def test_rest_api_returns_module_inactive_when_module_is_disabled(self):
+        ModuleState.objects.filter(slug="conversaciones").update(is_enabled=False)
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            "/api/conversaciones/alertas/count/",
+            HTTP_ACCEPT="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()["code"], "module_inactive")

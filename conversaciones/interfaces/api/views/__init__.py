@@ -10,9 +10,11 @@ from conversaciones.infrastructure.selectors.conversaciones import (
     usuario_tiene_permiso_conversaciones,
 )
 from conversaciones.infrastructure.services.chat import marcar_mensajes_ciudadano_leidos
+from system_modules.guards import module_required
 
 
 @login_required
+@module_required("conversaciones")
 @api_view(['GET'])
 def alertas_conversaciones_count(request):
     """Contador de conversaciones con mensajes no leídos"""
@@ -26,6 +28,7 @@ def alertas_conversaciones_count(request):
 
 
 @login_required
+@module_required("conversaciones")
 @api_view(['GET'])
 def alertas_conversaciones_preview(request):
     """Preview de mensajes no leídos para el dropdown"""
@@ -59,6 +62,7 @@ def alertas_conversaciones_preview(request):
 
 
 @login_required
+@module_required("conversaciones")
 @api_view(['POST'])
 def marcar_mensajes_leidos(request, conversacion_id):
     """Marcar mensajes como leídos cuando se abre la conversación"""

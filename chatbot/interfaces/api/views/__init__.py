@@ -10,6 +10,7 @@ from chatbot.interfaces.api.serializers import (
     ConversationSerializer, MessageSerializer, ChatbotKnowledgeSerializer,
     ChatbotFeedbackSerializer, SendMessageSerializer
 )
+from system_modules.guards import ModuleActivePermission
 
 
 @extend_schema_view(
@@ -27,7 +28,8 @@ class ConversationViewSet(viewsets.ModelViewSet):
     Permite realizar operaciones CRUD sobre las conversaciones del usuario.
     """
     serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ModuleActivePermission]
+    module_slug = "chatbot"
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_active']
     ordering = ['-updated_at']
@@ -99,7 +101,8 @@ class MessageViewSet(viewsets.ReadOnlyModelViewSet):
     ViewSet de solo lectura para mensajes.
     """
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ModuleActivePermission]
+    module_slug = "chatbot"
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['role', 'conversation']
     ordering = ['timestamp']
@@ -122,7 +125,8 @@ class ChatbotKnowledgeViewSet(viewsets.ModelViewSet):
     """
     queryset = ChatbotKnowledge.objects.all()
     serializer_class = ChatbotKnowledgeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ModuleActivePermission]
+    module_slug = "chatbot"
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['category', 'is_active']
     search_fields = ['title', 'content']
@@ -142,7 +146,8 @@ class ChatbotFeedbackViewSet(viewsets.ModelViewSet):
     ViewSet para gestionar feedback del chatbot.
     """
     serializer_class = ChatbotFeedbackSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ModuleActivePermission]
+    module_slug = "chatbot"
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['rating']
     ordering = ['-created_at']

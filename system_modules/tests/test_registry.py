@@ -51,6 +51,15 @@ class ModuleRegistryTests(TestCase):
         self.assertNotIn("turnoConfigurar", visible)
         self.assertIn("Administrador", visible)
 
+    def test_assignable_groups_keeps_groups_used_by_active_modules_visible(self):
+        call_command("modules", "sync")
+        Group.objects.create(name="programaConfigurar")
+        ModuleState.objects.filter(slug="flujos").update(is_enabled=False)
+
+        visible = list(get_assignable_groups_queryset().values_list("name", flat=True))
+
+        self.assertIn("programaConfigurar", visible)
+
     def test_assignable_groups_keeps_existing_user_groups_visible(self):
         call_command("modules", "sync")
         turno_group = Group.objects.create(name="turnoOperar")

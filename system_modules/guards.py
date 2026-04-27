@@ -2,28 +2,33 @@ from functools import wraps
 
 from django.http import JsonResponse
 from django.shortcuts import render
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 
 from system_modules.infrastructure.services import ModuleResolver, module_is_active
 
 
-def build_module_disabled_response(request, slug):
+def build_module_disabled_payload(slug):
     resolver = ModuleResolver()
     if resolver.is_registered(slug):
         display_name = resolver.get_definition(slug).display_name
     else:
         display_name = slug.replace("_", " ").title()
-    wants_json = (
-        request.path.startswith("/api/")
-        or request.headers.get("x-requested-with") == "XMLHttpRequest"
-        or "application/json" in request.headers.get("Accept", "")
-    )
-    payload = {
+    return {
         "code": "module_inactive",
         "module": slug,
         "display_name": display_name,
         "message": "Modulo no disponible. Contacta a un administrador.",
     }
+
+
+def build_module_disabled_response(request, slug):
+    wants_json = (
+        request.path.startswith("/api/")
+        or request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("Accept", "")
+    )
+    payload = build_module_disabled_payload(slug)
     if wants_json:
         return JsonResponse(payload, status=403)
     return render(
@@ -63,7 +68,9 @@ class ModuleActivePermission(BasePermission):
         module_slug = self.module_slug or getattr(view, "module_slug", None)
         if not module_slug:
             return True
-        return module_is_active(module_slug)
+        if module_is_active(module_slug):
+            return True
+        raise PermissionDenied(detail=build_module_disabled_payload(module_slug))
 
 
 def run_if_module_active(slug, callback, *args, **kwargs):

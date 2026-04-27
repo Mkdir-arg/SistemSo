@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from conversaciones.models import Conversacion
 from conversaciones.infrastructure.selectors.conversaciones import get_conversacion_api_detalle, usuario_tiene_permiso_conversaciones
+from system_modules.guards import module_required
 
 
 @login_required
+@module_required("conversaciones")
 @api_view(['GET'])
 def conversacion_detalle(request, conversacion_id):
     """Devuelve datos minimos de una conversacion para actualizar la lista en vivo"""

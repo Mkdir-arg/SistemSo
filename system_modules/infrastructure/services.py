@@ -65,14 +65,17 @@ class ModuleResolver:
         return capabilities
 
     def get_inactive_managed_groups(self):
-        names = set()
+        inactive_names = set()
+        active_names = set()
         for definition in self.registry.all():
             if not self.is_active(definition.slug):
-                names.update(definition.managed_groups)
+                inactive_names.update(definition.managed_groups)
+            else:
+                active_names.update(definition.managed_groups)
         for state in self._load_states().values():
             if state.removable and not state.is_installed:
-                names.update(state.managed_groups)
-        return names
+                inactive_names.update(state.managed_groups)
+        return inactive_names - active_names
 
 
 def module_is_registered(slug):
