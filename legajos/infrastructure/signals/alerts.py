@@ -1,8 +1,6 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from conversaciones.models import Mensaje
-
 from legajos.models import EventoCritico, LegajoAtencion, SeguimientoContacto
 from legajos.infrastructure.services import AlertasService
 
@@ -24,13 +22,6 @@ def verificar_seguimiento_vencido(sender, instance, created, **kwargs):
     if created:
         return None
     return None
-
-
-@receiver(post_save, sender=Mensaje)
-def alerta_mensaje_ciudadano(sender, instance, created, **kwargs):
-    """Genera alerta cuando un ciudadano envía mensaje."""
-    if created and instance.remitente == "ciudadano":
-        AlertasService.generar_alerta_mensaje_ciudadano(instance.conversacion)
 
 
 @receiver(post_save, sender=LegajoAtencion)

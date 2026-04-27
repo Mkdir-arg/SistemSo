@@ -137,7 +137,6 @@ TEMPLATES = [
                 "legajos.context_processors.alertas_eventos_criticos",
                 "core.context_processors.dispositivos_context",
                 "core.context_processors.branding_context",
-                "conversaciones.context_processors.user_groups",
                 "system_modules.context_processors.module_capabilities",
             ],
         },

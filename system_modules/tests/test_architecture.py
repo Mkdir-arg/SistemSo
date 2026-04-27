@@ -97,6 +97,14 @@ OPTIONAL_MODULE_ROUTE_LITERALS = (
 )
 
 
+def _imported_modules_from_node(node):
+    if isinstance(node, ast.Import):
+        return [alias.name for alias in node.names]
+    if isinstance(node, ast.ImportFrom):
+        return [node.module or ""]
+    return []
+
+
 class ModularArchitectureTests(SimpleTestCase):
     def test_public_legacy_wrappers_are_removed(self):
         offenders = []
@@ -285,6 +293,65 @@ class ModularArchitectureTests(SimpleTestCase):
             for module in OPTIONAL_ROUTE_MODULES
             if f'include("{module}.' in urlconf or f"include('{module}." in urlconf
         ]
+
+        self.assertEqual(offenders, [])
+
+    def test_settings_do_not_reference_removable_module_context_processors(self):
+        settings_text = (PROJECT_ROOT / "config" / "settings.py").read_text(encoding="utf-8")
+        offenders = [
+            module
+            for module in OPTIONAL_ROUTE_MODULES
+            if f'"{module}.context_processors.' in settings_text
+            or f"'{module}.context_processors." in settings_text
+        ]
+
+        self.assertEqual(offenders, [])
+
+    def test_non_removable_modules_do_not_import_optional_modules_at_module_load(self):
+        offenders = []
+        ignored_parts = {"migrations", "tests", "__pycache__"}
+        non_optional_modules = set(MODULES_WITH_PUBLIC_CONTRACTS) - set(OPTIONAL_ROUTE_MODULES)
+        for module in sorted(non_optional_modules):
+            module_path = PROJECT_ROOT / module
+            if not module_path.exists():
+                continue
+            for path in module_path.rglob("*.py"):
+                if ignored_parts.intersection(path.parts):
+                    continue
+                tree = ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
+                for imported in sum((_imported_modules_from_node(node) for node in tree.body), []):
+                    if any(
+                        imported == optional or imported.startswith(f"{optional}.")
+                        for optional in OPTIONAL_ROUTE_MODULES
+                    ):
+                        offenders.append(f"{path.relative_to(PROJECT_ROOT).as_posix()} -> {imported}")
+
+        self.assertEqual(offenders, [])
+
+    def test_non_optional_modules_only_use_optional_module_public_contracts(self):
+        offenders = []
+        ignored_parts = {"migrations", "tests", "__pycache__"}
+        non_optional_modules = set(MODULES_WITH_PUBLIC_CONTRACTS) - set(OPTIONAL_ROUTE_MODULES)
+        for module in sorted(non_optional_modules):
+            module_path = PROJECT_ROOT / module
+            if not module_path.exists():
+                continue
+            for path in module_path.rglob("*.py"):
+                if ignored_parts.intersection(path.parts):
+                    continue
+                tree = ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
+                for node in ast.walk(tree):
+                    for imported in _imported_modules_from_node(node):
+                        for optional in OPTIONAL_ROUTE_MODULES:
+                            if imported == optional or imported.startswith(f"{optional}."):
+                                allowed = (
+                                    imported == f"{optional}.interfaces.module_api"
+                                    or imported.startswith(f"{optional}.interfaces.module_api.")
+                                )
+                                if not allowed:
+                                    offenders.append(
+                                        f"{path.relative_to(PROJECT_ROOT).as_posix()} -> {imported}"
+                                    )
 
         self.assertEqual(offenders, [])
 

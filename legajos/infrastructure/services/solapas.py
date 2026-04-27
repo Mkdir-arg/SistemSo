@@ -204,13 +204,14 @@ class SolapasService:
 
         # Mensajes no leídos del ciudadano → número violeta
         try:
-            from conversaciones.models import Mensaje
-            mensajes_count = Mensaje.objects.filter(
-                conversacion__dni_ciudadano=ciudadano.dni,
-                conversacion__estado__in=['pendiente', 'activa'],
-                remitente='ciudadano',
-                leido=False,
-            ).count()
+            from system_modules.infrastructure.services import module_is_active
+
+            if module_is_active("conversaciones"):
+                from conversaciones.interfaces.module_api import count_mensajes_no_leidos_ciudadano
+
+                mensajes_count = count_mensajes_no_leidos_ciudadano(dni=ciudadano.dni)
+            else:
+                mensajes_count = 0
             if mensajes_count:
                 badges['conversaciones'] = {'tipo': 'numero', 'valor': mensajes_count, 'color_hex': '#8B5CF6'}
         except Exception:

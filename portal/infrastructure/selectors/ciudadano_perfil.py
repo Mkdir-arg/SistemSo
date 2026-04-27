@@ -1,10 +1,18 @@
 import datetime
+from importlib import import_module
 
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
-from conversaciones.models import Conversacion
 from legajos.models_programas import DerivacionPrograma, InscripcionPrograma
+from system_modules.infrastructure.services import module_is_active
+
+
+def _get_conversaciones_recientes(user, ciudadano):
+    if not module_is_active("conversaciones"):
+        return []
+
+    module_api = import_module("conversaciones.interfaces.module_api")
+    return list(module_api.get_ciudadano_conversaciones_recientes(user=user, ciudadano=ciudadano))
 
 
 def get_ciudadano_perfil_context(*, user, ciudadano):
@@ -16,9 +24,7 @@ def get_ciudadano_perfil_context(*, user, ciudadano):
             ).select_related('programa')[:5]
         )
 
-    conversaciones_recientes = Conversacion.objects.filter(
-        Q(dni_ciudadano=ciudadano.dni) | Q(ciudadano_usuario=user)
-    ).order_by('-fecha_inicio')[:3]
+    conversaciones_recientes = _get_conversaciones_recientes(user, ciudadano)
 
     eventos = []
     inscripciones_timeline = []

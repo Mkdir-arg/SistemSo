@@ -5,7 +5,7 @@ from core.decorators import ciudadano_required
 from legajos.models import PlanFortalecimiento
 from legajos.infrastructure.services.actividades import InscripcionError, inscribir_ciudadano_a_actividad
 
-from portal.infrastructure.selectors import (
+from portal.infrastructure.selectors.actividades_ciudadano import (
     get_actividades_accesibles,
     get_asistencia_ciudadano_en_actividad,
     get_inscripciones_ciudadano,

@@ -36,10 +36,13 @@ def crear_inscripcion_programa_sedronar(sender, instance, created, **kwargs):
 @receiver(post_save, sender=InscripcionPrograma)
 def iniciar_flujo_inscripcion(sender, instance, created, **kwargs):
     """Inicia el flujo del programa al crear una nueva inscripción, si el programa tiene flujo activo."""
-    if created and instance.programa.flujo_activo:
+    from system_modules.infrastructure.services import module_is_active
+
+    if created and module_is_active("flujos") and instance.programa.flujo_activo:
         try:
-            from flujos.runtime import FlowRuntime
-            FlowRuntime.iniciar(instance)
+            from flujos.interfaces.module_api import iniciar_flujo_inscripcion
+
+            iniciar_flujo_inscripcion(instance)
         except Exception as exc:
             import logging
             logging.getLogger(__name__).warning(

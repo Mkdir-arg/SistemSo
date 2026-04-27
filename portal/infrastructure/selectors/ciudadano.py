@@ -1,8 +1,12 @@
-from django.db.models import Q
-from django.http import Http404
-from django.shortcuts import get_object_or_404
+from importlib import import_module
 
-from conversaciones.models import Conversacion
+from django.http import Http404
+
+from system_modules.infrastructure.services import module_is_active
+
+
+def _conversaciones_api():
+    return import_module("conversaciones.interfaces.module_api")
 
 
 def get_ciudadano_perfil(user):
@@ -10,16 +14,16 @@ def get_ciudadano_perfil(user):
 
 
 def get_ciudadano_conversaciones(user, ciudadano):
-    return Conversacion.objects.filter(
-        Q(dni_ciudadano=ciudadano.dni) | Q(ciudadano_usuario=user)
-    ).order_by('-fecha_inicio')
+    if not module_is_active("conversaciones"):
+        return []
+    return _conversaciones_api().get_ciudadano_conversaciones(user=user, ciudadano=ciudadano)
 
 
 def get_ciudadano_conversacion_or_404(user, ciudadano, pk):
-    conversacion = get_object_or_404(
-        Conversacion.objects.prefetch_related('mensajes'),
+    if not module_is_active("conversaciones"):
+        raise Http404
+    return _conversaciones_api().get_ciudadano_conversacion_or_404(
+        user=user,
+        ciudadano=ciudadano,
         pk=pk,
     )
-    if conversacion.dni_ciudadano != ciudadano.dni and conversacion.ciudadano_usuario != user:
-        raise Http404
-    return conversacion

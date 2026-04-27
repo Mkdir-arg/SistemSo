@@ -9,7 +9,7 @@ from core.decorators import ciudadano_required
 from system_modules.guards import module_required
 
 from portal.interfaces.web.forms import CiudadanoConfirmarTurnoForm
-from portal.infrastructure.selectors import (
+from portal.infrastructure.selectors.turnos_ciudadano import (
     get_recurso_turnos_activo_or_404,
     get_recursos_turnos_activos,
     get_turno_ciudadano_or_404,

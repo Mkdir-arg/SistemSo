@@ -4,7 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from conversaciones.models import Conversacion, Mensaje
-from legajos.interfaces.module_api import crear_alerta_ciudadano
+from legajos.interfaces.module_api import crear_alerta_ciudadano, generar_alerta_mensaje_conversacion
 
 
 @receiver(post_save, sender=Conversacion)
@@ -74,7 +74,8 @@ def verificar_tiempo_respuesta(sender, instance, created, **kwargs):
     if created and instance.remitente == 'ciudadano':
         try:
             conversacion = instance.conversacion
-            
+            generar_alerta_mensaje_conversacion(conversacion)
+
             # Verificar palabras clave de riesgo PRIMERO
             if conversacion.operador_asignado:
                 _verificar_palabras_riesgo(conversacion, instance)

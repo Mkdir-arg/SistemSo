@@ -9,7 +9,7 @@ from portal.interfaces.web.forms import (
     CrearUsuarioInstitucionForm,
     RegistroInstitucionPublicForm,
 )
-from portal.infrastructure.selectors import get_portal_home_context, get_tramites_by_email
+from portal.infrastructure.selectors.public import get_portal_home_context, get_tramites_by_email
 from portal.infrastructure.services import PortalRegistroService
 
 

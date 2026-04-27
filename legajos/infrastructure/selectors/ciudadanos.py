@@ -12,6 +12,7 @@ from legajos.models_nachec import (
     RelevamientoNachec,
 )
 from legajos.infrastructure.services import SolapasService
+from system_modules.infrastructure.services import module_is_active
 
 
 def buscar_ciudadanos_rapido(q):
@@ -137,14 +138,14 @@ def build_ciudadano_detail_context(ciudadano, user=None):
     context['instituciones_ciudadano'] = Institucion.objects.filter(pk__in=institucion_ids)
 
     # --- Conversaciones ---
-    try:
-        from conversaciones.models import Conversacion
-        context['conversaciones_ciudadano'] = (
-            Conversacion.objects
-            .filter(dni_ciudadano=ciudadano.dni)
-            .order_by('-fecha_inicio')[:20]
+    if module_is_active("conversaciones"):
+        from conversaciones.interfaces.module_api import get_conversaciones_by_dni
+
+        context['conversaciones_ciudadano'] = get_conversaciones_by_dni(
+            dni=ciudadano.dni,
+            limit=20,
         )
-    except Exception:
+    else:
         context['conversaciones_ciudadano'] = []
 
     # --- Derivaciones ---

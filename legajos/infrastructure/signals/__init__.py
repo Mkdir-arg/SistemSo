@@ -1,6 +1,5 @@
 from .alerts import (  # noqa: F401
     alerta_evento_critico,
-    alerta_mensaje_ciudadano,
     detectar_cambio_riesgo,
     verificar_alertas_legajo,
     verificar_seguimiento_vencido,

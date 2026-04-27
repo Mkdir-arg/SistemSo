@@ -61,22 +61,15 @@ class BajaProgramaService:
         ).update(estado=TurnoCiudadano.Estado.CANCELADO_SISTEMA)
 
         # 3. Cancelar flujo activo si existe
-        try:
-            instancia = inscripcion.instancia_flujo
-        except Exception:
-            instancia = None
+        from system_modules.infrastructure.services import module_is_active
 
-        if instancia and instancia.estado == 'ACTIVA':
-            from flujos.models import InstanciaLog
-            instancia.estado = 'CANCELADA'
-            instancia.fecha_cierre = timezone.now()
-            instancia.save(update_fields=['estado', 'fecha_cierre'])
-            InstanciaLog.objects.create(
-                instancia=instancia,
-                nodo_desde=instancia.nodo_actual,
-                nodo_hasta='BAJA',
+        if module_is_active("flujos"):
+            from flujos.interfaces.module_api import cancelar_instancia_inscripcion
+
+            cancelar_instancia_inscripcion(
+                inscripcion=inscripcion,
                 usuario=usuario,
-                motivo=f"Baja del programa: {motivo}",
+                motivo=motivo,
             )
 
         return inscripcion

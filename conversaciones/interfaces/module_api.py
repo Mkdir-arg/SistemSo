@@ -3,12 +3,69 @@
 import logging
 
 from django.db import transaction
+from django.db.models import Count, Q
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils.html import escape
 
-from conversaciones.models import Conversacion, Mensaje
+from conversaciones.models import Conversacion, HistorialAlertaConversacion, Mensaje
 from conversaciones.infrastructure.services.core import AsignadorAutomatico, NotificacionService
 
 logger = logging.getLogger(__name__)
+
+
+def get_ciudadano_conversaciones(*, user, ciudadano):
+    return Conversacion.objects.filter(
+        Q(dni_ciudadano=ciudadano.dni) | Q(ciudadano_usuario=user)
+    ).order_by("-fecha_inicio")
+
+
+def get_ciudadano_conversacion_or_404(*, user, ciudadano, pk):
+    conversacion = get_object_or_404(
+        Conversacion.objects.prefetch_related("mensajes"),
+        pk=pk,
+    )
+    if conversacion.dni_ciudadano != ciudadano.dni and conversacion.ciudadano_usuario != user:
+        raise Http404
+    return conversacion
+
+
+def get_ciudadano_conversaciones_recientes(*, user, ciudadano, limit=3):
+    return get_ciudadano_conversaciones(user=user, ciudadano=ciudadano)[:limit]
+
+
+def get_conversaciones_by_dni(*, dni, limit=None):
+    queryset = Conversacion.objects.filter(dni_ciudadano=dni).order_by("-fecha_inicio")
+    if limit is not None:
+        return queryset[:limit]
+    return queryset
+
+
+def count_mensajes_no_leidos_ciudadano(*, dni):
+    return Mensaje.objects.filter(
+        conversacion__dni_ciudadano=dni,
+        conversacion__estado__in=["pendiente", "activa"],
+        remitente="ciudadano",
+        leido=False,
+    ).count()
+
+
+def get_historial_alertas_operador(*, operador, limit=20):
+    return HistorialAlertaConversacion.objects.filter(
+        operador=operador,
+    ).select_related("conversacion", "operador").order_by("-creado")[:limit]
+
+
+def get_monitoring_stats(*, since):
+    conversacion_stats = Conversacion.objects.aggregate(
+        total=Count("id"),
+        active=Count("id", filter=Q(estado="activa")),
+    )
+    return {
+        "total": conversacion_stats["total"],
+        "active": conversacion_stats["active"],
+        "messages_today": Mensaje.objects.filter(fecha_envio__gte=since).count(),
+    }
 
 
 def _notificar_grupo(nombre_grupo, payload):

@@ -33,3 +33,9 @@ def crear_alerta_ciudadano(*, ciudadano, tipo, prioridad, mensaje):
     )
     AlertasService._enviar_notificacion_alerta(alerta)
     return alerta
+
+
+def generar_alerta_mensaje_conversacion(conversacion):
+    from legajos.infrastructure.services.alertas import AlertasService
+
+    return AlertasService.generar_alerta_mensaje_ciudadano(conversacion)

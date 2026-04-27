@@ -9,7 +9,7 @@ from portal.interfaces.web.forms import (
     CiudadanoCambioPasswordForm,
     CiudadanoEditarDatosForm,
 )
-from portal.infrastructure.selectors import (
+from portal.infrastructure.selectors.ciudadano_perfil import (
     get_ciudadano_perfil_context,
     get_ciudadano_programa_derivaciones,
     get_ciudadano_programa_detalle_or_404,

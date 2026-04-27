@@ -1,18 +1,20 @@
+from importlib import import_module
+
 from django.shortcuts import redirect, render
 
 from core.decorators import ciudadano_required
 from system_modules.guards import module_required
 
 from portal.interfaces.web.forms import CiudadanoEnviarMensajeForm, CiudadanoNuevaConsultaForm
-from portal.infrastructure.selectors import (
+from portal.infrastructure.selectors.ciudadano import (
     get_ciudadano_conversacion_or_404,
     get_ciudadano_conversaciones,
     get_ciudadano_perfil,
 )
-from conversaciones.interfaces.module_api import (
-    crear_consulta_ciudadana,
-    crear_mensaje_ciudadano_desde_portal,
-)
+
+
+def _conversaciones_api():
+    return import_module("conversaciones.interfaces.module_api")
 
 
 @ciudadano_required
@@ -48,7 +50,7 @@ def ciudadano_nueva_consulta(request):
     form = CiudadanoNuevaConsultaForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        conversacion = crear_consulta_ciudadana(
+        conversacion = _conversaciones_api().crear_consulta_ciudadana(
             ciudadano=ciudadano,
             user=request.user,
             motivo=form.cleaned_data['motivo'],
@@ -73,7 +75,7 @@ def ciudadano_enviar_mensaje(request, pk):
     form = CiudadanoEnviarMensajeForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        crear_mensaje_ciudadano_desde_portal(
+        _conversaciones_api().crear_mensaje_ciudadano_desde_portal(
             conversacion=conversacion,
             texto=form.cleaned_data['texto'],
         )

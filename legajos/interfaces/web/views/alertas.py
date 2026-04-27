@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from legajos.models import AlertaCiudadano
 from legajos.infrastructure.services import AlertasService, FiltrosUsuarioService
+from system_modules.infrastructure.services import module_is_active
 
 
 @login_required
@@ -25,11 +26,10 @@ def alertas_dashboard(request):
     
     # Alertas de conversaciones si el usuario tiene permisos
     alertas_conversaciones = []
-    if request.user.groups.filter(name__in=['Conversaciones', 'OperadorCharla']).exists():
-        from conversaciones.models import HistorialAlertaConversacion
-        alertas_conversaciones = HistorialAlertaConversacion.objects.filter(
-            operador=request.user
-        ).select_related('conversacion__usuario', 'operador').order_by('-creado')[:20]
+    if module_is_active("conversaciones") and request.user.groups.filter(name__in=['Conversaciones', 'OperadorCharla']).exists():
+        from conversaciones.interfaces.module_api import get_historial_alertas_operador
+
+        alertas_conversaciones = get_historial_alertas_operador(operador=request.user)
     
     # Estadísticas filtradas por usuario
     stats = FiltrosUsuarioService.obtener_estadisticas_usuario(request.user)
