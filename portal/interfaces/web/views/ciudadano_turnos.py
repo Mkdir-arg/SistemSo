@@ -1,3 +1,4 @@
+import json
 from datetime import date
 
 from django.contrib import messages
@@ -63,7 +64,9 @@ def ciudadano_turno_calendario(request, recurso_id):
         'ciudadano': ciudadano,
         'recurso': recurso,
         'calendario': calendario,
-        'calendario_json': {fecha.isoformat(): disponible for fecha, disponible in calendario.items()},
+        'calendario_json': json.dumps(
+            {fecha.isoformat(): disponible for fecha, disponible in calendario.items()}
+        ),
         'anio': anio,
         'mes': mes,
         'mes_nombre': date(anio, mes, 1).strftime('%B %Y').capitalize(),

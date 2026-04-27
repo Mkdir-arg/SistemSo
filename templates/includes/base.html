@@ -286,6 +286,9 @@
                         alertsCountUrl: "{% url 'conversaciones_api:alertas_count' %}",
                         alertsPreviewUrl: "{% url 'conversaciones_api:alertas_preview' %}",
                         detailUrlTemplate: "{% url 'conversaciones:detalle' 0 %}",
+                        listWsPath: "/ws/conversaciones/",
+                        alertsWsPath: "/ws/alertas/",
+                        conversationAlertsWsPath: "/ws/alertas-conversaciones/",
                     };
                 </script>
                 <script src="{% static 'custom/js/notification_sound.js' %}"></script>

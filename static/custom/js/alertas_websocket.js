@@ -13,8 +13,12 @@ class AlertasWebSocket {
     }
 
     connect() {
+        const alertWsPath = (window.conversacionesConfig || {}).alertsWsPath;
+        if (!alertWsPath) {
+            return;
+        }
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/alertas/`;
+        const wsUrl = `${protocol}//${window.location.host}${alertWsPath}`;
         
         this.socket = new WebSocket(wsUrl);
         

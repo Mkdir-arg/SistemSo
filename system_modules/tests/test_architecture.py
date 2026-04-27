@@ -83,6 +83,18 @@ FORBIDDEN_PUBLIC_IMPORT_SEGMENTS = (
     ".api_views",
     ".serializers",
 )
+OPTIONAL_MODULE_ROUTE_LITERALS = (
+    "/chatbot/",
+    "/api/chatbot/",
+    "/conversaciones/",
+    "/api/conversaciones/",
+    "/ws/conversaciones/",
+    "/ws/alertas/",
+    "/ws/alertas-conversaciones/",
+    "/tramites/",
+    "/flujos/",
+    "/api/flujos/",
+)
 
 
 class ModularArchitectureTests(SimpleTestCase):
@@ -144,6 +156,17 @@ class ModularArchitectureTests(SimpleTestCase):
                             offenders.append(
                                 f"{path.relative_to(PROJECT_ROOT).as_posix()} -> {imported}"
                             )
+
+        self.assertEqual(offenders, [])
+
+    def test_global_static_js_does_not_hardcode_optional_module_routes(self):
+        offenders = []
+        static_js_root = PROJECT_ROOT / "static" / "custom" / "js"
+        for path in static_js_root.rglob("*.js"):
+            text = path.read_text(encoding="utf-8-sig")
+            for literal in OPTIONAL_MODULE_ROUTE_LITERALS:
+                if literal in text:
+                    offenders.append(f"{path.relative_to(PROJECT_ROOT).as_posix()} -> {literal}")
 
         self.assertEqual(offenders, [])
 

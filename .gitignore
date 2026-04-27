@@ -40,6 +40,8 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+test-results/
+playwright-report/
 
 # Docker
 *.pid

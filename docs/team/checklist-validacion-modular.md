@@ -34,6 +34,8 @@
 - [x] El sidebar no muestra accesos a modulos opcionales desactivados.
 - [x] El portal ciudadano no rompe si faltan `turnos` o `conversaciones`.
 - [x] El bubble del chatbot no se renderiza si el modulo esta inactivo.
+- [x] Existe smoke funcional automatizado para shells con modulos opcionales ausentes e inactivos.
+- [x] Existe E2E UI automatizado para el flujo Turnos ciudadano -> operador -> ciudadano.
 
 ## Mantenibilidad
 

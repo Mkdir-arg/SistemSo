@@ -14,6 +14,21 @@
 
 ---
 
+## 2026-04-27 - DX-063 Smokes funcionales modulares y UI E2E
+
+**User Story:** Como equipo de desarrollo quiero smokes automatizados para validar la arquitectura modular desde comportamiento real y no solo desde AST.
+
+**Archivos modificados:**
+- `system_modules/tests/test_functional_smokes.py` - smoke de shells con modulos opcionales ausentes e inactivos
+- `system_modules/tests/test_architecture.py` - bloqueo de rutas opcionales hardcodeadas en JS global
+- `static/custom/js/*.js` y `templates/includes/base.html` - WebSockets opcionales consumen paths desde el shell activo
+- `tests/ui/`, `turnos/management/commands/seed_e2e_turnos.py`, `run-ui-tests.ps1` - E2E Turnos automatizado
+- `docs/team/guia-pruebas-ui.md` y `docs/team/checklist-validacion-modular.md` - documentacion de ejecucion
+
+**Descripcion:** Se automatizaron smokes funcionales para cubrir casos dificiles de afirmar solo con AST: shells sin modulos opcionales, modulos desactivados sin scripts/widgets, rutas no publicadas y JS global sin paths opcionales fijos. Tambien quedo un E2E Playwright de Turnos con seed deterministico para cubrir el flujo ciudadano solicita, operador aprueba y ciudadano confirma.
+
+---
+
 ## 2026-04-27 - DX-062 Maxima literalidad fisica hexagonal
 
 **User Story:** Como equipo de desarrollo quiero retirar los entrypoints fisicos top-level de adapters para que el monolito modular sea literal, testeable y no dependa de fachadas legacy.
