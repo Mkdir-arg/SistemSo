@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from system_modules.guards import module_required
 from system_modules.registry import clear_module_registry
 from system_modules.models import ModuleState
-from system_modules.services import sync_installed_modules
+from system_modules.infrastructure.services import sync_installed_modules
 
 
 class ModuleGuardsTests(TestCase):

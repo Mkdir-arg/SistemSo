@@ -3,7 +3,7 @@
 > **Regla:** El Arquitecto lee este documento ANTES de proponer cualquier diseño técnico.
 > **Regla:** El Arquitecto actualiza este documento cuando toma una decisión técnica relevante.
 
-> Última actualización: 2026-04-03
+> Última actualización: 2026-04-27
 
 
 ---
@@ -70,11 +70,13 @@ SistemSo/
 - CSRF en todos los forms POST sin excepción. Las vistas con `@csrf_exempt` son deuda técnica.
 
 ### Modularización interna
-- En apps existentes, preferir modularización incremental por dominio: `views_<dominio>.py`, `forms_<dominio>.py`, `services_<dominio>.py`, `selectors_<dominio>.py`.
-- No convertir masivamente `views.py/forms.py/urls.py` en paquetes si eso obliga a un package-flip con alto churn de imports.
-- Las views deben quedar delgadas: permisos, parseo HTTP, invocación de service/selector y render/redirect.
-- Los selectors son solo lectura y no tienen side effects.
-- Los services orquestan reglas, transacciones, invalidación de cache y notificaciones.
+- Todos los módulos declarados tienen layout físico `domain/`, `application/`, `infrastructure/` e `interfaces/`.
+- No crear entrypoints públicos top-level `views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static`, `consumers`, `routing`, `urls` ni `api_urls`.
+- Las views deben quedar delgadas y vivir en `interfaces/web/views`; forms en `interfaces/web/forms`; serializers y API views en `interfaces/api`.
+- Los selectors con ORM son infraestructura y viven en `infrastructure/selectors`.
+- Los services que usan Django, ORM, cache, email o transacciones viven en `infrastructure/services`; los casos de uso desacoplados viven en `application/services.py`.
+- Los signals viven en `infrastructure/signals` y se registran desde `apps.py.ready()`.
+- `models.py` puede quedar top-level solo por estabilidad de Django; no es contrato público entre módulos.
 
 ### Frontend
 - Tailwind CSS via CDN (configurado en `includes/base.html`).
@@ -87,6 +89,15 @@ SistemSo/
 ---
 
 ## Decisiones técnicas tomadas
+
+### DT-060 - Hexagonal físico estricto sin entrypoints legacy (2026-04-27)
+**Contexto:** PR #35 ya tenía control plane y URLConfs canónicas, pero aún quedaban adapters físicos top-level o tests que validaban fachadas históricas.
+
+**Decisión:** Retirar los entrypoints públicos top-level de views, forms, services, selectors, signals, api views, serializers, templates, static y realtime en todos los módulos declarados. La ubicación canónica queda bajo `interfaces/`, `infrastructure/` o `application/`. `models.py`, migrations, `admin.py` y `apps.py` se conservan top-level por contrato técnico de Django.
+
+**Consecuencia:** La arquitectura deja de depender de wrappers públicos de compatibilidad y los tests de arquitectura bloquean regresiones de layout físico, imports legacy y package exports de fachadas antiguas.
+
+---
 
 ### DT-001 — Coexistencia de RecursoTurnos y ConfiguracionTurnos (2026-03-09)
 **Contexto:** El portal ciudadano usaba `RecursoTurnos` como única forma de configurar turnos. Se necesitaba extender el sistema para que cualquier entidad (Programa, Institución, Actividad) pudiera tener turnos configurables.

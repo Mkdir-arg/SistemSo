@@ -10,6 +10,7 @@ SistemSo evoluciona sobre un monolito modular activable con layout hexagonal lit
 - `core` y `users` funcionan como shared kernel minimo.
 - Todo modulo declarado debe tener `domain/`, `application/`, `infrastructure/` e `interfaces/`, aunque alguna capa sea fina.
 - Los modelos Django historicos pueden seguir top-level por estabilidad de labels, migrations y contenttypes, pero son infraestructura ORM y no contrato publico entre modulos.
+- No quedan entrypoints publicos top-level para `views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static`, `consumers` ni `routing`. Esas superficies viven fisicamente en `interfaces/`, `application/` o `infrastructure/`.
 
 ## Mapa general
 
@@ -59,7 +60,7 @@ flowchart TD
 | `dashboard` | Shell backoffice | Layout hexagonal literal; consume capacidades |
 | `configuracion` | Shell/config base | Layout hexagonal literal; consume capacidades |
 | `turnos` | Modulo no removible por deuda de FKs | Dominio y aplicacion desacoplados de Django |
-| `legajos` | Hotspot no removible por deuda de FKs | Layout hexagonal literal; subdominios encapsulados gradualmente |
+| `legajos` | Hotspot no removible por deuda de FKs | Adapters fisicos en `interfaces/` e `infrastructure/`; subdominios encapsulados dentro de la app historica |
 | `chatbot` | Modulo opcional removible | Rutas canonicales y guards |
 | `conversaciones` | Modulo opcional removible | Rutas canonicales, API y WebSocket por `interfaces/` |
 | `tramites` | Modulo opcional removible | Rutas canonicales y guards |
@@ -94,3 +95,4 @@ Para agregar un modulo nuevo:
 4. Exponer contratos publicos claros y tests minimos.
 5. Crear siempre `domain/`, `application/`, `infrastructure/` e `interfaces/`.
 6. Exponer rutas desde `interfaces/web/urls.py` y `interfaces/api/urls.py`; no desde `urls.py` top-level.
+7. No crear `views.py`, `forms.py`, `services.py`, `selectors.py`, `signals.py`, `api_views.py`, `serializers.py`, `templates/`, `static/`, `consumers.py` ni `routing.py` en la raiz del modulo.

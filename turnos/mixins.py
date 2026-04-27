@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 
 from system_modules.guards import build_module_disabled_response
-from system_modules.services import module_is_active
+from system_modules.infrastructure.services import module_is_active
 
 
 def _turnos_module_response(request):

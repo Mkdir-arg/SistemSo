@@ -1,6 +1,6 @@
 from django.urls import path
-from dashboard import api_views
-from dashboard.views import DashboardView
+from dashboard.interfaces.api import views as api_views
+from dashboard.interfaces.web.views import DashboardView
 
 app_name = 'dashboard'
 

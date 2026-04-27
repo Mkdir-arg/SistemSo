@@ -11,6 +11,15 @@
 **ADR:** `docs/team/adr-2026-04-24-hexagonal-literal-total.md`
 
 ---
+## 2026-04-27 - Entry points publicos solo bajo capas canonicas
+
+**Decision:** Retirar de los modulos declarados los entrypoints publicos top-level de views, forms, services, selectors, signals, api views, serializers, templates, static y realtime. Las superficies web/API/realtime viven bajo `interfaces/`; los adapters con Django/ORM viven bajo `infrastructure/`; los casos de uso puros quedan en `application/`.
+
+**Motivo:** Evitar que el layout hexagonal sea solo documental. Si los imports publicos antiguos siguen existiendo, los consumidores pueden volver a acoplarse a fachadas legacy.
+
+**ADR:** `docs/team/adr-2026-04-24-hexagonal-literal-total.md`
+
+---
 ## 2026-03-09 — Programas tienen flujo obligatorio
 
 **Decisión:** Todo programa social tiene un flujo configurable. Sin flujo configurado el programa queda en estado BORRADOR y no puede activarse.

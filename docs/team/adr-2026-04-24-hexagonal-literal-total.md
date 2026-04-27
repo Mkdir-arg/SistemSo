@@ -19,15 +19,17 @@ La migracion anterior dejo el control plane y un piloto fuerte en `turnos`, pero
 - `application/` no importa Django ni adapters internos como `models`, `views`, `forms`, `serializers`, `templates`, `consumers` o `routing`.
 - `models.py` puede quedar top-level por estabilidad de Django, pero se considera adapter ORM de infraestructura.
 - Los shells solo consumen capacidades y contratos publicos; no son duenos de dominio.
+- Los adapters publicos historicos top-level (`views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static`, `consumers`, `routing`, `urls`) se retiran como contrato final. La ubicacion fisica canonica queda debajo de `interfaces/`, `application/` o `infrastructure/`.
 
 ## Consecuencias
 
 - Se gana una frontera uniforme para crear, apagar o quitar modulos.
 - Se evita publicar fachadas legacy como contrato final.
-- La migracion fisica de views/forms/templates puede avanzar por subdominio, pero el contrato externo ya no debe depender de URLConfs top-level.
-- Los tests de arquitectura bloquean regresiones de layout, URLConfs viejas e imports Django en `domain/application`.
+- La migracion fisica de views/forms/templates/static/API/realtime queda completada para los modulos declarados en PR #35 sin mover `models.py`, migrations, `admin.py` ni `apps.py`.
+- Los tests de arquitectura bloquean regresiones de layout, URLConfs viejas, imports legacy publicos e imports Django en `domain/application`.
 
 ## Tests de control
 
 - `system_modules.tests.test_architecture`
 - `python manage.py check --settings=config.settings_test`
+- Suites focalizadas por grupos de modulos y suite completa antes de cerrar el PR.

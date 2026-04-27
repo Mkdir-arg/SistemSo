@@ -2,9 +2,9 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase
 
 from core.models import Provincia
-from users.forms import CustomUserChangeForm, UserCreationForm
+from users.interfaces.web.forms import CustomUserChangeForm, UserCreationForm
 from users.models import Profile
-from users.services.admin import UsuariosAdminService
+from users.infrastructure.services.admin import UsuariosAdminService
 
 
 class UsuariosAdminServiceTests(TestCase):

@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
-from core.views import (
+from core.interfaces.web.views import (
     alerts_api,
     inicio_view,
     relevamiento_detail_view,

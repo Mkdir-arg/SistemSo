@@ -1,5 +1,5 @@
 from django.urls import path
-from turnos.views import backoffice as v
+from turnos.interfaces.web.views import backoffice as v
 
 app_name = 'turnos'
 

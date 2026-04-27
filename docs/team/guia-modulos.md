@@ -69,9 +69,16 @@ mi_modulo/
       forms.py
     api/
       urls.py
+      views.py
+      serializers.py
+    realtime/
+      routing.py
+      consumers.py
 ```
 
 La logica de dominio va en `domain/`; los casos de uso en `application/`; Django ORM, email, cache, signals, clock y transaction en `infrastructure/`; views, forms, serializers, templates, static y URLConfs en `interfaces/`.
+
+No crear entrypoints publicos en la raiz del modulo para `views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static`, `consumers`, `routing`, `urls` ni `api_urls`. Si Django obliga a conservar `models.py`, se documenta como adapter ORM historico y no se importa desde otros modulos.
 
 ## Paso 4 - Integrar shells
 
@@ -99,6 +106,8 @@ La logica de dominio va en `domain/`; los casos de uso en `application/`; Django
 - Registro en `config/modules.py`
 - Cuatro capas canonicas
 - Rutas en `interfaces/web/urls.py` y `interfaces/api/urls.py`
+- Views, forms, serializers, templates, static y realtime bajo `interfaces/`
+- Services/selectors/signals con Django bajo `infrastructure/`
 - Guards aplicados
 - Shell degradado
 - Tests nuevos

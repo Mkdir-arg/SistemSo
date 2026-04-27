@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from system_modules.models import ModuleState
 from system_modules.registry import clear_module_registry, get_module_registry
-from system_modules.services import set_module_enabled, sync_installed_modules
+from system_modules.infrastructure.services import set_module_enabled, sync_installed_modules
 
 
 class Command(BaseCommand):

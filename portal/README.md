@@ -11,3 +11,7 @@
 ## Regla
 
 La logica de negocio nueva no debe quedarse en el shell si pertenece a un modulo vertical. En `turnos`, el shell consume `turnos.interfaces.module_api`.
+
+## Literalidad fisica
+
+Las views, forms y templates del portal viven bajo `interfaces/`; services y selectors ciudadanos con Django/ORM viven bajo `infrastructure/`. El shell no publica entrypoints top-level como contrato publico.

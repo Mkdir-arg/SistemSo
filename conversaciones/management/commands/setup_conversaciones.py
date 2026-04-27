@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User, Group
-from conversaciones.services import AsignadorAutomatico, MetricasService
+from conversaciones.infrastructure.services import AsignadorAutomatico, MetricasService
 
 
 class Command(BaseCommand):

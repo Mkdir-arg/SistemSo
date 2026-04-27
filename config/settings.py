@@ -13,6 +13,15 @@ from config.modules import (
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def _existing_project_module_dirs(*parts):
+    module_slugs = dict.fromkeys(list(CORE_PROJECT_APPS) + list(INSTALLED_PROJECT_MODULES))
+    return [
+        BASE_DIR.joinpath(slug, *parts)
+        for slug in module_slugs
+        if BASE_DIR.joinpath(slug, *parts).exists()
+    ]
+
 # Carga base para desarrollo local
 load_dotenv(BASE_DIR / ".env")
 load_dotenv(BASE_DIR / ".env.local")
@@ -117,7 +126,7 @@ ASGI_APPLICATION = "config.asgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates", *_existing_project_module_dirs("interfaces", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -136,7 +145,7 @@ TEMPLATES = [
 ]
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "static", *_existing_project_module_dirs("interfaces", "static")]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
@@ -156,7 +165,7 @@ STATICFILES_STORAGE = (
 LOGIN_URL = "users:login"
 LOGIN_REDIRECT_URL = "core:inicio"
 LOGOUT_REDIRECT_URL = "users:login"
-ACCOUNT_FORMS = {"login": "users.forms.UserLoginForm"}
+ACCOUNT_FORMS = {"login": "users.interfaces.web.forms.UserLoginForm"}
 
 EMAIL_BACKEND = (
     "django.core.mail.backends.smtp.EmailBackend"

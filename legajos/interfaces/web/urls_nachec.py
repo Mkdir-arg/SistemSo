@@ -4,8 +4,8 @@ URLs para transiciones de estado Ñachec
 
 from django.urls import path
 
-from legajos.views.nachec_decisiones import activar_plan, cerrar_caso, evaluar_caso, pasar_a_seguimiento
-from legajos.views.nachec_operacion import (
+from legajos.interfaces.web.views.nachec_decisiones import activar_plan, cerrar_caso, evaluar_caso, pasar_a_seguimiento
+from legajos.interfaces.web.views.nachec_operacion import (
     adjuntar_evidencias,
     asignar_territorial,
     completar_tarea,
@@ -17,14 +17,14 @@ from legajos.views.nachec_operacion import (
     reasignar_territorial,
     ver_tarea_validacion,
 )
-from legajos.views.nachec_prestaciones import (
+from legajos.interfaces.web.views.nachec_prestaciones import (
     cancelar_prestacion,
     confirmar_entrega_prestacion,
     iniciar_prestacion,
     reprogramar_prestacion,
 )
-from legajos.views.nachec_cierre import cerrar_caso_nachec, reabrir_caso_nachec
-from legajos.views.nachec_dashboard import dashboard_nachec
+from legajos.interfaces.web.views.nachec_cierre import cerrar_caso_nachec, reabrir_caso_nachec
+from legajos.interfaces.web.views.nachec_dashboard import dashboard_nachec
 
 urlpatterns = [
     path("dashboard/", dashboard_nachec, name="nachec_dashboard"),

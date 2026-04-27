@@ -16,7 +16,7 @@
 - `domain/`, `application/`, `infrastructure/`, `interfaces/`: layout canonico del modulo, aunque varias capas sean finas porque el dominio real es el registry.
 - `definitions.py`: `ModuleDefinition` y `NavItemDefinition`.
 - `registry.py`: carga y cachea el catalogo instalado.
-- `services.py`: `ModuleResolver`, sincronizacion interna del catalogo, helpers de grupos y capacidades.
+- `infrastructure/services.py`: `ModuleResolver`, sincronizacion interna del catalogo, helpers de grupos y capacidades.
 - `guards.py`: `module_required`, `ModuleRequiredMixin`, `ModuleActivePermission`.
 - `context_processors.py`: publica `module_capabilities` y `active_module_slugs`.
 - `models.py`: `ModuleState` con `is_installed` e `is_enabled`.
@@ -39,3 +39,7 @@ py -3 manage.py modules sync
 ## Regla importante
 
 No hay autodiscovery por filesystem. El catalogo es explicito, legible y testeable.
+
+## Literalidad fisica
+
+`system_modules` no expone `services.py`, `signals.py` ni templates en la raiz como contrato publico. Los services y signals que dependen de Django viven en `infrastructure/`, y el template de modulo inactivo vive en `interfaces/templates/`.

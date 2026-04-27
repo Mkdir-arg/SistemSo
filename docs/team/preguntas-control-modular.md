@@ -17,3 +17,4 @@
 1. Que pasaria si un modulo nuevo importa `views` de otro modulo para reutilizar una pantalla.
 2. Como ocultarias grupos y accesos de un modulo removido del catalogo sin borrar datos historicos.
 3. Por que `legajos` no se parte en esta fase aunque siga siendo el hotspot principal.
+4. Por que `models.py` puede seguir top-level pero `views.py`, `forms.py`, `services.py` y `templates/` no.

@@ -1,5 +1,5 @@
 from django.urls import path
-from chatbot import views
+from chatbot.interfaces.web import views
 
 app_name = 'chatbot'
 

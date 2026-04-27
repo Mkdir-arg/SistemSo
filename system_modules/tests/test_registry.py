@@ -7,7 +7,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from system_modules.context_processors import module_capabilities
 from system_modules.models import ModuleState
 from system_modules.registry import clear_module_registry, get_module_registry
-from system_modules.services import get_assignable_groups_queryset, module_is_active
+from system_modules.infrastructure.services import get_assignable_groups_queryset, module_is_active
 
 
 class ModuleRegistryTests(TestCase):

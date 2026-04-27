@@ -1,7 +1,7 @@
 from django.test import SimpleTestCase
 
-from legajos.views import ProgramaDetailView, ProgramaListView
-from legajos.views.programas import (
+from legajos.interfaces.web.views import ProgramaDetailView, ProgramaListView
+from legajos.interfaces.web.views.programas import (
     ProgramaDetailView as ProgramaDetailViewModule,
     ProgramaListView as ProgramaListViewModule,
 )

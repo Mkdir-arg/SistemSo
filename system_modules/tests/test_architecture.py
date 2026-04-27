@@ -34,13 +34,15 @@ CANONICAL_LAYER_FILES = (
     "application/ports.py",
     "application/services.py",
     "infrastructure/orm_repositories.py",
-    "infrastructure/signals.py",
     "infrastructure/notifications.py",
     "interfaces/module_api.py",
     "interfaces/web/urls.py",
-    "interfaces/web/views.py",
-    "interfaces/web/forms.py",
     "interfaces/api/urls.py",
+)
+CANONICAL_LAYER_PATH_CANDIDATES = (
+    ("infrastructure/signals.py", "infrastructure/signals/__init__.py"),
+    ("interfaces/web/views.py", "interfaces/web/views/__init__.py"),
+    ("interfaces/web/forms.py", "interfaces/web/forms/__init__.py"),
 )
 OPTIONAL_ROUTE_MODULES = ("chatbot", "conversaciones", "flujos", "tramites")
 LEGACY_WRAPPER_PREFIXES = (
@@ -49,6 +51,37 @@ LEGACY_WRAPPER_PREFIXES = (
     "selectors_",
     "forms_",
     "signals_",
+)
+FORBIDDEN_PUBLIC_ENTRYPOINTS = (
+    "views",
+    "views.py",
+    "forms",
+    "forms.py",
+    "services",
+    "services.py",
+    "selectors",
+    "selectors.py",
+    "signals",
+    "signals.py",
+    "api_views",
+    "api_views.py",
+    "serializers",
+    "serializers.py",
+    "templates",
+    "static",
+    "consumers.py",
+    "routing.py",
+    "urls.py",
+    "api_urls.py",
+)
+FORBIDDEN_PUBLIC_IMPORT_SEGMENTS = (
+    ".views",
+    ".forms",
+    ".services",
+    ".selectors",
+    ".signals",
+    ".api_views",
+    ".serializers",
 )
 
 
@@ -62,6 +95,55 @@ class ModularArchitectureTests(SimpleTestCase):
             for path in module_path.glob("*.py"):
                 if path.name.startswith(LEGACY_WRAPPER_PREFIXES):
                     offenders.append(path.relative_to(PROJECT_ROOT).as_posix())
+
+        self.assertEqual(offenders, [])
+
+    def test_no_top_level_public_entrypoints_remain(self):
+        offenders = []
+        for module in MODULES_WITH_PUBLIC_CONTRACTS:
+            module_path = PROJECT_ROOT / module
+            if not module_path.exists():
+                continue
+            for entrypoint in FORBIDDEN_PUBLIC_ENTRYPOINTS:
+                candidate = module_path / entrypoint
+                if candidate.exists():
+                    offenders.append(candidate.relative_to(PROJECT_ROOT).as_posix())
+
+        self.assertEqual(offenders, [])
+
+    def test_no_package_export_tests_for_legacy_facades_remain(self):
+        offenders = []
+        for module in MODULES_WITH_PUBLIC_CONTRACTS:
+            test_path = PROJECT_ROOT / module / "tests" / "test_package_exports.py"
+            if test_path.exists():
+                offenders.append(test_path.relative_to(PROJECT_ROOT).as_posix())
+
+        self.assertEqual(offenders, [])
+
+    def test_no_imports_from_legacy_public_entrypoints(self):
+        offenders = []
+        ignored_parts = {"migrations", "__pycache__"}
+        for path in PROJECT_ROOT.rglob("*.py"):
+            if ignored_parts.intersection(path.parts):
+                continue
+            tree = ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    imported_names = [alias.name for alias in node.names]
+                elif isinstance(node, ast.ImportFrom):
+                    imported_names = [node.module or ""]
+                else:
+                    continue
+                for imported in imported_names:
+                    for module in MODULES_WITH_PUBLIC_CONTRACTS:
+                        if any(
+                            imported == f"{module}{segment}"
+                            or imported.startswith(f"{module}{segment}.")
+                            for segment in FORBIDDEN_PUBLIC_IMPORT_SEGMENTS
+                        ):
+                            offenders.append(
+                                f"{path.relative_to(PROJECT_ROOT).as_posix()} -> {imported}"
+                            )
 
         self.assertEqual(offenders, [])
 
@@ -95,6 +177,9 @@ class ModularArchitectureTests(SimpleTestCase):
             for layer_file in CANONICAL_LAYER_FILES:
                 if not (module_path / layer_file).is_file():
                     missing.append(f"{module}/{layer_file}")
+            for candidates in CANONICAL_LAYER_PATH_CANDIDATES:
+                if not any((module_path / candidate).is_file() for candidate in candidates):
+                    missing.append(f"{module}/{' or '.join(candidates)}")
 
         self.assertEqual(missing, [])
 
@@ -105,7 +190,7 @@ class ModularArchitectureTests(SimpleTestCase):
             module_file = module_path / "module.py"
             if not module_file.exists():
                 continue
-            tree = ast.parse(module_file.read_text(encoding="utf-8"))
+            tree = ast.parse(module_file.read_text(encoding="utf-8-sig"))
             for node in ast.walk(tree):
                 if not isinstance(node, ast.keyword) or node.arg != "urlconf":
                     continue
@@ -119,7 +204,7 @@ class ModularArchitectureTests(SimpleTestCase):
         offenders = []
         for domain_path in PROJECT_ROOT.glob("*/domain"):
             for path in domain_path.rglob("*.py"):
-                tree = ast.parse(path.read_text(encoding="utf-8"))
+                tree = ast.parse(path.read_text(encoding="utf-8-sig"))
                 for node in ast.walk(tree):
                     if isinstance(node, ast.Import):
                         names = [alias.name for alias in node.names]
@@ -150,7 +235,7 @@ class ModularArchitectureTests(SimpleTestCase):
         for application_path in PROJECT_ROOT.glob("*/application"):
             module = application_path.parent.name
             for path in application_path.rglob("*.py"):
-                tree = ast.parse(path.read_text(encoding="utf-8"))
+                tree = ast.parse(path.read_text(encoding="utf-8-sig"))
                 for node in ast.walk(tree):
                     if isinstance(node, ast.Import):
                         imported_names = [alias.name for alias in node.names]
@@ -190,7 +275,7 @@ class ModularArchitectureTests(SimpleTestCase):
             for path in module_path.rglob("*.py"):
                 if "tests" in path.parts:
                     continue
-                tree = ast.parse(path.read_text(encoding="utf-8"))
+                tree = ast.parse(path.read_text(encoding="utf-8-sig"))
                 for node in ast.walk(tree):
                     if not isinstance(node, ast.ImportFrom) or not node.module:
                         continue

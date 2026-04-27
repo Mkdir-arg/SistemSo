@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import ModuleState
-from .services import sync_installed_modules
+from system_modules.infrastructure.services import sync_installed_modules
 
 
 @admin.register(ModuleState)

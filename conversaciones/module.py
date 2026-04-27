@@ -33,7 +33,7 @@ MODULE_DEFINITION = ModuleDefinition(
         ),
     ),
     adapter_points=(
-        "portal.views.ciudadano_consultas",
+        "portal.interfaces.web.views.ciudadano_consultas",
         "templates/includes/base.html",
     ),
 )

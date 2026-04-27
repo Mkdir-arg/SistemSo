@@ -1,6 +1,6 @@
 from django.urls import path
 
-from healthcheck.views import health_check
+from healthcheck.interfaces.web.views import health_check
 
 app_name = "healthcheck"
 

@@ -9,6 +9,7 @@
 - `infrastructure/`: repositorios ORM, transacciones, reloj Django y notificaciones.
 - `interfaces/`: API publica y URLConf web canonica consumida por portal y backoffice.
 - `module.py`: descriptor para `system_modules`.
+- `models.py`: adapter ORM historico top-level por Django, no contrato publico.
 
 ## Contrato publico
 
@@ -26,3 +27,5 @@
 ## Regla de dependencia
 
 `turnos/domain` no importa Django. `turnos/application` no debe importar `views` ni `forms`.
+
+Los adapters web y templates viven bajo `interfaces/`; selectors con ORM viven bajo `infrastructure/`.

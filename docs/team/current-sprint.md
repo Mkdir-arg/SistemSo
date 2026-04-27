@@ -83,6 +83,7 @@ _Se define en el sprint planning._
 
 - DX-060 completado el 2026-04-23: monolito modular activable con `system_modules`, shells resilientes y piloto hexagonal en `turnos`.
 - DX-061 completado el 2026-04-24: layout hexagonal literal en todos los modulos declarados, URLConfs canonicas y tests de arquitectura.
+- DX-062 completado el 2026-04-27: maxima literalidad fisica; adapters top-level retirados y superficies movidas a `interfaces/` o `infrastructure/`.
 
 ## Impedimentos
 
@@ -95,3 +96,4 @@ _Ninguno._
 Ver `docs/team/changelog.md` para el detalle de cada sprint.
 | DX-060 | Como equipo de desarrollo quiero un monolito modular activable con catalogo explicito, shells resilientes y un piloto hexagonal en `turnos` para poder apagar modulos opcionales sin romper el sistema | âœ… Completado | Ejecutado el 2026-04-23 con `system_modules`, guards, shell awareness y documentacion completa |
 | DX-061 | Como equipo de desarrollo quiero layout hexagonal literal en todos los modulos para sostener el control plane sin rutas ni imports legacy publicos | Completado | Ejecutado el 2026-04-24 en PR #35 con URLConfs canonicas y tests de arquitectura |
+| DX-062 | Como equipo de desarrollo quiero retirar los entrypoints fisicos top-level de adapters para que el layout hexagonal sea literal y testeable | Completado | Ejecutado el 2026-04-27 en PR #35 con adapters bajo `interfaces/` e `infrastructure/` |

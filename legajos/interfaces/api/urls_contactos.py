@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from legajos.api_views.contactos import (
+from legajos.interfaces.api.views.contactos import (
     HistorialContactoViewSet, VinculoFamiliarViewSet, ProfesionalTratanteViewSet,
     DispositivoVinculadoViewSet, ContactoEmergenciaViewSet
 )

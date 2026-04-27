@@ -14,6 +14,21 @@
 
 ---
 
+## 2026-04-27 - DX-062 Maxima literalidad fisica hexagonal
+
+**User Story:** Como equipo de desarrollo quiero retirar los entrypoints fisicos top-level de adapters para que el monolito modular sea literal, testeable y no dependa de fachadas legacy.
+
+**Archivos modificados:**
+- `config/settings.py` - loaders dinamicos para `*/interfaces/templates` y `*/interfaces/static`
+- `system_modules/tests/test_architecture.py` - reglas contra entrypoints top-level, imports legacy y tests de fachadas
+- `*/interfaces/*` - views, forms, API, serializers, realtime, templates y static
+- `*/infrastructure/*` - services, selectors y signals con dependencia Django/ORM
+- Documentacion de arquitectura, ADR, checklist, guia de modulos y README
+
+**Descripcion:** Se completo la reubicacion fisica estricta de adapters en todos los modulos declarados. No se movieron `models.py`, migrations, `admin.py` ni `apps.py` para preservar labels, contenttypes y wiring Django. Las rutas y nombres visibles se conservaron, pero el contrato publico ahora queda bajo capas canonicas y los tests bloquean que vuelvan wrappers top-level.
+
+---
+
 ## 2026-04-03 — DX-059 Stack local Docker simplificado
 
 **User Story:** Como equipo de desarrollo quiero levantar el entorno local con `docker compose up` y con el menor bootstrap posible para reducir el tiempo hasta entorno usable.

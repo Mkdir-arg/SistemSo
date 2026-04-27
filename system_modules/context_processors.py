@@ -1,4 +1,4 @@
-from .services import get_module_capabilities
+from system_modules.infrastructure.services import get_module_capabilities
 
 
 def module_capabilities(request):

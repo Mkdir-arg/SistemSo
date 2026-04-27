@@ -25,9 +25,9 @@ class TurnosArchitectureTests(SimpleTestCase):
         imports = self._imports_for("application")
         self.assertFalse(
             any(
-                name.startswith("turnos.views")
-                or name.startswith("turnos.forms")
-                or name.startswith("portal.views")
+                name.startswith("turnos.interfaces.web.views")
+                or name.startswith("turnos.interfaces.web.forms")
+                or name.startswith("portal.interfaces.web.views")
                 for name in imports
             ),
             imports,

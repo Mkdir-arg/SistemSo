@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.permissions import BasePermission
 
-from .services import ModuleResolver, module_is_active
+from system_modules.infrastructure.services import ModuleResolver, module_is_active
 
 
 def build_module_disabled_response(request, slug):

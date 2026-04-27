@@ -13,3 +13,5 @@
 ## Regla
 
 Los permisos gestionados por modulos se filtran desde `system_modules`; un modulo inactivo o no instalado no debe aparecer para nuevas asignaciones.
+
+Las views, forms, API, serializers y templates viven bajo `interfaces/`; services, selectors y signals con Django/ORM viven bajo `infrastructure/`.

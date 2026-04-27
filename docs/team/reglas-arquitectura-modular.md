@@ -29,6 +29,7 @@ flowchart LR
 - Meter logica de negocio nueva en shells si ya existe modulo vertical.
 - Publicar wrappers o fachadas de compatibilidad como contrato final de un modulo migrado.
 - Publicar rutas opcionales desde `config/urls.py` por includes hardcodeados.
+- Crear entrypoints publicos top-level `views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static`, `consumers`, `routing`, `urls` o `api_urls` dentro de un modulo declarado.
 
 ## Regla de shells
 
@@ -42,11 +43,13 @@ flowchart LR
 - `application/` no importa Django, `models`, `views`, `forms`, `serializers`, `templates`, `consumers` ni `routing`.
 - ORM, email, cache, signals y clock/transaction de Django viven en `infrastructure/`.
 - Views, forms, serializers, URLConfs, templates y static viven en `interfaces/`.
+- Realtime/WebSocket vive en `interfaces/realtime/`.
+- Queries ORM reutilizables viven en `infrastructure/selectors/`; orquestacion con Django vive en `infrastructure/services/`; casos de uso puros o con puertos viven en `application/services.py`.
 - Si una capa queda fina porque el modulo solo compone UI o health checks, el README del modulo debe decirlo.
 
 ## Regla de migracion
 
 - Mover primero contratos publicos y URLConfs.
 - Mover despues casos de uso y acceso a ORM.
-- Mover views/forms/templates/static a `interfaces/`.
+- Mover views/forms/templates/static/API/realtime a `interfaces/`.
 - Mover modelos o tablas al final solo si no rompe labels, migrations ni contenttypes.

@@ -1,17 +1,17 @@
 from django.test import SimpleTestCase
 
-from legajos.views import (
+from legajos.interfaces.web.views import (
     alertas_dashboard,
     crear_legajo_acompanamiento,
     cursos_actividades_ciudadano,
     derivaciones_programa_api,
     derivar_programa_view,
 )
-from legajos.views.acompanamiento import crear_legajo_acompanamiento as crear_legajo_acompanamiento_module
-from legajos.views.alertas import alertas_dashboard as alertas_dashboard_module
-from legajos.views.api_derivaciones import derivaciones_programa_api as derivaciones_programa_api_module
-from legajos.views.cursos import cursos_actividades_ciudadano as cursos_actividades_ciudadano_module
-from legajos.views.derivacion import derivar_programa_view as derivar_programa_view_module
+from legajos.interfaces.web.views.acompanamiento import crear_legajo_acompanamiento as crear_legajo_acompanamiento_module
+from legajos.interfaces.web.views.alertas import alertas_dashboard as alertas_dashboard_module
+from legajos.interfaces.web.views.api_derivaciones import derivaciones_programa_api as derivaciones_programa_api_module
+from legajos.interfaces.web.views.cursos import cursos_actividades_ciudadano as cursos_actividades_ciudadano_module
+from legajos.interfaces.web.views.derivacion import derivar_programa_view as derivar_programa_view_module
 
 
 class LegajosSupportViewsPackageTests(SimpleTestCase):

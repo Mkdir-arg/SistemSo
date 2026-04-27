@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from legajos.api_views import (
+from legajos.interfaces.api.views import (
     CiudadanoViewSet, LegajoAtencionViewSet, EvaluacionInicialViewSet,
     PlanIntervencionViewSet, SeguimientoContactoViewSet, 
     DerivacionViewSet, EventoCriticoViewSet, AlertasViewSet

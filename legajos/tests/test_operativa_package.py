@@ -1,12 +1,12 @@
 from django.test import SimpleTestCase
 
-from legajos.views import (
+from legajos.interfaces.web.views import (
     ActividadesInscritoListView,
     InscribirActividadView,
     actividades_por_institucion,
     marcar_etapa_plan,
 )
-from legajos.views.operativa import (
+from legajos.interfaces.web.views.operativa import (
     ActividadesInscritoListView as ActividadesInscritoListViewModule,
     InscribirActividadView as InscribirActividadViewModule,
     actividades_por_institucion as actividades_por_institucion_module,

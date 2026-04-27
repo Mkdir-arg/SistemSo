@@ -1,5 +1,5 @@
 from django.urls import path
-from core.views.auditoria import (
+from core.interfaces.web.views.auditoria import (
     alertas_auditoria,
     dashboard_auditoria,
     exportar_logs,

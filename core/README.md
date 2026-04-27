@@ -13,3 +13,5 @@
 ## Regla
 
 Los modulos funcionales no deben importar internals de `core.views` o `core.forms`; deben usar contratos explicitos o rutas publicas.
+
+Las views, forms, API, serializers y templates viven bajo `interfaces/`; services, selectors y signals con Django/ORM viven bajo `infrastructure/`.

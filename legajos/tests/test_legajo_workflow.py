@@ -7,10 +7,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models import Institucion, Localidad, Municipio, Provincia
-from legajos.forms import EvaluacionInicialForm, EventoCriticoForm, PlanIntervencionForm, SeguimientoForm
+from legajos.interfaces.web.forms import EvaluacionInicialForm, EventoCriticoForm, PlanIntervencionForm, SeguimientoForm
 from legajos.models import Ciudadano, Derivacion, LegajoAtencion, SeguimientoContacto
-from legajos.selectors import get_legajos_report_stats, get_seguimientos_dashboard_metrics
-from legajos.services import LegajoWorkflowService
+from legajos.infrastructure.selectors import get_legajos_report_stats, get_seguimientos_dashboard_metrics
+from legajos.infrastructure.services import LegajoWorkflowService
 
 
 class LegajoWorkflowTests(TestCase):

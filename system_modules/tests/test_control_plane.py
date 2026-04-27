@@ -6,7 +6,7 @@ from django.urls import clear_url_caches, reverse
 from system_modules.guards import module_required
 from system_modules.models import ModuleState
 from system_modules.registry import clear_module_registry, get_module_registry
-from system_modules.services import (
+from system_modules.infrastructure.services import (
     get_assignable_groups_queryset,
     module_is_active,
     sync_installed_modules,

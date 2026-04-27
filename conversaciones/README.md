@@ -7,6 +7,8 @@
 - Catalogo explicito con `conversaciones/module.py`.
 - Guards en vistas publicas y de backoffice.
 - Sidebar, dashboard, portal ciudadano y scripts globales renderizan segun `module_capabilities`.
+- Web, API, templates y realtime viven bajo `interfaces/`.
+- Selectors, services y signals con Django/ORM viven bajo `infrastructure/`.
 
 ## Superficies afectadas
 

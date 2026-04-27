@@ -744,3 +744,19 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - `turnos` pasa a ser el piloto con `domain/application/infrastructure/interfaces`.
 - `chatbot`, `conversaciones`, `tramites` y `flujos` quedan integrados al catalogo modular con guards y shell awareness.
 - `legajos` queda documentado como hotspot pendiente para una particion posterior por subdominios.
+
+## Actualizacion 2026-04-27 - literalidad fisica hexagonal
+
+### Regla confirmada
+
+- Los adapters publicos de un modulo declarado no viven en la raiz del modulo.
+- Web, API, templates, static y realtime viven en `interfaces/`.
+- Services, selectors y signals que dependen de Django/ORM viven en `infrastructure/`.
+- `models.py` puede seguir top-level solo por contrato tecnico de Django; no es contrato publico entre modulos.
+
+### Sesion 11
+
+- Se completo la fase de maxima literalidad fisica en PR #35.
+- Se retiraron entrypoints top-level de `views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static` y realtime.
+- Se agregaron tests de arquitectura para bloquear regresiones de layout, imports legacy y tests de fachadas antiguas.
+- Los loaders de templates/static ahora contemplan `*/interfaces/templates` y `*/interfaces/static`.

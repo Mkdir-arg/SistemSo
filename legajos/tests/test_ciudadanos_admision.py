@@ -2,10 +2,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from legajos.forms import AdmisionLegajoForm, CiudadanoConfirmarForm, CiudadanoManualForm
+from legajos.interfaces.web.forms import AdmisionLegajoForm, CiudadanoConfirmarForm, CiudadanoManualForm
 from legajos.models import Ciudadano
 from legajos.models_programas import InscripcionPrograma, Programa
-from legajos.services import AdmisionSessionService, CiudadanosService
+from legajos.infrastructure.services import AdmisionSessionService, CiudadanosService
 
 
 class LegajosCiudadanosAdmisionTests(TestCase):

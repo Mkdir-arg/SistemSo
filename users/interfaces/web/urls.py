@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from core.decorators import group_required
-from users.views import (
+from users.interfaces.web.views import (
     UsuariosLoginView,
     UserListView,
     UserCreateView,

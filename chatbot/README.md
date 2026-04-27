@@ -7,6 +7,8 @@
 - Catalogo explicito con `chatbot/module.py`.
 - Guards en vistas publicas y administrativas.
 - Bubble global y accesos del shell condicionados por capacidades.
+- Views, forms, API, serializers, templates y static viven fisicamente bajo `interfaces/`.
+- Services y selectors con ORM/Django viven bajo `infrastructure/`.
 
 ## Dependencias permitidas
 

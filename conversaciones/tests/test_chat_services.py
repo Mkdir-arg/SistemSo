@@ -4,10 +4,10 @@ from django.contrib.auth.models import Group, User
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from conversaciones.forms.chat import IniciarConversacionForm, MensajeConversacionForm
+from conversaciones.interfaces.web.forms.chat import IniciarConversacionForm, MensajeConversacionForm
 from conversaciones.models import Conversacion, HistorialAlertaConversacion, Mensaje
-from conversaciones.selectors.conversaciones import get_alertas_conversaciones_count
-from conversaciones.services.chat import (
+from conversaciones.infrastructure.selectors.conversaciones import get_alertas_conversaciones_count
+from conversaciones.infrastructure.services.chat import (
     crear_mensaje_operador,
     iniciar_conversacion_publica,
     marcar_mensajes_ciudadano_leidos,
@@ -40,8 +40,8 @@ class ChatServicesTests(TestCase):
             last_name='Chat',
         )
 
-    @patch('conversaciones.services.chat.NotificacionService.notificar_nueva_conversacion')
-    @patch('conversaciones.services.chat.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
+    @patch('conversaciones.infrastructure.services.chat.NotificacionService.notificar_nueva_conversacion')
+    @patch('conversaciones.infrastructure.services.chat.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
     def test_iniciar_conversacion_publica_crea_conversacion_activa(self, mock_asignar, mock_notificar):
         conversacion = iniciar_conversacion_publica({
             'tipo': 'anonima',
@@ -141,7 +141,7 @@ class ConversacionesViewsContractTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('csrftoken', self.client.cookies)
 
-    @patch('conversaciones.views.public.iniciar_conversacion_publica')
+    @patch('conversaciones.interfaces.web.views.public.iniciar_conversacion_publica')
     def test_iniciar_conversacion_publica_requiere_csrf_y_devuelve_contrato(self, mock_iniciar):
         mock_iniciar.return_value = Conversacion(id=44)
         url = reverse('conversaciones:iniciar_conversacion')

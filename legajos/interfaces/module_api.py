@@ -2,7 +2,7 @@
 
 
 def consultar_datos_renaper(dni, sexo):
-    from legajos.services.consulta_renaper import consultar_datos_renaper as consultar
+    from legajos.infrastructure.services.consulta_renaper import consultar_datos_renaper as consultar
 
     return consultar(dni, sexo)
 
@@ -23,7 +23,7 @@ def get_or_create_ciudadano_basico(*, dni, genero, datos_renaper):
 
 def crear_alerta_ciudadano(*, ciudadano, tipo, prioridad, mensaje):
     from legajos.models import AlertaCiudadano
-    from legajos.services.alertas import AlertasService
+    from legajos.infrastructure.services.alertas import AlertasService
 
     alerta = AlertaCiudadano.objects.create(
         ciudadano=ciudadano,

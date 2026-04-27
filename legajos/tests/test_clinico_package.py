@@ -1,7 +1,7 @@
 from django.test import SimpleTestCase
 
-from legajos.views import LegajoDetailView, LegajoListView, ReportesView
-from legajos.views.clinico import (
+from legajos.interfaces.web.views import LegajoDetailView, LegajoListView, ReportesView
+from legajos.interfaces.web.views.clinico import (
     LegajoDetailView as LegajoDetailViewModule,
     LegajoListView as LegajoListViewModule,
     ReportesView as ReportesViewModule,

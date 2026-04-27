@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.test.client import RequestFactory
 
 from system_modules.models import ModuleState
-from system_modules.services import sync_installed_modules
+from system_modules.infrastructure.services import sync_installed_modules
 
 
 class BackofficeModuleShellTests(TestCase):

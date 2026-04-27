@@ -1,6 +1,6 @@
 from django.urls import path
 
-from flujos import views
+from flujos.interfaces.web import views
 
 app_name = 'flujos'
 

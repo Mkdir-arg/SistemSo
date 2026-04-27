@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from chatbot.api_views import (
+from chatbot.interfaces.api.views import (
     ConversationViewSet, MessageViewSet, ChatbotKnowledgeViewSet, ChatbotFeedbackViewSet
 )
 

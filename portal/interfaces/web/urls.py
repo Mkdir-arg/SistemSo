@@ -1,6 +1,6 @@
 from django.urls import path
 
-from portal.views.public import (
+from portal.interfaces.web.views.public import (
     ConsultarTramiteView,
     CrearUsuarioInstitucionView,
     PortalHomeView,
@@ -8,12 +8,12 @@ from portal.views.public import (
     get_localidades,
     get_municipios,
 )
-from portal.views.ciudadano_actividades import (
+from portal.interfaces.web.views.ciudadano_actividades import (
     ciudadano_detalle_actividad,
     ciudadano_inscribirse_actividad,
     ciudadano_mis_actividades,
 )
-from portal.views.ciudadano import (
+from portal.interfaces.web.views.ciudadano import (
     CiudadanoLoginView,
     CiudadanoLogoutView,
     CiudadanoPasswordResetCompleteView,

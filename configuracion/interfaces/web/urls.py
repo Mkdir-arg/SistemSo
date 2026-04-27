@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from configuracion import views
-from configuracion.views import programas as views_programas
+from configuracion.interfaces.web import views
+from configuracion.interfaces.web.views import programas as views_programas
 
 app_name = 'configuracion'
 

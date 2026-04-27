@@ -1,11 +1,11 @@
 from django.test import SimpleTestCase
 
-from legajos.views import (
+from legajos.interfaces.web.views import (
     CiudadanoDetalleConSolapasView,
     ciudadano_detalle_con_solapas,
     derivar_a_programa,
 )
-from legajos.views.solapas import (
+from legajos.interfaces.web.views.solapas import (
     CiudadanoDetalleConSolapasView as CiudadanoDetalleConSolapasViewModule,
     ciudadano_detalle_con_solapas as ciudadano_detalle_con_solapas_module,
     derivar_a_programa as derivar_a_programa_module,

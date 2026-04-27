@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils.html import escape
 
 from conversaciones.models import Conversacion, Mensaje
-from conversaciones.services.core import AsignadorAutomatico, NotificacionService
+from conversaciones.infrastructure.services.core import AsignadorAutomatico, NotificacionService
 
 logger = logging.getLogger(__name__)
 

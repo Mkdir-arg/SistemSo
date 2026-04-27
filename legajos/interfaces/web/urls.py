@@ -1,26 +1,26 @@
 from django.urls import include, path
 
-from legajos.views import acompanamiento as views_acompanamiento
-from legajos.views import alertas as views_alertas
-from legajos.views import api_derivaciones as views_api_derivaciones
-from legajos.views import ciudadanos_api as views_ciudadanos_api
-from legajos.views import ciudadanos as views_ciudadanos
-from legajos.views import clinico as views_clinico
-from legajos.views import contactos_api as views_contactos_api
-from legajos.views import contactos_panel as views_contactos_panel
-from legajos.views import cursos as views_cursos
-from legajos.views.dashboard_contactos import (  # importar directamente del módulo, no del __init__
+from legajos.interfaces.web.views import acompanamiento as views_acompanamiento
+from legajos.interfaces.web.views import alertas as views_alertas
+from legajos.interfaces.web.views import api_derivaciones as views_api_derivaciones
+from legajos.interfaces.web.views import ciudadanos_api as views_ciudadanos_api
+from legajos.interfaces.web.views import ciudadanos as views_ciudadanos
+from legajos.interfaces.web.views import clinico as views_clinico
+from legajos.interfaces.web.views import contactos_api as views_contactos_api
+from legajos.interfaces.web.views import contactos_panel as views_contactos_panel
+from legajos.interfaces.web.views import cursos as views_cursos
+from legajos.interfaces.web.views.dashboard_contactos import (  # importar directamente del módulo, no del __init__
     dashboard_contactos as view_dashboard_contactos_completo,
     exportar_reporte_contactos as view_exportar_reporte_contactos,
     metricas_contactos_api as view_metricas_contactos_api,
     metricas_red_contactos_api as view_metricas_red_contactos_api,
 )
-from legajos.views import dashboard_simple as views_simple
-from legajos.views import derivacion as views_derivacion
-from legajos.views import derivacion_programa as views_derivacion_programa
-from legajos.views import institucional as views_institucional
-from legajos.views import operativa as views_operativa
-from legajos.views import programas as views_programas
+from legajos.interfaces.web.views import dashboard_simple as views_simple
+from legajos.interfaces.web.views import derivacion as views_derivacion
+from legajos.interfaces.web.views import derivacion_programa as views_derivacion_programa
+from legajos.interfaces.web.views import institucional as views_institucional
+from legajos.interfaces.web.views import operativa as views_operativa
+from legajos.interfaces.web.views import programas as views_programas
 
 app_name = "legajos"
 

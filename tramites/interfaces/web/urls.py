@@ -1,5 +1,5 @@
 from django.urls import path
-from tramites.views import aprobar_tramite, detalle_tramite, lista_tramites, rechazar_tramite
+from tramites.interfaces.web.views import aprobar_tramite, detalle_tramite, lista_tramites, rechazar_tramite
 
 app_name = 'tramites'
 

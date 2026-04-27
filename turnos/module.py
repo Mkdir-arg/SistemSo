@@ -27,8 +27,8 @@ MODULE_DEFINITION = ModuleDefinition(
         ),
     ),
     adapter_points=(
-        "portal.views.ciudadano_turnos",
-        "portal.services.turnos_ciudadano",
-        "turnos.views.backoffice",
+        "portal.interfaces.web.views.ciudadano_turnos",
+        "portal.infrastructure.services.turnos_ciudadano",
+        "turnos.interfaces.web.views.backoffice",
     ),
 )

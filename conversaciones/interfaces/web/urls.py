@@ -1,5 +1,5 @@
 from django.urls import path, include
-from conversaciones import views
+from conversaciones.interfaces.web import views
 
 app_name = 'conversaciones'
 

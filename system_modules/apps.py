@@ -7,4 +7,4 @@ class SystemModulesConfig(AppConfig):
     verbose_name = "System Modules"
 
     def ready(self):
-        from . import signals  # noqa: F401
+        from system_modules.infrastructure import signals  # noqa: F401

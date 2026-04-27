@@ -6,7 +6,7 @@ from django.test import TestCase
 from core.models import Municipio, Provincia
 from legajos.models import Ciudadano
 from legajos.models_nachec import CasoNachec, EstadoCaso, EstadoTarea, HistorialEstadoCaso, TareaNachec
-from legajos.services import ServicioOperacionNachec
+from legajos.infrastructure.services import ServicioOperacionNachec
 
 
 class ServicioOperacionNachecTests(TestCase):
