@@ -20,6 +20,8 @@ class IniciarConversacionForm(forms.Form):
     sexo = forms.CharField(max_length=1, required=False)
     datos_renaper = forms.JSONField(required=False)
     prioridad = forms.ChoiceField(choices=Conversacion.PRIORIDAD_CHOICES, required=False)
+    flujo_portal = forms.BooleanField(required=False)
+    canal = forms.CharField(max_length=30, required=False)
 
     def clean_tipo(self):
         return (self.cleaned_data.get('tipo') or 'anonima').strip()
@@ -32,6 +34,9 @@ class IniciarConversacionForm(forms.Form):
 
     def clean_prioridad(self):
         return (self.cleaned_data.get('prioridad') or 'normal').strip()
+
+    def clean_canal(self):
+        return (self.cleaned_data.get('canal') or '').strip().lower()
 
 class MensajeConversacionForm(forms.Form):
     mensaje = forms.CharField()

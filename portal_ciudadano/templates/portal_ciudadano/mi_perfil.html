@@ -1,0 +1,716 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Portal Ciudadano</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text-heading: #101828;
+            --text-body: #4a5565;
+            --brand-strong: #c91b72;
+            --brand-gradient-start: rgba(133, 37, 196, 0.8);
+            --brand-gradient-end: rgba(255, 0, 128, 0.8);
+            --header-bg: #5d287f;
+            --footer-bg: #51236f;
+            --line: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text-heading);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out both; }
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .delay-3 { animation-delay: 0.24s; }
+        .card-lift { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .card-lift:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -8px rgba(0,0,0,0.12); }
+
+        .container { width: min(1140px, calc(100vw - 32px)); margin: 0 auto; }
+
+        .topbar {
+            min-height: 92px;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.13), rgba(0, 0, 0, 0.13)), var(--header-bg);
+            color: #fff;
+        }
+
+        .topbar-inner {
+            min-height: 92px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-mark {
+            width: 56px;
+            height: 68px;
+            display: block;
+            object-fit: contain;
+            opacity: 0.58;
+        }
+        .icon-img {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .check-icon {
+            width: 19px;
+            height: 19px;
+            display: inline-block;
+        }
+
+        .brand-title {
+            color: #f9fafb;
+            font-family: "Geliat", "Inter", sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+
+        .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
+        .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
+
+        .top-links {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .icon-link {
+            width: 16px;
+            height: 16px;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .profile-btn {
+            padding: 6px 12px;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 1px .5px .05px rgba(29, 41, 61, 0.02);
+            color: var(--text-body);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        main { flex: 1; }
+
+        .hero {
+            background: linear-gradient(360deg, var(--brand-gradient-end) 0%, var(--brand-gradient-start) 100%);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            padding: 56px 100px 112px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+            display: block;
+            margin-top: 8px;
+            color: rgba(255, 255, 255, .84);
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .hero-text {
+            width: min(620px, 100%);
+            margin: 14px 0 0;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 24px;
+        }
+
+        .quick-grid {
+            margin-top: -32px;
+            width: min(940px, 100%);
+            margin-left: auto;
+            margin-right: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .quick-card {
+            min-height: 142px;
+            border: 1px solid var(--line);
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            padding: 14px;
+            background: #fff;
+            box-shadow: 0 1px .5px .05px rgba(29, 41, 61, 0.02);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .quick-card > div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .quick-card .title {
+            margin: 0 0 8px;
+            color: var(--text-heading);
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 30px;
+        }
+
+        .quick-card p {
+            margin: 0;
+            color: var(--text-body);
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+        }
+
+        .quick-card i { color: #475467; margin-top: 18px; }
+
+        .mini-grid {
+            margin-top: 20px;
+            width: min(940px, 100%);
+            margin-left: auto;
+            margin-right: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .mini-card {
+            border: 1px solid var(--line);
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            background: #fff;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            color: var(--text-heading);
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 30px;
+        }
+
+        .main-section {
+            width: min(940px, 100%);
+            margin: 42px auto 90px;
+        }
+
+        .main-section h2 {
+            margin: 0 0 12px;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 36px;
+        }
+
+        .dual {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .dual-card {
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .dual-head {
+            min-height: 116px;
+            padding: 20px 30px;
+            background: rgba(121, 40, 202, 0.8);
+            color: #fff;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: rgba(249, 250, 251, 0.5);
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 16px;
+            margin-bottom: 10px;
+        }
+
+        .dual-head .name {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 24px;
+        }
+
+        .dual-head p {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 18px;
+        }
+
+        .dual-body {
+            padding: 15px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 21px;
+            min-height: 207px;
+        }
+
+        .checks {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 6px;
+        }
+
+        .checks .item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-body);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 21px;
+        }
+
+        .checks .item strong {
+            color: #344054;
+            font-weight: 700;
+        }
+
+        .checks i { color: var(--brand-strong); }
+
+        .dual-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .btn {
+            min-height: 32px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 20px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 6px 12px;
+            border: 0;
+        }
+
+        .btn-secondary {
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            color: var(--text-body);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%);
+            color: #fff;
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: #fff;
+            margin-top: auto;
+            padding: 30px 0 42px;
+            position: relative;
+        }
+
+        .footer::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 22px;
+            background: #000;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 23px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            text-decoration: underline;
+        }
+
+        .social {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .social small {
+            width: 139px;
+            text-align: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 17px;
+            font-size: 22px;
+        }
+
+        .legal-row {
+            margin-top: 16px;
+            color: #8c8c8c;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legal-row .left span.heart { color: #f5222d; }
+        .legal-row .left strong { color: #fff; font-weight: 700; }
+
+        .chat-bubble {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 57px;
+            height: 57px;
+            border-radius: 50%;
+            background: #8525c4;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 26px;
+            z-index: 50;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .22);
+            transition: transform .25s ease;
+        }
+        .chat-icon {
+            width: 30px;
+            height: 30px;
+            display: block;
+        }
+
+        .chat-bubble:hover { transform: scale(1.06); }
+
+        @media (max-width: 1100px) {
+            .hero { padding-left: 24px; padding-right: 24px; }
+            .hero h1, .hero h1 span { font-size: 42px; }
+        }
+
+        @media (max-width: 900px) {
+            .topbar-inner {
+                justify-content: flex-start;
+                gap: 12px;
+                padding: 10px 0;
+            }
+            .brand { width: 100%; }
+            .top-links {
+                width: 100%;
+                justify-content: flex-start;
+                gap: 10px;
+            }
+            .profile-btn {
+                font-size: 11px;
+                line-height: 16px;
+                padding: 5px 10px;
+            }
+            .quick-grid,
+            .mini-grid,
+            .dual,
+            .dual-actions { grid-template-columns: 1fr; }
+
+            .hero {
+                padding: 32px 20px 34px;
+            }
+
+            .hero h1,
+            .hero h1 span {
+                font-size: 36px;
+            }
+            .hero-text {
+                font-size: 15px;
+                line-height: 22px;
+            }
+            .quick-card { min-height: auto; }
+            .quick-card .title { font-size: 18px; line-height: 26px; }
+            .quick-card p { font-size: 14px; line-height: 21px; }
+            .mini-card { font-size: 18px; line-height: 26px; min-height: 48px; }
+            .dual-body {
+                padding: 14px 18px;
+                min-height: 0;
+            }
+            .checks .item {
+                font-size: 13px;
+                line-height: 20px;
+            }
+            .footer-inner {
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .main-section { margin-bottom: 50px; }
+            .legal-row { font-size: 12px; }
+            .chat-bubble {
+                width: 50px;
+                height: 50px;
+                right: 16px;
+                bottom: 104px;
+            }
+            .chat-icon {
+                width: 26px;
+                height: 26px;
+            }
+        }
+        @media (max-width: 600px) {
+            .container { width: calc(100vw - 24px); }
+            .brand-mark {
+                width: 44px;
+                height: 54px;
+            }
+            .brand-title strong { font-size: 26px; line-height: 30px; }
+            .brand-title span { font-size: 18px; line-height: 20px; }
+            .icon-link { width: 14px; height: 14px; }
+            .icon-img { width: 14px; height: 14px; }
+            .hero h1,
+            .hero h1 span {
+                font-size: 30px;
+            }
+            .main-section h2 {
+                font-size: 22px;
+                line-height: 32px;
+            }
+            .footer { padding-top: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a href="{% url 'portal_ciudadano:home' %}" class="brand">
+                <img src="{% static 'custom/portal-ciudadano/huella.png' %}" alt="" class="brand-mark">
+                <div class="brand-title">
+                    <strong>Nodo</strong>
+                    <span>Ciudadano</span>
+                </div>
+            </a>
+            <div class="top-links">
+                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><img src="{% static 'custom/portal-ciudadano/home.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><img src="{% static 'custom/portal-ciudadano/calendar-month.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Consultas"><img src="{% static 'custom/portal-ciudadano/bell.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="icon-img"></a>
+                <form method="post" action="{% url 'portal_ciudadano:logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="profile-btn">
+                        Cerrar sesión
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>{{ saludo_bienvenida }},<span>{{ ciudadano.nombre }} {{ ciudadano.apellido }}</span></h1>
+            <p class="hero-text">Gestioná trámites, seguí tus programas sociales, solicitá turnos y conectate con el municipio sin salir de casa.</p>
+        </section>
+
+        <section class="quick-grid">
+            <a class="quick-card card-lift animate-fadeInUp delay-1" href="/portal-ciudadano/tramites/">
+                <div>
+                    <div class="title">Mis trámites</div>
+                    <p>Comenzá acá los trámites municipales que necesitás.</p>
+                </div>
+                <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
+            </a>
+            <a class="quick-card card-lift animate-fadeInUp delay-2" href="{% url 'portal_ciudadano:mis_solicitudes' %}">
+                <div>
+                    <div class="title">Seguimiento</div>
+                    <p>Ingresá para saber en qué estado están tus trámites y solicitudes.</p>
+                </div>
+                <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
+            </a>
+            <a class="quick-card card-lift animate-fadeInUp delay-3" href="/portal-ciudadano/reclamos/">
+                <div>
+                    <div class="title">Ingresar una solicitud</div>
+                    <p>Inicia todo tipo de solicitudes en tu municipio.</p>
+                </div>
+                <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
+            </a>
+        </section>
+
+        <section class="mini-grid">
+            <a class="mini-card card-lift animate-fadeInUp delay-1" href="{% url 'portal:ciudadano_mis_datos' %}">
+                <span>Mis servicios</span>
+                <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
+            </a>
+            <a class="mini-card card-lift animate-fadeInUp delay-2" href="{% url 'portal_ciudadano:mis_solicitudes' %}">
+                <span>Información ciudadana</span>
+                <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
+            </a>
+            <a class="mini-card card-lift animate-fadeInUp delay-3" href="{% url 'portal_ciudadano:turnos' %}">
+                <span>Turnos</span>
+                <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
+            </a>
+        </section>
+
+        <section class="main-section">
+            <h2>Aca podes consultar tu información principal</h2>
+            <div class="dual">
+                <article class="dual-card card-lift animate-fadeInUp delay-1">
+                    <div class="dual-head">
+                        <div class="chip"><i class="fa-regular fa-user"></i> Ciudadano</div>
+                        <div class="name">Datos personales</div>
+                        <p>Revisa, edita y mantené tus datos actualizados</p>
+                    </div>
+                    <div class="dual-body">
+                        <ul class="checks">
+                            <li class="item"><img src="{% static 'custom/portal-ciudadano/Item Icon.svg' %}" alt="" class="check-icon">Nombre completo: <strong>{{ ciudadano.nombre }} {{ ciudadano.apellido }}</strong></li>
+                            <li class="item"><img src="{% static 'custom/portal-ciudadano/Item Icon.svg' %}" alt="" class="check-icon">DNI: <strong>{{ ciudadano.dni }}</strong></li>
+                            <li class="item"><img src="{% static 'custom/portal-ciudadano/Item Icon.svg' %}" alt="" class="check-icon">Correo electrónico: <strong>{{ ciudadano.email|default:"Sin datos" }}</strong></li>
+                            <li class="item"><img src="{% static 'custom/portal-ciudadano/Item Icon.svg' %}" alt="" class="check-icon">Domicilio: <strong>{{ ciudadano.domicilio|default:"Sin datos" }}</strong></li>
+                            <li class="item"><img src="{% static 'custom/portal-ciudadano/Item Icon.svg' %}" alt="" class="check-icon">Teléfono: <strong>{{ ciudadano.telefono|default:"Sin datos" }}</strong></li>
+                        </ul>
+                        <div class="dual-actions" style="grid-template-columns: 1fr;">
+                            <a href="{% url 'portal:ciudadano_mis_datos' %}" class="btn btn-secondary"><img src="{% static 'custom/portal-ciudadano/edit.svg' %}" alt="" class="icon-img">&nbsp;Editar</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dual-card card-lift animate-fadeInUp delay-2">
+                    <div class="dual-head">
+                        <div class="chip"><i class="fa-regular fa-heart"></i> Ayuda social</div>
+                        <div class="name">Mi programas activos</div>
+                        <p>Encontrá los programas municipales en los que participas</p>
+                    </div>
+                    <div class="dual-body">
+                        <ul class="checks">
+                            {% for inscripcion in inscripciones_activas|slice:":3" %}
+                            <li class="item"><img src="{% static 'custom/portal-ciudadano/Item Icon.svg' %}" alt="" class="check-icon">{{ inscripcion.programa.nombre }}</li>
+                            {% empty %}
+                            <li class="item"><img src="{% static 'custom/portal-ciudadano/Item Icon.svg' %}" alt="" class="check-icon">Sin programas activos por el momento</li>
+                            {% endfor %}
+                        </ul>
+                        <div class="dual-actions">
+                            <a href="{% url 'portal_ciudadano:programas' %}" class="btn btn-secondary">Consulta estado</a>
+                            <a href="/portal-ciudadano/reclamos/" class="btn btn-primary">Solicitar</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <a href="{% url 'portal_ciudadano:chat' %}" class="chat-bubble" aria-label="Abrir chat">
+        <img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="chat-icon">
+    </a>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div class="footer-links">
+                <a href="#">Accesibilidad</a>
+                <a href="#">Cookies</a>
+                <a href="#">Privacidad</a>
+            </div>
+            <div class="social">
+                <small>Seguinos en las redes</small>
+                <div class="social-icons">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <i class="fa-brands fa-linkedin-in"></i>
+                    <i class="fa-brands fa-instagram"></i>
+                    <i class="fa-brands fa-x-twitter"></i>
+                </div>
+            </div>
+        </div>
+        <div class="container legal-row">
+            <div class="left">© 2026, made with <span class="heart">❤</span> by <strong>iCore</strong></div>
+            <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
+        </div>
+    </footer>
+</body>
+</html>
+
+

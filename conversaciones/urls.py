@@ -5,13 +5,15 @@ app_name = 'conversaciones'
 
 urlpatterns = [
     # API URLs
-    path('api/', include('conversaciones.api_urls')),
+    path('api/', include(('conversaciones.api_urls', 'conversaciones_api'), namespace='conversaciones_api')),
     # URLs públicas para ciudadanos
     path('chat/', views.chat_ciudadano, name='chat_ciudadano'),
     path('consultar-renaper/', views.consultar_renaper, name='consultar_renaper'),
     path('iniciar/', views.iniciar_conversacion, name='iniciar_conversacion'),
     path('<int:conversacion_id>/enviar/', views.enviar_mensaje_ciudadano, name='enviar_mensaje_ciudadano'),
     path('<int:conversacion_id>/mensajes/', views.obtener_mensajes_ciudadano, name='obtener_mensajes_ciudadano'),
+    path('<int:conversacion_id>/reactivar-bot/', views.reactivar_bot_portal, name='reactivar_bot_portal'),
+    path('iniciar-guiado/', views.iniciar_consulta_guiada, name='iniciar_consulta_guiada'),
     
     # URLs del backoffice
     path('', views.lista_conversaciones, name='lista'),

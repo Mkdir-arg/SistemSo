@@ -1,0 +1,97 @@
+{% extends "includes/base.html" %}
+
+{% block title %}Nuevo Reclamo{% endblock %}
+
+{% block main-content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">Nuevo Reclamo</h1>
+        <p class="text-gray-600 mt-2">Carga inicial del reclamo desde configuracion.</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label for="{{ form.titulo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Titulo</label>
+                    {{ form.titulo }}
+                    {% if form.titulo.errors %}<p class="text-red-600 text-sm mt-1">{{ form.titulo.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}<p class="text-red-600 text-sm mt-1">{{ form.descripcion.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.tipo_reclamo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Tipo de reclamo</label>
+                    {{ form.tipo_reclamo }}
+                    {% if form.tipo_reclamo.errors %}<p class="text-red-600 text-sm mt-1">{{ form.tipo_reclamo.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.area_actual.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Area actual</label>
+                    {{ form.area_actual }}
+                    {% if form.area_actual.errors %}<p class="text-red-600 text-sm mt-1">{{ form.area_actual.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                    {{ form.estado }}
+                    {% if form.estado.errors %}<p class="text-red-600 text-sm mt-1">{{ form.estado.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.prioridad.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Prioridad</label>
+                    {{ form.prioridad }}
+                    {% if form.prioridad.errors %}<p class="text-red-600 text-sm mt-1">{{ form.prioridad.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.origen.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Origen</label>
+                    {{ form.origen }}
+                </div>
+
+                <div>
+                    <label for="{{ form.municipio.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+                    {{ form.municipio }}
+                </div>
+
+                <div>
+                    <label for="{{ form.asignado_a.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Asignado a</label>
+                    {{ form.asignado_a }}
+                </div>
+
+                <div>
+                    <label for="{{ form.canal_detalle.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Canal detalle</label>
+                    {{ form.canal_detalle }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <label class="flex items-center gap-2 text-sm text-gray-700">{{ form.es_anonimo }} Es anonimo</label>
+                <label class="flex items-center gap-2 text-sm text-gray-700">{{ form.requiere_inspeccion }} Requiere inspeccion</label>
+                <label class="flex items-center gap-2 text-sm text-gray-700">{{ form.visible_ciudadano }} Visible al ciudadano</label>
+            </div>
+
+            <div class="flex gap-3 justify-end">
+                <a href="{% url 'configuracion:reclamos_listado' %}" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-5 py-2 rounded-lg bg-arg-azul text-white hover:bg-arg-secundario">
+                    Crear reclamo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

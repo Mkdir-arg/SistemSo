@@ -28,6 +28,7 @@
         <!-- Formulario -->
         <form method="post" novalidate>
             {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next|default:'' }}">
 
             {% if form.non_field_errors %}
                 <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
@@ -102,7 +103,7 @@
         <div class="mt-6 pt-6 border-t border-[#E5E7EB] text-center">
             <p class="text-sm text-[#8C8C8C]">
                 ¿Ya tenés cuenta?
-                <a href="{% url 'portal:ciudadano_login' %}" class="font-medium hover:underline" style="color: {{ branding.portal.primary_button_gradient_start }};">
+                <a href="{% url 'portal:ciudadano_login' %}?next={{ next|urlencode }}" class="font-medium hover:underline" style="color: {{ branding.portal.primary_button_gradient_start }};">
                     Iniciá sesión
                 </a>
             </p>

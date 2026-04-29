@@ -11,13 +11,18 @@ from ..forms import (
     MensajeConversacionForm,
     RenaperConsultaForm,
 )
-from ..models import Conversacion
+from ..models import Conversacion, FlujoPortalConversacion
 from ..selectors import get_conversacion_detalle_queryset
 from ..services.chat import (
     consultar_renaper_para_chat,
     crear_mensaje_ciudadano,
     evaluar_conversacion as evaluar_conversacion_service,
     iniciar_conversacion_publica,
+)
+from ..services.portal_bot import (
+    enviar_mensaje_bot,
+    iniciar_flujo_guiado,
+    reactivar_flujo_post_login,
 )
 
 logger = logging.getLogger(__name__)
@@ -102,7 +107,7 @@ def iniciar_conversacion(request):
         })
 
     try:
-        conversacion = iniciar_conversacion_publica(form.cleaned_data)
+        conversacion = iniciar_conversacion_publica(form.cleaned_data, user=request.user)
         return JsonResponse({
             'success': True,
             'conversacion_id': conversacion.id,
@@ -134,7 +139,7 @@ def enviar_mensaje_ciudadano(request, conversacion_id):
         return JsonResponse({'success': False, 'error': 'Mensaje vacío'})
 
     try:
-        mensaje = crear_mensaje_ciudadano(conversacion_id, form.cleaned_data['mensaje'])
+        mensaje = crear_mensaje_ciudadano(conversacion_id, form.cleaned_data['mensaje'], user=request.user)
         return JsonResponse({
             'success': True,
             'mensaje': {
@@ -182,3 +187,69 @@ def evaluar_conversacion(request, conversacion_id):
     conversacion = get_object_or_404(Conversacion, id=conversacion_id)
     evaluar_conversacion_service(conversacion, evaluar_form.cleaned_data['satisfaccion'])
     return JsonResponse({'success': True})
+
+
+def reactivar_bot_portal(request, conversacion_id):
+    """Reactiva el flujo del bot al cargar la vista post-login.
+
+    El JS del template llama a este endpoint al montar la página si el contexto
+    indica que hay un flujo pendiente de reactivación.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'No autenticado'}, status=401)
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+    conversacion = get_object_or_404(
+        Conversacion.objects.select_related('flujo_portal'),
+        id=conversacion_id,
+    )
+
+    # Verificar propiedad de la conversación
+    if conversacion.ciudadano_usuario_id != request.user.pk:
+        return JsonResponse({'success': False, 'error': 'Sin acceso'}, status=403)
+
+    texto_bot = reactivar_flujo_post_login(conversacion, user=request.user)
+    if not texto_bot:
+        return JsonResponse({'success': True, 'finalizado': True})
+
+    mensaje = enviar_mensaje_bot(conversacion, texto_bot)
+    return JsonResponse({
+        'success': True,
+        'mensaje': {
+            'id': mensaje.id,
+            'contenido': mensaje.contenido,
+            'fecha': mensaje.fecha_envio.strftime('%H:%M'),
+        },
+    })
+
+
+def iniciar_consulta_guiada(request):
+    """Crea una nueva conversación con bot guiado desde el portal logueado.
+
+    Recibe canal ('tramite_login' o 'reclamo_login') en el body JSON.
+    Retorna el conversacion_id para que el JS redirija al detalle.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'No autenticado'}, status=401)
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+    payload, error_response = _json_payload(request)
+    if error_response:
+        return error_response
+
+    canal = payload.get('canal', '')
+    canales_validos = {
+        FlujoPortalConversacion.Canal.TRAMITE_LOGIN,
+        FlujoPortalConversacion.Canal.RECLAMO_LOGIN,
+    }
+    if canal not in canales_validos:
+        return JsonResponse({'success': False, 'error': 'Canal inválido'})
+
+    try:
+        conversacion = iniciar_flujo_guiado(user=request.user, canal=canal)
+        return JsonResponse({'success': True, 'conversacion_id': conversacion.id})
+    except Exception as exc:
+        logger.error('Error al iniciar consulta guiada: %s', exc, exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Error interno del servidor'})

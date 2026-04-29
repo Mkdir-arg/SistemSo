@@ -1,0 +1,41 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Solicitar Turno - Portal Ciudadano{% endblock %}
+{% block hero_title %}Solicitar turno{% endblock %}
+{% block hero_subtitle %}elegí dónde atenderte{% endblock %}
+{% block hero_text %}Seleccioná el organismo, área o profesional disponible para ver días y horarios de atención.{% endblock %}
+
+{% block content %}
+<div class="stack">
+    <a class="btn btn-secondary" href="{% url 'portal_ciudadano:turnos' %}" style="width:fit-content;">
+        <i class="fa-solid fa-arrow-left"></i> Mis turnos
+    </a>
+    {% if recursos %}
+    {% regroup recursos by get_tipo_display as recursos_por_tipo %}
+    {% for grupo in recursos_por_tipo %}
+    <section class="stack">
+        <h2 style="margin:0;font-size:20px;">{{ grupo.grouper }}</h2>
+        <div class="grid-3">
+            {% for recurso in grupo.list %}
+            <article class="card flush-top">
+                <h3>{{ recurso.nombre }}</h3>
+                {% if recurso.descripcion %}<p class="muted">{{ recurso.descripcion }}</p>{% endif %}
+                {% if recurso.direccion %}<p class="muted"><i class="fa-solid fa-location-dot"></i> {{ recurso.direccion }}</p>{% endif %}
+                {% if recurso.telefono %}<p class="muted"><i class="fa-solid fa-phone"></i> {{ recurso.telefono }}</p>{% endif %}
+                {% if recurso.requiere_aprobacion %}<p class="status warn" style="width:fit-content;">Requiere confirmación</p>{% endif %}
+                <a class="btn btn-primary" style="margin-top:12px;width:100%;" href="{% url 'portal_ciudadano:turno_calendario' recurso.pk %}">
+                    <i class="fa-regular fa-calendar"></i> Elegir horario
+                </a>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+    {% else %}
+    <article class="card flush-top" style="text-align:center;">
+        <i class="fa-regular fa-calendar-xmark" style="font-size:32px;color:#cbd5e1;"></i>
+        <p class="muted" style="margin-top:12px;">No hay recursos disponibles para solicitar turnos en este momento.</p>
+    </article>
+    {% endif %}
+</div>
+{% endblock %}

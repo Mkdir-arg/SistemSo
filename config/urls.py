@@ -20,7 +20,12 @@ urlpatterns = [
     path("configuracion/", include("configuracion.urls")),
     path("chatbot/", include("chatbot.urls")),
     path("conversaciones/", include("conversaciones.urls")),
+    path(
+        "conversaciones/api/",
+        include(("conversaciones.api_urls", "conversaciones_api"), namespace="conversaciones_api"),
+    ),
     path("portal/", include("portal.urls")),
+    path("portal-ciudadano/", include("portal_ciudadano.urls")),
     path("turnos/", include("turnos.urls")),
     path("tramites/", include("tramites.urls")),
     path("auditoria/", include("core.urls_auditoria")),
@@ -40,6 +45,8 @@ urlpatterns = [
     path("api/core/", include("core.api_urls")),
     path("api/chatbot/", include("chatbot.api_urls")),
     path("api/users/", include("users.api_urls")),
+    path("api/reclamos/", include("reclamos.api_urls")),
+    path("api/tramites/", include("tramites.api_urls")),
     
     # API Documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

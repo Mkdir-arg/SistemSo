@@ -1,0 +1,112 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Elegir horario - Portal Ciudadano{% endblock %}
+{% block hero_title %}Elegir horario{% endblock %}
+{% block hero_subtitle %}{{ recurso.nombre }}{% endblock %}
+{% block hero_text %}Seleccioná un día disponible y luego elegí el horario que mejor se adapte a tu consulta.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .day, .slot { border: 1px solid var(--line); background: #fff; border-radius: 10px; min-height: 42px; cursor: pointer; font-weight: 600; color: var(--text-heading); }
+    .day[disabled], .slot[disabled] { color: #cbd5e1; background: #f9fafb; cursor: not-allowed; }
+    .day.active, .slot.active { background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%); color: #fff; border-color: transparent; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stack">
+    <a class="btn btn-secondary" href="{% url 'portal_ciudadano:solicitar_turno' %}" style="width:fit-content;">
+        <i class="fa-solid fa-arrow-left"></i> Volver
+    </a>
+    <article class="card flush-top">
+        <h2>{{ recurso.nombre }}</h2>
+        {% if recurso.descripcion %}<p class="muted">{{ recurso.descripcion }}</p>{% endif %}
+    </article>
+    <section class="grid-2">
+        <article class="card">
+            <div class="title-row">
+                <a class="btn btn-secondary" href="?anio={{ mes_anterior.anio }}&mes={{ mes_anterior.mes }}"><i class="fa-solid fa-chevron-left"></i></a>
+                <h3>{{ mes_nombre }}</h3>
+                <a class="btn btn-secondary" href="?anio={{ mes_siguiente.anio }}&mes={{ mes_siguiente.mes }}"><i class="fa-solid fa-chevron-right"></i></a>
+            </div>
+            <div class="calendar-grid" style="margin-bottom:8px;">
+                {% for dia in "LMXJVSD" %}
+                <div class="muted" style="text-align:center;font-weight:700;">{{ dia }}</div>
+                {% endfor %}
+            </div>
+            <div class="calendar-grid">
+                {% for i in primer_dia_offset %}<div></div>{% endfor %}
+                {% for fecha, disponible in calendario.items %}
+                <button class="day" type="button" data-date="{{ fecha|date:'Y-m-d' }}" {% if not disponible %}disabled{% endif %}>{{ fecha.day }}</button>
+                {% endfor %}
+            </div>
+        </article>
+        <article class="card">
+            <h3>Horarios disponibles</h3>
+            <p class="muted" id="slotHint">Elegí un día disponible para ver horarios.</p>
+            <div id="slots" class="grid-3" style="margin-top:16px;"></div>
+            <a id="continueBtn" class="btn btn-primary" style="display:none;margin-top:16px;width:100%;" href="#">Continuar</a>
+        </article>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+    const recursoId = "{{ recurso.pk }}";
+    const slotsEl = document.getElementById("slots");
+    const hintEl = document.getElementById("slotHint");
+    const continueBtn = document.getElementById("continueBtn");
+    let selectedDate = null;
+    let selectedSlot = null;
+
+    function setContinue() {
+        if (!selectedDate || !selectedSlot) {
+            continueBtn.style.display = "none";
+            return;
+        }
+        const params = new URLSearchParams({
+            fecha: selectedDate,
+            hora_inicio: selectedSlot.hora_inicio,
+            hora_fin: selectedSlot.hora_fin,
+        });
+        continueBtn.href = "{% url 'portal_ciudadano:confirmar_turno' recurso.pk %}?" + params.toString();
+        continueBtn.style.display = "inline-flex";
+    }
+
+    document.querySelectorAll(".day:not([disabled])").forEach((button) => {
+        button.addEventListener("click", async () => {
+            document.querySelectorAll(".day").forEach((el) => el.classList.remove("active"));
+            button.classList.add("active");
+            selectedDate = button.dataset.date;
+            selectedSlot = null;
+            setContinue();
+            hintEl.textContent = "Cargando horarios...";
+            slotsEl.innerHTML = "";
+            const response = await fetch(`{% url 'portal_ciudadano:turno_slots' recurso.pk %}?fecha=${selectedDate}`, {
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+            });
+            const data = await response.json();
+            const slots = data.slots || [];
+            hintEl.textContent = slots.length ? "Seleccioná un horario." : "No hay horarios disponibles para este día.";
+            slots.forEach((slot) => {
+                const slotBtn = document.createElement("button");
+                slotBtn.type = "button";
+                slotBtn.className = "slot";
+                slotBtn.textContent = `${slot.hora_inicio} - ${slot.hora_fin}`;
+                slotBtn.disabled = !slot.disponible;
+                slotBtn.addEventListener("click", () => {
+                    document.querySelectorAll(".slot").forEach((el) => el.classList.remove("active"));
+                    slotBtn.classList.add("active");
+                    selectedSlot = slot;
+                    setContinue();
+                });
+                slotsEl.appendChild(slotBtn);
+            });
+        });
+    });
+})();
+</script>
+{% endblock %}

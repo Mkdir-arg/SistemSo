@@ -1,0 +1,87 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}{{ inscripcion.programa.nombre }} - Portal Ciudadano{% endblock %}
+{% block hero_title %}Programa{% endblock %}
+{% block hero_subtitle %}{{ inscripcion.programa.nombre }}{% endblock %}
+{% block hero_text %}Detalle de tu inscripción, estado actual y derivaciones asociadas al programa.{% endblock %}
+
+{% block content %}
+<div class="stack">
+    <a class="btn btn-secondary" href="{% url 'portal_ciudadano:programas' %}" style="width:fit-content;">
+        <i class="fa-solid fa-arrow-left"></i> Volver a programas
+    </a>
+
+    <article class="card flush-top">
+        <div class="title-row">
+            <div>
+                <h2>{{ inscripcion.programa.nombre }}</h2>
+                <p class="muted">{{ inscripcion.programa.get_tipo_display }}</p>
+            </div>
+            {% if inscripcion.estado == "ACTIVO" %}
+            <span class="status ok">Activo</span>
+            {% elif inscripcion.estado == "EN_SEGUIMIENTO" %}
+            <span class="status info">En seguimiento</span>
+            {% elif inscripcion.estado == "PENDIENTE" %}
+            <span class="status warn">En espera</span>
+            {% else %}
+            <span class="status neutral">{{ inscripcion.get_estado_display }}</span>
+            {% endif %}
+        </div>
+    </article>
+
+    <section class="grid-2">
+        <article class="card">
+            <h3>Datos de mi inscripción</h3>
+            <dl>
+                <div class="data-row"><dt>Código</dt><dd>{{ inscripcion.codigo }}</dd></div>
+                <div class="data-row"><dt>Fecha de inscripción</dt><dd>{{ inscripcion.fecha_inscripcion|date:"d/m/Y" }}</dd></div>
+                {% if inscripcion.fecha_inicio %}
+                <div class="data-row"><dt>Fecha de inicio</dt><dd>{{ inscripcion.fecha_inicio|date:"d/m/Y" }}</dd></div>
+                {% endif %}
+                {% if inscripcion.fecha_cierre %}
+                <div class="data-row"><dt>Fecha de cierre</dt><dd>{{ inscripcion.fecha_cierre|date:"d/m/Y" }}</dd></div>
+                {% endif %}
+                <div class="data-row"><dt>Ingreso</dt><dd>{{ inscripcion.get_via_ingreso_display }}</dd></div>
+            </dl>
+        </article>
+        <article class="card">
+            <h3>Estado actual</h3>
+            {% if inscripcion.estado == "ACTIVO" %}
+            <p class="muted">Estás participando actualmente en este programa. El equipo municipal sigue tu caso.</p>
+            {% elif inscripcion.estado == "EN_SEGUIMIENTO" %}
+            <p class="muted">El equipo está realizando seguimiento periódico de tu situación.</p>
+            {% elif inscripcion.estado == "PENDIENTE" %}
+            <p class="muted">Tu inscripción fue recibida y está pendiente de asignación o evaluación.</p>
+            {% elif inscripcion.estado == "SUSPENDIDO" %}
+            <p class="muted">La participación está suspendida temporalmente.</p>
+            {% elif inscripcion.estado == "CERRADO" %}
+            <p class="muted">Tu participación en este programa fue finalizada.</p>
+            {% endif %}
+            {% if inscripcion.motivo_cierre %}
+            <hr style="border:0;border-top:1px solid #f3f4f6;margin:16px 0;">
+            <p class="muted"><strong>Motivo:</strong> {{ inscripcion.motivo_cierre }}</p>
+            {% endif %}
+        </article>
+    </section>
+
+    {% if derivaciones %}
+    <article class="card">
+        <h3>Mis derivaciones a este programa</h3>
+        <div class="stack" style="margin-top:12px;">
+            {% for deriv in derivaciones %}
+            <div class="card" style="background:#f9fafb;">
+                <strong>
+                    {% if deriv.programa_origen %}
+                    Derivado/a desde {{ deriv.programa_origen.nombre }}
+                    {% else %}
+                    Derivación espontánea
+                    {% endif %}
+                </strong>
+                <p class="muted">Creada el {{ deriv.creado|date:"d/m/Y" }} · {{ deriv.get_estado_display }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+    {% endif %}
+</div>
+{% endblock %}
