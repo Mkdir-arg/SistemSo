@@ -21,7 +21,7 @@ from tramites.models import (
     TramiteComentario,
     TramiteHistorial,
 )
-from tramites.services import (
+from tramites.application.services import (
     obtener_estado_inicial,
     obtener_prioridad_base,
     registrar_historial,
