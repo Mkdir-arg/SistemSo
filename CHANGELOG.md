@@ -1,3 +1,14 @@
+## [1.4.0](https://github.com/Mkdir-arg/SistemSo/compare/v1.3.0...v1.4.0) (2026-05-01)
+
+### Features
+
+* add modular module control plane ([7a696b1](https://github.com/Mkdir-arg/SistemSo/commit/7a696b1681a364424567fa533629579936315077))
+* enforce literal hexagonal module layout ([7c997ba](https://github.com/Mkdir-arg/SistemSo/commit/7c997babeedfc453f6698abb015f6c09da913c15))
+
+### Bug Fixes
+
+* address modular review blockers ([d31f20d](https://github.com/Mkdir-arg/SistemSo/commit/d31f20d9a49ab7753f1d29da17c9efdeb0fd96b1))
+
 ## [1.3.0](https://github.com/Mkdir-arg/SistemSo/compare/v1.2.1...v1.3.0) (2026-03-20)
 
 ### Features
