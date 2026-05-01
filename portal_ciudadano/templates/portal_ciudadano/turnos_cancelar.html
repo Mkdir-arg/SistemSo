@@ -1,0 +1,23 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Cancelar Turno - Portal Ciudadano{% endblock %}
+{% block hero_title %}Cancelar turno{% endblock %}
+{% block hero_subtitle %}confirmá la operación{% endblock %}
+{% block hero_text %}Antes de cancelar, revisá que sea el turno correcto. Esta acción libera el horario para otra persona.{% endblock %}
+
+{% block content %}
+<article class="card flush-top" style="width:min(620px,100%);margin:0 auto;">
+    <h2>¿Querés cancelar este turno?</h2>
+    <dl>
+        <div class="data-row"><dt>Recurso</dt><dd>{{ turno.recurso.nombre }}</dd></div>
+        <div class="data-row"><dt>Fecha</dt><dd>{{ turno.fecha|date:"d/m/Y" }}</dd></div>
+        <div class="data-row"><dt>Horario</dt><dd>{{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}</dd></div>
+        <div class="data-row"><dt>Código</dt><dd>{{ turno.codigo_turno }}</dd></div>
+    </dl>
+    <form method="post" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit" style="background:#dc2626;">Cancelar turno</button>
+        <a class="btn btn-secondary" href="{% url 'portal_ciudadano:turnos' %}">Volver</a>
+    </form>
+</article>
+{% endblock %}

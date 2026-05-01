@@ -12,6 +12,15 @@ class PortalCiudadanoMiddleware:
     Si un ciudadano autenticado accede a una URL fuera de /portal/, se lo redirige.
     """
 
+    # Prefijos de URL fuera de /portal/ que los ciudadanos pueden usar (endpoints AJAX del portal)
+    _ALLOWED_PREFIXES = (
+        '/portal/',
+        '/portal-ciudadano',
+        '/static/',
+        '/media/',
+        '/conversaciones/iniciar-guiado/',
+    )
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -19,9 +28,8 @@ class PortalCiudadanoMiddleware:
         if (
             request.user.is_authenticated
             and request.user.groups.filter(name='Ciudadanos').exists()
-            and not request.path.startswith('/portal/')
-            and not request.path.startswith('/static/')
-            and not request.path.startswith('/media/')
+            and not any(request.path.startswith(p) for p in self._ALLOWED_PREFIXES)
+            and not request.path.endswith('/reactivar-bot/')
         ):
             return redirect('portal:ciudadano_mi_perfil')
         return self.get_response(request)

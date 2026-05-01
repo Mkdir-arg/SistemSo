@@ -445,6 +445,8 @@
         };
 
         const chatApp = document.getElementById('conversaciones-chat-app');
+        const urlParams = new URLSearchParams(window.location.search);
+        const resumeConversationId = parseInt(urlParams.get('conv') || '', 10);
         const chatUrls = {
             renaper: chatApp.dataset.renaperUrl,
             start: chatApp.dataset.startUrl,
@@ -553,6 +555,7 @@
                     conversacionId = data.conversacion_id;
                     mostrarChat();
                     iniciarPolling();
+                    cargarMensajes();
                 } else {
                     ModernModal.show({
                         type: 'error',
@@ -572,6 +575,7 @@
 
         function mostrarChat() {
             document.getElementById('paso2').classList.add('hidden');
+            document.getElementById('paso1').classList.add('hidden');
             document.getElementById('paso3').classList.remove('hidden');
             
             const info = tipoConsulta === 'personal' 
@@ -580,6 +584,17 @@
             
             document.getElementById('infoConversacion').textContent = info;
             document.getElementById('inputMensaje').focus();
+        }
+
+        function reanudarConversacion() {
+            if (!Number.isInteger(resumeConversationId) || resumeConversationId <= 0) {
+                return;
+            }
+            conversacionId = resumeConversationId;
+            mostrarChat();
+            document.getElementById('infoConversacion').textContent = `Conversacion #${conversacionId} reanudada`;
+            cargarMensajes();
+            iniciarPolling();
         }
 
         async function enviarMensaje() {
@@ -618,17 +633,36 @@
             
             const esCiudadano = remitente === 'ciudadano';
             const hora = fecha || new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+            const contenidoSeguro = String(contenido || '');
+            const contenidoHtml = esCiudadano ? contenidoSeguro : formatearMensajeOperador(contenidoSeguro);
             
             div.className = `flex ${esCiudadano ? 'justify-end' : 'justify-start'}`;
             div.innerHTML = `
                 <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg text-white ${esCiudadano ? 'mensaje-ciudadano' : 'mensaje-operador'}">
-                    <p class="text-sm">${contenido}</p>
+                    <div class="text-sm leading-relaxed">${contenidoHtml}</div>
                     <p class="text-xs opacity-75 mt-1">${hora}</p>
                 </div>
             `;
             
             mensajes.appendChild(div);
             mensajes.scrollTop = mensajes.scrollHeight;
+        }
+
+        function formatearMensajeOperador(texto) {
+            const decoder = document.createElement('textarea');
+            decoder.innerHTML = String(texto || '');
+            let html = decoder.value.replace(/\n/g, '<br>');
+            html = html.replace(
+                /<a\s+href=['"]([^'"]+)['"][^>]*>(.*?)<\/a>/gi,
+                (match, href, label) => {
+                    const esCrear = /crear cuenta/i.test(label);
+                    const estilo = esCrear
+                        ? "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;border:1px solid rgba(255,255,255,0.7);color:#ffffff;text-decoration:none;font-weight:600;font-size:12px;"
+                        : "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;background:#ffffff;color:#1f2937;text-decoration:none;font-weight:700;font-size:12px;";
+                    return `<a href="${href}" style="${estilo}">${label}</a>`;
+                }
+            );
+            return html;
         }
 
         async function cargarMensajes() {
@@ -770,6 +804,8 @@
         }
 
         // Limpiar interval al salir
+        reanudarConversacion();
+
         window.addEventListener('beforeunload', () => {
             if (intervaloPoll) {
                 clearInterval(intervaloPoll);

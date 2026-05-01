@@ -1,0 +1,19 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Turno confirmado - Portal Ciudadano{% endblock %}
+{% block hero_title %}Turno reservado{% endblock %}
+{% block hero_subtitle %}guardá el código de seguimiento{% endblock %}
+{% block hero_text %}Tu turno fue registrado correctamente. Podés revisarlo cuando quieras desde Mis Turnos.{% endblock %}
+
+{% block content %}
+<article class="card flush-top" style="text-align:center;width:min(620px,100%);margin:0 auto;">
+    <i class="fa-regular fa-circle-check" style="font-size:42px;color:#16a34a;"></i>
+    <h2 style="margin-top:14px;">{{ turno.recurso.nombre }}</h2>
+    <p class="muted">{{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}</p>
+    <p class="muted" style="margin-top:10px;">Código: <strong>{{ turno.codigo_turno }}</strong></p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
+        <a class="btn btn-primary" href="{% url 'portal_ciudadano:turnos' %}">Ver mis turnos</a>
+        <a class="btn btn-secondary" href="{% url 'portal_ciudadano:home' %}">Ir al inicio</a>
+    </div>
+</article>
+{% endblock %}

@@ -516,11 +516,17 @@
                     </div>
                 </div>
             </div>
-            <button onclick="document.getElementById('chat-button').click()"
-                    class="w-full text-white font-bold py-3.5 rounded-xl transition-all hover:opacity-90"
-                    style="background: {{ branding.portal.home.support_button_bg }};">
-                <i class="fas fa-comments mr-2"></i>Chatear con un operador
-            </button>
+            <div class="space-y-2">
+                <a href="{% url 'conversaciones:chat_ciudadano' %}"
+                   class="w-full block text-center text-white font-bold py-3.5 rounded-xl transition-all hover:opacity-90"
+                   style="background: {{ branding.portal.home.support_button_bg }};">
+                    <i class="fas fa-robot mr-2"></i>Iniciar reclamo o tramite por chat
+                </a>
+                <a href="{% url 'conversaciones:chat_ciudadano' %}"
+                   class="w-full block text-center border border-[#E5E7EB] text-[#252F40] font-medium py-2.5 rounded-xl hover:bg-gray-50">
+                    <i class="fas fa-headset mr-2"></i>Hablar directo con operador
+                </a>
+            </div>
         </div>
     </section>
 

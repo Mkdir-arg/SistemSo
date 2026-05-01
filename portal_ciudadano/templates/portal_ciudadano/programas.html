@@ -1,0 +1,93 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Mis Programas - Portal Ciudadano{% endblock %}
+{% block hero_title %}Mis Programas{% endblock %}
+{% block hero_subtitle %}seguimiento ciudadano{% endblock %}
+{% block hero_text %}Consultá los programas sociales en los que participás y revisá el estado de cada acompañamiento municipal.{% endblock %}
+
+{% block content %}
+<div class="stack">
+    <article class="card flush-top">
+        <div class="title-row">
+            <div>
+                <h2>Programas activos</h2>
+                <p class="muted">Tus acompañamientos vigentes dentro del municipio.</p>
+            </div>
+        </div>
+        {% if inscripciones_activas %}
+        <div style="overflow-x:auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Programa</th>
+                        <th>Estado</th>
+                        <th>Desde</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for insc in inscripciones_activas %}
+                    <tr>
+                        <td>
+                            <strong>{{ insc.programa.nombre }}</strong>
+                            <p class="muted">{{ insc.programa.get_tipo_display }}</p>
+                        </td>
+                        <td>
+                            {% if insc.estado == "ACTIVO" %}
+                            <span class="status ok">Activo</span>
+                            {% elif insc.estado == "EN_SEGUIMIENTO" %}
+                            <span class="status info">En seguimiento</span>
+                            {% elif insc.estado == "PENDIENTE" %}
+                            <span class="status warn">En espera</span>
+                            {% else %}
+                            <span class="status neutral">{{ insc.get_estado_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ insc.fecha_inscripcion|date:"d/m/Y" }}</td>
+                        <td style="text-align:right;">
+                            <a class="btn btn-primary" href="{% url 'portal_ciudadano:programa_detalle' insc.pk %}">Ver detalle</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center; background:#f9fafb;">
+            <i class="fa-regular fa-folder-open" style="font-size:32px;color:#cbd5e1;"></i>
+            <p class="muted" style="margin-top:12px;">No tenés programas activos actualmente.</p>
+        </div>
+        {% endif %}
+    </article>
+
+    {% if inscripciones_historial %}
+    <article class="card">
+        <div class="title-row">
+            <div>
+                <h2>Historial de programas</h2>
+                <p class="muted">Programas finalizados, suspendidos o cerrados.</p>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="table">
+                <tbody>
+                    {% for insc in inscripciones_historial %}
+                    <tr>
+                        <td>
+                            <strong>{{ insc.programa.nombre }}</strong>
+                            <p class="muted">{{ insc.programa.get_tipo_display }}</p>
+                        </td>
+                        <td><span class="status neutral">{{ insc.get_estado_display }}</span></td>
+                        <td>{{ insc.fecha_inscripcion|date:"d/m/Y" }}</td>
+                        <td style="text-align:right;">
+                            <a class="btn btn-secondary" href="{% url 'portal_ciudadano:programa_detalle' insc.pk %}">Ver detalle</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+    {% endif %}
+</div>
+{% endblock %}

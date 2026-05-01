@@ -12,6 +12,8 @@ urlpatterns = [
     path('iniciar/', views.iniciar_conversacion, name='iniciar_conversacion'),
     path('<int:conversacion_id>/enviar/', views.enviar_mensaje_ciudadano, name='enviar_mensaje_ciudadano'),
     path('<int:conversacion_id>/mensajes/', views.obtener_mensajes_ciudadano, name='obtener_mensajes_ciudadano'),
+    path('<int:conversacion_id>/reactivar-bot/', views.reactivar_bot_portal, name='reactivar_bot_portal'),
+    path('iniciar-guiado/', views.iniciar_consulta_guiada, name='iniciar_consulta_guiada'),
     
     # URLs del backoffice
     path('', views.lista_conversaciones, name='lista'),

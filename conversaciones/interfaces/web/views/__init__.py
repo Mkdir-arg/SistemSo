@@ -20,6 +20,8 @@ from .public import (
     consultar_renaper,
     enviar_mensaje_ciudadano,
     evaluar_conversacion,
+    iniciar_consulta_guiada,
     iniciar_conversacion,
     obtener_mensajes_ciudadano,
+    reactivar_bot_portal,
 )

@@ -1,0 +1,39 @@
+{% extends "includes/base.html" %}
+
+{% block title %}Configuracion de Tramites{% endblock %}
+
+{% block main-content %}
+<div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">Configuracion de Tramites</h1>
+            <p class="text-gray-600 mt-2">Administra catalogos operativos del modulo.</p>
+        </div>
+        <a href="{% url 'configuracion:tramites_listado' %}" class="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Volver a Listado
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for item in catalogos %}
+            <div class="bg-white rounded-xl shadow-lg p-5 border border-gray-100">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ item.nombre }}</h2>
+                        <p class="text-sm text-gray-600 mt-1">{{ item.descripcion }}</p>
+                    </div>
+                    <i class="fas {{ item.icono }} text-gray-400 text-xl"></i>
+                </div>
+                <div class="mt-4">
+                    {% url item.url_name as item_url %}
+                    {% if item_url %}
+                        <a href="{{ item_url }}" class="inline-flex items-center text-sm font-medium text-arg-azul hover:text-arg-secundario">
+                            Abrir configuracion <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

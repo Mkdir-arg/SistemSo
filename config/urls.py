@@ -40,6 +40,7 @@ urlpatterns = [
     path("legajos/", include("legajos.interfaces.web.urls")),
     path("configuracion/", include("configuracion.interfaces.web.urls")),
     path("portal/", include("portal.interfaces.web.urls")),
+    path("portal-ciudadano/", include("portal_ciudadano.urls")),
     path("auditoria/", include("core.interfaces.web.urls_auditoria")),
 ] + _module_web_paths() + [
     # Root paths last
@@ -54,7 +55,7 @@ urlpatterns = [
     path("api/legajos/", include("legajos.interfaces.api.urls")),
     path("api/core/", include("core.interfaces.api.urls")),
     path("api/users/", include("users.interfaces.api.urls")),
-
+    path("api/reclamos/", include("reclamos.api_urls")),
     # API Documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),

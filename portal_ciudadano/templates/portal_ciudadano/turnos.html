@@ -1,0 +1,75 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Mis Turnos - Portal Ciudadano{% endblock %}
+{% block hero_title %}Mis Turnos{% endblock %}
+{% block hero_subtitle %}atención municipal{% endblock %}
+{% block hero_text %}Gestioná tus turnos, consultá próximos horarios y solicitá una nueva atención cuando la necesites.{% endblock %}
+
+{% block content %}
+<div class="stack">
+    <article class="card flush-top">
+        <div class="title-row">
+            <div>
+                <h2>Próximos turnos</h2>
+                <p class="muted">Turnos pendientes o confirmados a tu nombre.</p>
+            </div>
+            <a class="btn btn-primary" href="{% url 'portal_ciudadano:solicitar_turno' %}">
+                <i class="fa-solid fa-plus"></i> Solicitar nuevo turno
+            </a>
+        </div>
+        {% if turnos_proximos %}
+        <div class="stack">
+            {% for turno in turnos_proximos %}
+            <div class="card" style="background:#f9fafb;">
+                <div class="title-row" style="margin-bottom:0;">
+                    <div>
+                        <h3>{{ turno.recurso.nombre }}</h3>
+                        <p class="muted">
+                            {{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}
+                            {% if turno.recurso.direccion %} · {{ turno.recurso.direccion }}{% endif %}
+                        </p>
+                        <p class="muted">Código: <strong>{{ turno.codigo_turno }}</strong></p>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        {% if turno.estado == "CONFIRMADO" %}
+                        <span class="status ok">Confirmado</span>
+                        {% elif turno.estado == "PENDIENTE" %}
+                        <span class="status warn">Pendiente</span>
+                        {% else %}
+                        <span class="status neutral">{{ turno.get_estado_display }}</span>
+                        {% endif %}
+                        <a class="btn btn-secondary" href="{% url 'portal_ciudadano:cancelar_turno' turno.pk %}">Cancelar</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center;background:#f9fafb;">
+            <i class="fa-regular fa-calendar-xmark" style="font-size:32px;color:#cbd5e1;"></i>
+            <p class="muted" style="margin-top:12px;">No tenés turnos próximos.</p>
+            <a class="btn btn-primary" style="margin-top:12px;" href="{% url 'portal_ciudadano:solicitar_turno' %}">Solicitar un turno</a>
+        </div>
+        {% endif %}
+    </article>
+
+    {% if turnos_historial %}
+    <article class="card">
+        <h2>Historial</h2>
+        <div class="stack" style="margin-top:12px;">
+            {% for turno in turnos_historial %}
+            <div class="card" style="background:#f9fafb;">
+                <div class="title-row" style="margin-bottom:0;">
+                    <div>
+                        <strong>{{ turno.recurso.nombre }}</strong>
+                        <p class="muted">{{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }} · Cód. {{ turno.codigo_turno }}</p>
+                    </div>
+                    <span class="status neutral">{{ turno.get_estado_display }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+    {% endif %}
+</div>
+{% endblock %}

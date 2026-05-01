@@ -164,7 +164,11 @@
         ws.onerror = () => {};
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+        // Solo abrir WS en la pantalla de lista de conversaciones
+        if (!listaApp) {
+            return;
+        }
         conectarWS();
     });
 })();

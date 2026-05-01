@@ -99,11 +99,17 @@ THIRD_PARTY_APPS = [
     "silk",
 ]
 
+PROJECT_LEGACY_APPS = [
+    "portal_ciudadano",
+    "reclamos",
+]
+
 INSTALLED_APPS = (
     DJANGO_APPS
     + THIRD_PARTY_APPS
     + list(CORE_PROJECT_APPS)
     + get_installed_project_app_configs()
+    + PROJECT_LEGACY_APPS
 )
 
 MIDDLEWARE = [
@@ -303,6 +309,7 @@ SUPABASE_TIMEOUT_SECONDS = int(os.getenv("SUPABASE_TIMEOUT_SECONDS", "12"))
 
 LOG_DIR = BASE_DIR / "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
+CONSOLE_LOG_LEVEL = os.getenv("CONSOLE_LOG_LEVEL", "WARNING").upper()
 
 LOGGING = {
     "version": 1,
@@ -313,6 +320,14 @@ LOGGING = {
         "warning_only": {"()": "django.utils.log.CallbackFilter", "callback": lambda r: r.levelno == logging.WARNING},
         "critical_only": {"()": "django.utils.log.CallbackFilter", "callback": lambda r: r.levelno == logging.CRITICAL},
         "data_only": {"()": "django.utils.log.CallbackFilter", "callback": lambda r: hasattr(r, "data")},
+        "console_quiet": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": lambda r: not (
+                r.name.startswith("django.utils.autoreload")
+                or r.name == "django.server"
+                or r.name == "core.requests"
+            ),
+        },
     },
     "formatters": {
         "verbose": {"format": "[{asctime}] {module} {levelname} {name}: {message}", "style": "{"},
@@ -321,9 +336,10 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "DEBUG" if DEBUG else "INFO",
+            "level": CONSOLE_LOG_LEVEL,
             "class": "logging.StreamHandler",
             "formatter": "verbose",
+            "filters": ["console_quiet"],
         },
         "info_file": {"level": "INFO", "filters": ["info_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "info.log"), "formatter": "verbose"},
         "error_file": {"level": "ERROR", "filters": ["error_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "error.log"), "formatter": "verbose"},
@@ -331,10 +347,12 @@ LOGGING = {
         "critical_file": {"level": "CRITICAL", "filters": ["critical_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "critical.log"), "formatter": "verbose"},
         "data_file": {"level": "INFO", "filters": ["data_only"], "class": "core.utils.DailyFileHandler", "filename": str(LOG_DIR / "data.log"), "formatter": "json_data"},
     },
-    "root": {"handlers": ["console", "info_file", "error_file", "warning_file", "critical_file", "data_file"], "level": "DEBUG" if DEBUG else "INFO"},
+    "root": {"handlers": ["console", "info_file", "error_file", "warning_file", "critical_file", "data_file"], "level": "INFO"},
     "loggers": {
         "django": {"handlers": [], "level": "DEBUG" if DEBUG else "INFO", "propagate": True},
         "django.request": {"handlers": ["error_file", "warning_file"], "level": "WARNING", "propagate": False},
+        "django.template": {"handlers": [], "level": "ERROR", "propagate": False},
+        "django.db.backends": {"handlers": [], "level": "WARNING", "propagate": False},
         "core.requests": {"handlers": [], "level": "INFO", "propagate": True},
     },
 }

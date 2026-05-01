@@ -76,7 +76,7 @@
                         {% if mensaje.remitente == 'ciudadano' %}
                         style="background: linear-gradient(135deg, {{ branding.portal.primary_button_gradient_start }} 0%, {{ branding.portal.primary_button_gradient_end }} 100%);"
                         {% endif %}>
-                        <p class="text-sm leading-relaxed">{{ mensaje.contenido }}</p>
+                        <p class="text-sm leading-relaxed js-mensaje-texto" data-remitente="{{ mensaje.remitente }}">{{ mensaje.contenido }}</p>
                         <p class="text-xs opacity-60 mt-1.5 {% if mensaje.remitente == 'ciudadano' %}text-right{% else %}text-left{% endif %}">
                             {{ mensaje.fecha_envio|date:"H:i" }}
                         </p>
@@ -144,6 +144,39 @@
         }
     })();
 
+
+    function formatearMensajeAtencion(texto) {
+        var decoder = document.createElement('textarea');
+        decoder.innerHTML = String(texto || '');
+        var html = decoder.value.replace(/\n/g, '<br>');
+        html = html.replace(
+            /href=['"]\/conversaciones\/chat\/\?[^'"]*conv=(\d+)[^'"]*['"]/gi,
+            function (_, convId) {
+                return 'href="/portal/mi-perfil/consultas/' + convId + '/"';
+            }
+        );
+        html = html.replace(
+            /<a\s+href=['"]([^'"]+)['"][^>]*>(.*?)<\/a>/gi,
+            function (_, href, label) {
+                var esCrear = /crear cuenta/i.test(label);
+                var estilo = esCrear
+                    ? "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;border:1px solid #D1D5DB;color:#374151;background:#ffffff;text-decoration:none;font-weight:600;font-size:12px;"
+                    : "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;background:#1F2937;color:#ffffff;text-decoration:none;font-weight:700;font-size:12px;";
+                return '<a href="' + href + '" style="' + estilo + '">' + label + '</a>';
+            }
+        );
+        return html;
+    }
+
+    function normalizarMensajesIniciales() {
+        document.querySelectorAll('.js-mensaje-texto').forEach(function (el) {
+            if (el.dataset.remitente !== 'ciudadano') {
+                el.innerHTML = formatearMensajeAtencion(el.textContent || '');
+            }
+        });
+    }
+    normalizarMensajesIniciales();
+
     // Polling de nuevos mensajes (cada 4 segundos) si la conversación está abierta
     {% if puede_enviar %}
     var consultaDetalleApp = document.getElementById('portal-consulta-detalle-app');
@@ -181,7 +214,11 @@
 
         var texto = document.createElement('p');
         texto.className = 'text-sm leading-relaxed';
-        texto.textContent = contenido;
+        if (esCiudadano) {
+            texto.textContent = contenido;
+        } else {
+            texto.innerHTML = formatearMensajeAtencion(contenido);
+        }
 
         var hora = document.createElement('p');
         hora.className = 'text-xs opacity-60 mt-1.5 ' + (esCiudadano ? 'text-right' : 'text-left');
@@ -217,3 +254,6 @@
     {% endif %}
 </script>
 {% endblock %}
+
+
+

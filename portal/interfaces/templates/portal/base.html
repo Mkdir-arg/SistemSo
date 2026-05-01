@@ -114,26 +114,14 @@
 
     <!-- Chat Widget -->
     <div id="chat-widget" class="fixed bottom-6 right-6 z-50">
-        <button id="chat-button" class="text-white w-14 h-14 rounded-full shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center" style="background: {{ branding.portal.floating_help_bg }};" onmouseover="this.style.background='{{ branding.portal.floating_help_hover_bg }}'" onmouseout="this.style.background='{{ branding.portal.floating_help_bg }}'">
+        <a id="chat-button"
+           href="{% url 'conversaciones:chat_ciudadano' %}"
+           class="text-white w-14 h-14 rounded-full shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+           style="background: {{ branding.portal.floating_help_bg }};"
+           onmouseover="this.style.background='{{ branding.portal.floating_help_hover_bg }}'"
+           onmouseout="this.style.background='{{ branding.portal.floating_help_bg }}'">
             <i class="fas fa-comments text-xl" style="color: {{ branding.portal.floating_help_icon_color }};"></i>
-        </button>
-        
-        <div id="chat-window" class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-xl shadow-2xl border border-[#E5E7EB] overflow-hidden">
-            <div class="text-white p-4 flex justify-between items-center" style="background: linear-gradient(90deg, {{ branding.portal.primary_button_gradient_start }} 0%, {{ branding.portal.primary_button_gradient_end }} 100%);">
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 rounded-full animate-pulse" style="background: {{ branding.portal.home.status_badge_dot }};"></div>
-                    <h3 class="font-semibold">Mesa de Ayuda</h3>
-                </div>
-                <button id="close-chat" class="text-white hover:text-gray-200 transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="p-6 h-64 flex flex-col items-center justify-center text-[#8C8C8C]">
-                <i class="fas fa-headset text-4xl mb-3" style="color: {{ branding.portal.header_contact_icon_color }};"></i>
-                <p class="font-medium text-[#252F40] mb-1">Asistencia Técnica</p>
-                <p class="text-sm">Disponible próximamente</p>
-            </div>
-        </div>
+        </a>
     </div>
 
     <!-- Sistema de Modales Modernos -->
@@ -177,25 +165,6 @@
     <script src="{% static 'custom/js/modern-messages.js' %}" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Chat functionality
-            const chatButton = document.getElementById('chat-button');
-            const chatWindow = document.getElementById('chat-window');
-            const closeChat = document.getElementById('close-chat');
-            
-            chatButton.addEventListener('click', function() {
-                chatWindow.classList.toggle('hidden');
-                if (!chatWindow.classList.contains('hidden')) {
-                    chatWindow.style.animation = 'fadeInUp 0.3s ease-out';
-                }
-            });
-            
-            closeChat.addEventListener('click', function() {
-                chatWindow.style.animation = 'fadeOut 0.3s ease-out';
-                setTimeout(() => {
-                    chatWindow.classList.add('hidden');
-                }, 300);
-            });
-            
             // Scroll animations
             const observerOptions = {
                 threshold: 0.1,
@@ -362,3 +331,4 @@
     </script>
 </body>
 </html>
+

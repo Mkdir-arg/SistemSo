@@ -6,8 +6,9 @@ from django.contrib.auth.views import (
     PasswordResetDoneView,
     PasswordResetView,
 )
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 
 from portal.interfaces.web.forms import (
@@ -38,28 +39,42 @@ def _get_client_ip(request):
     return request.META.get('REMOTE_ADDR', '')
 
 
+def _get_safe_next(request):
+    next_url = request.POST.get('next') or request.GET.get('next') or request.session.get('portal_next')
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return next_url
+    return ''
+
+
 class CiudadanoLoginView(View):
     template_name = 'portal/ciudadano/login.html'
 
     def get(self, request):
         if request.user.is_authenticated and request.user.groups.filter(name='Ciudadanos').exists():
             return redirect('portal:ciudadano_mi_perfil')
-        return render(request, self.template_name, {'form': CiudadanoLoginForm()})
+        next_url = _get_safe_next(request)
+        if next_url:
+            request.session['portal_next'] = next_url
+        return render(request, self.template_name, {'form': CiudadanoLoginForm(), 'next': next_url})
 
     def post(self, request):
         ip = _get_client_ip(request)
         if login_bloqueado(ip):
-            messages.error(request, 'Demasiados intentos fallidos. Intentá de nuevo en 5 minutos.')
-            return render(request, self.template_name, {'form': CiudadanoLoginForm(), 'bloqueado': True})
+            messages.error(request, 'Demasiados intentos fallidos. Intenta de nuevo en 5 minutos.')
+            return render(request, self.template_name, {'form': CiudadanoLoginForm(), 'bloqueado': True, 'next': _get_safe_next(request)})
 
         form = CiudadanoLoginForm(request, data=request.POST)
         if form.is_valid():
             limpiar_login_fallido(ip)
             login(request, form.get_user())
+            next_url = _get_safe_next(request)
+            request.session.pop('portal_next', None)
+            if next_url:
+                return redirect(next_url)
             return redirect('portal:ciudadano_mi_perfil')
 
         registrar_login_fallido(ip)
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'next': _get_safe_next(request)})
 
 
 class CiudadanoLogoutView(View):
@@ -72,12 +87,18 @@ class RegistroStep1View(View):
     template_name = 'portal/ciudadano/registro_step1.html'
 
     def get(self, request):
-        return render(request, self.template_name, {'form': RegistroStep1Form()})
+        next_url = _get_safe_next(request)
+        if next_url:
+            request.session['portal_next'] = next_url
+        return render(request, self.template_name, {'form': RegistroStep1Form(), 'next': next_url})
 
     def post(self, request):
+        next_url = _get_safe_next(request)
+        if next_url:
+            request.session['portal_next'] = next_url
         form = RegistroStep1Form(request.POST)
         if not form.is_valid():
-            return render(request, self.template_name, {'form': form})
+            return render(request, self.template_name, {'form': form, 'next': next_url})
 
         try:
             request.session['registro_ciudadano'] = preparar_registro_ciudadano(
@@ -85,14 +106,14 @@ class RegistroStep1View(View):
                 genero=form.cleaned_data['genero'],
             )
         except RegistroCiudadanoCuentaExistenteError:
-            messages.info(request, 'Ya tenés una cuenta registrada. Iniciá sesión con tu DNI y contraseña.')
+            messages.info(request, 'Ya tenes una cuenta registrada. Inicia sesion con tu DNI y contrasena.')
             return redirect('portal:ciudadano_login')
         except RegistroCiudadanoIdentidadNoVerificadaError:
-            form.add_error('dni', 'No pudimos verificar tu identidad. Verificá los datos ingresados.')
-            return render(request, self.template_name, {'form': form})
+            form.add_error('dni', 'No pudimos verificar tu identidad. Verifica los datos ingresados.')
+            return render(request, self.template_name, {'form': form, 'next': next_url})
         except RegistroCiudadanoServicioNoDisponibleError:
-            form.add_error(None, 'El servicio de verificación no está disponible. Intentá más tarde.')
-            return render(request, self.template_name, {'form': form})
+            form.add_error(None, 'El servicio de verificacion no esta disponible. Intenta mas tarde.')
+            return render(request, self.template_name, {'form': form, 'next': next_url})
 
         return redirect('portal:ciudadano_registro_step2')
 
@@ -104,16 +125,18 @@ class RegistroStep2View(View):
         datos = request.session.get('registro_ciudadano')
         if not datos:
             return redirect('portal:ciudadano_registro_step1')
-        return render(request, self.template_name, {'form': RegistroStep2Form(), 'datos': datos})
+        next_url = _get_safe_next(request)
+        return render(request, self.template_name, {'form': RegistroStep2Form(), 'datos': datos, 'next': next_url})
 
     def post(self, request):
         datos = request.session.get('registro_ciudadano')
         if not datos:
             return redirect('portal:ciudadano_registro_step1')
 
+        next_url = _get_safe_next(request)
         form = RegistroStep2Form(request.POST)
         if not form.is_valid():
-            return render(request, self.template_name, {'form': form, 'datos': datos})
+            return render(request, self.template_name, {'form': form, 'datos': datos, 'next': next_url})
 
         try:
             user, ciudadano = completar_registro_ciudadano(
@@ -128,13 +151,16 @@ class RegistroStep2View(View):
             messages.error(request, 'Ya existe una cuenta con ese DNI.')
             return redirect('portal:ciudadano_login')
         except RegistroCiudadanoLegajoYaVinculadoError:
-            messages.error(request, 'Este legajo ya tiene una cuenta asociada. Iniciá sesión.')
+            messages.error(request, 'Este legajo ya tiene una cuenta asociada. Inicia sesion.')
             request.session.pop('registro_ciudadano', None)
             return redirect('portal:ciudadano_login')
 
         request.session.pop('registro_ciudadano', None)
         login(request, user)
-        messages.success(request, f'¡Bienvenido/a, {ciudadano.nombre}! Tu cuenta fue creada correctamente.')
+        messages.success(request, f'Bienvenido/a, {ciudadano.nombre}. Tu cuenta fue creada correctamente.')
+        request.session.pop('portal_next', None)
+        if next_url:
+            return redirect(next_url)
         return redirect('portal:ciudadano_mi_perfil')
 
 

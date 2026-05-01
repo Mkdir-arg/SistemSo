@@ -1,0 +1,617 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingreso - Portal Ciudadano</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --surface: #fff;
+            --text: #101828;
+            --muted: #4a5565;
+            --line: #e5e7eb;
+            --header-bg: #5d287f;
+            --footer-bg: #51236f;
+            --panel-bg: #51236f;
+            --panel-top: rgba(81, 35, 111, 0.57);
+            --hero-g1: rgba(255, 0, 128, 0.8);
+            --hero-g2: rgba(133, 37, 196, 0.8);
+            --btn-g1: #7928ca;
+            --btn-g2: #ff0080;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out both; }
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .card-lift { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .card-lift:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -8px rgba(0,0,0,0.12); }
+        a { color: inherit; text-decoration: none; }
+        .container { width: min(1140px, calc(100vw - 32px)); margin: 0 auto; }
+
+        .topbar {
+            min-height: 92px;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.13), rgba(0, 0, 0, 0.13)), var(--header-bg);
+            color: #fff;
+        }
+        .topbar-inner {
+            min-height: 92px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-mark {
+            width: 56px;
+            height: 68px;
+            display: block;
+            object-fit: contain;
+            opacity: 0.58;
+        }
+        .icon-img {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .check-icon {
+            width: 19px;
+            height: 19px;
+            display: inline-block;
+        }
+        .brand-title {
+            color: #f9fafb;
+            font-family: "Geliat", "Inter", sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+        .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
+        .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
+        .top-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+        .top-links .item { display: inline-flex; align-items: center; gap: 6px; }
+        .profile-btn {
+            padding: 6px 12px;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        main { flex: 1; }
+        .layout {
+            position: relative;
+            min-height: 700px;
+            padding-bottom: 24px;
+        }
+        .hero {
+            height: 274px;
+            background: linear-gradient(360deg, var(--hero-g1) 0%, var(--hero-g2) 100%);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            padding-top: 58px;
+        }
+        .hero h1 {
+            margin: 0;
+            color: #fff;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 54px;
+            letter-spacing: -.01em;
+        }
+        .hero h1 span {
+            color: rgba(255, 255, 255, .83);
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 48px;
+            display: block;
+            margin-top: -6px;
+        }
+
+        .login-wrap {
+            width: 436px;
+            height: 496px;
+            margin: -86px auto 0;
+            position: relative;
+        }
+        .login-bg-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 86px;
+            background: var(--panel-top);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .login-bg-bottom {
+            position: absolute;
+            top: 86px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--panel-bg);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        .login-card {
+            position: relative;
+            z-index: 1;
+            width: 384px;
+            height: 444px;
+            margin: 0;
+            position: absolute;
+            top: 26px;
+            left: 26px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 16px;
+        }
+        .login-title {
+            margin: 0 0 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--line);
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .login-title .icon-img {
+            width: 20px;
+            height: 20px;
+        }
+        .login-subtitle {
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 14px;
+        }
+        .login-subtitle::before,
+        .login-subtitle::after {
+            content: "";
+            flex: 1;
+            border-top: 1px solid var(--line);
+        }
+
+        .field { margin-bottom: 12px; }
+        .field label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+        .input-wrap {
+            position: relative;
+        }
+        .input-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text);
+            font-size: 16px;
+        }
+        .field input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #f9fafb;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 20px;
+            padding: 0 12px 0 42px;
+            color: var(--text);
+            outline: none;
+        }
+        .field input::placeholder { color: #6a7282; }
+        .field input:focus { border-color: #8a35c8; box-shadow: 0 0 0 3px rgba(138, 53, 200, .15); }
+
+        .error-list {
+            margin: 6px 0 0;
+            padding: 0;
+            list-style: none;
+            color: #b42318;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .forgot {
+            color: var(--muted);
+            text-decoration: underline;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 20px;
+        }
+        .submit {
+            margin-top: 12px;
+            width: 100%;
+            height: 40px;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--btn-g1) 0%, var(--btn-g2) 100%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            cursor: pointer;
+        }
+        .submit:hover { filter: brightness(.97); }
+        .anon-cta {
+            margin: 14px auto 0;
+            width: 384px;
+            min-height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #f9fafb;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8px 10px;
+        }
+        .anon-cta:hover { background: #f3f4f6; }
+        .register {
+            margin-top: 0;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+        .register a {
+            color: #ff0080;
+            font-weight: 500;
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: #fff;
+            margin-top: auto;
+            padding: 30px 0 42px;
+            position: relative;
+        }
+        .footer::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 22px;
+            background: #000;
+        }
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 23px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            text-decoration: underline;
+        }
+        .social {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .social small {
+            width: 139px;
+            text-align: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+        }
+        .social-icons {
+            display: flex;
+            gap: 17px;
+            font-size: 22px;
+        }
+        .legal-row {
+            margin-top: 16px;
+            color: #8c8c8c;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .legal-row .left span.heart { color: #f5222d; }
+        .legal-row .left strong { color: #fff; font-weight: 700; }
+
+        .chat-bubble {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 57px;
+            height: 57px;
+            border-radius: 50%;
+            background: #8525c4;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 26px;
+            z-index: 50;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .22);
+            transition: transform .25s ease;
+        }
+        .chat-icon {
+            width: 30px;
+            height: 30px;
+            display: block;
+        }
+        .chat-bubble:hover { transform: scale(1.06); }
+
+        @media (max-width: 900px) {
+            .topbar-inner {
+                justify-content: flex-start;
+                gap: 12px;
+                padding: 10px 0;
+            }
+            .brand { width: 100%; }
+            .top-links {
+                width: 100%;
+                justify-content: flex-start;
+                gap: 12px;
+                font-size: 13px;
+                line-height: 18px;
+            }
+            .layout { min-height: auto; }
+            .hero {
+                height: auto;
+                min-height: 210px;
+                padding-top: 44px;
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            .hero h1 { font-size: 34px; line-height: 1.15; }
+            .hero h1 span { font-size: 30px; line-height: 1.2; margin-top: 0; }
+            .login-wrap {
+                width: min(420px, calc(100vw - 24px));
+                height: auto;
+                min-height: 480px;
+                margin-top: -64px;
+            }
+            .login-bg-bottom { bottom: 0; }
+            .login-card {
+                position: relative;
+                top: auto;
+                left: auto;
+                width: calc(100% - 24px);
+                height: auto;
+                margin: 12px auto;
+            }
+            .footer-inner {
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .legal-row { font-size: 12px; }
+            .chat-bubble {
+                width: 50px;
+                height: 50px;
+                right: 16px;
+                bottom: 104px;
+            }
+            .chat-icon {
+                width: 26px;
+                height: 26px;
+            }
+        }
+        @media (max-width: 600px) {
+            .container { width: calc(100vw - 24px); }
+            .brand-mark {
+                width: 44px;
+                height: 54px;
+            }
+            .brand-title strong { font-size: 26px; line-height: 30px; }
+            .brand-title span { font-size: 18px; line-height: 20px; }
+            .top-links { gap: 10px; }
+            .top-links .item { font-size: 12px; line-height: 16px; }
+            .hero h1 { font-size: 30px; }
+            .hero h1 span { font-size: 26px; }
+            .login-card { padding: 18px; }
+            .login-title { font-size: 17px; line-height: 24px; }
+            .footer { padding-top: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <div class="brand">
+                <img src="{% static 'custom/portal-ciudadano/huella.png' %}" alt="" class="brand-mark">
+                <div class="brand-title">
+                    <strong>Nodo</strong>
+                    <span>Ciudadano</span>
+                </div>
+            </div>
+            <div class="top-links">
+                <a class="item" href="{% url 'portal_ciudadano:home' %}">Inicio</a>
+                <span class="item"><i class="fa-solid fa-phone"></i>0800-111-1234</span>
+                <span class="item"><i class="fa-regular fa-envelope"></i>{{ branding.portal.contact_email }}</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="layout">
+            <section class="hero">
+                <h1>Bienvenido<span>Ciudadano Digital</span></h1>
+            </section>
+
+            <section class="login-wrap">
+                <div class="login-bg-top"></div>
+                <div class="login-bg-bottom"></div>
+                <div class="login-card card-lift animate-fadeInUp delay-2">
+                    <h2 class="login-title"><img src="{% static 'custom/portal-ciudadano/huella.png' %}" alt="" class="icon-img">Ingresá a tu perfil</h2>
+                    <p class="login-subtitle">Ingresá con tu DNI</p>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next|default:'' }}">
+
+                        {% if form.non_field_errors %}
+                            <ul class="error-list">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        <div class="field">
+                            <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                            <div class="input-wrap">
+                                <i class="fa-regular fa-id-card"></i>
+                                <input
+                                    type="text"
+                                    id="{{ form.username.id_for_label }}"
+                                    name="{{ form.username.html_name }}"
+                                    placeholder="Ingresá tu DNI"
+                                    value="{{ form.username.value|default:'' }}"
+                                    autofocus
+                                >
+                            </div>
+                            {% if form.username.errors %}
+                            <ul class="error-list">
+                                {% for error in form.username.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                            <div class="input-wrap">
+                                <i class="fa-solid fa-lock"></i>
+                                <input
+                                    type="password"
+                                    id="{{ form.password.id_for_label }}"
+                                    name="{{ form.password.html_name }}"
+                                    placeholder="********"
+                                >
+                            </div>
+                            {% if form.password.errors %}
+                            <ul class="error-list">
+                                {% for error in form.password.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'portal:ciudadano_password_reset' %}" class="forgot">¿Olvidaste tu contraseña?</a>
+                        <button type="submit" class="submit">Ingresar</button>
+                    </form>
+                    <p class="register">
+                        ¿No estas registrado?
+                        <a href="{% url 'portal:ciudadano_registro_step1' %}?next={{ next|urlencode }}">Crear cuenta</a>
+                    </p>
+                </div>
+            </section>
+            {% if mostrar_boton_reclamo_anonimo %}
+            <a href="{% url 'portal_ciudadano:reclamos' %}?anonimo=1" class="anon-cta">Ingresar reclamo anónimo</a>
+            {% endif %}
+        </div>
+    </main>
+
+    <a href="{% url 'portal_ciudadano:chat' %}" class="chat-bubble" aria-label="Abrir chat">
+        <img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="chat-icon">
+    </a>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div class="footer-links">
+                <a href="#">Accesibilidad</a>
+                <a href="#">Cookies</a>
+                <a href="#">Privacidad</a>
+            </div>
+            <div class="social">
+                <small>Seguinos en las redes</small>
+                <div class="social-icons">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <i class="fa-brands fa-linkedin-in"></i>
+                    <i class="fa-brands fa-instagram"></i>
+                    <i class="fa-brands fa-x-twitter"></i>
+                </div>
+            </div>
+        </div>
+        <div class="container legal-row">
+            <div class="left">© 2026, made with <span class="heart">❤</span> by <strong>iCore</strong></div>
+            <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
+        </div>
+    </footer>
+</body>
+</html>
+

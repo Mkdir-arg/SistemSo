@@ -1,0 +1,83 @@
+{% extends "includes/base.html" %}
+
+{% block title %}Tramites{% endblock %}
+
+{% block main-content %}
+<div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">Tramites</h1>
+            <p class="text-gray-600 mt-2">Gestion de tramites generados por ciudadania y operadores.</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'configuracion:tramites_configuracion' %}" class="bg-white border border-gray-300 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-50 transition-colors font-medium text-center">
+                <i class="fas fa-sliders-h mr-2"></i>Configurar Tramites
+            </a>
+            <a href="{% url 'configuracion:tramite_crear' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors font-medium text-center">
+                <i class="fas fa-plus mr-2"></i>Nuevo Tramite
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+        <form method="get" class="flex flex-col md:flex-row gap-3 md:items-center">
+            <input
+                type="text"
+                name="q"
+                value="{{ q }}"
+                placeholder="Buscar por numero o titulo"
+                class="w-full md:max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul"
+            />
+            <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm">
+                Buscar
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        {% if tramites %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Numero</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Titulo</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Area</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Estado</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Prioridad</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Inicio</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for tramite in tramites %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ tramite.numero }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-800">{{ tramite.titulo }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ tramite.area_actual.nombre }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ tramite.estado.nombre }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ tramite.prioridad.nombre }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">{{ tramite.fecha_inicio|date:"d/m/Y H:i" }}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <a href="{% url 'configuracion:tramite_detalle' tramite.pk %}" class="text-arg-azul font-medium hover:underline">
+                                        Ver detalle
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-12 text-center">
+                <i class="fas fa-inbox text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay tramites cargados</h3>
+                <p class="text-gray-600 mb-6">Crea el primer tramite para comenzar.</p>
+                <a href="{% url 'configuracion:tramite_crear' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Crear Tramite
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

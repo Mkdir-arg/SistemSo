@@ -17,5 +17,14 @@ MODULE_DEFINITION = ModuleDefinition(
             app_name="tramites",
         ),
     ),
+    api_routes=(
+        UrlDefinition(
+            handle="tramites.api",
+            route="api/tramites/",
+            urlconf="tramites.interfaces.api.urls",
+            namespace="tramites_api",
+            app_name="tramites_api",
+        ),
+    ),
     adapter_points=("templates/includes/sidebar/opciones.html",),
 )

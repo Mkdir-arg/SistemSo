@@ -113,6 +113,51 @@ class Conversacion(models.Model):
             self.calcular_metricas()
 
 
+class FlujoPortalConversacion(models.Model):
+    class Modulo(models.TextChoices):
+        RECLAMOS = "reclamos", "Reclamos"
+        TRAMITES = "tramites", "Tramites"
+
+    class Paso(models.TextChoices):
+        MENU = "menu", "Menu"
+        SELECCION_TIPO = "seleccion_tipo", "Seleccion de tipo"
+        TITULO = "titulo", "Titulo"
+        DESCRIPCION = "descripcion", "Descripcion"
+        CONFIRMACION = "confirmacion", "Confirmacion"
+        FINALIZADO = "finalizado", "Finalizado"
+
+    class Canal(models.TextChoices):
+        RECLAMO_ANONIMO = "reclamo_anonimo", "Reclamo anonimo"
+        RECLAMO_LOGIN = "reclamo_login", "Reclamo logueado"
+        TRAMITE_LOGIN = "tramite_login", "Tramite logueado"
+        OPERADOR = "operador", "Operador"
+
+    conversacion = models.OneToOneField(
+        Conversacion,
+        on_delete=models.CASCADE,
+        related_name="flujo_portal",
+    )
+    canal = models.CharField(max_length=30, choices=Canal.choices, default=Canal.RECLAMO_ANONIMO, db_index=True)
+    modulo = models.CharField(max_length=20, choices=Modulo.choices, blank=True, db_index=True)
+    paso = models.CharField(max_length=20, choices=Paso.choices, default=Paso.MENU, db_index=True)
+    datos = models.JSONField(default=dict, blank=True)
+    derivado_operador = models.BooleanField(default=False, db_index=True)
+    finalizado = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Flujo portal de conversacion"
+        verbose_name_plural = "Flujos portal de conversaciones"
+        indexes = [
+            models.Index(fields=["canal", "paso"]),
+            models.Index(fields=["modulo", "finalizado"]),
+        ]
+
+    def __str__(self):
+        return f"Flujo portal #{self.conversacion_id} ({self.canal})"
+
+
 class Mensaje(models.Model):
     REMITENTE_CHOICES = [
         ('ciudadano', 'Ciudadano'),

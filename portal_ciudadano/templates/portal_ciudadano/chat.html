@@ -1,0 +1,1011 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Portal Ciudadano</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --text-heading: #101828;
+            --header-bg: #5d287f;
+            --footer-bg: #51236f;
+            --line: #e5e7eb;
+            --text-body: #4a5565;
+            --brand-strong: #c91b72;
+            --brand-gradient-start: rgba(133, 37, 196, 0.8);
+            --brand-gradient-end: rgba(255, 0, 128, 0.8);
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Inter', sans-serif; color: #101828; background: #fff; }
+        a { color: inherit; text-decoration: none; }
+        .chat-container { height: 60vh; overflow-y: auto; scroll-behavior: smooth; }
+        .mensaje-ciudadano { background: linear-gradient(135deg, {{ branding.conversations.chat_public.primary_button_gradient_start }}, {{ branding.conversations.chat_public.primary_button_gradient_end }}); }
+        .mensaje-operador { background: linear-gradient(135deg, {{ branding.conversations.chat_public.secondary_button_gradient_start }}, {{ branding.conversations.chat_public.secondary_button_gradient_end }}); }
+        .typing-indicator { animation: pulse 1.5s infinite; }
+        .topbar {
+            min-height: 92px;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.13), rgba(0, 0, 0, 0.13)), var(--header-bg);
+            color: #fff;
+        }
+        .topbar-inner {
+            min-height: 92px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+        }
+        .portal-container { width: min(1140px, calc(100vw - 32px)); margin: 0 auto; }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-mark { width: 56px; height: 68px; object-fit: contain; opacity: 0.58; }
+        .brand-title { color: #f9fafb; font-weight: 800; letter-spacing: 0.3px; line-height: 1; }
+        .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
+        .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
+        .top-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+        .top-links .item { display: inline-flex; align-items: center; gap: 6px; }
+        .profile-btn {
+            padding: 6px 12px;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 1px .5px .05px rgba(29, 41, 61, 0.02);
+            color: var(--text-body);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .icon-img {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .profile-btn .icon-img {
+            filter: brightness(0) saturate(100%) invert(30%) sepia(8%) saturate(1110%) hue-rotate(176deg) brightness(94%) contrast(87%);
+        }
+        .hero {
+            background: linear-gradient(360deg, var(--brand-gradient-end) 0%, var(--brand-gradient-start) 100%);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            padding: 34px 100px 110px;
+        }
+        .hero h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 54px;
+            letter-spacing: -.01em;
+        }
+        .hero h1 span {
+            color: rgba(255, 255, 255, .83);
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 48px;
+            display: block;
+            margin-top: -6px;
+        }
+        .hero p {
+            width: min(620px, 100%);
+            margin: 10px 0 0;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 24px;
+        }
+        .chat-shell {
+            width: min(940px, 100%);
+            margin: -64px auto 30px;
+        }
+        #paso1,
+        #paso2,
+        #paso3,
+        #evaluacion {
+            width: 100%;
+            border: 1px solid var(--line) !important;
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            border-bottom-left-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+            background: #fff !important;
+            box-shadow: 0 1px .5px .05px rgba(29, 41, 61, 0.02) !important;
+        }
+        #paso1 {
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+        #paso1,
+        #paso2,
+        #evaluacion { padding: 24px !important; }
+        #paso1 { padding: 0 !important; }
+        #paso1 h2,
+        #evaluacion h2 {
+            margin: 0 0 8px;
+            color: var(--text-heading);
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 36px;
+        }
+        #paso1 p,
+        #evaluacion p {
+            color: var(--text-body);
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+        }
+        #paso1 button.group,
+        #paso2,
+        #paso3,
+        #evaluacion .bg-\[\#F9FAFB\] {
+            border-radius: 12px !important;
+            border-color: var(--line) !important;
+        }
+        #paso1 button.group {
+            min-height: 132px;
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            border-bottom-left-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+            padding: 18px 14px !important;
+            text-align: left !important;
+            box-shadow: 0 1px .5px .05px rgba(29, 41, 61, 0.02);
+        }
+        #paso1 button.group > div:first-child {
+            width: auto !important;
+            height: auto !important;
+            margin-bottom: 10px !important;
+            background: transparent !important;
+        }
+        #paso1 button.group i {
+            color: var(--brand-strong) !important;
+            -webkit-text-fill-color: var(--brand-strong) !important;
+            background-image: none !important;
+            font-size: 30px !important;
+            line-height: 1 !important;
+        }
+        #paso1 button.group h3 {
+            margin: 0 0 8px !important;
+            color: var(--text-heading) !important;
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            line-height: 30px !important;
+        }
+        .chat-shell button[style*="linear-gradient"] {
+            background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%) !important;
+        }
+        .footer { background: var(--footer-bg); color: #fff; margin-top: auto; padding: 30px 0 42px; position: relative; }
+        .footer::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: #000; }
+        .footer-inner { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+        .footer-links { display: flex; align-items: center; gap: 23px; flex-wrap: wrap; }
+        .footer-links a { color: #fff; font-size: 12px; font-weight: 600; line-height: 18px; text-decoration: underline; }
+        .social { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .social small { width: 139px; text-align: center; color: #fff; font-size: 12px; font-weight: 600; line-height: 18px; }
+        .social-icons { display: flex; gap: 17px; font-size: 22px; }
+        .legal-row {
+            margin-top: 16px;
+            color: #8c8c8c;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .legal-row .left span.heart { color: #f5222d; }
+        .legal-row .left strong { color: #fff; font-weight: 700; }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    </style>
+</head>
+<body class="min-h-screen bg-white">
+    <div
+        id="conversaciones-chat-app"
+        class="min-h-screen flex flex-col"
+        data-renaper-url="{% url 'conversaciones:consultar_renaper' %}"
+        data-start-url="{% url 'conversaciones:iniciar_conversacion' %}"
+        data-send-url-template="{% url 'conversaciones:enviar_mensaje_ciudadano' 0 %}"
+        data-messages-url-template="{% url 'conversaciones:obtener_mensajes_ciudadano' 0 %}"
+        data-evaluate-url-template="{% url 'conversaciones:evaluar' 0 %}"
+    >
+        <!-- Header -->
+        <header class="topbar">
+            <div class="portal-container topbar-inner">
+                <a href="{% url 'portal_ciudadano:home' %}" class="brand">
+                    <img src="{% static 'custom/portal-ciudadano/huella.png' %}" alt="" class="brand-mark">
+                    <div class="brand-title">
+                        <strong>Nodo</strong>
+                        <span>Ciudadano</span>
+                    </div>
+                </a>
+                <div class="top-links">
+                    <a class="item" href="{% url 'portal_ciudadano:home' %}">Inicio</a>
+                    <span class="item"><i class="fa-solid fa-phone"></i>0800-111-1234</span>
+                    <span class="item"><i class="fa-regular fa-envelope"></i>{{ branding.portal.contact_email }}</span>
+                    <a href="{% url 'portal_ciudadano:login' %}" class="profile-btn">
+                        Accede a tu perfil
+                        <img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img">
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main class="portal-container">
+            <section class="hero">
+                <h1>Canal de Atención<span>¿Cómo podemos ayudarte?</span></h1>
+                <p>Iniciá una consulta anónima o personal y conversá con un operador del municipio desde esta misma página.</p>
+            </section>
+            <section class="chat-shell">
+            <!-- Paso 1: Selección de tipo de consulta -->
+            <div id="paso1" class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <button onclick="seleccionarTipo('anonima')" 
+                            class="group bg-white p-8 border border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center"
+                            onmouseover="this.style.borderColor='{{ branding.conversations.chat_public.primary_button_gradient_start }}'"
+                            onmouseout="this.style.borderColor='#E5E7EB'">
+                        <div class="{% if branding.conversations.chat_public.anonymous_icon_mode == 'badge' %}inline-flex items-center justify-center w-16 h-16 rounded-xl{% else %}inline-flex items-center justify-center{% endif %} mb-4 group-hover:scale-110 transition-transform duration-300" {% if branding.conversations.chat_public.anonymous_icon_mode == 'badge' %}style="background: linear-gradient(135deg, {{ branding.conversations.chat_public.anonymous_icon_gradient_start }} 0%, {{ branding.conversations.chat_public.anonymous_icon_gradient_end }} 100%);"{% endif %}>
+                            {% if branding.conversations.chat_public.anonymous_icon_mode == 'text_gradient' %}
+                            <i class="fas fa-user-secret text-4xl text-transparent" style="background-image: linear-gradient(180deg, {{ branding.conversations.chat_public.anonymous_icon_gradient_start }} 0%, {{ branding.conversations.chat_public.anonymous_icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                            {% else %}
+                            <i class="fas fa-user-secret text-2xl text-white"></i>
+                            {% endif %}
+                        </div>
+                        <h3 class="font-bold text-[#252F40] mb-3 text-lg">Consulta Anónima</h3>
+                        <p class="text-[#8C8C8C] leading-relaxed">Realiza tu consulta sin proporcionar datos personales. Completamente confidencial.</p>
+                    </button>
+                    
+                    <button onclick="seleccionarTipo('personal')" 
+                            class="group bg-white p-8 border border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center"
+                            onmouseover="this.style.borderColor='{{ branding.conversations.chat_public.secondary_button_gradient_start }}'"
+                            onmouseout="this.style.borderColor='#E5E7EB'">
+                        <div class="{% if branding.conversations.chat_public.personal_icon_mode == 'badge' %}inline-flex items-center justify-center w-16 h-16 rounded-xl{% else %}inline-flex items-center justify-center{% endif %} mb-4 group-hover:scale-110 transition-transform duration-300" {% if branding.conversations.chat_public.personal_icon_mode == 'badge' %}style="background: linear-gradient(135deg, {{ branding.conversations.chat_public.personal_icon_gradient_start }} 0%, {{ branding.conversations.chat_public.personal_icon_gradient_end }} 100%);"{% endif %}>
+                            {% if branding.conversations.chat_public.personal_icon_mode == 'text_gradient' %}
+                            <i class="fas fa-user-check text-4xl text-transparent" style="background-image: linear-gradient(180deg, {{ branding.conversations.chat_public.personal_icon_gradient_start }} 0%, {{ branding.conversations.chat_public.personal_icon_gradient_end }} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                            {% else %}
+                            <i class="fas fa-user-check text-2xl text-white"></i>
+                            {% endif %}
+                        </div>
+                        <h3 class="font-bold text-[#252F40] mb-3 text-lg">Consulta Personal</h3>
+                        <p class="text-[#8C8C8C] leading-relaxed">Proporciona tu DNI para un seguimiento personalizado y verificación de datos.</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Paso 2: Datos personales (solo para consulta personal) -->
+            <div id="paso2" class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 mb-6 hidden">
+                <h2 class="text-xl font-bold text-[#252F40] mb-6">Datos Personales</h2>
+                <form id="formDatos" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-[#252F40] mb-2">DNI</label>
+                            <input type="text" id="dni" maxlength="8" placeholder="12345678" 
+                                   class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:border-transparent"
+                                   style="--tw-ring-color: {{ branding.conversations.chat_public.primary_button_gradient_start }};">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-[#252F40] mb-2">Sexo</label>
+                            <select id="sexo" class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:border-transparent"
+                                    style="--tw-ring-color: {{ branding.conversations.chat_public.primary_button_gradient_start }};">
+                                <option value="">Seleccionar...</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="X">No binario</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-6">
+                        <button type="button" onclick="volverPaso1()" 
+                                class="px-6 py-3 text-[#8C8C8C] border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors">
+                            <i class="fas fa-arrow-left mr-2"></i>Volver
+                        </button>
+                        <button type="button" onclick="consultarRenaper()" 
+                                class="px-6 py-3 text-white rounded-xl transition-all shadow-md"
+                                style="background: linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.primary_button_gradient_end }} 100%);"
+                                onmouseover="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_hover_start }} 0%, {{ branding.conversations.chat_public.primary_button_hover_end }} 100%)'"
+                                onmouseout="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.primary_button_gradient_end }} 100%)'">
+                            <i class="fas fa-search mr-2"></i>Verificar Datos
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Resultado RENAPER -->
+                <div id="resultadoRenaper" class="mt-6 hidden">
+                    <div class="rounded-xl p-6" style="background: {{ branding.conversations.chat_public.status_badge_bg }}; border: 1px solid {{ branding.conversations.chat_public.status_badge_border }};">
+                        <h3 class="font-semibold mb-3" style="color: {{ branding.conversations.chat_public.status_badge_text }};">Datos verificados:</h3>
+                        <div id="datosVerificados" class="text-sm mb-4" style="color: {{ branding.conversations.chat_public.status_badge_text }};"></div>
+                        <button onclick="iniciarChat()" 
+                                class="px-6 py-3 text-white rounded-xl transition-all shadow-md"
+                                style="background: linear-gradient(90deg, {{ branding.conversations.chat_public.secondary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.secondary_button_gradient_end }} 100%);"
+                                onmouseover="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.secondary_button_hover_start }} 0%, {{ branding.conversations.chat_public.secondary_button_hover_end }} 100%)'"
+                                onmouseout="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.secondary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.secondary_button_gradient_end }} 100%)'">
+                            <i class="fas fa-comments mr-2"></i>Iniciar Chat
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Error RENAPER -->
+                <div id="errorRenaper" class="mt-6 hidden">
+                    <div class="bg-[#FEF3C7] border border-[#FDE047] rounded-xl p-6">
+                        <h3 class="font-semibold text-[#92400E] mb-2">No se pudieron verificar los datos</h3>
+                        <p class="text-sm text-[#A16207] mb-4">Puedes continuar sin verificación o intentar nuevamente.</p>
+                        <div class="flex gap-3">
+                            <button onclick="iniciarChat()" 
+                                    class="px-6 py-3 bg-[#F59E0B] text-white rounded-xl hover:bg-[#D97706] transition-colors">
+                                <i class="fas fa-comments mr-2"></i>Continuar sin verificar
+                            </button>
+                            <button onclick="consultarRenaper()" 
+                                    class="px-6 py-3 border border-[#F59E0B] text-[#D97706] rounded-xl hover:bg-[#FEF3C7] transition-colors">
+                                <i class="fas fa-redo mr-2"></i>Intentar nuevamente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 3: Chat -->
+            <div id="paso3" class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] hidden">
+                <!-- Header del chat -->
+                <div class="p-6 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, {{ branding.conversations.chat_public.header_icon_gradient_start }} 0%, {{ branding.conversations.chat_public.header_icon_gradient_end }} 100%);">
+                                <i class="fas fa-comments text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-[#252F40] text-lg">Conversación Iniciada</h3>
+                                <p class="text-[#8C8C8C] text-sm" id="infoConversacion">Conectando con un operador especializado...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div id="estadoOperador" class="flex items-center bg-[#FEF3C7] border border-[#FDE047] text-[#92400E] px-3 py-2 rounded-xl text-sm font-medium">
+                                <div class="w-2 h-2 bg-[#F59E0B] rounded-full mr-2 animate-pulse"></div>
+                                <span>Esperando operador</span>
+                            </div>
+                            <button onclick="cerrarConversacion()" class="flex items-center bg-[#FEE2E2] border border-[#FCA5A5] text-[#991B1B] px-3 py-2 rounded-xl text-sm hover:bg-[#FECACA] transition-colors font-medium">
+                                <i class="fas fa-times mr-2"></i>
+                                <span>Cerrar</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de mensajes -->
+                <div id="mensajes" class="chat-container p-6 space-y-4">
+                    <div class="flex justify-center">
+                        <div class="bg-[#F9FAFB] text-[#8C8C8C] px-4 py-2 rounded-full text-sm border border-[#E5E7EB]">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Conversación iniciada. Un operador te atenderá pronto.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indicador de escritura -->
+                <div id="indicadorEscritura" class="px-6 pb-2 hidden">
+                    <div class="flex items-center text-sm text-[#8C8C8C]">
+                        <div class="typing-indicator w-2 h-2 bg-[#8C8C8C] rounded-full mr-1"></div>
+                        <div class="typing-indicator w-2 h-2 bg-[#8C8C8C] rounded-full mr-1" style="animation-delay: 0.2s"></div>
+                        <div class="typing-indicator w-2 h-2 bg-[#8C8C8C] rounded-full mr-2" style="animation-delay: 0.4s"></div>
+                        <span>El operador está escribiendo...</span>
+                    </div>
+                </div>
+
+                <!-- Input de mensaje -->
+                <div class="p-6 border-t border-[#E5E7EB] bg-[#F9FAFB]">
+                    <div class="flex gap-3">
+                        <input type="text" id="inputMensaje" placeholder="Escribe tu mensaje aquí..." 
+                               class="flex-1 px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:border-transparent bg-white"
+                               style="--tw-ring-color: {{ branding.conversations.chat_public.primary_button_gradient_start }};"
+                               onkeypress="if(event.key==='Enter') enviarMensaje()">
+                        <button onclick="enviarMensaje()" 
+                                class="px-6 py-3 text-white rounded-xl transition-all shadow-md hover:shadow-lg"
+                                style="background: linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.primary_button_gradient_end }} 100%);"
+                                onmouseover="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_hover_start }} 0%, {{ branding.conversations.chat_public.primary_button_hover_end }} 100%)'"
+                                onmouseout="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.primary_button_gradient_end }} 100%)'">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-4 text-xs text-[#8C8C8C]">
+                            <span class="flex items-center">
+                                <i class="fas fa-keyboard mr-1"></i>
+                                Presiona Enter
+                            </span>
+                            <span class="flex items-center">
+                                <i class="fas fa-shield-alt mr-1"></i>
+                                Confidencial
+                            </span>
+                        </div>
+                        <button onclick="finalizarConversacion()" class="flex items-center bg-[#FEE2E2] border border-[#FCA5A5] text-[#991B1B] px-3 py-2 rounded-xl text-xs hover:bg-[#FECACA] transition-colors font-medium">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            <span>Finalizar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluación final -->
+            <div id="evaluacion" class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8 hidden">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: linear-gradient(135deg, {{ branding.conversations.chat_public.secondary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.secondary_button_gradient_end }} 100%);">
+                        <i class="fas fa-check text-2xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-[#252F40] mb-3">Conversación Finalizada</h2>
+                    <p class="text-[#8C8C8C]">¿Cómo calificarías tu experiencia con nuestro servicio?</p>
+                </div>
+                
+                <div class="bg-[#F9FAFB] rounded-xl p-6 mb-6 border border-[#E5E7EB]">
+                    <div class="text-center mb-4">
+                        <p class="text-sm font-medium text-[#252F40] mb-3">Califica tu experiencia:</p>
+                        <div class="flex justify-center gap-2 mb-4">
+                            <button onclick="evaluar(1)" class="evaluacion-btn p-3 text-2xl transition-all duration-300 transform scale-75" data-rating="1" style="color: #d1d5db;">⭐</button>
+                            <button onclick="evaluar(2)" class="evaluacion-btn p-3 text-2xl transition-all duration-300 transform scale-75" data-rating="2" style="color: #d1d5db;">⭐</button>
+                            <button onclick="evaluar(3)" class="evaluacion-btn p-3 text-2xl transition-all duration-300 transform scale-75" data-rating="3" style="color: #d1d5db;">⭐</button>
+                            <button onclick="evaluar(4)" class="evaluacion-btn p-3 text-2xl transition-all duration-300 transform scale-75" data-rating="4" style="color: #d1d5db;">⭐</button>
+                            <button onclick="evaluar(5)" class="evaluacion-btn p-3 text-2xl transition-all duration-300 transform scale-75" data-rating="5" style="color: #d1d5db;">⭐</button>
+                        </div>
+                        <div id="rating-text" class="text-sm text-[#8C8C8C] min-h-[20px]"></div>
+                    </div>
+                    
+                    <div id="comentario-section" class="hidden">
+                        <label class="block text-sm font-medium text-[#252F40] mb-2">Comentarios adicionales (opcional):</label>
+                        <textarea id="comentario" rows="3" placeholder="Comparte tu experiencia..." 
+                                  class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:ring-2 focus:border-transparent resize-none"
+                                  style="--tw-ring-color: {{ branding.conversations.chat_public.primary_button_gradient_start }};"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button id="enviar-evaluacion" onclick="enviarEvaluacion()" disabled
+                            class="px-6 py-3 bg-[#E5E7EB] text-[#8C8C8C] rounded-xl cursor-not-allowed">
+                        <i class="fas fa-paper-plane mr-2"></i>Enviar Evaluación
+                    </button>
+                    <button onclick="nuevaConsulta()" 
+                            class="px-6 py-3 text-white rounded-xl transition-all shadow-md"
+                            style="background: linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.primary_button_gradient_end }} 100%);"
+                            onmouseover="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_hover_start }} 0%, {{ branding.conversations.chat_public.primary_button_hover_end }} 100%)'"
+                            onmouseout="this.style.background='linear-gradient(90deg, {{ branding.conversations.chat_public.primary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.primary_button_gradient_end }} 100%)'">
+                        <i class="fas fa-plus mr-2"></i>Nueva Consulta
+                    </button>
+                </div>
+            </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="portal-container footer-inner">
+                <div class="footer-links">
+                    <a href="#">Accesibilidad</a>
+                    <a href="#">Cookies</a>
+                    <a href="#">Privacidad</a>
+                </div>
+                <div class="social">
+                    <small>Seguinos en las redes</small>
+                    <div class="social-icons">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <i class="fa-brands fa-linkedin-in"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="portal-container legal-row">
+                <div class="left">© 2026, made with <span class="heart">❤</span> by <strong>iCore</strong></div>
+                <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Sistema de Modales Modernos -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden transition-opacity duration-300">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div id="modal-content" class="bg-white rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0">
+                <!-- Modal Header -->
+                <div id="modal-header" class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div id="modal-icon" class="w-10 h-10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-info-circle text-xl"></i>
+                            </div>
+                            <h3 id="modal-title" class="text-lg font-semibold text-gray-900">Información</h3>
+                        </div>
+                        <button id="modal-close" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- Modal Body -->
+                <div id="modal-body" class="p-6">
+                    <p id="modal-message" class="text-gray-600 leading-relaxed"></p>
+                </div>
+                <!-- Modal Footer -->
+                <div id="modal-footer" class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                    <button id="modal-cancel" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors hidden">
+                        Cancelar
+                    </button>
+                    <button id="modal-confirm" class="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors">
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tipoConsulta = null;
+        let conversacionId = null;
+        let datosRenaper = null;
+        let intervaloPoll = null;
+        let mensajesCargados = new Set();
+        
+        // Sistema de Modales Modernos
+        window.ModernModal = {
+            show: function(options) {
+                const overlay = document.getElementById('modal-overlay');
+                const content = document.getElementById('modal-content');
+                const icon = document.getElementById('modal-icon');
+                const title = document.getElementById('modal-title');
+                const message = document.getElementById('modal-message');
+                const confirmBtn = document.getElementById('modal-confirm');
+                const cancelBtn = document.getElementById('modal-cancel');
+                const closeBtn = document.getElementById('modal-close');
+                
+                // Configurar tipo de modal
+                const types = {
+                    success: { icon: 'fa-check-circle', color: 'bg-green-100 text-green-600', btnColor: 'bg-green-600 hover:bg-green-700' },
+                    error: { icon: 'fa-exclamation-triangle', color: 'bg-red-100 text-red-600', btnColor: 'bg-red-600 hover:bg-red-700' },
+                    warning: { icon: 'fa-exclamation-triangle', color: 'bg-yellow-100 text-yellow-600', btnColor: 'bg-yellow-600 hover:bg-yellow-700' },
+                    info: { icon: 'fa-info-circle', color: 'bg-blue-100 text-blue-600', btnColor: 'bg-blue-900 hover:bg-blue-800' },
+                    confirm: { icon: 'fa-question-circle', color: 'bg-purple-100 text-purple-600', btnColor: 'bg-purple-600 hover:bg-purple-700' }
+                };
+                
+                const type = types[options.type] || types.info;
+                
+                // Configurar contenido
+                icon.className = `w-10 h-10 rounded-lg flex items-center justify-center ${type.color}`;
+                icon.querySelector('i').className = `fas ${type.icon} text-xl`;
+                title.textContent = options.title || 'Información';
+                message.textContent = options.message || '';
+                
+                // Configurar botones
+                confirmBtn.textContent = options.confirmText || 'Aceptar';
+                confirmBtn.className = `px-6 py-2 text-white rounded-lg transition-colors ${type.btnColor}`;
+                
+                if (options.type === 'confirm') {
+                    cancelBtn.classList.remove('hidden');
+                    cancelBtn.textContent = options.cancelText || 'Cancelar';
+                } else {
+                    cancelBtn.classList.add('hidden');
+                }
+                
+                // Mostrar modal
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.style.opacity = '1';
+                    content.style.transform = 'scale(1)';
+                    content.style.opacity = '1';
+                }, 10);
+                
+                // Configurar eventos
+                const closeModal = () => {
+                    overlay.style.opacity = '0';
+                    content.style.transform = 'scale(0.95)';
+                    content.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 300);
+                };
+                
+                confirmBtn.onclick = () => {
+                    if (options.onConfirm) options.onConfirm();
+                    closeModal();
+                };
+                
+                cancelBtn.onclick = () => {
+                    if (options.onCancel) options.onCancel();
+                    closeModal();
+                };
+                
+                closeBtn.onclick = closeModal;
+                
+                overlay.onclick = (e) => {
+                    if (e.target === overlay) closeModal();
+                };
+            }
+        };
+
+        const chatApp = document.getElementById('conversaciones-chat-app');
+        const urlParams = new URLSearchParams(window.location.search);
+        const resumeConversationId = parseInt(urlParams.get('conv') || '', 10);
+        const chatUrls = {
+            renaper: chatApp.dataset.renaperUrl,
+            start: chatApp.dataset.startUrl,
+            sendTemplate: chatApp.dataset.sendUrlTemplate,
+            messagesTemplate: chatApp.dataset.messagesUrlTemplate,
+            evaluateTemplate: chatApp.dataset.evaluateUrlTemplate,
+        };
+
+        function buildConversationUrl(template, conversacionId) {
+            return template.replace('/0/', `/${conversacionId}/`);
+        }
+
+        function getCSRFToken() {
+            const match = document.cookie.match(/(?:^|;)\s*csrftoken=([^;]+)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        function jsonHeaders() {
+            const csrfToken = getCSRFToken();
+            return {
+                'Content-Type': 'application/json',
+                ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
+            };
+        }
+
+        function seleccionarTipo(tipo) {
+            tipoConsulta = tipo;
+            document.getElementById('paso1').classList.add('hidden');
+            
+            if (tipo === 'personal') {
+                document.getElementById('paso2').classList.remove('hidden');
+            } else {
+                iniciarChat();
+            }
+        }
+
+        function volverPaso1() {
+            document.getElementById('paso2').classList.add('hidden');
+            document.getElementById('paso1').classList.remove('hidden');
+            tipoConsulta = null;
+        }
+
+        async function consultarRenaper() {
+            const dni = document.getElementById('dni').value.trim();
+            const sexo = document.getElementById('sexo').value;
+
+            if (!dni || !sexo) {
+                ModernModal.show({
+                    type: 'warning',
+                    title: 'Datos Incompletos',
+                    message: 'Por favor completa el DNI y selecciona el sexo para continuar.'
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(chatUrls.renaper, {
+                    method: 'POST',
+                    headers: jsonHeaders(),
+                    body: JSON.stringify({ dni, sexo })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    datosRenaper = data.datos;
+                    document.getElementById('datosVerificados').innerHTML = `
+                        <strong>${data.datos.nombre} ${data.datos.apellido}</strong><br>
+                        DNI: ${dni}<br>
+                        ${data.datos.domicilio ? `Domicilio: ${data.datos.domicilio}` : ''}
+                    `;
+                    document.getElementById('resultadoRenaper').classList.remove('hidden');
+                    document.getElementById('errorRenaper').classList.add('hidden');
+                } else {
+                    document.getElementById('errorRenaper').classList.remove('hidden');
+                    document.getElementById('resultadoRenaper').classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorRenaper').classList.remove('hidden');
+            }
+        }
+
+        async function iniciarChat() {
+            try {
+                const payload = {
+                    tipo: tipoConsulta,
+                    prioridad: 'normal'
+                };
+
+                if (tipoConsulta === 'personal') {
+                    payload.dni = document.getElementById('dni').value;
+                    payload.sexo = document.getElementById('sexo').value;
+                    payload.datos_renaper = datosRenaper || {};
+                }
+
+                const response = await fetch(chatUrls.start, {
+                    method: 'POST',
+                    headers: jsonHeaders(),
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    conversacionId = data.conversacion_id;
+                    mostrarChat();
+                    iniciarPolling();
+                    cargarMensajes();
+                } else {
+                    ModernModal.show({
+                        type: 'error',
+                        title: 'Error de Conexión',
+                        message: 'No se pudo iniciar la conversación: ' + data.error
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                ModernModal.show({
+                    type: 'error',
+                    title: 'Error de Servidor',
+                    message: 'No se pudo conectar con el servidor. Por favor, intenta nuevamente.'
+                });
+            }
+        }
+
+        function mostrarChat() {
+            document.getElementById('paso2').classList.add('hidden');
+            document.getElementById('paso1').classList.add('hidden');
+            document.getElementById('paso3').classList.remove('hidden');
+            
+            const info = tipoConsulta === 'personal' 
+                ? `Conversación personal - DNI: ${document.getElementById('dni').value}`
+                : 'Conversación anónima';
+            
+            document.getElementById('infoConversacion').textContent = info;
+            document.getElementById('inputMensaje').focus();
+        }
+
+        function reanudarConversacion() {
+            if (!Number.isInteger(resumeConversationId) || resumeConversationId <= 0) {
+                return;
+            }
+            conversacionId = resumeConversationId;
+            mostrarChat();
+            document.getElementById('infoConversacion').textContent = `Conversacion #${conversacionId} reanudada`;
+            cargarMensajes();
+            iniciarPolling();
+        }
+
+        async function enviarMensaje() {
+            const input = document.getElementById('inputMensaje');
+            const mensaje = input.value.trim();
+
+            if (!mensaje || !conversacionId) return;
+
+            try {
+                const response = await fetch(buildConversationUrl(chatUrls.sendTemplate, conversacionId), {
+                    method: 'POST',
+                    headers: jsonHeaders(),
+                    body: JSON.stringify({ mensaje })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Agregar mensaje localmente y marcarlo como cargado
+                    const mensajeId = `${data.mensaje.id}-ciudadano`;
+                    if (!mensajesCargados.has(mensajeId)) {
+                        agregarMensaje(data.mensaje.contenido, 'ciudadano', data.mensaje.fecha);
+                        mensajesCargados.add(mensajeId);
+                    }
+                    input.value = '';
+                } else {
+                    console.error('Error al enviar mensaje:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function agregarMensaje(contenido, remitente, fecha = null) {
+            const mensajes = document.getElementById('mensajes');
+            const div = document.createElement('div');
+            
+            const esCiudadano = remitente === 'ciudadano';
+            const hora = fecha || new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+            const contenidoSeguro = String(contenido || '');
+            const contenidoHtml = esCiudadano ? contenidoSeguro : formatearMensajeOperador(contenidoSeguro);
+            
+            div.className = `flex ${esCiudadano ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `
+                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg text-white ${esCiudadano ? 'mensaje-ciudadano' : 'mensaje-operador'}">
+                    <div class="text-sm leading-relaxed">${contenidoHtml}</div>
+                    <p class="text-xs opacity-75 mt-1">${hora}</p>
+                </div>
+            `;
+            
+            mensajes.appendChild(div);
+            mensajes.scrollTop = mensajes.scrollHeight;
+        }
+
+        function formatearMensajeOperador(texto) {
+            const decoder = document.createElement('textarea');
+            decoder.innerHTML = String(texto || '');
+            let html = decoder.value.replace(/\n/g, '<br>');
+            html = html.replace(
+                /<a\s+href=['"]([^'"]+)['"][^>]*>(.*?)<\/a>/gi,
+                (match, href, label) => {
+                    const esCrear = /crear cuenta/i.test(label);
+                    const estilo = esCrear
+                        ? "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;border:1px solid rgba(255,255,255,0.7);color:#ffffff;text-decoration:none;font-weight:600;font-size:12px;"
+                        : "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;background:#ffffff;color:#1f2937;text-decoration:none;font-weight:700;font-size:12px;";
+                    return `<a href="${href}" style="${estilo}">${label}</a>`;
+                }
+            );
+            return html;
+        }
+
+        async function cargarMensajes() {
+            if (!conversacionId) return;
+
+            try {
+                const response = await fetch(buildConversationUrl(chatUrls.messagesTemplate, conversacionId));
+                const data = await response.json();
+
+                // Solo agregar mensajes nuevos
+                data.mensajes.forEach(msg => {
+                    const mensajeId = `${msg.id}-${msg.remitente}`;
+                    if (!mensajesCargados.has(mensajeId)) {
+                        agregarMensaje(msg.contenido, msg.remitente, msg.fecha);
+                        mensajesCargados.add(mensajeId);
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error al cargar mensajes:', error);
+            }
+        }
+
+        function iniciarPolling() {
+            // Cargar mensajes cada 2 segundos
+            intervaloPoll = setInterval(cargarMensajes, 2000);
+        }
+
+        let puntuacionSeleccionada = 0;
+        
+        function evaluar(puntuacion) {
+            puntuacionSeleccionada = puntuacion;
+            
+            // Actualizar estrellas
+            const botones = document.querySelectorAll('.evaluacion-btn');
+            botones.forEach((btn, index) => {
+                btn.classList.remove('selected');
+                btn.style.transform = 'scale(0.75)';
+            });
+            
+            // Marcar las seleccionadas
+            for (let i = 0; i < puntuacion; i++) {
+                botones[i].classList.add('selected');
+                botones[i].style.transform = 'scale(1.3)';
+            }
+            
+            // Mostrar texto descriptivo
+            const textos = {
+                1: 'Muy insatisfecho',
+                2: 'Insatisfecho', 
+                3: 'Neutral',
+                4: 'Satisfecho',
+                5: 'Muy satisfecho'
+            };
+            
+            document.getElementById('rating-text').textContent = textos[puntuacion];
+            document.getElementById('comentario-section').classList.remove('hidden');
+            
+            // Habilitar botón de enviar
+            const btnEnviar = document.getElementById('enviar-evaluacion');
+            btnEnviar.disabled = false;
+            btnEnviar.className = 'px-6 py-3 text-white rounded-xl transition-all shadow-md';
+            btnEnviar.style.background = 'linear-gradient(90deg, {{ branding.conversations.chat_public.secondary_button_gradient_start }} 0%, {{ branding.conversations.chat_public.secondary_button_gradient_end }} 100%)';
+            btnEnviar.style.cursor = 'pointer';
+        }
+        
+        async function enviarEvaluacion() {
+            if (!conversacionId || !puntuacionSeleccionada) return;
+            
+            const comentario = document.getElementById('comentario').value.trim();
+            
+            try {
+                const response = await fetch(buildConversationUrl(chatUrls.evaluateTemplate, conversacionId), {
+                    method: 'POST',
+                    headers: jsonHeaders(),
+                    body: JSON.stringify({
+                        satisfaccion: puntuacionSeleccionada,
+                        comentario: comentario
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success || response.ok) {
+                    ModernModal.show({
+                        type: 'success',
+                        title: 'Evaluación Enviada',
+                        message: '¡Gracias por tu evaluación! Tu opinión nos ayuda a mejorar nuestro servicio.',
+                        onConfirm: () => {
+                            // Deshabilitar evaluación
+                            document.querySelectorAll('.evaluacion-btn').forEach(btn => {
+                                btn.disabled = true;
+                                btn.style.cursor = 'not-allowed';
+                            });
+                            document.getElementById('enviar-evaluacion').disabled = true;
+                            document.getElementById('comentario').disabled = true;
+                        }
+                    });
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+            } catch (error) {
+                console.error('Error al evaluar:', error);
+                ModernModal.show({
+                    type: 'error',
+                    title: 'Error al Enviar',
+                    message: 'No se pudo enviar la evaluación. Por favor, intenta nuevamente.'
+                });
+            }
+        }
+
+        function nuevaConsulta() {
+            location.reload();
+        }
+        
+        function finalizarConversacion() {
+            ModernModal.show({
+                type: 'confirm',
+                title: 'Finalizar Conversación',
+                message: '¿Deseas finalizar esta conversación? Te pediremos que evalúes tu experiencia.',
+                confirmText: 'Sí, finalizar',
+                cancelText: 'Continuar chat',
+                onConfirm: () => {
+                    if (intervaloPoll) {
+                        clearInterval(intervaloPoll);
+                    }
+                    // Mostrar evaluación
+                    document.getElementById('paso3').classList.add('hidden');
+                    document.getElementById('evaluacion').classList.remove('hidden');
+                },
+                onCancel: () => {
+                    // Continuar con la conversación
+                }
+            });
+        }
+        
+        function cerrarConversacion() {
+            finalizarConversacion();
+        }
+
+        // Limpiar interval al salir
+        reanudarConversacion();
+
+        window.addEventListener('beforeunload', () => {
+            if (intervaloPoll) {
+                clearInterval(intervaloPoll);
+            }
+        });
+    </script>
+</body>
+</html>
