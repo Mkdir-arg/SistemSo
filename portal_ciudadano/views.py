@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
-from portal.forms import CiudadanoConfirmarTurnoForm
+from portal.interfaces.web.forms import CiudadanoConfirmarTurnoForm
 from reclamos.models import Area, CampoDinamicoReclamo, Reclamo, ReclamoAdjunto, TipoReclamo
 from reclamos.services import (
     guardar_datos_dinamicos as guardar_datos_dinamicos_reclamo,
@@ -25,7 +25,7 @@ from reclamos.services import (
     validar_y_preparar_datos_dinamicos as validar_datos_dinamicos_reclamo,
 )
 from tramites.models import CampoDinamicoTramite, RequisitoTramite, TipoTramite, Tramite, TramiteAdjunto
-from tramites.services import (
+from tramites.application.services import (
     guardar_datos_dinamicos as guardar_datos_dinamicos_tramite,
     obtener_estado_inicial as obtener_estado_inicial_tramite,
     obtener_prioridad_base as obtener_prioridad_base_tramite,
@@ -35,24 +35,27 @@ from tramites.services import (
 
 from .forms import ReclamoDetalleForm, TramiteDetalleForm
 
-from portal.forms import CiudadanoLoginForm
-from portal.selectors import get_ciudadano_perfil_context, get_portal_home_context
-from portal.selectors import (
+from portal.interfaces.web.forms import CiudadanoLoginForm
+from portal.infrastructure.selectors.ciudadano_perfil import (
+    get_ciudadano_perfil_context,
     get_ciudadano_programa_derivaciones,
     get_ciudadano_programa_detalle_or_404,
     get_ciudadano_programas_context,
+)
+from portal.infrastructure.selectors.public import get_portal_home_context
+from portal.infrastructure.selectors.turnos_ciudadano import (
     get_recurso_turnos_activo_or_404,
     get_recursos_turnos_activos,
     get_turno_ciudadano_or_404,
     get_turnos_ciudadano_contexto,
 )
-from portal.services.turnos_ciudadano import (
+from portal.infrastructure.services.turnos_ciudadano import (
     TurnoNoDisponibleError,
     cancelar_turno_ciudadano,
     reservar_turno_ciudadano,
 )
 from portal.turnos_utils import get_calendario_mensual, get_slots_disponibles
-from portal.views.ciudadano_auth import (
+from portal.interfaces.web.views.ciudadano_auth import (
     _get_client_ip,
     _get_safe_next,
     limpiar_login_fallido,

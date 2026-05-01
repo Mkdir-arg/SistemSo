@@ -10,7 +10,7 @@ from legajos.models import Ciudadano
 
 class CiudadanoConsultasViewsTests(TestCase):
     def setUp(self):
-        self.group = Group.objects.create(name='Ciudadanos')
+        self.group, _ = Group.objects.get_or_create(name='Ciudadanos')
         self.user = User.objects.create_user(username='30111222', password='secret')
         self.user.groups.add(self.group)
         self.ciudadano = Ciudadano.objects.create(
@@ -80,9 +80,9 @@ class CiudadanoConsultasViewsTests(TestCase):
         self.assertEqual(Conversacion.objects.count(), 0)
         self.assertContains(response, 'Asegurate de que este valor tenga al menos 10 caracteres')
 
-    @patch('portal.services.consultas._notificar_grupo')
-    @patch('portal.services.consultas.NotificacionService.notificar_nueva_conversacion')
-    @patch('portal.services.consultas.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
+    @patch('conversaciones.interfaces.module_api._notificar_grupo')
+    @patch('conversaciones.interfaces.module_api.NotificacionService.notificar_nueva_conversacion')
+    @patch('conversaciones.interfaces.module_api.AsignadorAutomatico.asignar_conversacion_automatica', return_value=False)
     def test_nueva_consulta_valida_crea_conversacion_y_mensaje(
         self,
         mock_asignar,

@@ -1,9 +1,9 @@
 from django.test import SimpleTestCase
 
-from legajos.views import completar_validacion, dashboard_nachec, iniciar_prestacion
-from legajos.views.nachec_dashboard import dashboard_nachec as dashboard_nachec_module
-from legajos.views.nachec_operacion import completar_validacion as completar_validacion_module
-from legajos.views.nachec_prestaciones import iniciar_prestacion as iniciar_prestacion_module
+from legajos.interfaces.web.views import completar_validacion, dashboard_nachec, iniciar_prestacion
+from legajos.interfaces.web.views.nachec_dashboard import dashboard_nachec as dashboard_nachec_module
+from legajos.interfaces.web.views.nachec_operacion import completar_validacion as completar_validacion_module
+from legajos.interfaces.web.views.nachec_prestaciones import iniciar_prestacion as iniciar_prestacion_module
 
 
 class LegajosNachecPackageTests(SimpleTestCase):

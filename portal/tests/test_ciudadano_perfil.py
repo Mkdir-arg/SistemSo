@@ -12,7 +12,7 @@ from users.models import SolicitudCambioEmail
 
 class CiudadanoPerfilViewsTests(TestCase):
     def setUp(self):
-        grupo = Group.objects.create(name='Ciudadanos')
+        grupo, _ = Group.objects.get_or_create(name='Ciudadanos')
         self.user = User.objects.create_user(
             username='30111222',
             email='ana@old.test',
@@ -54,7 +54,7 @@ class CiudadanoPerfilViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    @patch('portal.services.ciudadano_perfil.send_mail')
+    @patch('portal.infrastructure.services.ciudadano_perfil.send_mail')
     def test_cambio_email_invalida_solicitudes_previas_y_crea_otra(self, send_mail_mock):
         anterior = SolicitudCambioEmail.objects.create(
             user=self.user,

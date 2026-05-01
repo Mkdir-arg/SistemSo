@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from users.services import UsuariosService
+from users.infrastructure.services import UsuariosService
 
 
 class UsuariosServiceUrlsTests(SimpleTestCase):

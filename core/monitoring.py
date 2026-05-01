@@ -107,9 +107,9 @@ class SystemMonitor:
         """Recolecta métricas específicas de la aplicación"""
         try:
             from legajos.models import Ciudadano
-            from conversaciones.models import Conversacion, Mensaje
             from users.models import User
             from django.db.models import Count, Q
+            from system_modules.infrastructure.services import module_is_active
             
             hoy_inicio = timezone.now().replace(hour=0, minute=0, second=0)
             hace_24h = timezone.now() - timedelta(days=1)
@@ -125,12 +125,16 @@ class SystemMonitor:
                 created_today=Count('id', filter=Q(creado__gte=hoy_inicio))
             )
             
-            conversacion_stats = Conversacion.objects.aggregate(
-                total=Count('id'),
-                active=Count('id', filter=Q(estado='ACTIVA'))
-            )
-            
-            messages_today = Mensaje.objects.filter(fecha_envio__gte=hoy_inicio).count()
+            if module_is_active("conversaciones"):
+                from conversaciones.interfaces.module_api import get_monitoring_stats
+
+                conversacion_stats = get_monitoring_stats(since=hoy_inicio)
+            else:
+                conversacion_stats = {
+                    "total": 0,
+                    "active": 0,
+                    "messages_today": 0,
+                }
             
             metrics = {
                 'timestamp': timezone.now().isoformat(),
@@ -143,7 +147,7 @@ class SystemMonitor:
                 'conversaciones': {
                     'total': conversacion_stats['total'],
                     'active': conversacion_stats['active'],
-                    'messages_today': messages_today
+                    'messages_today': conversacion_stats['messages_today']
                 },
                 'performance': {
                     'avg_response_time': self._get_avg_response_time(),

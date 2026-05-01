@@ -17,7 +17,7 @@
             detailApiTemplate: listaApp ? listaApp.dataset.detailApiUrlTemplate : '',
             detailTemplate: listaApp ? listaApp.dataset.detailUrlTemplate : '',
             closeTemplate: listaApp ? listaApp.dataset.closeUrlTemplate : '',
-            wsPath: listaApp ? listaApp.dataset.listWsPath : '/ws/conversaciones/',
+            wsPath: listaApp ? listaApp.dataset.listWsPath : (window.conversacionesConfig || {}).listWsPath || '',
         };
     }
 
@@ -125,6 +125,7 @@
     function conectarWS() {
         if (window.conversacionesListaWS && [0, 1].includes(window.conversacionesListaWS.readyState)) return;
         const config = getListaConfig();
+        if (!config.wsPath) return;
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}${config.wsPath}`;
         const ws = new WebSocket(wsUrl);

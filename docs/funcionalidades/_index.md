@@ -26,6 +26,7 @@
 | Configuración del Sistema | `configuracion-sistema/` | v1.1 | 2026-03-15 |
 | Búsqueda Rápida Ciudadano | `busqueda-rapida-ciudadano/` | v1.0 | 2026-03-15 |
 | Refactor DX Interno | `refactor-dx/` | v1.58 | 2026-04-03 |
+| Arquitectura Modular Activable | `arquitectura-modular/` | v1.1 | 2026-04-27 |
 | Motor de Flujos | `motor-flujos/` | v1.0 | 2026-03-15 |
 | Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
 | Derivación e Inscripción a Programas | `derivacion-inscripcion-programas/` | v1.0 | 2026-03-15 |
@@ -61,4 +62,5 @@ El archivo mas reciente es el estado actual.
 | `configuracion` | Vistas de configuracion del sistema (geografía, instituciones) |
 | `users` | Usuarios del backoffice y permisos |
 | `dashboard` | Panel principal |
+| `system_modules` | Catalogo de modulos, activacion por instancia y guards del monolito |
 | `refactor-dx` | Documentación de slices internos de arquitectura y DX |

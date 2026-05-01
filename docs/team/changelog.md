@@ -14,6 +14,34 @@
 
 ---
 
+## 2026-04-27 - DX-063 Smokes funcionales modulares
+
+**User Story:** Como equipo de desarrollo quiero smokes automatizados para validar la arquitectura modular desde comportamiento real y no solo desde AST.
+
+**Archivos modificados:**
+- `system_modules/tests/test_functional_smokes.py` - smoke de shells con modulos opcionales ausentes e inactivos
+- `system_modules/tests/test_architecture.py` - bloqueo de rutas opcionales hardcodeadas en JS global
+- `static/custom/js/*.js` y `templates/includes/base.html` - WebSockets opcionales consumen paths desde el shell activo
+- `docs/team/guia-pruebas-ui.md` y `docs/team/checklist-validacion-modular.md` - documentacion de ejecucion
+
+**Descripcion:** Se automatizaron smokes funcionales para cubrir casos dificiles de afirmar solo con AST: shells sin modulos opcionales, modulos desactivados sin scripts/widgets, rutas no publicadas y JS global sin paths opcionales fijos.
+
+---
+
+## 2026-04-27 - DX-062 Maxima literalidad fisica hexagonal
+
+**User Story:** Como equipo de desarrollo quiero retirar los entrypoints fisicos top-level de adapters para que el monolito modular sea literal, testeable y no dependa de fachadas legacy.
+
+**Archivos modificados:**
+- `config/settings.py` - loaders dinamicos para `*/interfaces/templates` y `*/interfaces/static`
+- `system_modules/tests/test_architecture.py` - reglas contra entrypoints top-level, imports legacy y tests de fachadas
+- `*/interfaces/*` - views, forms, API, serializers, realtime, templates y static
+- `*/infrastructure/*` - services, selectors y signals con dependencia Django/ORM
+- Documentacion de arquitectura, ADR, checklist, guia de modulos y README
+
+**Descripcion:** Se completo la reubicacion fisica estricta de adapters en todos los modulos declarados. No se movieron `models.py`, migrations, `admin.py` ni `apps.py` para preservar labels, contenttypes y wiring Django. Las rutas y nombres visibles se conservaron, pero el contrato publico ahora queda bajo capas canonicas y los tests bloquean que vuelvan wrappers top-level.
+---
+
 ## 2026-04-15 — Continuidad del chatbot en el portal ciudadano
 
 **User Story:** Como ciudadano quiero poder retomar el flujo del bot después de loguearme, y poder iniciar un trámite o reclamo guiado directamente desde mi portal.
@@ -1495,3 +1523,29 @@
 - `legajos/views_solapas.py`
 
 **Descripción:** Se retiró la capa legacy de compatibilidad de `legajos`, dejando la app consumiendo solo los paquetes reales `legajos/views/`, `legajos/forms/`, `legajos/services/`, `legajos/selectors/` y `legajos/signals/`. También se actualizaron imports y tests para apuntar al layout definitivo, con lo que `legajos` deja de mantener dos cartografías internas en paralelo.
+
+## 2026-04-23 â€” DX-060 Monolito modular activable
+
+**User Story:** Como equipo de desarrollo quiero un monolito modular activable para poder clonar el repo por cliente, prender o apagar modulos opcionales sin romper shells compartidos y bajar el acoplamiento transversal.
+
+**Archivos modificados:**
+- `system_modules/*` â€” nueva app con catalogo, estado, guards, admin, sync y tests
+- `config/settings.py`, `config/urls.py`, `manage.py`, `config/settings_test.py` â€” wiring del control plane y validacion
+- `turnos/domain/*`, `turnos/application/*`, `turnos/infrastructure/*`, `turnos/interfaces/*`, `turnos/module.py` â€” piloto hexagonal real
+- `portal/*`, `templates/includes/base.html`, `templates/legajos/alertas_dashboard.html`, `configuracion/templates/configuracion/programa_list.html` â€” shells resilientes a modulos inactivos
+- `docs/funcionalidades/arquitectura-modular/*`, `docs/team/*.md`, `README.md`, `*/README.md` â€” documentacion canonica del nuevo diseno
+
+**DescripciÃ³n:** Se agregÃ³ un control plane explicito para modulos instalados y activos, con degradaciÃ³n controlada en HTML y JSON. Los shells del sistema ahora renderizan navegaciÃ³n, widgets y capacidades segÃºn `module_capabilities`, y `turnos` pasa a ser el piloto real con layout `domain/application/infrastructure/interfaces`.
+
+## 2026-04-24 - DX-061 Hexagonal literal total
+
+**User Story:** Como equipo de desarrollo quiero que todos los modulos tengan la misma frontera hexagonal para poder sostener el monolito modular sin imports legacy ni rutas opcionales hardcodeadas.
+
+**Archivos modificados:**
+- `*/domain`, `*/application`, `*/infrastructure`, `*/interfaces` - layout canonico en todos los modulos declarados.
+- `*/interfaces/web/urls.py`, `*/interfaces/api/urls.py` - URLConfs canonicas.
+- `config/urls.py` - includes hacia rutas canonicas.
+- `system_modules/tests/test_architecture.py` - tests de layout, rutas canonicas e imports prohibidos en `domain/application`.
+- `docs/team/*`, `README.md`, `*/README.md` - documentacion actualizada al criterio literal.
+
+**Descripcion:** Se deja el PR #35 con control plane y frontera hexagonal uniforme. Los modelos Django historicos siguen top-level por seguridad de labels y migrations, pero se documentan como adapters ORM, no como contrato publico entre modulos.

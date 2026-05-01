@@ -11,7 +11,7 @@ from portal.models import DisponibilidadTurnos, RecursoTurnos, TurnoCiudadano
 
 class CiudadanoTurnosViewsTests(TestCase):
     def setUp(self):
-        self.group = Group.objects.create(name='Ciudadanos')
+        self.group, _ = Group.objects.get_or_create(name='Ciudadanos')
         self.user = User.objects.create_user(username='30111222', password='secret')
         self.user.groups.add(self.group)
         self.ciudadano = Ciudadano.objects.create(

@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from legajos.views.derivacion_programa import (
+from legajos.interfaces.web.views.derivacion_programa import (
     aceptar_derivacion_programa,
     rechazar_derivacion_programa,
 )

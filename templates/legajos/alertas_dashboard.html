@@ -1,5 +1,5 @@
 {% extends "includes/base.html" %}
-{% load static %}
+{% load static module_flags %}
 
 {% block title %}Dashboard de Alertas{% endblock %}
 
@@ -35,6 +35,7 @@
 {% endblock %}
 
 {% block main-content %}
+{% module_active "conversaciones" as conversaciones_active %}
 <div
     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
     x-data="alertasDashboard()"
@@ -215,7 +216,7 @@
     </div>
 
     <!-- Alertas de Conversaciones -->
-    {% if alertas_conversaciones %}
+    {% if conversaciones_active and alertas_conversaciones %}
     <div class="mt-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
             <i class="fas fa-comments text-blue-500 mr-2"></i>

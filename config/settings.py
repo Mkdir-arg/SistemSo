@@ -5,8 +5,22 @@ from pathlib import Path
 
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
+from config.modules import (
+    CORE_PROJECT_APPS,
+    INSTALLED_PROJECT_MODULES,
+    get_installed_project_app_configs,
+)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def _existing_project_module_dirs(*parts):
+    module_slugs = dict.fromkeys(list(CORE_PROJECT_APPS) + list(INSTALLED_PROJECT_MODULES))
+    return [
+        BASE_DIR.joinpath(slug, *parts)
+        for slug in module_slugs
+        if BASE_DIR.joinpath(slug, *parts).exists()
+    ]
 
 # Carga base para desarrollo local
 load_dotenv(BASE_DIR / ".env")
@@ -24,7 +38,10 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "dev")  # dev|qa|prd
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    raise ValueError("DJANGO_SECRET_KEY debe estar configurada en variables de entorno")
+    if os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings_test":
+        SECRET_KEY = "test-secret-key"
+    else:
+        raise ValueError("DJANGO_SECRET_KEY debe estar configurada en variables de entorno")
 
 LANGUAGE_CODE = "es-ar"
 TIME_ZONE = "America/Argentina/Buenos_Aires"
@@ -61,7 +78,7 @@ if DEBUG:
     ]
 CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -69,6 +86,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.admindocs",
+]
+
+THIRD_PARTY_APPS = [
     "django_extensions",
     "rest_framework",
     "channels",
@@ -77,21 +97,20 @@ INSTALLED_APPS = [
     "health_check.db",
     "health_check.cache",
     "silk",
-    "turnos",
-    "users",
-    "core",
-    "dashboard",
-    "legajos",
-    "flujos",
-    "configuracion",
-    "chatbot",
-    "conversaciones",
-    "portal",
+]
+
+PROJECT_LEGACY_APPS = [
     "portal_ciudadano",
-    "tramites",
-    "healthcheck",
     "reclamos",
 ]
+
+INSTALLED_APPS = (
+    DJANGO_APPS
+    + THIRD_PARTY_APPS
+    + list(CORE_PROJECT_APPS)
+    + get_installed_project_app_configs()
+    + PROJECT_LEGACY_APPS
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -113,7 +132,7 @@ ASGI_APPLICATION = "config.asgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates", *_existing_project_module_dirs("interfaces", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -124,14 +143,14 @@ TEMPLATES = [
                 "legajos.context_processors.alertas_eventos_criticos",
                 "core.context_processors.dispositivos_context",
                 "core.context_processors.branding_context",
-                "conversaciones.context_processors.user_groups",
+                "system_modules.context_processors.module_capabilities",
             ],
         },
     },
 ]
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "static", *_existing_project_module_dirs("interfaces", "static")]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
@@ -151,7 +170,7 @@ STATICFILES_STORAGE = (
 LOGIN_URL = "users:login"
 LOGIN_REDIRECT_URL = "core:inicio"
 LOGOUT_REDIRECT_URL = "users:login"
-ACCOUNT_FORMS = {"login": "users.forms.UserLoginForm"}
+ACCOUNT_FORMS = {"login": "users.interfaces.web.forms.UserLoginForm"}
 
 EMAIL_BACKEND = (
     "django.core.mail.backends.smtp.EmailBackend"

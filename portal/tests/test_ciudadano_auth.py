@@ -9,7 +9,7 @@ from legajos.models import Ciudadano
 
 class CiudadanoAuthViewsTests(TestCase):
     def setUp(self):
-        Group.objects.create(name='Ciudadanos')
+        Group.objects.get_or_create(name='Ciudadanos')
 
     def test_registro_step1_con_legajo_existente_guarda_sesion(self):
         ciudadano = Ciudadano.objects.create(
@@ -48,7 +48,7 @@ class CiudadanoAuthViewsTests(TestCase):
 
         self.assertRedirects(response, reverse('portal:ciudadano_login'))
 
-    @patch('portal.services.ciudadano_auth.consultar_datos_renaper')
+    @patch('portal.infrastructure.services.ciudadano_auth.consultar_datos_renaper')
     def test_registro_step1_nuevo_consulta_renaper_y_guarda_sesion(self, consultar_mock):
         consultar_mock.return_value = {
             'success': True,

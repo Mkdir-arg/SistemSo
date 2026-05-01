@@ -4,9 +4,9 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from chatbot.forms_chatbot import ApiKeyForm, SendMessageForm
+from chatbot.interfaces.web.forms.chat import ApiKeyForm, SendMessageForm
 from chatbot.models import Conversation, Message
-from chatbot.services_chatbot import (
+from chatbot.infrastructure.services.chat import (
     get_or_create_bubble_conversation,
     send_message_to_chatbot,
     validate_api_key_format,
@@ -39,7 +39,7 @@ class ChatbotServicesTests(TestCase):
 
         self.assertEqual(reused.id, conversation.id)
 
-    @patch('chatbot.services_chatbot.EnhancedChatbotService.generate_response')
+    @patch('chatbot.infrastructure.services.chat.EnhancedChatbotService.generate_response')
     def test_send_message_to_chatbot_persiste_historial(self, mock_generate_response):
         mock_generate_response.return_value = {'content': 'respuesta', 'tokens_used': 12}
         session = {}
@@ -61,7 +61,7 @@ class ChatbotViewsTests(TestCase):
         self.client = Client(enforce_csrf_checks=True)
         self.client.force_login(self.user)
 
-    @patch('chatbot.services_chatbot.EnhancedChatbotService.generate_response')
+    @patch('chatbot.infrastructure.services.chat.EnhancedChatbotService.generate_response')
     def test_send_message_returns_frontend_contract(self, mock_generate_response):
         mock_generate_response.return_value = {'content': 'respuesta', 'tokens_used': 7}
         self.client.get(reverse('chatbot:chat_interface'))
@@ -81,7 +81,7 @@ class ChatbotViewsTests(TestCase):
         self.assertEqual(payload['user_message']['content'], 'hola')
         self.assertEqual(payload['assistant_message']['content'], 'respuesta')
 
-    @patch('chatbot.services_chatbot.EnhancedChatbotService.generate_response')
+    @patch('chatbot.infrastructure.services.chat.EnhancedChatbotService.generate_response')
     def test_send_message_rechaza_post_sin_csrf(self, mock_generate_response):
         mock_generate_response.return_value = {'content': 'respuesta', 'tokens_used': 7}
 

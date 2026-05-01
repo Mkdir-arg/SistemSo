@@ -6,6 +6,27 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from config.branding import get_branding_profile
+from system_modules.registry import get_module_registry
+
+
+def _route_include(route):
+    if route.namespace:
+        return include((route.urlconf, route.app_name or route.namespace), namespace=route.namespace)
+    return include(route.urlconf)
+
+
+def _module_web_paths():
+    return [
+        path(route.route, _route_include(route))
+        for _definition, route in get_module_registry().web_routes()
+    ]
+
+
+def _module_api_paths():
+    return [
+        path(route.route, _route_include(route))
+        for _definition, route in get_module_registry().api_routes()
+    ]
 
 urlpatterns = [
     path(
@@ -16,38 +37,25 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     
     # Specific paths first
-    path("legajos/", include("legajos.urls")),
-    path("configuracion/", include("configuracion.urls")),
-    path("chatbot/", include("chatbot.urls")),
-    path("conversaciones/", include("conversaciones.urls")),
-    path(
-        "conversaciones/api/",
-        include(("conversaciones.api_urls", "conversaciones_api"), namespace="conversaciones_api"),
-    ),
-    path("portal/", include("portal.urls")),
+    path("legajos/", include("legajos.interfaces.web.urls")),
+    path("configuracion/", include("configuracion.interfaces.web.urls")),
+    path("portal/", include("portal.interfaces.web.urls")),
     path("portal-ciudadano/", include("portal_ciudadano.urls")),
-    path("turnos/", include("turnos.urls")),
-    path("tramites/", include("tramites.urls")),
-    path("auditoria/", include("core.urls_auditoria")),
-    
+    path("auditoria/", include("core.interfaces.web.urls_auditoria")),
+] + _module_web_paths() + [
     # Root paths last
     path("", include("django.contrib.auth.urls")),
-    path("", include(("users.urls", "users"), namespace="users")),
-    path("", include(("core.urls", "core"), namespace="core")),
-    path("", include("dashboard.urls")),
-    path("", include(("healthcheck.urls", "healthcheck"), namespace="healthcheck")),
-    # Flujos — editor visual HTML
-    path("flujos/", include(("flujos.views_urls", "flujos_editor"), namespace="flujos_editor")),
+    path("", include(("users.interfaces.web.urls", "users"), namespace="users")),
+    path("", include(("core.interfaces.web.urls", "core"), namespace="core")),
+    path("", include("dashboard.interfaces.web.urls")),
+    path("", include(("healthcheck.interfaces.web.urls", "healthcheck"), namespace="healthcheck")),
+    # Flujos - editor visual HTML
 
     # API Routes
-    path("api/", include(("flujos.urls", "flujos"), namespace="flujos")),
-    path("api/legajos/", include("legajos.api_urls")),
-    path("api/core/", include("core.api_urls")),
-    path("api/chatbot/", include("chatbot.api_urls")),
-    path("api/users/", include("users.api_urls")),
+    path("api/legajos/", include("legajos.interfaces.api.urls")),
+    path("api/core/", include("core.interfaces.api.urls")),
+    path("api/users/", include("users.interfaces.api.urls")),
     path("api/reclamos/", include("reclamos.api_urls")),
-    path("api/tramites/", include("tramites.api_urls")),
-    
     # API Documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
@@ -59,6 +67,8 @@ urlpatterns = [
     # Performance Profiling (solo en desarrollo/staging)
     path("silk/", include('silk.urls', namespace='silk')),
 ]
+
+urlpatterns += _module_api_paths()
 
 # URLs de desarrollo se pueden agregar aquí si es necesario
 

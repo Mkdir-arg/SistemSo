@@ -1,11 +1,11 @@
 from django.test import SimpleTestCase
 
-from legajos.views import (
+from legajos.interfaces.web.views import (
     api_programa_indicadores,
     institucion_detalle_programatico,
     programa_derivaciones,
 )
-from legajos.views.institucional import (
+from legajos.interfaces.web.views.institucional import (
     api_programa_indicadores as api_programa_indicadores_module,
     institucion_detalle_programatico as institucion_detalle_programatico_module,
     programa_derivaciones as programa_derivaciones_module,

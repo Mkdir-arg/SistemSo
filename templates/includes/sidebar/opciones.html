@@ -1,5 +1,8 @@
-{% load static custom_filters %}
+{% load static custom_filters module_flags %}
 {% with pagina_actual=request.resolver_match.route %}
+    {% module_active "conversaciones" as conversaciones_active %}
+    {% module_active "chatbot" as chatbot_active %}
+    {% module_active "tramites" as tramites_active %}
     <style>
         .sidebar-nav .text-\[\#FF0080\] {
             color: var(--nav-active-color) !important;
@@ -59,9 +62,11 @@
                             <a href="{% url 'legajos:dashboard_contactos' %}" class="{% if 'dashboard-contactos' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
                                 <i class="fas fa-phone mr-2 text-xs {% if 'dashboard-contactos' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Dashboard Contactos
                             </a>
-                            <a href="{% url 'conversaciones:metricas' %}" class="{% if 'conversaciones/metricas' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
-                                <i class="fas fa-comments mr-2 text-xs {% if 'conversaciones/metricas' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Dashboard Conversaciones
-                            </a>
+                            {% if conversaciones_active %}
+                                <a href="{% url 'conversaciones:metricas' %}" class="{% if 'conversaciones/metricas' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                    <i class="fas fa-comments mr-2 text-xs {% if 'conversaciones/metricas' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Dashboard Conversaciones
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </template>
@@ -159,7 +164,7 @@
             {% endif %}
 
             <!-- Trámites -->
-            {% if request.user.is_staff or request.user|has_group:"Administrador" or request.user|has_group:"Supervisor" %}
+            {% if tramites_active and request.user.is_staff or tramites_active and request.user|has_group:"Administrador" or tramites_active and request.user|has_group:"Supervisor" %}
                 <div class="relative">
                     <a href="{% url 'configuracion:tramites_listado' %}" class="{% if 'configuracion/tramites/listado' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center p-3 text-sm font-semibold transition-all" :class="sidebarCollapsed ? 'justify-center' : 'gap-x-3'">
                         <i class="fas fa-clipboard-list text-base {% if 'configuracion/tramites/listado' in pagina_actual %}text-[#FF0080]{% endif %}"></i>
@@ -171,7 +176,7 @@
             {% endif %}
 
             <!-- Conversaciones -->
-            {% if request.user|has_group:"Conversaciones" or request.user|has_group:"OperadorCharla" %}
+            {% if conversaciones_active and request.user|has_group:"Conversaciones" or conversaciones_active and request.user|has_group:"OperadorCharla" %}
                 <div class="relative">
                     <a href="{% url 'conversaciones:lista' %}" class="{% if 'conversaciones' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center p-3 text-sm font-semibold transition-all" :class="sidebarCollapsed ? 'justify-center' : 'gap-x-3'">
                         <i class="fas fa-comments text-base {% if 'conversaciones' in pagina_actual %}text-[#FF0080]{% endif %}"></i>
@@ -226,21 +231,25 @@
                                         </a>
                                     </div>
                                 </div>
-                                <div x-data="{ openTramites: {% if 'configuracion/tramites' in pagina_actual %}true{% else %}false{% endif %} }">
-                                    <button @click="openTramites = !openTramites" class="text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565] w-full flex items-center rounded-xl py-2 px-3 text-sm transition-colors">
-                                        <i class="fas fa-file-alt mr-2 text-xs"></i>
-                                        <span class="flex-1 text-left">Tramites</span>
-                                        <i class="fas fa-chevron-down text-[10px] transition-transform duration-200" :class="{ 'rotate-180': openTramites }"></i>
-                                    </button>
-                                    <div x-show="openTramites" x-transition class="mt-1 ml-4 space-y-1">
-                                        <a href="{% url 'configuracion:tramites_configuracion' %}" class="{% if pagina_actual == 'configuracion/tramites/' or 'configuracion/tramites/configuracion' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
-                                            <i class="fas fa-sliders-h mr-2 text-xs {% if pagina_actual == 'configuracion/tramites/' or 'configuracion/tramites/configuracion' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Configuraciones
-                                        </a>
+                                {% if tramites_active %}
+                                    <div x-data="{ openTramites: {% if 'configuracion/tramites' in pagina_actual %}true{% else %}false{% endif %} }">
+                                        <button @click="openTramites = !openTramites" class="text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565] w-full flex items-center rounded-xl py-2 px-3 text-sm transition-colors">
+                                            <i class="fas fa-file-alt mr-2 text-xs"></i>
+                                            <span class="flex-1 text-left">Tramites</span>
+                                            <i class="fas fa-chevron-down text-[10px] transition-transform duration-200" :class="{ 'rotate-180': openTramites }"></i>
+                                        </button>
+                                        <div x-show="openTramites" x-transition class="mt-1 ml-4 space-y-1">
+                                            <a href="{% url 'configuracion:tramites_configuracion' %}" class="{% if pagina_actual == 'configuracion/tramites/' or 'configuracion/tramites/configuracion' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                                <i class="fas fa-sliders-h mr-2 text-xs {% if pagina_actual == 'configuracion/tramites/' or 'configuracion/tramites/configuracion' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Configuraciones
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <a href="{% url 'conversaciones:configurar_cola' %}" class="{% if 'conversaciones/configurar-cola' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
-                                    <i class="fas fa-users-cog mr-2 text-xs {% if 'conversaciones/configurar-cola' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Cola Conversaciones
-                                </a>
+                                {% endif %}
+                                {% if conversaciones_active %}
+                                    <a href="{% url 'conversaciones:configurar_cola' %}" class="{% if 'conversaciones/configurar-cola' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                        <i class="fas fa-users-cog mr-2 text-xs {% if 'conversaciones/configurar-cola' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Cola Conversaciones
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </template>
@@ -270,9 +279,11 @@
                                 <a href="{% url 'users:grupos' %}" class="{% if 'grupos' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
                                     <i class="fas fa-user-tag mr-2 text-xs {% if 'grupos' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Grupos
                                 </a>
-                                <a href="{% url 'chatbot:admin_panel' %}" class="{% if 'chatbot/admin' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
-                                    <i class="fas fa-robot mr-2 text-xs {% if 'chatbot/admin' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Chatbot
-                                </a>
+                                {% if chatbot_active %}
+                                    <a href="{% url 'chatbot:admin_panel' %}" class="{% if 'chatbot/admin' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                        <i class="fas fa-robot mr-2 text-xs {% if 'chatbot/admin' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Chatbot
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </template>

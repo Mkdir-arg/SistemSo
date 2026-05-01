@@ -6,6 +6,13 @@
 - El repositorio activo es `SistemSo`, no `akuna_calc`.
 - Apps principales: `core`, `legajos`, `portal`, `turnos`, `conversaciones`, `chatbot`, `configuracion`, `users`, `dashboard`, `tramites`, `healthcheck`.
 
+## Estado relevante 2026-04-27
+
+- PR #35 completa maxima literalidad fisica hexagonal para los modulos declarados.
+- Los adapters publicos top-level (`views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static`, `consumers`, `routing`) dejaron de ser contrato final.
+- Web/API/realtime/templates/static viven bajo `interfaces/`; services/selectors/signals con Django u ORM viven bajo `infrastructure/`.
+- `models.py`, migrations, `admin.py` y `apps.py` se mantienen top-level por contrato tecnico de Django, no como API publica entre modulos.
+
 ## Estado relevante 2026-03-13
 
 - Se completó el primer slice del refactor DX interno.

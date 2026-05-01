@@ -5,7 +5,12 @@ from django.test import TestCase
 
 from legajos.models import Ciudadano
 from portal.models import TurnoCiudadano
-from turnos.services_turnos import TurnoActionError, TurnosBackofficeService
+from turnos.interfaces.module_api import (
+    TurnoActionError,
+    aprobar_turno_backoffice,
+    completar_turno_backoffice,
+    rechazar_turno_backoffice,
+)
 
 
 class TurnosBackofficeServiceTests(TestCase):
@@ -33,7 +38,7 @@ class TurnosBackofficeServiceTests(TestCase):
     def test_aprobar_turno_confirma_y_audita(self):
         turno = self.create_turno()
 
-        TurnosBackofficeService.aprobar_turno(
+        aprobar_turno_backoffice(
             turno.pk, self.operador, notas="Confirmado por backoffice"
         )
 
@@ -46,7 +51,7 @@ class TurnosBackofficeServiceTests(TestCase):
     def test_rechazar_turno_pendiente_lo_cancela(self):
         turno = self.create_turno()
 
-        TurnosBackofficeService.rechazar_turno(
+        rechazar_turno_backoffice(
             turno.pk, self.operador, "Sin cupo disponible"
         )
 
@@ -59,4 +64,4 @@ class TurnosBackofficeServiceTests(TestCase):
         turno = self.create_turno()
 
         with self.assertRaises(TurnoActionError):
-            TurnosBackofficeService.completar_turno(turno)
+            completar_turno_backoffice(turno)

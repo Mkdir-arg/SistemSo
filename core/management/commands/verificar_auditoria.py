@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from core.services import ServicioAlertas
+from core.infrastructure.services import ServicioAlertas
 
 
 class Command(BaseCommand):

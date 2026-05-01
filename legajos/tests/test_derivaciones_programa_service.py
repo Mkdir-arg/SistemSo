@@ -6,7 +6,7 @@ from core.models import Localidad, Municipio, Provincia
 from legajos.models import Ciudadano
 from legajos.models_nachec import CasoNachec, EstadoCaso, HistorialEstadoCaso, TareaNachec
 from legajos.models_programas import DerivacionPrograma, Programa
-from legajos.services import DerivacionProgramaService
+from legajos.infrastructure.services import DerivacionProgramaService
 
 
 class DerivacionProgramaServiceTests(TestCase):
@@ -38,7 +38,7 @@ class DerivacionProgramaServiceTests(TestCase):
             nombre='Programa Ñachec',
             tipo=Programa.TipoPrograma.NACHEC,
             descripcion='Programa de asistencia',
-            activo=True,
+            estado=Programa.Estado.ACTIVO,
         )
         self.derivacion = DerivacionPrograma.objects.create(
             ciudadano=self.ciudadano,
