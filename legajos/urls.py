@@ -3,6 +3,7 @@ from django.urls import include, path
 from .views import acompanamiento as views_acompanamiento
 from .views import alertas as views_alertas
 from .views import api_derivaciones as views_api_derivaciones
+from . import views_ciudadanos_api
 from .views import ciudadanos as views_ciudadanos
 from .views import clinico as views_clinico
 from .views import contactos_api as views_contactos_api
@@ -27,6 +28,7 @@ urlpatterns = [
     path("", views_clinico.LegajoListView.as_view(), name="lista"),
     path("nuevo/", views_ciudadanos.LegajoCreateView.as_view(), name="nuevo"),
     path("ciudadanos/", views_ciudadanos.CiudadanoListView.as_view(), name="ciudadanos"),
+    path("ciudadanos/buscar/", views_ciudadanos_api.ciudadano_buscar_api, name="ciudadano_buscar_api"),
     path("ciudadanos/nuevo/", views_ciudadanos.CiudadanoCreateView.as_view(), name="ciudadano_nuevo"),
     path("ciudadanos/confirmar/", views_ciudadanos.CiudadanoConfirmarView.as_view(), name="ciudadano_confirmar"),
     path("ciudadanos/manual/", views_ciudadanos.CiudadanoManualView.as_view(), name="ciudadano_manual"),

@@ -1,0 +1,640 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar reclamo - Portal Ciudadano</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text-heading: #101828;
+            --text-body: #4a5565;
+            --brand-strong: #c91b72;
+            --brand-gradient-start: rgba(133, 37, 196, 0.8);
+            --brand-gradient-end: rgba(255, 0, 128, 0.8);
+            --header-bg: #5d287f;
+            --footer-bg: #51236f;
+            --line: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text-heading);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        a { color: inherit; text-decoration: none; }
+        .container { width: min(1140px, calc(100vw - 32px)); margin: 0 auto; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out both; }
+
+        .topbar {
+            min-height: 92px;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.13), rgba(0, 0, 0, 0.13)), var(--header-bg);
+            color: #fff;
+        }
+        .topbar-inner {
+            min-height: 92px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-mark {
+            width: 56px;
+            height: 68px;
+            display: block;
+            object-fit: contain;
+            opacity: 0.58;
+        }
+        .brand-title {
+            color: #f9fafb;
+            font-family: "Geliat", "Inter", sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+        .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
+        .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
+
+        .top-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .icon-link {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-img {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .profile-btn {
+            padding: 6px 12px;
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 1px 0.5px 0.05px rgba(29, 41, 61, 0.02);
+            color: var(--text-body);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        main { flex: 1; }
+        .hero {
+            background: linear-gradient(360deg, var(--brand-gradient-end) 0%, var(--brand-gradient-start) 100%);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            padding: 56px 100px 92px;
+        }
+        .hero h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.02;
+            letter-spacing: -0.02em;
+            max-width: 760px;
+        }
+        .hero h1 span {
+            display: block;
+            margin-top: 6px;
+            color: rgba(255, 255, 255, 0.84);
+            font-size: clamp(24px, 2.4vw, 38px);
+            line-height: 1.08;
+        }
+
+        .confirm-wrap {
+            width: min(940px, 100%);
+            margin: 34px auto 0;
+        }
+
+        .quick-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 70px;
+            margin-bottom: 26px;
+            color: #111827;
+        }
+        .quick-nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #111827;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+
+        .summary-card {
+            border: 1px solid var(--line);
+            background: #f2f4f7;
+            border-radius: 12px;
+            padding: 18px 14px 14px;
+            display: grid;
+            gap: 20px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+        .summary-item .label {
+            margin: 0 0 4px;
+            color: #4a5565;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+        .summary-item .value {
+            margin: 0;
+            color: #101828;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            word-break: break-word;
+        }
+        .summary-item.full { grid-column: 1 / -1; }
+        .attachments-grid {
+            margin-top: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+        }
+        .attachment-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+        }
+        .attachment-item img {
+            width: 100%;
+            height: 76px;
+            object-fit: cover;
+            display: block;
+            background: #f3f4f6;
+        }
+        .attachment-file {
+            height: 76px;
+            display: grid;
+            place-items: center;
+            color: #667085;
+            background: #f8fafc;
+            font-size: 22px;
+        }
+        .attachment-name {
+            padding: 6px 8px;
+            font-size: 11px;
+            line-height: 1.3;
+            color: #4b5563;
+            word-break: break-word;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin: 26px 0 0;
+        }
+        .actions form { margin: 0; }
+        .tiny-btn {
+            min-height: 42px;
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 22px;
+            background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: "Inter", sans-serif;
+        }
+        .tiny-btn.secondary {
+            background: #f9fafb;
+            border: 1px solid var(--line);
+            color: #4a5565;
+        }
+
+        .steps {
+            width: min(840px, 100%);
+            margin: 58px auto 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 0 6px;
+            flex-wrap: nowrap;
+        }
+        .step {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: max-content;
+            flex: 0 0 auto;
+        }
+        .step .text {
+            font-size: clamp(16px, 1.4vw, 18px);
+            font-weight: 500;
+            line-height: 27px;
+            color: #475467;
+            white-space: nowrap;
+        }
+        .step.current .text,
+        .step.done .text { color: #ff0080; }
+        .step-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 16px;
+            color: #475467;
+            font-weight: 700;
+            background: #eef1f5;
+            border: 0;
+        }
+        .step.current .step-dot,
+        .step.done .step-dot { color: #ff0080; background: #f4e8f0; }
+        .step-line {
+            width: clamp(48px, 10vw, 150px);
+            height: 1px;
+            background: #d8dee8;
+            flex: 0 0 auto;
+        }
+
+        .footer {
+            background: var(--footer-bg);
+            color: #fff;
+            margin-top: auto;
+            padding: 30px 0 42px;
+            position: relative;
+        }
+        .footer::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 22px;
+            background: #000;
+        }
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 23px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            text-decoration: underline;
+        }
+        .social {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .social small {
+            width: 139px;
+            text-align: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+        }
+        .social-icons {
+            display: flex;
+            gap: 17px;
+            font-size: 22px;
+        }
+        .legal-row {
+            margin-top: 16px;
+            color: #8c8c8c;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .legal-row .left span.heart { color: #f5222d; }
+        .legal-row .left strong { color: #fff; font-weight: 700; }
+
+        .chat-bubble {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 57px;
+            height: 57px;
+            border-radius: 50%;
+            background: #8525c4;
+            display: grid;
+            place-items: center;
+            z-index: 50;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+            transition: transform 0.25s ease;
+        }
+        .chat-icon {
+            width: 30px;
+            height: 30px;
+            display: block;
+        }
+        .chat-bubble:hover { transform: scale(1.06); }
+
+        @media (max-width: 1100px) {
+            .hero { padding-left: 24px; padding-right: 24px; }
+            .hero h1 { font-size: 46px; }
+            .quick-nav { gap: 32px; }
+        }
+        @media (max-width: 900px) {
+            .topbar-inner {
+                justify-content: flex-start;
+                gap: 12px;
+                padding: 10px 0;
+            }
+            .brand { width: 100%; }
+            .top-links {
+                width: 100%;
+                justify-content: flex-start;
+                gap: 10px;
+            }
+            .profile-btn {
+                font-size: 11px;
+                line-height: 16px;
+                padding: 5px 10px;
+            }
+            .hero {
+                padding: 32px 20px 80px;
+            }
+            .hero h1 { font-size: 38px; }
+            .confirm-wrap { margin-top: 24px; }
+            .summary-grid { grid-template-columns: 1fr; gap: 14px; }
+            .summary-item .label { font-size: 14px; line-height: 20px; }
+            .summary-item .value { font-size: 16px; line-height: 24px; }
+            .quick-nav {
+                gap: 14px;
+                justify-content: space-between;
+                margin-bottom: 18px;
+                flex-wrap: wrap;
+            }
+            .quick-nav a {
+                font-size: 15px;
+                line-height: 20px;
+                gap: 6px;
+            }
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .tiny-btn { width: 100%; }
+            .steps {
+                margin: 36px auto 70px;
+                flex-wrap: nowrap;
+                gap: 8px;
+                justify-content: center;
+            }
+            .step .text { font-size: 15px; line-height: 20px; }
+            .step-dot { width: 30px; height: 30px; font-size: 12px; }
+            .step-line { width: 24px; }
+            .footer-inner {
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .legal-row { font-size: 12px; }
+            .chat-bubble {
+                width: 50px;
+                height: 50px;
+                right: 16px;
+                bottom: 104px;
+            }
+            .chat-icon {
+                width: 26px;
+                height: 26px;
+            }
+        }
+        @media (max-width: 600px) {
+            .container { width: calc(100vw - 24px); }
+            .brand-mark {
+                width: 44px;
+                height: 54px;
+            }
+            .brand-title strong { font-size: 26px; line-height: 30px; }
+            .brand-title span { font-size: 18px; line-height: 20px; }
+            .icon-link { width: 14px; height: 14px; }
+            .icon-img { width: 14px; height: 14px; }
+            .hero h1 { font-size: 30px; }
+            .footer { padding-top: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a href="{% url 'portal_ciudadano:home' %}" class="brand">
+                <img src="{% static 'custom/portal-ciudadano/huella.png' %}" alt="" class="brand-mark">
+                <div class="brand-title">
+                    <strong>Nodo</strong>
+                    <span>Ciudadano</span>
+                </div>
+            </a>
+            <div class="top-links">
+                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><img src="{% static 'custom/portal-ciudadano/home.svg' %}" alt="" class="icon-img"></a>
+                {% if request.user.is_authenticated %}
+                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
+                {% else %}
+                <a class="icon-link" href="{% url 'portal_ciudadano:login' %}?next=/portal-ciudadano/mi-perfil/" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
+                {% endif %}
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><img src="{% static 'custom/portal-ciudadano/calendar-month.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:reclamos' %}" aria-label="Solicitudes"><img src="{% static 'custom/portal-ciudadano/bell.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="icon-img"></a>
+                {% if request.user.is_authenticated %}
+                <form method="post" action="{% url 'portal_ciudadano:logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="profile-btn">
+                        Cerrar sesion
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'portal_ciudadano:login' %}?next=/portal-ciudadano/reclamos/?anonimo=1" class="profile-btn">
+                    Ingresar
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero animate-fadeInUp">
+            <h1>Confirmá tu solicitud,<span>revisá todos los datos antes de enviar</span></h1>
+        </section>
+
+        <section class="confirm-wrap animate-fadeInUp">
+            <nav class="quick-nav" aria-label="Navegación rápida">
+                <a href="{% url 'portal_ciudadano:home' %}"><i class="fa-solid fa-house"></i> Inicio</a>
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'portal_ciudadano:mis_solicitudes' %}"><i class="fa-regular fa-square-check"></i> Mis solicitudes</a>
+                {% else %}
+                <a href="{% url 'portal_ciudadano:login' %}?next=/portal-ciudadano/mis-solicitudes/"><i class="fa-regular fa-square-check"></i> Ingresar</a>
+                {% endif %}
+                <a href="{% url 'portal_ciudadano:reclamos' %}"><i class="fa-regular fa-circle-plus"></i> Nueva solicitud</a>
+            </nav>
+
+            <article class="summary-card">
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <p class="label">Área</p>
+                        <p class="value">{{ area.nombre|default:"-" }}</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="label">Subárea</p>
+                        <p class="value">{{ tipo.nombre|default:"-" }}</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="label">Título</p>
+                        <p class="value">{{ draft.titulo_solicitud|default:"-" }}</p>
+                    </div>
+                    <div class="summary-item full">
+                        <p class="label">Descripción</p>
+                        <p class="value">{{ draft.descripcion|default:"-" }}</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="label">Dirección</p>
+                        <p class="value">{{ draft.direccion_ubicacion|default:"-" }}</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="label">Fecha</p>
+                        <p class="value">{{ draft.fecha_aproximada|default:"-" }}</p>
+                    </div>
+                    <div class="summary-item">
+                        <p class="label">Hora</p>
+                        <p class="value">{{ draft.hora_aproximada|default:"-" }}</p>
+                    </div>
+                    <div class="summary-item full">
+                        <p class="label">Archivos adjuntos</p>
+                        {% if draft.adjuntos_meta %}
+                        <div class="attachments-grid">
+                            {% for file in draft.adjuntos_meta %}
+                            <a class="attachment-item" href="{{ file.url }}" target="_blank" rel="noopener">
+                                {% if file.is_image %}
+                                <img src="{{ file.url }}" alt="{{ file.name }}">
+                                {% else %}
+                                <div class="attachment-file"><i class="fa-regular fa-file"></i></div>
+                                {% endif %}
+                                <div class="attachment-name">{{ file.name }}</div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="value">-</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+
+            <div class="actions">
+                <a href="{% url 'portal_ciudadano:reclamos_detalle' %}?area={{ draft.area_id }}{% if draft.tipo_id %}&tipo={{ draft.tipo_id }}{% endif %}" class="tiny-btn secondary"><i class="fa-solid fa-arrow-left"></i> Editar</a>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="tiny-btn">Enviar solicitud</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="steps" aria-label="Paso a paso de reclamo">
+            <div class="step done">
+                <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+                <span class="text">Área</span>
+            </div>
+            <span class="step-line"></span>
+            <div class="step done">
+                <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+                <span class="text">Detalle</span>
+            </div>
+            <span class="step-line"></span>
+            <div class="step current" aria-current="step">
+                <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+                <span class="text">Confirmar</span>
+            </div>
+        </section>
+    </main>
+
+    <a href="{% url 'portal_ciudadano:chat' %}" class="chat-bubble" aria-label="Abrir chat">
+        <img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="chat-icon">
+    </a>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div class="footer-links">
+                <a href="#">Accesibilidad</a>
+                <a href="#">Cookies</a>
+                <a href="#">Privacidad</a>
+            </div>
+            <div class="social">
+                <small>Seguinos en las redes</small>
+                <div class="social-icons">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <i class="fa-brands fa-linkedin-in"></i>
+                    <i class="fa-brands fa-instagram"></i>
+                    <i class="fa-brands fa-x-twitter"></i>
+                </div>
+            </div>
+        </div>
+        <div class="container legal-row">
+            <div class="left">© 2026, made with <span class="heart">❤</span> by <strong>iCore</strong></div>
+            <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
+        </div>
+    </footer>
+</body>
+</html>
+

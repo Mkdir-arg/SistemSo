@@ -1,0 +1,69 @@
+{% extends "includes/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block main-content %}
+<div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">{{ page_title }}</h1>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ back_url }}" class="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Volver
+            </a>
+            <a href="{% url create_url_name %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors font-medium text-center">
+                <i class="fas fa-plus mr-2"></i>Nuevo
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        {% if items %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Nombre</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Codigo</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Municipio</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Activo</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for item in items %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ item.nombre|default:item }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ item.codigo|default:"-" }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ item.municipio|default:"-" }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    {% if item.activo %}Si{% else %}No{% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    <div class="flex gap-3">
+                                        <a href="{% url edit_url_name item.pk %}" class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url delete_url_name item.pk %}" class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-12 text-center">
+                <i class="fas fa-inbox text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay registros</h3>
+                <a href="{% url create_url_name %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Crear
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

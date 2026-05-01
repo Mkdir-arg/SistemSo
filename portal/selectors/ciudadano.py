@@ -10,14 +10,14 @@ def get_ciudadano_perfil(user):
 
 
 def get_ciudadano_conversaciones(user, ciudadano):
-    return Conversacion.objects.filter(
+    return Conversacion.objects.select_related('flujo_portal').filter(
         Q(dni_ciudadano=ciudadano.dni) | Q(ciudadano_usuario=user)
     ).order_by('-fecha_inicio')
 
 
 def get_ciudadano_conversacion_or_404(user, ciudadano, pk):
     conversacion = get_object_or_404(
-        Conversacion.objects.prefetch_related('mensajes'),
+        Conversacion.objects.select_related('flujo_portal').prefetch_related('mensajes'),
         pk=pk,
     )
     if conversacion.dni_ciudadano != ciudadano.dni and conversacion.ciudadano_usuario != user:

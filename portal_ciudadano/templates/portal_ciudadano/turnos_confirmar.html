@@ -1,0 +1,38 @@
+{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Confirmar Turno - Portal Ciudadano{% endblock %}
+{% block hero_title %}Confirmar turno{% endblock %}
+{% block hero_subtitle %}revisá la información{% endblock %}
+{% block hero_text %}Confirmá los datos del turno antes de reservarlo definitivamente.{% endblock %}
+
+{% block content %}
+<div class="stack" style="width:min(620px,100%);margin:0 auto;">
+    <a class="btn btn-secondary" href="{% url 'portal_ciudadano:turno_calendario' recurso.pk %}" style="width:fit-content;">
+        <i class="fa-solid fa-arrow-left"></i> Volver al calendario
+    </a>
+    <article class="card flush-top">
+        <h2>Resumen del turno</h2>
+        <dl>
+            <div class="data-row"><dt>Organismo / Profesional</dt><dd>{{ recurso.nombre }}</dd></div>
+            {% if recurso.direccion %}<div class="data-row"><dt>Dirección</dt><dd>{{ recurso.direccion }}</dd></div>{% endif %}
+            <div class="data-row"><dt>Fecha</dt><dd>{{ fecha }}</dd></div>
+            <div class="data-row"><dt>Horario</dt><dd>{{ hora_inicio }} - {{ hora_fin }}</dd></div>
+            <div class="data-row"><dt>A nombre de</dt><dd>{{ ciudadano.nombre }} {{ ciudadano.apellido }}</dd></div>
+        </dl>
+        {% if recurso.requiere_aprobacion %}
+        <p class="status warn" style="margin:12px 0;width:fit-content;">Este turno queda pendiente de confirmación.</p>
+        {% endif %}
+        <form method="post" action="{% url 'portal_ciudadano:confirmar_turno' recurso.pk %}" class="stack" style="margin-top:18px;">
+            {% csrf_token %}
+            {{ form.fecha }}
+            {{ form.hora_inicio }}
+            {{ form.hora_fin }}
+            <label for="motivo" class="muted" style="font-weight:600;color:var(--text-heading);">Motivo de la consulta <span class="muted">(opcional)</span></label>
+            <textarea id="motivo" name="motivo" rows="3" placeholder="Describí brevemente el motivo de tu turno..." style="width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;">{{ form.motivo.value|default:"" }}</textarea>
+            <button class="btn btn-primary" type="submit" style="width:100%;min-height:42px;">
+                <i class="fa-solid fa-check"></i> Confirmar turno
+            </button>
+        </form>
+    </article>
+</div>
+{% endblock %}

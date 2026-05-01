@@ -14,6 +14,14 @@
 
 ---
 
+## 2026-04-15 — Continuidad del chatbot en el portal ciudadano
+
+**User Story:** Como ciudadano quiero poder retomar el flujo del bot después de loguearme, y poder iniciar un trámite o reclamo guiado directamente desde mi portal.
+**Archivos modificados:** `conversaciones/services/portal_bot.py`, `conversaciones/views/public.py`, `conversaciones/urls.py`, `portal/selectors/ciudadano.py`, `portal/views/ciudadano_consultas.py`, `portal/templates/portal/ciudadano/consulta_detalle.html`, `portal/templates/portal/ciudadano/mis_consultas.html`
+**Descripción:** Se agrega reactivación automática del bot post-login (JS llama a `/reactivar-bot/` al cargar la vista), nuevo endpoint `iniciar_consulta_guiada` para crear conversaciones guiadas desde el portal logueado, y botones "Hacer un reclamo" / "Iniciar un trámite" en Mis Consultas. Sin cambios de modelo ni migraciones.
+
+---
+
 ## 2026-04-03 — DX-059 Stack local Docker simplificado
 
 **User Story:** Como equipo de desarrollo quiero levantar el entorno local con `docker compose up` y con el menor bootstrap posible para reducir el tiempo hasta entorno usable.

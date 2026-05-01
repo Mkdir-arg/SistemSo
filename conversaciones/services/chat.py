@@ -32,13 +32,14 @@ def consultar_renaper_para_chat(dni, sexo):
     return consultar_datos_renaper(dni, sexo)
 
 
-def iniciar_conversacion_publica(cleaned_data):
+def iniciar_conversacion_publica(cleaned_data, user=None):
     conversacion = Conversacion.objects.create(
         tipo=cleaned_data['tipo'],
         dni_ciudadano=cleaned_data['dni'] if cleaned_data['tipo'] == 'personal' and cleaned_data['dni'] else None,
         sexo_ciudadano=cleaned_data['sexo'] if cleaned_data['tipo'] == 'personal' and cleaned_data['sexo'] else None,
         prioridad=cleaned_data['prioridad'],
         estado='activa',
+        ciudadano_usuario=user if user and user.is_authenticated else None,
     )
 
     if conversacion.tipo == 'personal' and conversacion.dni_ciudadano and conversacion.sexo_ciudadano:
@@ -70,10 +71,11 @@ def iniciar_conversacion_publica(cleaned_data):
             'mensaje': f'Nueva conversación #{conversacion.id} creada',
         },
     )
+
     return conversacion
 
 
-def crear_mensaje_ciudadano(conversacion_id, contenido):
+def crear_mensaje_ciudadano(conversacion_id, contenido, user=None):
     conversacion = get_object_or_404(Conversacion, id=conversacion_id)
     mensaje = Mensaje.objects.create(
         conversacion=conversacion,
@@ -102,6 +104,7 @@ def crear_mensaje_ciudadano(conversacion_id, contenido):
             'mensaje': f'Nuevo mensaje en conversación #{conversacion_id}',
         },
     )
+
     return mensaje
 
 

@@ -474,7 +474,7 @@ function dashboard() {
         },
         
         cargarDatosIniciales() {
-            fetch('/dashboard/api/alertas-criticas/')
+            fetch("{% url 'dashboard:api_alertas_criticas' %}")
                 .then(response => response.json())
                 .then(data => {
                     this.alertasCriticas = data.results;
@@ -482,7 +482,7 @@ function dashboard() {
                 })
                 .catch(error => console.error('Error cargando alertas:', error));
             
-            fetch('/dashboard/api/actividad-reciente/')
+            fetch("{% url 'dashboard:api_actividad_reciente' %}")
                 .then(response => response.json())
                 .then(data => {
                     this.actividadReciente = data.results;
@@ -521,7 +521,7 @@ function dashboard() {
                 return;
             }
             
-            fetch(`/dashboard/api/buscar-ciudadanos/?q=${encodeURIComponent(this.busqueda)}`)
+            fetch(`{% url 'dashboard:api_buscar_ciudadanos' %}?q=${encodeURIComponent(this.busqueda)}`)
                 .then(response => response.json())
                 .then(data => {
                     this.resultadosBusqueda = data.results || [];
@@ -658,7 +658,7 @@ function dashboard() {
         },
 
         actualizarDatos() {
-            fetch('/dashboard/api/metricas/')
+            fetch("{% url 'dashboard:api_metricas' %}")
                 .then(response => response.json())
                 .then(data => {
                     this.metricas = data.metricas;
