@@ -413,10 +413,12 @@ def editor_flujo(request, programa_id):
     instancias_activas = 0
     try:
         version_publicada = programa.flujo_activo
-        if version_publicada:
+        if flujo is not None:
             from flujos.models import InstanciaFlujo as _IF
+            # Contamos casos vivos en cualquier version del flujo, no solo la
+            # publicada hoy. Republicar no debe "perder" casos en curso.
             instancias_activas = _IF.objects.filter(
-                version_flujo=version_publicada,
+                version_flujo__flujo=flujo,
                 estado=_IF.Estado.ACTIVA,
             ).count()
     except Exception:

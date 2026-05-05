@@ -1,5 +1,101 @@
 # Worklog temporal
 
+## 2026-05-05 - Limpiar selector de tipos y metadata visual
+
+**Tarea:** Hacer mas claro el selector de tipos de bloque y ocultar metadata interna en bloques que solo muestran contenido.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+
+**Cambios realizados:**
+- Se simplificaron los labels visibles del selector de tipos a `Texto`, `Info`, `Resumen`, `Tabla simple` y `Tabla avanzada`.
+- Se agrego un selector visual separado para tipos de bloque, desacoplado del `kind` interno.
+- Los bloques visuales como `Info` y `Resumen` ya no muestran `ID interno`, dejando solo configuracion relevante para el usuario.
+- Se renombro `Etiqueta` a `Etiqueta visible` o `Título del bloque` según el tipo de bloque para reforzar el modelo mental correcto.
+
+**Decisiones o supuestos:**
+- La meta fue reducir ruido conceptual sin cambiar el contrato de guardado ni el renderer de preview.
+- `Tabla simple` y `Tabla avanzada` siguen mapeando al mismo `kind: table`, diferenciadas por `table_mode`.
+
+**Pendientes:**
+- Validar si conviene aplicar el mismo criterio de ocultar metadata tecnica en otros bloques de captura simple cuando no aportan al usuario final.
+
+## 2026-05-05 - Simplificar configuracion de tablas como bloque simple
+
+**Tarea:** Replantear la configuracion de tablas para que no se editen como un esquema tecnico dentro del flujo genérico de campos.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+
+**Cambios realizados:**
+- Se renombro el agrupador de `Campos` a `Bloques` y se actualizaron las acciones de mover, duplicar y eliminar para usar ese lenguaje.
+- Las tablas ahora abren por defecto en `Tabla simple`, enfocada en filas `Etiqueta / Valor` sin exponer columnas ni claves internas.
+- Se agrego un `Modo avanzado` opcional para conservar casos con más de dos columnas sin perder flexibilidad.
+- La tabla simple se normaliza internamente al mismo esquema existente, evitando romper la preview y el formato de guardado.
+
+**Decisiones o supuestos:**
+- La complejidad principal estaba en mezclar configuracion genérica de campo con estructura técnica de tabla.
+- Se mantuvo el kind `table` para no cambiar contratos de datos ni el renderer existente.
+
+**Pendientes:**
+- Validar visualmente si el siguiente paso debe ser renombrar tipos visibles a `Texto`, `Info`, `Resumen`, `Tabla simple` y `Tabla avanzada` en el selector completo de bloques.
+
+## 2026-05-05 - Renombrar solapa Pantalla a Interfaz
+
+**Tarea:** Cambiar la nomenclatura visible de la solapa `Pantalla` para que la configuracion de tablas y bloques se lea como composicion de interfaz y no como otro tipo de paso.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+
+**Cambios realizados:**
+- La solapa visible `Pantalla` se renombro a `Interfaz`.
+- Se actualizaron textos adyacentes como `Pantalla declarativa v3`, `Título de la pantalla` y ayudas de preview para alinearlos con la nueva nomenclatura.
+- Se ajusto el label del contrato `ui_form` y el placeholder por defecto de la vista operativa.
+
+**Decisiones o supuestos:**
+- Se mantuvo el id interno `pantalla` para no tocar estado ni logica de tabs.
+- El objetivo fue aclarar el lenguaje visible sin abrir cambios estructurales en el editor.
+
+**Pendientes:**
+- Evaluar si en un siguiente paso conviene renombrar tambien `Campos` a `Bloques` para bajar aun mas la confusion cuando se trabaja con tablas y resúmenes.
+
+## 2026-05-05 - Aclarar configuracion de tablas en nodos
+
+**Tarea:** Hacer mas entendible el editor de tablas dentro de la configuracion de Pantalla para que el usuario sepa que cargar y en que orden.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+
+**Cambios realizados:**
+- Se agrego una guia breve dentro del bloque de tabla con un flujo de trabajo en 3 pasos.
+- Se renombraron labels ambiguos por textos mas claros como “ID interno”, “Titulo visible” y “Filas de ejemplo”.
+- Se agregaron placeholders y encabezados por columna/fila para que sea evidente que se esta editando la estructura visible de la tabla.
+- El boton de agregado ahora dice “Agregar tabla de datos” para diferenciarlo de otros bloques.
+- Se recreo el componente faltante `ScreenPreview.jsx` para sostener la vista previa en vivo y destrabar el build del editor.
+
+**Decisiones o supuestos:**
+- El problema principal no era tecnico sino de comprension del modelo mental del editor.
+- Se priorizo microcopy guiada dentro del flujo actual, sin cambiar la estructura de datos ni el preview existente.
+
+**Pendientes:**
+- Confirmar en UI si hace falta un tercer paso futuro para soportar tablas dinamicas conectadas a datasets reales y no solo filas configuradas manualmente.
+
 ## 2026-05-05 - Descolapsar cuerpo del popup de configuración
 
 ## 2026-05-05 - Rediseñar header del Editor de Flujo

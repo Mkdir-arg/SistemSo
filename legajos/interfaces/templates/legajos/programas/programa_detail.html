@@ -317,6 +317,51 @@
                     </div>
                 </div>
             </div>
+
+            {% if stage.has_screen %}
+            <div class="rounded-2xl border border-[#E5E7EB] bg-[#FCFCFD] p-6 space-y-5">
+                <div class="flex flex-col gap-1 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Pantalla del nodo</p>
+                        <h5 class="text-lg font-bold text-[#252F40]">Vista del operador en esta etapa</h5>
+                        <p class="text-sm text-[#6B7280] mt-1">
+                            Es exactamente lo que el responsable ve cuando abre un caso parado en este nodo. Las variables como <code class="text-xs bg-white px-1 rounded border">{% templatetag openvariable %} ciudadano.dni {% templatetag closevariable %}</code> se reemplazan con los datos reales del caso.
+                        </p>
+                    </div>
+                </div>
+
+                {% if stage.screen_cases %}
+                <div class="space-y-5">
+                    {% for caso in stage.screen_cases %}
+                    <div class="rounded-xl border border-[#DBEAFE] bg-white p-5">
+                        <div class="flex flex-wrap items-center gap-3 mb-4 pb-3 border-b border-[#E5E7EB]">
+                            <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                <i class="fas fa-user mr-2"></i>{{ caso.ciudadano_nombre }}
+                            </span>
+                            {% if caso.ciudadano_dni %}
+                            <span class="text-xs text-[#6B7280]">DNI: <strong class="text-[#252F40]">{{ caso.ciudadano_dni }}</strong></span>
+                            {% endif %}
+                            <span class="text-xs text-[#6B7280]">Ingresó: <strong class="text-[#252F40]">{{ caso.fecha_inicio|timesince }}</strong> atrás</span>
+                        </div>
+                        {% include "legajos/programas/_pantalla_etapa.html" with sections=caso.sections %}
+                    </div>
+                    {% endfor %}
+                    {% if stage.screen_more_cases %}
+                    <div class="text-sm text-[#6B7280] italic">
+                        Hay {{ stage.screen_more_cases }} caso{{ stage.screen_more_cases|pluralize }} más en esta etapa que no se muestran. Mostrando los 5 más recientes.
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div>
+                    <div class="rounded-lg border border-dashed border-[#CBD5E1] bg-white px-4 py-3 mb-4 text-sm text-[#6B7280]">
+                        <i class="fas fa-eye mr-2"></i>Sin casos parados en esta etapa. Mostrando la pantalla con las variables sin resolver.
+                    </div>
+                    {% include "legajos/programas/_pantalla_etapa.html" with sections=stage.screen_template_sections %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
     {% endfor %}

@@ -49,12 +49,28 @@ def _build_configured_resolution_schema(nodo, tarea=None):
         surface = task_data.get('surface')
         if surface is None:
             surface = nodo.get('surface')
+
+        sections = ui_schema.get('sections', [])
+        instancia = getattr(tarea, 'instancia', None) if tarea is not None else None
+        if instancia is not None and sections:
+            from flujos.infrastructure.runtime_actions import (
+                build_flow_template_context,
+                render_flow_template_value,
+            )
+            try:
+                context = build_flow_template_context(instancia)
+                sections = render_flow_template_value(sections, context)
+            except Exception:
+                # Si falla la interpolacion, devolver el schema literal
+                # antes que romper la pantalla. La tarea seguira funcionando.
+                sections = ui_schema.get('sections', [])
+
         return {
             'type': 'ui_form',
             'title': ui_schema.get('title') or nodo.get('nombre') or nodo.get('id'),
             'description': ui_schema.get('description', ''),
             'layout': ui_schema.get('layout', 'single_column'),
-            'sections': ui_schema.get('sections', []),
+            'sections': sections,
             'submit': ui_schema.get('submit') or {'label': 'Guardar y continuar'},
             'actor': actor,
             'surface': surface or ['backoffice'],

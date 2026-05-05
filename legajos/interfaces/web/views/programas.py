@@ -15,6 +15,10 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from flujos.models import InstanciaFlujo, TareaFlujo
+from flujos.infrastructure.ui_renderer import (
+    build_display_only_sections,
+    has_display_blocks,
+)
 from legajos.models_programas import Programa, InscripcionPrograma
 from legajos.models_institucional import (
     InstitucionPrograma,
@@ -152,9 +156,13 @@ def _build_program_flow_context(programa):
     if not ordered_ids:
         return None
 
+    # Mostramos todas las instancias activas del flujo del programa, sin
+    # importar la version exacta. Cada vez que se republica el flujo, las
+    # versiones anteriores se archivan pero las instancias siguen vivas en
+    # esa version vieja. El operador necesita ver TODOS los casos vivos.
     active_instances_by_node = dict(
         InstanciaFlujo.objects.filter(
-            version_flujo=version_publicada,
+            version_flujo__flujo__programa=programa,
             estado=InstanciaFlujo.Estado.ACTIVA,
         )
         .values('nodo_actual')
@@ -163,7 +171,7 @@ def _build_program_flow_context(programa):
     )
     pending_tasks_by_node = dict(
         TareaFlujo.objects.filter(
-            instancia__version_flujo=version_publicada,
+            instancia__version_flujo__flujo__programa=programa,
             estado=TareaFlujo.Estado.PENDIENTE,
         )
         .values('nodo_id')
@@ -171,10 +179,42 @@ def _build_program_flow_context(programa):
         .values_list('nodo_id', 'total')
     )
 
+    instancias_activas_by_node = defaultdict(list)
+    for inst in (
+        InstanciaFlujo.objects.filter(
+            version_flujo__flujo__programa=programa,
+            estado=InstanciaFlujo.Estado.ACTIVA,
+        )
+        .select_related('inscripcion__ciudadano', 'version_flujo')
+        .order_by('-fecha_inicio')[:200]
+    ):
+        instancias_activas_by_node[inst.nodo_actual].append(inst)
+
     stages = []
     for node_id in ordered_ids:
         node = node_map[node_id]
         tipo = node.get('tipo')
+        ui_schema = (node.get('config') or {}).get('ui')
+        stage_instances = instancias_activas_by_node.get(node_id, [])
+
+        cases = []
+        if has_display_blocks(ui_schema):
+            for inst in stage_instances[:5]:
+                ciudadano = getattr(inst.inscripcion, 'ciudadano', None)
+                cases.append({
+                    'instancia_id': inst.pk,
+                    'ciudadano_nombre': getattr(ciudadano, 'nombre_completo', '') or 'Caso sin ciudadano',
+                    'ciudadano_dni': getattr(ciudadano, 'dni', '') or '',
+                    'fecha_inicio': inst.fecha_inicio,
+                    'sections': build_display_only_sections(ui_schema, instancia=inst),
+                })
+
+        template_sections = (
+            build_display_only_sections(ui_schema, instancia=None)
+            if has_display_blocks(ui_schema)
+            else []
+        )
+
         stages.append({
             'id': node_id,
             'tab_id': slugify(node_id) or node_id,
@@ -187,6 +227,10 @@ def _build_program_flow_context(programa):
             'pending_tasks': pending_tasks_by_node.get(node_id, 0),
             'transitions_count': len(outgoing.get(node_id, [])),
             'highlights': _build_flow_stage_highlights(node, outgoing, node_map),
+            'has_screen': bool(template_sections),
+            'screen_template_sections': template_sections,
+            'screen_cases': cases,
+            'screen_more_cases': max(0, len(stage_instances) - len(cases)),
         })
 
     return {

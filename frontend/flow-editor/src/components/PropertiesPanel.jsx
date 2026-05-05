@@ -18,19 +18,32 @@ const FORM_TYPE_OPTIONS = [
 const ACTION_EXPERIENCE_OPTIONS = [
   { value: '', label: 'Sin contrato de captura' },
   { value: 'legacy_form', label: 'Formulario tipado v2' },
-  { value: 'ui_form', label: 'Pantalla declarativa v3' },
+  { value: 'ui_form', label: 'Interfaz declarativa v3' },
 ];
 
 const UI_FIELD_KIND_OPTIONS = [
-  { value: 'text', label: 'Texto corto' },
+  { value: 'text', label: 'Texto' },
   { value: 'textarea', label: 'Texto largo' },
   { value: 'number', label: 'Numero' },
   { value: 'date', label: 'Fecha' },
   { value: 'radio', label: 'Opcion unica' },
-  { value: 'select', label: 'Lista desplegable' },
-  { value: 'checkbox', label: 'Check' },
-  { value: 'info', label: 'Bloque informativo' },
-  { value: 'summary', label: 'Resumen visual' },
+  { value: 'select', label: 'Lista' },
+  { value: 'checkbox', label: 'Confirmacion' },
+  { value: 'info', label: 'Info' },
+  { value: 'summary', label: 'Resumen' },
+  { value: 'table', label: 'Tabla' },
+];
+
+const UI_BLOCK_TYPE_OPTIONS = [
+  { value: 'text', label: 'Texto' },
+  { value: 'textarea', label: 'Texto largo' },
+  { value: 'number', label: 'Numero' },
+  { value: 'date', label: 'Fecha' },
+  { value: 'radio', label: 'Opcion unica' },
+  { value: 'select', label: 'Lista' },
+  { value: 'checkbox', label: 'Confirmacion' },
+  { value: 'info', label: 'Info' },
+  { value: 'summary', label: 'Resumen' },
   { value: 'table', label: 'Tabla' },
 ];
 
@@ -45,6 +58,39 @@ const INFO_TONE_OPTIONS = [
 const UI_LAYOUT_OPTIONS = [
   { value: 'single_column', label: 'Una columna' },
   { value: 'two_column', label: 'Dos columnas' },
+];
+
+const SIMPLE_TABLE_COLUMNS = [
+  { key: 'campo', label: 'Campo' },
+  { key: 'valor', label: 'Valor' },
+];
+
+const SIMPLE_TABLE_TEMPLATES = [
+  {
+    id: 'ciudadano',
+    label: 'Datos del ciudadano',
+    rows: [
+      { campo: 'DNI', valor: '{{ ciudadano.dni }}' },
+      { campo: 'Nombre y apellido', valor: '{{ ciudadano.nombre_completo }}' },
+      { campo: 'Email', valor: '{{ ciudadano.email }}' },
+    ],
+  },
+  {
+    id: 'programa',
+    label: 'Datos del programa',
+    rows: [
+      { campo: 'Código', valor: '{{ programa.codigo }}' },
+      { campo: 'Nombre', valor: '{{ programa.nombre }}' },
+    ],
+  },
+  {
+    id: 'estado',
+    label: 'Estado del paso',
+    rows: [
+      { campo: 'Estado', valor: 'En revisión' },
+      { campo: 'Responsable', valor: '{{ usuario.nombre_completo }}' },
+    ],
+  },
 ];
 
 const DISPLAY_ONLY_UI_FIELD_KINDS = new Set(['info', 'summary', 'table']);
@@ -247,17 +293,15 @@ function buildDefaultUiField(kind = 'text', index = 1) {
     return {
       id: `tabla_${index}`,
       kind,
-      label: `Tabla ${index}`,
+      label: index === 1 ? 'Datos principales' : `Datos principales ${index}`,
       required: false,
-      columns: [
-        { key: 'campo', label: 'Campo' },
-        { key: 'valor', label: 'Valor' },
-      ],
+      table_mode: 'simple',
+      columns: cloneUiValue(SIMPLE_TABLE_COLUMNS),
       rows: [
         { campo: 'DNI', valor: '{{ ciudadano.dni }}' },
         { campo: 'Programa', valor: '{{ programa.codigo }}' },
       ],
-      empty_message: 'Sin registros para mostrar.',
+      empty_message: 'Sin datos para mostrar.',
     };
   }
 
@@ -289,7 +333,7 @@ function buildDefaultUiConfig(type = 'form') {
 
   return {
     type,
-    title: 'Pantalla operativa',
+    title: 'Vista operativa',
     description: 'Completá la información necesaria para continuar el flujo.',
     layout: 'single_column',
     sections: [
@@ -302,6 +346,50 @@ function buildDefaultUiConfig(type = 'form') {
     submit: {
       label: 'Guardar y continuar',
     },
+  };
+}
+
+function getUiTableMode(field) {
+  if (field?.table_mode === 'advanced' || field?.table_mode === 'simple') {
+    return field.table_mode;
+  }
+
+  return Array.isArray(field?.columns) && field.columns.length > 2 ? 'advanced' : 'simple';
+}
+
+function buildSimpleTableRows(field) {
+  const defaultTable = buildDefaultUiField('table', 1);
+  const currentColumns = Array.isArray(field?.columns) && field.columns.length > 0
+    ? field.columns
+    : defaultTable.columns;
+  const primaryKey = currentColumns[0]?.key || defaultTable.columns[0].key;
+  const valueKey = currentColumns[1]?.key || defaultTable.columns[1].key;
+  const rows = Array.isArray(field?.rows) ? field.rows : [];
+
+  if (rows.length === 0) {
+    return [];
+  }
+
+  return rows.map((row) => ({
+    campo: row?.campo ?? row?.[primaryKey] ?? '',
+    valor: row?.valor ?? row?.[valueKey] ?? '',
+  }));
+}
+
+function coerceUiTableToSimple(field, index = 1) {
+  const defaultTable = buildDefaultUiField('table', index);
+  const nextRows = Array.isArray(field?.rows) && field.rows.length > 0
+    ? buildSimpleTableRows(field)
+    : cloneUiValue(defaultTable.rows);
+
+  return {
+    ...field,
+    kind: 'table',
+    required: false,
+    table_mode: 'simple',
+    columns: cloneUiValue(SIMPLE_TABLE_COLUMNS),
+    rows: nextRows,
+    empty_message: field?.empty_message || defaultTable.empty_message,
   };
 }
 
@@ -349,6 +437,68 @@ function buildUiFieldCollapseKey(nodeId, section, sectionIndex, field, fieldInde
 
 function getUiFieldKindLabel(kind) {
   return UI_FIELD_KIND_OPTIONS.find((option) => option.value === kind)?.label || kind || 'Campo';
+}
+
+function getUiBlockTypeValue(field) {
+  return field?.kind || 'text';
+}
+
+function getUiBlockTypeLabel(field) {
+  return UI_BLOCK_TYPE_OPTIONS.find((option) => option.value === getUiBlockTypeValue(field))?.label
+    || getUiFieldKindLabel(field?.kind);
+}
+
+const INFO_TONE_LABEL = {
+  info: 'info',
+  success: 'éxito',
+  warning: 'advertencia',
+  danger: 'alerta',
+  neutral: 'neutral',
+};
+
+function pluralize(count, singular, plural) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function getUiBlockSummary(field) {
+  const baseLabel = getUiBlockTypeLabel(field);
+
+  if (field?.kind === 'table') {
+    const mode = getUiTableMode(field);
+    const rowCount = Array.isArray(field?.rows) ? field.rows.length : 0;
+    if (mode === 'simple') {
+      return `Tabla simple · ${pluralize(rowCount, 'fila', 'filas')}`;
+    }
+    const colCount = Array.isArray(field?.columns) ? field.columns.length : 0;
+    return `Tabla avanzada · ${pluralize(colCount, 'columna', 'columnas')} × ${pluralize(rowCount, 'fila', 'filas')}`;
+  }
+
+  if (field?.kind === 'info') {
+    return `Info · ${INFO_TONE_LABEL[field.tone] || field.tone || 'info'}`;
+  }
+
+  if (field?.kind === 'summary') {
+    const itemCount = Array.isArray(field?.items) ? field.items.length : 0;
+    return `Resumen · ${pluralize(itemCount, 'ítem', 'ítems')}`;
+  }
+
+  if (field?.kind === 'radio' || field?.kind === 'select') {
+    const opts = Array.isArray(field?.options) ? field.options.length : 0;
+    const required = field?.required ? ' · obligatorio' : '';
+    return `${baseLabel} · ${pluralize(opts, 'opción', 'opciones')}${required}`;
+  }
+
+  if (field?.kind === 'checkbox') {
+    return `${baseLabel}${field?.required ? ' · obligatorio' : ''}`;
+  }
+
+  return `${baseLabel}${field?.required ? ' · obligatorio' : ''}`;
+}
+
+function getUiSectionSummary(section) {
+  const count = (section?.fields || []).length;
+  if (count === 0) return 'Sin bloques';
+  return pluralize(count, 'bloque', 'bloques');
 }
 
 function buildDefaultActor() {
@@ -429,7 +579,7 @@ function buildNodeConfigTabs(nodeType, hasDeclarativeUi) {
   if (nodeType === 'accion_humana') {
     tabs.push({ id: 'operativa', label: 'Operativa' });
     if (hasDeclarativeUi) {
-      tabs.push({ id: 'pantalla', label: 'Pantalla' });
+      tabs.push({ id: 'pantalla', label: 'Interfaz' });
     }
   }
 
@@ -441,8 +591,8 @@ function buildNodeConfigTabs(nodeType, hasDeclarativeUi) {
 }
 
 export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onUpdateNode, onUpdateEdge, presentation = 'sidebar' }) {
-  const [collapsedSections, setCollapsedSections] = useState({});
-  const [collapsedFields, setCollapsedFields] = useState({});
+  const [expandedSectionKey, setExpandedSectionKey] = useState(null);
+  const [expandedFieldKey, setExpandedFieldKey] = useState(null);
   const [activeNodeConfigTab, setActiveNodeConfigTab] = useState('general');
   const isModalPresentation = presentation === 'modal';
   const panelClassName = isModalPresentation ? 'flow-panel flow-modal-panel' : 'flow-panel flow-side-panel';
@@ -450,6 +600,10 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
 
   const selectedNodeType = selectedNode?.data?.tipo || '';
   const hasDeclarativeUi = Boolean(selectedNode?.data?.config?.ui);
+  const selectedNodeId = selectedNode?.id;
+  const firstSectionKey = selectedNodeId && selectedNode?.data?.config?.ui?.sections?.length
+    ? buildUiSectionCollapseKey(selectedNodeId, selectedNode.data.config.ui.sections[0], 0)
+    : null;
 
   useEffect(() => {
     if (presentation !== 'modal' || !selectedNode) {
@@ -464,6 +618,11 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
       setActiveNodeConfigTab(availableTabs[0] || 'general');
     }
   }, [presentation, selectedNode, selectedNodeType, hasDeclarativeUi, activeNodeConfigTab]);
+
+  useEffect(() => {
+    setExpandedSectionKey(firstSectionKey);
+    setExpandedFieldKey(null);
+  }, [selectedNodeId, firstSectionKey]);
 
   if (!selectedNode && !selectedEdge) {
     return (
@@ -548,6 +707,94 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
     const uiCompactGhostBtnStyle = isModalPresentation
       ? { ...compactGhostBtnStyle, padding: '5px 9px', fontSize: 10 }
       : compactGhostBtnStyle;
+    const uiTableHelpStyle = isModalPresentation
+      ? {
+          ...hintStyle,
+          marginTop: 8,
+          marginBottom: 10,
+          padding: '8px 10px',
+          fontSize: 10,
+          borderRadius: 10,
+          background: '#f8fafc',
+          border: '1px solid #dbe4ef',
+        }
+      : {
+          ...hintStyle,
+          marginTop: 8,
+          marginBottom: 10,
+          background: '#f8fafc',
+          border: '1px solid #dbe4ef',
+        };
+    const uiTableHelpTitleStyle = {
+      display: 'block',
+      marginBottom: 4,
+      fontWeight: 700,
+      color: '#0f172a',
+    };
+    const uiTableMicrocopyStyle = {
+      marginTop: 6,
+      fontSize: isModalPresentation ? 10 : 11,
+      color: '#64748b',
+      lineHeight: 1.5,
+    };
+    const uiTableEscapeHatchStyle = {
+      marginTop: 12,
+      paddingTop: 10,
+      borderTop: '1px dashed #dbe4ef',
+      fontSize: isModalPresentation ? 10 : 11,
+      color: '#64748b',
+      lineHeight: 1.5,
+    };
+    const uiInlineLinkBtnStyle = {
+      background: 'transparent',
+      border: 'none',
+      padding: 0,
+      color: '#1d4ed8',
+      fontSize: 'inherit',
+      fontWeight: 600,
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    };
+    const uiAdvancedBannerStyle = {
+      marginTop: 8,
+      marginBottom: 4,
+      padding: isModalPresentation ? '8px 10px' : '10px 12px',
+      borderRadius: 10,
+      background: '#eef2ff',
+      border: '1px solid #c7d2fe',
+      color: '#1e3a8a',
+      fontSize: isModalPresentation ? 11 : 12,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+      flexWrap: 'wrap',
+    };
+    const uiTemplateChipsStyle = {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginTop: 8,
+      marginBottom: 4,
+    };
+    const uiTemplateChipStyle = {
+      padding: isModalPresentation ? '6px 10px' : '7px 12px',
+      borderRadius: 999,
+      border: '1px solid #c7d2fe',
+      background: '#eef2ff',
+      color: '#1e3a8a',
+      fontSize: isModalPresentation ? 10 : 11,
+      fontWeight: 600,
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+      transition: 'background 0.15s',
+    };
+    const uiTemplateClearChipStyle = {
+      ...uiTemplateChipStyle,
+      background: '#fff',
+      borderColor: '#dbe4ef',
+      color: '#475569',
+    };
     const updateNodeConfig = (patch) => {
       onUpdateNode(selectedNode.id, { config: { ...nodeConfig, ...patch } });
     };
@@ -653,15 +900,16 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
       updateUiConfig({ sections: nextSections });
     };
     const addUiSection = () => {
-      const nextSections = [
-        ...(uiConfig?.sections || []),
-        {
-          id: `seccion_${(uiConfig?.sections || []).length + 1}`,
-          title: `Seccion ${(uiConfig?.sections || []).length + 1}`,
-          fields: [buildDefaultUiField('text', 1)],
-        },
-      ];
-      updateUiConfig({ sections: nextSections });
+      const sections = uiConfig?.sections || [];
+      const newIndex = sections.length;
+      const newSection = {
+        id: `seccion_${newIndex + 1}`,
+        title: `Seccion ${newIndex + 1}`,
+        fields: [buildDefaultUiField('text', 1)],
+      };
+      updateUiConfig({ sections: [...sections, newSection] });
+      setExpandedSectionKey(buildUiSectionCollapseKey(selectedNode.id, newSection, newIndex));
+      setExpandedFieldKey(null);
     };
     const removeUiSection = (sectionIndex) => {
       const nextSections = (uiConfig?.sections || []).filter((_, index) => index !== sectionIndex);
@@ -673,26 +921,14 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
         },
       ] });
     };
-    const toggleUiSectionCollapsed = (section, sectionIndex) => {
-      const collapseKey = getSectionCollapseKey(section, sectionIndex);
-      setCollapsedSections((previous) => ({
-        ...previous,
-        [collapseKey]: !previous[collapseKey],
-      }));
+    const selectUiSection = (section, sectionIndex) => {
+      const key = getSectionCollapseKey(section, sectionIndex);
+      setExpandedSectionKey((current) => (current === key ? null : key));
+      setExpandedFieldKey(null);
     };
-    const setAllUiCollapsed = (collapsed) => {
-      const nextCollapsedSections = {};
-      const nextCollapsedFields = {};
-
-      (uiConfig?.sections || []).forEach((section, sectionIndex) => {
-        nextCollapsedSections[getSectionCollapseKey(section, sectionIndex)] = collapsed;
-        (section.fields || []).forEach((field, fieldIndex) => {
-          nextCollapsedFields[getFieldCollapseKey(section, sectionIndex, field, fieldIndex)] = collapsed;
-        });
-      });
-
-      setCollapsedSections((previous) => ({ ...previous, ...nextCollapsedSections }));
-      setCollapsedFields((previous) => ({ ...previous, ...nextCollapsedFields }));
+    const closeAllUi = () => {
+      setExpandedSectionKey(null);
+      setExpandedFieldKey(null);
     };
     const moveUiSection = (sectionIndex, direction) => {
       const sections = uiConfig?.sections || [];
@@ -777,6 +1013,7 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
             if (nextField.kind === 'table') {
               const defaultTable = buildDefaultUiField('table', fieldIndex + 1);
               nextField.required = false;
+              nextField.table_mode = getUiTableMode(nextField);
               nextField.columns = Array.isArray(nextField.columns) && nextField.columns.length > 0
                 ? nextField.columns
                 : defaultTable.columns;
@@ -789,6 +1026,9 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
               delete nextField.content;
               delete nextField.tone;
               delete nextField.items;
+              if (nextField.table_mode !== 'advanced') {
+                Object.assign(nextField, coerceUiTableToSimple(nextField, fieldIndex + 1));
+              }
             }
             if (nextField.kind !== 'textarea' && nextField.kind !== 'table') {
               delete nextField.rows;
@@ -805,6 +1045,9 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
               delete nextField.empty_message;
               delete nextField.items;
             }
+            if (nextField.kind !== 'table') {
+              delete nextField.table_mode;
+            }
             return nextField;
           }),
         };
@@ -812,19 +1055,27 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
       updateUiConfig({ sections: nextSections });
     };
     const addUiField = (sectionIndex, kind = 'text') => {
-      const nextSections = (uiConfig?.sections || []).map((section, index) => {
+      const sections = uiConfig?.sections || [];
+      const targetSection = sections[sectionIndex];
+      const fields = targetSection?.fields || [];
+      const newField = buildDefaultUiField(kind, fields.length + 1);
+      const newFieldIndex = fields.length;
+
+      const nextSections = sections.map((section, index) => {
         if (index !== sectionIndex) {
           return section;
         }
         return {
           ...section,
-          fields: [
-            ...(section.fields || []),
-            buildDefaultUiField(kind, (section.fields || []).length + 1),
-          ],
+          fields: [...(section.fields || []), newField],
         };
       });
       updateUiConfig({ sections: nextSections });
+
+      if (targetSection) {
+        setExpandedSectionKey(buildUiSectionCollapseKey(selectedNode.id, targetSection, sectionIndex));
+        setExpandedFieldKey(buildUiFieldCollapseKey(selectedNode.id, targetSection, sectionIndex, newField, newFieldIndex));
+      }
     };
     const removeUiField = (sectionIndex, fieldIndex) => {
       const nextSections = (uiConfig?.sections || []).map((section, index) => {
@@ -839,12 +1090,9 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
       });
       updateUiConfig({ sections: nextSections });
     };
-    const toggleUiFieldCollapsed = (section, sectionIndex, field, fieldIndex) => {
-      const collapseKey = getFieldCollapseKey(section, sectionIndex, field, fieldIndex);
-      setCollapsedFields((previous) => ({
-        ...previous,
-        [collapseKey]: !previous[collapseKey],
-      }));
+    const selectUiField = (section, sectionIndex, field, fieldIndex) => {
+      const key = getFieldCollapseKey(section, sectionIndex, field, fieldIndex);
+      setExpandedFieldKey((current) => (current === key ? null : key));
     };
     const moveUiField = (sectionIndex, fieldIndex, direction) => {
       const sections = uiConfig?.sections || [];
@@ -1202,6 +1450,160 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
       });
       updateUiConfig({ sections: nextSections });
     };
+    const setUiTableMode = (sectionIndex, fieldIndex, mode) => {
+      const nextSections = (uiConfig?.sections || []).map((section, index) => {
+        if (index !== sectionIndex) {
+          return section;
+        }
+        return {
+          ...section,
+          fields: (section.fields || []).map((field, innerIndex) => {
+            if (innerIndex !== fieldIndex) {
+              return field;
+            }
+            const defaultTable = buildDefaultUiField('table', fieldIndex + 1);
+            if (mode === 'simple') {
+              return coerceUiTableToSimple({ ...field, table_mode: 'simple' }, fieldIndex + 1);
+            }
+            return {
+              ...field,
+              kind: 'table',
+              required: false,
+              table_mode: 'advanced',
+              columns: Array.isArray(field.columns) && field.columns.length > 0
+                ? field.columns
+                : defaultTable.columns,
+              rows: Array.isArray(field.rows)
+                ? field.rows
+                : defaultTable.rows,
+              empty_message: field.empty_message || defaultTable.empty_message,
+            };
+          }),
+        };
+      });
+      updateUiConfig({ sections: nextSections });
+    };
+    const updateUiSimpleTableRow = (sectionIndex, fieldIndex, rowIndex, patch) => {
+      const nextSections = (uiConfig?.sections || []).map((section, index) => {
+        if (index !== sectionIndex) {
+          return section;
+        }
+        return {
+          ...section,
+          fields: (section.fields || []).map((field, innerIndex) => {
+            if (innerIndex !== fieldIndex) {
+              return field;
+            }
+            const normalizedField = coerceUiTableToSimple(field, fieldIndex + 1);
+            return {
+              ...normalizedField,
+              rows: normalizedField.rows.map((row, innerRowIndex) => (
+                innerRowIndex === rowIndex ? { ...row, ...patch } : row
+              )),
+            };
+          }),
+        };
+      });
+      updateUiConfig({ sections: nextSections });
+    };
+    const addUiSimpleTableRow = (sectionIndex, fieldIndex) => {
+      const nextSections = (uiConfig?.sections || []).map((section, index) => {
+        if (index !== sectionIndex) {
+          return section;
+        }
+        return {
+          ...section,
+          fields: (section.fields || []).map((field, innerIndex) => {
+            if (innerIndex !== fieldIndex) {
+              return field;
+            }
+            const normalizedField = coerceUiTableToSimple(field, fieldIndex + 1);
+            return {
+              ...normalizedField,
+              rows: [...normalizedField.rows, { campo: '', valor: '' }],
+            };
+          }),
+        };
+      });
+      updateUiConfig({ sections: nextSections });
+    };
+    const appendUiSimpleTableRows = (sectionIndex, fieldIndex, rowsToAppend) => {
+      if (!Array.isArray(rowsToAppend) || rowsToAppend.length === 0) {
+        return;
+      }
+      const nextSections = (uiConfig?.sections || []).map((section, index) => {
+        if (index !== sectionIndex) {
+          return section;
+        }
+        return {
+          ...section,
+          fields: (section.fields || []).map((field, innerIndex) => {
+            if (innerIndex !== fieldIndex) {
+              return field;
+            }
+            const normalizedField = coerceUiTableToSimple(field, fieldIndex + 1);
+            const incoming = rowsToAppend.map((row) => ({
+              campo: row?.campo || '',
+              valor: row?.valor || '',
+            }));
+            return {
+              ...normalizedField,
+              rows: [...normalizedField.rows, ...incoming],
+            };
+          }),
+        };
+      });
+      updateUiConfig({ sections: nextSections });
+    };
+    const replaceUiSimpleTableRows = (sectionIndex, fieldIndex, rowsToSet) => {
+      const nextSections = (uiConfig?.sections || []).map((section, index) => {
+        if (index !== sectionIndex) {
+          return section;
+        }
+        return {
+          ...section,
+          fields: (section.fields || []).map((field, innerIndex) => {
+            if (innerIndex !== fieldIndex) {
+              return field;
+            }
+            const normalizedField = coerceUiTableToSimple(field, fieldIndex + 1);
+            const nextRows = (Array.isArray(rowsToSet) ? rowsToSet : []).map((row) => ({
+              campo: row?.campo || '',
+              valor: row?.valor || '',
+            }));
+            return {
+              ...normalizedField,
+              rows: nextRows,
+            };
+          }),
+        };
+      });
+      updateUiConfig({ sections: nextSections });
+    };
+    const removeUiSimpleTableRow = (sectionIndex, fieldIndex, rowIndex) => {
+      const nextSections = (uiConfig?.sections || []).map((section, index) => {
+        if (index !== sectionIndex) {
+          return section;
+        }
+        return {
+          ...section,
+          fields: (section.fields || []).map((field, innerIndex) => {
+            if (innerIndex !== fieldIndex) {
+              return field;
+            }
+            const normalizedField = coerceUiTableToSimple(field, fieldIndex + 1);
+            return {
+              ...normalizedField,
+              rows: normalizedField.rows.filter((_, innerRowIndex) => innerRowIndex !== rowIndex),
+            };
+          }),
+        };
+      });
+      updateUiConfig({ sections: nextSections });
+    };
+    const updateUiBlockType = (sectionIndex, fieldIndex, nextType) => {
+      updateUiField(sectionIndex, fieldIndex, { kind: nextType });
+    };
 
     return (
       <aside className={panelClassName}>
@@ -1229,7 +1631,7 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
             <div style={tabHintCardStyle}>
               {activeNodeConfigTab === 'general' && 'Datos base del paso: nombre, instrucciones e identificación interna.'}
               {activeNodeConfigTab === 'operativa' && 'Contrato operativo del paso: tipo de captura, grupo responsable y comportamiento de resolución.'}
-              {activeNodeConfigTab === 'pantalla' && 'Composición visual de la pantalla: layout, vista previa, secciones y campos.'}
+              {activeNodeConfigTab === 'pantalla' && 'Composición de la interfaz: layout, vista previa, secciones y bloques visibles.'}
               {activeNodeConfigTab === 'automatizacion' && 'Configuración técnica de la acción automática y sus parámetros de ejecución.'}
             </div>
           </>
@@ -1628,13 +2030,13 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
 
         {data.tipo === 'accion_humana' && uiConfig && showScreenTab && (
           <div style={uiPanelSectionStyle}>
-            <div style={uiPanelSectionTitleStyle}>Pantalla declarativa v3</div>
-            <label style={uiLabelStyle}>Título de la pantalla</label>
+            <div style={uiPanelSectionTitleStyle}>Interfaz declarativa v3</div>
+            <label style={uiLabelStyle}>Título de la vista</label>
             <input
               style={uiInputStyle}
               value={uiConfig.title || ''}
               onChange={(e) => updateUiConfig({ title: e.target.value })}
-              placeholder="Pantalla operativa"
+              placeholder="Vista operativa"
             />
             <label style={uiLabelStyle}>Descripción</label>
             <textarea
@@ -1662,37 +2064,44 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
 
             <ScreenPreview
               schema={uiConfig}
-              nodeLabel={data.label || 'Pantalla'}
+              nodeLabel={data.label || 'Interfaz'}
               compact={isModalPresentation}
             />
             <div style={uiHintStyle}>
-              La vista previa muestra la estructura final de la pantalla mientras la editás. Los placeholders como <code>{'{{ ciudadano.nombre_completo }}'}</code> se verán resueltos recién en la tarea real.
+              La vista previa muestra la estructura final de la interfaz mientras la editás. Los placeholders como <code>{'{{ ciudadano.nombre_completo }}'}</code> se verán resueltos recién en la tarea real.
             </div>
 
-            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 14 : 18 }}>Secciones</div>
-            <div style={uiInlineActionsStyle}>
-              <button type="button" style={uiCompactGhostBtnStyle} onClick={() => setAllUiCollapsed(false)}>
-                Expandir todo
-              </button>
-              <button type="button" style={uiCompactGhostBtnStyle} onClick={() => setAllUiCollapsed(true)}>
-                Colapsar todo
-              </button>
+            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 14 : 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+              <span>Secciones</span>
+              {(expandedSectionKey || expandedFieldKey) && (
+                <button type="button" style={uiCompactGhostBtnStyle} onClick={closeAllUi}>
+                  Cerrar todo
+                </button>
+              )}
             </div>
-            {(uiConfig.sections || []).map((section, sectionIndex) => (
+            {(uiConfig.sections || []).map((section, sectionIndex) => {
+              const sectionKey = getSectionCollapseKey(section, sectionIndex);
+              const isSectionExpanded = expandedSectionKey === sectionKey;
+              return (
               <div key={`${section.id || 'section'}-${sectionIndex}`} style={uiOptionCardStyle}>
-                <div style={uiCollapsibleHeaderStyle}>
+                <div
+                  style={{ ...uiCollapsibleHeaderStyle, cursor: 'pointer' }}
+                  onClick={() => selectUiSection(section, sectionIndex)}
+                >
                   <div>
                     <div style={uiCollapsibleTitleStyle}>{section.title || `Sección ${sectionIndex + 1}`}</div>
-                    <div style={uiCollapsibleMetaStyle}>{(section.fields || []).length} bloques en esta sección</div>
+                    <div style={uiCollapsibleMetaStyle}>{getUiSectionSummary(section)}</div>
                   </div>
                   <button
                     type="button"
                     style={uiCompactGhostBtnStyle}
-                    onClick={() => toggleUiSectionCollapsed(section, sectionIndex)}
+                    onClick={(e) => { e.stopPropagation(); selectUiSection(section, sectionIndex); }}
                   >
-                    {collapsedSections[getSectionCollapseKey(section, sectionIndex)] ? 'Expandir' : 'Colapsar'}
+                    {isSectionExpanded ? 'Cerrar' : 'Editar'}
                   </button>
                 </div>
+                {isSectionExpanded && (
+                  <>
                 <div style={uiInlineActionsStyle}>
                   <button type="button" style={uiCompactSecondaryBtnStyle} onClick={() => moveUiSection(sectionIndex, -1)} disabled={sectionIndex === 0}>
                     Subir sección
@@ -1704,8 +2113,6 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
                     Duplicar sección
                   </button>
                 </div>
-                {!collapsedSections[getSectionCollapseKey(section, sectionIndex)] && (
-                  <>
                 <label style={uiLabelStyle}>ID de sección</label>
                 <input
                   style={uiInputStyle}
@@ -1726,22 +2133,37 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
                   placeholder="Contexto, instrucciones o foco de esta sección"
                 />
 
-                <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Campos</div>
-                {(section.fields || []).map((field, fieldIndex) => (
+                <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Bloques</div>
+                {(section.fields || []).map((field, fieldIndex) => {
+                  const isTableField = field.kind === 'table';
+                  const isDisplayOnlyField = !isTableField && DISPLAY_ONLY_UI_FIELD_KINDS.has(field.kind);
+                  const tableMode = isTableField ? getUiTableMode(field) : null;
+                  const simpleTableRows = isTableField ? buildSimpleTableRows(field) : [];
+                  const fieldKey = getFieldCollapseKey(section, sectionIndex, field, fieldIndex);
+                  const isFieldExpanded = expandedFieldKey === fieldKey;
+
+                  return (
                   <div key={`${field.id || 'field'}-${fieldIndex}`} style={uiOptionCardStyle}>
-                    <div style={uiCollapsibleHeaderStyle}>
+                    <div
+                      style={{ ...uiCollapsibleHeaderStyle, cursor: 'pointer' }}
+                      onClick={() => selectUiField(section, sectionIndex, field, fieldIndex)}
+                    >
                       <div>
-                        <div style={uiCollapsibleTitleStyle}>{field.label || `Campo ${fieldIndex + 1}`}</div>
-                        <div style={uiCollapsibleMetaStyle}>{getUiFieldKindLabel(field.kind)}</div>
+                        <div style={uiCollapsibleTitleStyle}>{field.label || (isTableField ? `Tabla ${fieldIndex + 1}` : `Campo ${fieldIndex + 1}`)}</div>
+                        <div style={uiCollapsibleMetaStyle}>
+                          {getUiBlockSummary(field)}
+                        </div>
                       </div>
                       <button
                         type="button"
                         style={uiCompactGhostBtnStyle}
-                        onClick={() => toggleUiFieldCollapsed(section, sectionIndex, field, fieldIndex)}
+                        onClick={(e) => { e.stopPropagation(); selectUiField(section, sectionIndex, field, fieldIndex); }}
                       >
-                        {collapsedFields[getFieldCollapseKey(section, sectionIndex, field, fieldIndex)] ? 'Expandir' : 'Colapsar'}
+                        {isFieldExpanded ? 'Cerrar' : 'Editar'}
                       </button>
                     </div>
+                    {isFieldExpanded && (
+                      <>
                     <div style={uiInlineActionsStyle}>
                       <button
                         type="button"
@@ -1749,7 +2171,7 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
                         onClick={() => moveUiField(sectionIndex, fieldIndex, -1)}
                         disabled={fieldIndex === 0}
                       >
-                        Subir campo
+                        Subir bloque
                       </button>
                       <button
                         type="button"
@@ -1757,248 +2179,413 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
                         onClick={() => moveUiField(sectionIndex, fieldIndex, 1)}
                         disabled={fieldIndex === (section.fields || []).length - 1}
                       >
-                        Bajar campo
+                        Bajar bloque
                       </button>
                       <button
                         type="button"
                         style={uiCompactSecondaryBtnStyle}
                         onClick={() => duplicateUiField(sectionIndex, fieldIndex)}
                       >
-                        Duplicar campo
+                        Duplicar bloque
                       </button>
                     </div>
-                    {!collapsedFields[getFieldCollapseKey(section, sectionIndex, field, fieldIndex)] && (
+                    {isTableField ? (
                       <>
-                    <div style={uiTwoColumnsStyle}>
-                      <div>
-                        <label style={uiLabelStyle}>ID</label>
-                        <input
-                          style={uiInputStyle}
-                          value={field.id || ''}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { id: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label style={uiLabelStyle}>Tipo</label>
+                        <label style={uiLabelStyle}>Tipo de bloque</label>
                         <select
                           style={uiInputStyle}
-                          value={field.kind || 'text'}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { kind: e.target.value })}
+                          value={getUiBlockTypeValue(field)}
+                          onChange={(e) => updateUiBlockType(sectionIndex, fieldIndex, e.target.value)}
                         >
-                          {UI_FIELD_KIND_OPTIONS.map((option) => (
+                          {UI_BLOCK_TYPE_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>{option.label}</option>
                           ))}
                         </select>
-                      </div>
-                    </div>
-                    <label style={uiLabelStyle}>Etiqueta</label>
-                    <input
-                      style={uiInputStyle}
-                      value={field.label || ''}
-                      onChange={(e) => updateUiField(sectionIndex, fieldIndex, { label: e.target.value })}
-                    />
-                    {!['checkbox', 'info', 'summary', 'table'].includes(field.kind) && (
-                      <>
-                        <label style={uiLabelStyle}>Placeholder</label>
+                        <label style={uiLabelStyle}>Título del bloque</label>
                         <input
                           style={uiInputStyle}
-                          value={field.placeholder || ''}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { placeholder: e.target.value })}
+                          value={field.label || ''}
+                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { label: e.target.value })}
+                          placeholder="Ej: Datos principales"
                         />
-                      </>
-                    )}
-                    {!['info', 'summary', 'table'].includes(field.kind) && (
-                      <>
-                        <label style={uiLabelStyle}>Ayuda</label>
-                        <textarea
-                          style={{ ...uiInputStyle, minHeight: isModalPresentation ? 42 : 48, resize: 'vertical' }}
-                          value={field.help_text || ''}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { help_text: e.target.value })}
-                        />
-                        <label style={uiCheckLabelStyle}>
-                          <input
-                            type="checkbox"
-                            checked={Boolean(field.required)}
-                            onChange={(e) => updateUiField(sectionIndex, fieldIndex, { required: e.target.checked })}
-                          />
-                          <span>Campo obligatorio</span>
-                        </label>
-                      </>
-                    )}
-                    {field.kind === 'textarea' && (
-                      <>
-                        <label style={uiLabelStyle}>Cantidad de filas</label>
-                        <input
-                          type="number"
-                          min="1"
-                          style={uiInputStyle}
-                          value={field.rows || 4}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { rows: Number(e.target.value || 1) })}
-                        />
-                      </>
-                    )}
-                    {['radio', 'select'].includes(field.kind) && (
-                      <>
-                        <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Opciones</div>
-                        {(field.options || []).map((option, optionIndex) => (
-                          <div key={`${option.value || 'option'}-${optionIndex}`} style={uiOptionCardStyle}>
-                            <div style={uiTwoColumnsStyle}>
-                              <div>
-                                <label style={uiLabelStyle}>Valor</label>
-                                <input
-                                  style={uiInputStyle}
-                                  value={option.value || ''}
-                                  onChange={(e) => updateUiOption(sectionIndex, fieldIndex, optionIndex, { value: e.target.value })}
-                                />
-                              </div>
-                              <div>
-                                <label style={uiLabelStyle}>Etiqueta</label>
-                                <input
-                                  style={uiInputStyle}
-                                  value={option.label || ''}
-                                  onChange={(e) => updateUiOption(sectionIndex, fieldIndex, optionIndex, { label: e.target.value })}
-                                />
-                              </div>
-                            </div>
-                            <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiOption(sectionIndex, fieldIndex, optionIndex)}>
-                              Quitar opción
-                            </button>
-                          </div>
-                        ))}
-                        <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiOption(sectionIndex, fieldIndex)}>
-                          Agregar opción
-                        </button>
-                      </>
-                    )}
-                    {field.kind === 'info' && (
-                      <>
-                        <label style={uiLabelStyle}>Contenido</label>
-                        <textarea
-                          style={{ ...uiInputStyle, minHeight: isModalPresentation ? 72 : 88, resize: 'vertical' }}
-                          value={field.content || ''}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { content: e.target.value })}
-                        />
-                        <label style={uiLabelStyle}>Tono visual</label>
-                        <select
-                          style={uiInputStyle}
-                          value={field.tone || 'info'}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { tone: e.target.value })}
-                        >
-                          {INFO_TONE_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                          ))}
-                        </select>
-                      </>
-                    )}
-                    {field.kind === 'summary' && (
-                      <>
-                        <label style={uiLabelStyle}>Mensaje sin items</label>
+                        <label style={uiLabelStyle}>Texto si no hay datos</label>
                         <input
                           style={uiInputStyle}
                           value={field.empty_message || ''}
                           onChange={(e) => updateUiField(sectionIndex, fieldIndex, { empty_message: e.target.value })}
+                          placeholder="Ej: Sin datos para mostrar."
                         />
-                        <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Items</div>
-                        {(field.items || []).map((item, itemIndex) => (
-                          <div key={`${item.label || 'summary-item'}-${itemIndex}`} style={uiOptionCardStyle}>
-                            <div>
-                              <label style={uiLabelStyle}>Etiqueta</label>
-                              <input
-                                style={uiInputStyle}
-                                value={item.label || ''}
-                                onChange={(e) => updateUiSummaryItem(sectionIndex, fieldIndex, itemIndex, { label: e.target.value })}
-                              />
-                            </div>
-                            <div>
-                              <label style={uiLabelStyle}>Valor</label>
-                              <input
-                                style={uiInputStyle}
-                                value={item.value ?? ''}
-                                onChange={(e) => updateUiSummaryItem(sectionIndex, fieldIndex, itemIndex, { value: e.target.value })}
-                              />
-                            </div>
-                            <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiSummaryItem(sectionIndex, fieldIndex, itemIndex)}>
-                              Quitar item
-                            </button>
-                          </div>
-                        ))}
-                        <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiSummaryItem(sectionIndex, fieldIndex)}>
-                          Agregar item
-                        </button>
-                      </>
-                    )}
-                    {field.kind === 'table' && (
-                      <>
-                        <label style={uiLabelStyle}>Mensaje sin filas</label>
-                        <input
-                          style={uiInputStyle}
-                          value={field.empty_message || ''}
-                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { empty_message: e.target.value })}
-                        />
-                        <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Columnas</div>
-                        {(field.columns || []).map((column, columnIndex) => (
-                          <div key={`${column.key || 'column'}-${columnIndex}`} style={uiOptionCardStyle}>
-                            <div style={uiTwoColumnsStyle}>
-                              <div>
-                                <label style={uiLabelStyle}>Clave</label>
-                                <input
-                                  style={uiInputStyle}
-                                  value={column.key || ''}
-                                  onChange={(e) => updateUiTableColumn(sectionIndex, fieldIndex, columnIndex, { key: e.target.value })}
-                                />
-                              </div>
-                              <div>
-                                <label style={uiLabelStyle}>Etiqueta</label>
-                                <input
-                                  style={uiInputStyle}
-                                  value={column.label || ''}
-                                  onChange={(e) => updateUiTableColumn(sectionIndex, fieldIndex, columnIndex, { label: e.target.value })}
-                                />
-                              </div>
-                            </div>
-                            <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiTableColumn(sectionIndex, fieldIndex, columnIndex)}>
-                              Quitar columna
-                            </button>
-                          </div>
-                        ))}
-                        <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiTableColumn(sectionIndex, fieldIndex)}>
-                          Agregar columna
-                        </button>
 
-                        <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Filas</div>
-                        {(field.rows || []).map((row, rowIndex) => (
-                          <div key={`row-${rowIndex}`} style={uiOptionCardStyle}>
-                            {(field.columns || []).map((column) => (
-                              <div key={`row-${rowIndex}-${column.key}`}>
-                                <label style={uiLabelStyle}>{column.label}</label>
-                                <input
-                                  style={uiInputStyle}
-                                  value={row[column.key] || ''}
-                                  onChange={(e) => updateUiTableCell(sectionIndex, fieldIndex, rowIndex, column.key, e.target.value)}
-                                />
+                        {tableMode === 'simple' ? (
+                          <>
+                            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Plantillas rápidas</div>
+                            <div style={uiTableMicrocopyStyle}>
+                              Agregá un grupo de filas pre-armadas y editá lo que necesites. Las variables se resuelven en runtime.
+                            </div>
+                            <div style={uiTemplateChipsStyle}>
+                              {SIMPLE_TABLE_TEMPLATES.map((template) => (
+                                <button
+                                  key={template.id}
+                                  type="button"
+                                  style={uiTemplateChipStyle}
+                                  onClick={() => appendUiSimpleTableRows(sectionIndex, fieldIndex, template.rows)}
+                                  title={template.rows.map((row) => `${row.campo} → ${row.valor}`).join('\n')}
+                                >
+                                  + {template.label}
+                                </button>
+                              ))}
+                              {simpleTableRows.length > 0 && (
+                                <button
+                                  type="button"
+                                  style={uiTemplateClearChipStyle}
+                                  onClick={() => replaceUiSimpleTableRows(sectionIndex, fieldIndex, [])}
+                                  title="Quitar todas las filas y empezar desde cero"
+                                >
+                                  Vaciar filas
+                                </button>
+                              )}
+                            </div>
+                            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Filas a mostrar</div>
+                            <div style={uiTableMicrocopyStyle}>
+                              Cada fila se ve como un par <strong>Etiqueta / Valor</strong>. Podés interpolar datos con <code>{'{{ ciudadano.dni }}'}</code>.
+                            </div>
+                            {simpleTableRows.length === 0 && (
+                              <div style={uiTableHelpStyle}>
+                                Todavía no agregaste filas. Usá una plantilla rápida arriba o sumá una fila vacía abajo.
+                              </div>
+                            )}
+                            {simpleTableRows.map((row, rowIndex) => (
+                              <div key={`simple-row-${rowIndex}`} style={uiOptionCardStyle}>
+                                <div style={uiCollapsibleHeaderStyle}>
+                                  <div style={uiCollapsibleTitleStyle}>{`Fila ${rowIndex + 1}`}</div>
+                                  <button
+                                    type="button"
+                                    style={uiCompactGhostBtnStyle}
+                                    onClick={() => removeUiSimpleTableRow(sectionIndex, fieldIndex, rowIndex)}
+                                  >
+                                    Quitar
+                                  </button>
+                                </div>
+                                <div style={uiTwoColumnsStyle}>
+                                  <div>
+                                    <label style={uiLabelStyle}>Etiqueta</label>
+                                    <input
+                                      style={uiInputStyle}
+                                      value={row.campo || ''}
+                                      onChange={(e) => updateUiSimpleTableRow(sectionIndex, fieldIndex, rowIndex, { campo: e.target.value })}
+                                      placeholder="Ej: DNI"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={uiLabelStyle}>Valor</label>
+                                    <input
+                                      style={uiInputStyle}
+                                      value={row.valor || ''}
+                                      onChange={(e) => updateUiSimpleTableRow(sectionIndex, fieldIndex, rowIndex, { valor: e.target.value })}
+                                      placeholder="Ej: {{ ciudadano.dni }}"
+                                    />
+                                  </div>
+                                </div>
                               </div>
                             ))}
-                            <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiTableRow(sectionIndex, fieldIndex, rowIndex)}>
-                              Quitar fila
+                            <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiSimpleTableRow(sectionIndex, fieldIndex)}>
+                              Agregar fila
                             </button>
+                            <div style={uiTableEscapeHatchStyle}>
+                              ¿Necesitás más de dos columnas?{' '}
+                              <button
+                                type="button"
+                                style={uiInlineLinkBtnStyle}
+                                onClick={() => setUiTableMode(sectionIndex, fieldIndex, 'advanced')}
+                              >
+                                Activar modo avanzado
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={uiAdvancedBannerStyle}>
+                              <div>
+                                <strong>Modo avanzado</strong>
+                                <div style={uiCollapsibleMetaStyle}>Definí columnas y filas a medida.</div>
+                              </div>
+                              <button
+                                type="button"
+                                style={uiInlineLinkBtnStyle}
+                                onClick={() => setUiTableMode(sectionIndex, fieldIndex, 'simple')}
+                              >
+                                ← Volver a tabla simple
+                              </button>
+                            </div>
+                            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Columnas</div>
+                            <div style={uiTableMicrocopyStyle}>
+                              Definí cada columna visible y después cargá filas de ejemplo usando esas mismas claves.
+                            </div>
+                            {(field.columns || []).map((column, columnIndex) => (
+                              <div key={`${column.key || 'column'}-${columnIndex}`} style={uiOptionCardStyle}>
+                                <div style={uiCollapsibleHeaderStyle}>
+                                  <div>
+                                    <div style={uiCollapsibleTitleStyle}>{column.label || `Columna ${columnIndex + 1}`}</div>
+                                    <div style={uiCollapsibleMetaStyle}>ID interno: {column.key || `columna_${columnIndex + 1}`}</div>
+                                  </div>
+                                </div>
+                                <div style={uiTwoColumnsStyle}>
+                                  <div>
+                                    <label style={uiLabelStyle}>ID interno</label>
+                                    <input
+                                      style={uiInputStyle}
+                                      value={column.key || ''}
+                                      onChange={(e) => updateUiTableColumn(sectionIndex, fieldIndex, columnIndex, { key: e.target.value })}
+                                      placeholder="Ej: dni"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={uiLabelStyle}>Título visible</label>
+                                    <input
+                                      style={uiInputStyle}
+                                      value={column.label || ''}
+                                      onChange={(e) => updateUiTableColumn(sectionIndex, fieldIndex, columnIndex, { label: e.target.value })}
+                                      placeholder="Ej: DNI"
+                                    />
+                                  </div>
+                                </div>
+                                <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiTableColumn(sectionIndex, fieldIndex, columnIndex)}>
+                                  Quitar columna
+                                </button>
+                              </div>
+                            ))}
+                            <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiTableColumn(sectionIndex, fieldIndex)}>
+                              Agregar columna
+                            </button>
+
+                            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Filas</div>
+                            <div style={uiTableMicrocopyStyle}>
+                              Cada fila completa una línea de la tabla usando una celda por cada columna definida arriba.
+                            </div>
+                            {(field.rows || []).length === 0 && (
+                              <div style={uiTableHelpStyle}>
+                                Todavía no hay filas cargadas. Agregá una para ver cómo se compone la tabla en la vista previa.
+                              </div>
+                            )}
+                            {(field.rows || []).map((row, rowIndex) => (
+                              <div key={`row-${rowIndex}`} style={uiOptionCardStyle}>
+                                <div style={uiCollapsibleHeaderStyle}>
+                                  <div>
+                                    <div style={uiCollapsibleTitleStyle}>{`Fila ${rowIndex + 1}`}</div>
+                                    <div style={uiCollapsibleMetaStyle}>Una celda por columna</div>
+                                  </div>
+                                </div>
+                                {(field.columns || []).map((column) => (
+                                  <div key={`row-${rowIndex}-${column.key}`}>
+                                    <label style={uiLabelStyle}>{column.label}</label>
+                                    <input
+                                      style={uiInputStyle}
+                                      value={row[column.key] || ''}
+                                      onChange={(e) => updateUiTableCell(sectionIndex, fieldIndex, rowIndex, column.key, e.target.value)}
+                                      placeholder={column.key ? `Ej: {{ registro.${column.key} }}` : 'Escribi un valor'}
+                                    />
+                                  </div>
+                                ))}
+                                <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiTableRow(sectionIndex, fieldIndex, rowIndex)}>
+                                  Quitar fila
+                                </button>
+                              </div>
+                            ))}
+                            <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiTableRow(sectionIndex, fieldIndex)}>
+                              Agregar fila
+                            </button>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {isDisplayOnlyField ? (
+                          <>
+                            <label style={uiLabelStyle}>Tipo de bloque</label>
+                            <select
+                              style={uiInputStyle}
+                              value={getUiBlockTypeValue(field)}
+                              onChange={(e) => updateUiBlockType(sectionIndex, fieldIndex, e.target.value)}
+                            >
+                              {UI_BLOCK_TYPE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                              ))}
+                            </select>
+                          </>
+                        ) : (
+                          <div style={uiTwoColumnsStyle}>
+                            <div>
+                              <label style={uiLabelStyle}>ID interno</label>
+                              <input
+                                style={uiInputStyle}
+                                value={field.id || ''}
+                                onChange={(e) => updateUiField(sectionIndex, fieldIndex, { id: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <label style={uiLabelStyle}>Tipo de bloque</label>
+                              <select
+                                style={uiInputStyle}
+                                value={getUiBlockTypeValue(field)}
+                                onChange={(e) => updateUiBlockType(sectionIndex, fieldIndex, e.target.value)}
+                              >
+                                {UI_BLOCK_TYPE_OPTIONS.map((option) => (
+                                  <option key={option.value} value={option.value}>{option.label}</option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
-                        ))}
-                        <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiTableRow(sectionIndex, fieldIndex)}>
-                          Agregar fila
-                        </button>
+                        )}
+                        <label style={uiLabelStyle}>{isDisplayOnlyField ? 'Título del bloque' : 'Etiqueta visible'}</label>
+                        <input
+                          style={uiInputStyle}
+                          value={field.label || ''}
+                          onChange={(e) => updateUiField(sectionIndex, fieldIndex, { label: e.target.value })}
+                        />
+                        {!['checkbox', 'info', 'summary'].includes(field.kind) && (
+                          <>
+                            <label style={uiLabelStyle}>Placeholder</label>
+                            <input
+                              style={uiInputStyle}
+                              value={field.placeholder || ''}
+                              onChange={(e) => updateUiField(sectionIndex, fieldIndex, { placeholder: e.target.value })}
+                            />
+                          </>
+                        )}
+                        {!['info', 'summary'].includes(field.kind) && (
+                          <>
+                            <label style={uiLabelStyle}>Ayuda</label>
+                            <textarea
+                              style={{ ...uiInputStyle, minHeight: isModalPresentation ? 42 : 48, resize: 'vertical' }}
+                              value={field.help_text || ''}
+                              onChange={(e) => updateUiField(sectionIndex, fieldIndex, { help_text: e.target.value })}
+                            />
+                            <label style={uiCheckLabelStyle}>
+                              <input
+                                type="checkbox"
+                                checked={Boolean(field.required)}
+                                onChange={(e) => updateUiField(sectionIndex, fieldIndex, { required: e.target.checked })}
+                              />
+                              <span>Campo obligatorio</span>
+                            </label>
+                          </>
+                        )}
+                        {field.kind === 'textarea' && (
+                          <>
+                            <label style={uiLabelStyle}>Cantidad de filas</label>
+                            <input
+                              type="number"
+                              min="1"
+                              style={uiInputStyle}
+                              value={field.rows || 4}
+                              onChange={(e) => updateUiField(sectionIndex, fieldIndex, { rows: Number(e.target.value || 1) })}
+                            />
+                          </>
+                        )}
+                        {['radio', 'select'].includes(field.kind) && (
+                          <>
+                            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Opciones</div>
+                            {(field.options || []).map((option, optionIndex) => (
+                              <div key={`${option.value || 'option'}-${optionIndex}`} style={uiOptionCardStyle}>
+                                <div style={uiTwoColumnsStyle}>
+                                  <div>
+                                    <label style={uiLabelStyle}>Valor</label>
+                                    <input
+                                      style={uiInputStyle}
+                                      value={option.value || ''}
+                                      onChange={(e) => updateUiOption(sectionIndex, fieldIndex, optionIndex, { value: e.target.value })}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={uiLabelStyle}>Etiqueta</label>
+                                    <input
+                                      style={uiInputStyle}
+                                      value={option.label || ''}
+                                      onChange={(e) => updateUiOption(sectionIndex, fieldIndex, optionIndex, { label: e.target.value })}
+                                    />
+                                  </div>
+                                </div>
+                                <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiOption(sectionIndex, fieldIndex, optionIndex)}>
+                                  Quitar opción
+                                </button>
+                              </div>
+                            ))}
+                            <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiOption(sectionIndex, fieldIndex)}>
+                              Agregar opción
+                            </button>
+                          </>
+                        )}
+                        {field.kind === 'info' && (
+                          <>
+                            <label style={uiLabelStyle}>Contenido</label>
+                            <textarea
+                              style={{ ...uiInputStyle, minHeight: isModalPresentation ? 72 : 88, resize: 'vertical' }}
+                              value={field.content || ''}
+                              onChange={(e) => updateUiField(sectionIndex, fieldIndex, { content: e.target.value })}
+                            />
+                            <label style={uiLabelStyle}>Tono visual</label>
+                            <select
+                              style={uiInputStyle}
+                              value={field.tone || 'info'}
+                              onChange={(e) => updateUiField(sectionIndex, fieldIndex, { tone: e.target.value })}
+                            >
+                              {INFO_TONE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                              ))}
+                            </select>
+                          </>
+                        )}
+                        {field.kind === 'summary' && (
+                          <>
+                            <label style={uiLabelStyle}>Mensaje sin items</label>
+                            <input
+                              style={uiInputStyle}
+                              value={field.empty_message || ''}
+                              onChange={(e) => updateUiField(sectionIndex, fieldIndex, { empty_message: e.target.value })}
+                            />
+                            <div style={{ ...uiPanelSectionTitleStyle, marginTop: isModalPresentation ? 10 : 14 }}>Items</div>
+                            {(field.items || []).map((item, itemIndex) => (
+                              <div key={`${item.label || 'summary-item'}-${itemIndex}`} style={uiOptionCardStyle}>
+                                <div>
+                                  <label style={uiLabelStyle}>Etiqueta</label>
+                                  <input
+                                    style={uiInputStyle}
+                                    value={item.label || ''}
+                                    onChange={(e) => updateUiSummaryItem(sectionIndex, fieldIndex, itemIndex, { label: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={uiLabelStyle}>Valor</label>
+                                  <input
+                                    style={uiInputStyle}
+                                    value={item.value ?? ''}
+                                    onChange={(e) => updateUiSummaryItem(sectionIndex, fieldIndex, itemIndex, { value: e.target.value })}
+                                  />
+                                </div>
+                                <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiSummaryItem(sectionIndex, fieldIndex, itemIndex)}>
+                                  Quitar item
+                                </button>
+                              </div>
+                            ))}
+                            <button type="button" style={uiSecondaryBtnStyle} onClick={() => addUiSummaryItem(sectionIndex, fieldIndex)}>
+                              Agregar item
+                            </button>
+                          </>
+                        )}
                       </>
                     )}
                     <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiField(sectionIndex, fieldIndex)}>
-                      Quitar campo
+                      Quitar bloque
                     </button>
                       </>
                     )}
                   </div>
-                ))}
+                  );
+                })}
 
                 <div style={uiInlineActionsStyle}>
                   <button type="button" style={uiCompactSecondaryBtnStyle} onClick={() => addUiField(sectionIndex, 'text')}>
-                    Agregar campo
+                    Agregar bloque de texto
                   </button>
                   <button type="button" style={uiCompactSecondaryBtnStyle} onClick={() => addUiField(sectionIndex, 'info')}>
                     Agregar bloque info
@@ -2007,7 +2594,7 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
                     Agregar resumen
                   </button>
                   <button type="button" style={uiCompactSecondaryBtnStyle} onClick={() => addUiField(sectionIndex, 'table')}>
-                    Agregar tabla
+                    Agregar tabla de datos
                   </button>
                 </div>
                 <button type="button" style={uiRemoveBtnStyle} onClick={() => removeUiSection(sectionIndex)}>
@@ -2016,7 +2603,8 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
                   </>
                 )}
               </div>
-            ))}
+              );
+            })}
 
             <button type="button" style={uiSecondaryBtnStyle} onClick={addUiSection}>
               Agregar sección
