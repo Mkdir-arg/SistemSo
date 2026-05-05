@@ -1,0 +1,94 @@
+{% comment %}
+Renderiza las secciones de display (info / summary / table) de la pantalla
+declarativa de un nodo. Espera la variable `sections` con la estructura que
+genera flujos.infrastructure.ui_renderer.build_display_only_sections().
+
+Uso:
+    {% include "legajos/programas/_pantalla_etapa.html" with sections=stage.screen_template_sections %}
+{% endcomment %}
+
+{% if sections %}
+<div class="space-y-4">
+    {% for section in sections %}
+    <div class="rounded-xl border border-[#E5E7EB] bg-white p-5">
+        {% if section.title %}
+        <h5 class="text-base font-semibold text-[#252F40] mb-1">{{ section.title }}</h5>
+        {% endif %}
+        {% if section.description %}
+        <p class="text-sm text-[#6B7280] mb-4">{{ section.description }}</p>
+        {% endif %}
+
+        <div class="space-y-4">
+            {% for item in section.items %}
+
+            {% if item.display_kind == "info" %}
+            <div class="rounded-lg border {{ item.tone_classes }} p-3 text-sm">
+                {% if item.label %}<div class="font-semibold mb-1">{{ item.label }}</div>{% endif %}
+                <div class="leading-relaxed">{{ item.content|linebreaksbr }}</div>
+            </div>
+
+            {% elif item.display_kind == "summary" %}
+            <div>
+                {% if item.label %}<div class="text-sm font-semibold text-[#374151] mb-2">{{ item.label }}</div>{% endif %}
+                {% if item.items %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {% for entry in item.items %}
+                    <div class="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2">
+                        <div class="text-xs uppercase tracking-wide text-[#8C8C8C] mb-1">{{ entry.label|default:"-" }}</div>
+                        <div class="text-sm font-medium text-[#252F40] break-words">
+                            {% if entry.value == "" or entry.value == None %}
+                            <span class="text-[#9CA3AF]">—</span>
+                            {% else %}
+                            {{ entry.value }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-sm text-[#6B7280] italic">{{ item.empty_message }}</div>
+                {% endif %}
+            </div>
+
+            {% elif item.display_kind == "table" %}
+            <div>
+                {% if item.label %}<div class="text-sm font-semibold text-[#374151] mb-2">{{ item.label }}</div>{% endif %}
+                {% if item.rows %}
+                <div class="overflow-x-auto rounded-lg border border-[#E5E7EB]">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-[#F9FAFB] text-xs uppercase tracking-wide text-[#6B7280]">
+                            <tr>
+                                {% for column in item.columns %}
+                                <th class="px-3 py-2 text-left font-semibold">{{ column.label|default:column.key }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#E5E7EB]">
+                            {% for row in item.rows %}
+                            <tr class="hover:bg-[#F9FAFB]">
+                                {% for cell in row.cells %}
+                                <td class="px-3 py-2 text-[#252F40] align-top break-words">
+                                    {% if cell.value == "" or cell.value == None %}
+                                    <span class="text-[#9CA3AF]">—</span>
+                                    {% else %}
+                                    {{ cell.value }}
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-sm text-[#6B7280] italic">{{ item.empty_message }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
