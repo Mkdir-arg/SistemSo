@@ -13,8 +13,11 @@ export function validarFlujo(nodes, edges) {
   const errores = [];
   const advertencias = [];
 
-  const supportedUiFieldKinds = new Set(['text', 'textarea', 'number', 'date', 'radio', 'select', 'checkbox']);
+  const supportedUiFieldKinds = new Set(['text', 'textarea', 'number', 'date', 'radio', 'select', 'checkbox', 'info', 'summary', 'table']);
+  const supportedInfoTones = new Set(['info', 'success', 'warning', 'danger', 'neutral']);
+  const supportedUiLayouts = new Set(['single_column', 'two_column']);
   const supportedHttpMethods = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+  const supportedConditionOperators = new Set(['==', '!=', '>', '>=', '<', '<=', 'in']);
 
   const nodeIds = new Set(nodes.map((node) => node.id));
   const startNodes = nodes.filter((n) => n.data?.tipo === 'inicio');
@@ -125,6 +128,9 @@ export function validarFlujo(nodes, edges) {
       if (uiConfig.type !== 'form') {
         errores.push(`El nodo "${nodeLabel}" usa un tipo de pantalla no soportado: "${uiConfig.type || ''}".`);
       }
+      if (!supportedUiLayouts.has(uiConfig.layout || 'single_column')) {
+        errores.push(`El nodo "${nodeLabel}" usa un layout de pantalla no soportado.`);
+      }
       if (!uiConfig.title?.trim()) {
         errores.push(`El nodo "${nodeLabel}" debe definir un título visible para la pantalla.`);
       }
@@ -156,6 +162,55 @@ export function validarFlujo(nodes, edges) {
           }
           if (!supportedUiFieldKinds.has(field.kind)) {
             errores.push(`El nodo "${nodeLabel}" usa un tipo de campo no soportado: "${field.kind || ''}".`);
+          }
+          if (field.kind === 'info') {
+            if (!field.content?.trim()) {
+              errores.push(`El nodo "${nodeLabel}" debe definir contenido en el bloque informativo "${fieldId}".`);
+            }
+            if (!supportedInfoTones.has(field.tone || 'info')) {
+              errores.push(`El nodo "${nodeLabel}" usa un tono no soportado en el bloque informativo "${fieldId}".`);
+            }
+          }
+          if (field.kind === 'summary') {
+            const items = Array.isArray(field.items) ? field.items : [];
+            if (items.length === 0) {
+              errores.push(`El nodo "${nodeLabel}" debe definir items en el resumen "${fieldId}".`);
+            }
+            items.forEach((item, itemIndex) => {
+              if (typeof item !== 'object' || item === null || Array.isArray(item)) {
+                errores.push(`El nodo "${nodeLabel}" debe definir items válidos en el resumen "${fieldId}".`);
+                return;
+              }
+              if (!item.label?.trim()) {
+                errores.push(`El nodo "${nodeLabel}" tiene un item sin etiqueta en el resumen "${fieldId}".`);
+              }
+              if (!Object.prototype.hasOwnProperty.call(item, 'value')) {
+                errores.push(`El nodo "${nodeLabel}" debe definir valor en el item #${itemIndex + 1} del resumen "${fieldId}".`);
+              }
+            });
+          }
+          if (field.kind === 'table') {
+            const columns = Array.isArray(field.columns) ? field.columns : [];
+            if (columns.length === 0) {
+              errores.push(`El nodo "${nodeLabel}" debe definir columnas en la tabla "${fieldId}".`);
+            }
+            const seenColumns = new Set();
+            columns.forEach((column) => {
+              if (!column.key?.trim() || !column.label?.trim()) {
+                errores.push(`El nodo "${nodeLabel}" tiene columnas incompletas en la tabla "${fieldId}".`);
+                return;
+              }
+              if (seenColumns.has(column.key.trim())) {
+                errores.push(`El nodo "${nodeLabel}" repite columnas en la tabla "${fieldId}".`);
+              }
+              seenColumns.add(column.key.trim());
+            });
+            const rows = Array.isArray(field.rows) ? field.rows : [];
+            rows.forEach((row) => {
+              if (typeof row !== 'object' || row === null || Array.isArray(row)) {
+                errores.push(`El nodo "${nodeLabel}" debe definir filas válidas en la tabla "${fieldId}".`);
+              }
+            });
           }
           if (field.kind === 'textarea' && field.rows && (!Number.isInteger(Number(field.rows)) || Number(field.rows) <= 0)) {
             errores.push(`El nodo "${nodeLabel}" debe definir filas válidas en el campo "${fieldId}".`);
@@ -274,6 +329,28 @@ export function validarFlujo(nodes, edges) {
         }
         seenValues.add(option.value.trim());
       });
+    }
+  });
+
+  edges.forEach((edge) => {
+    const condicion = edge.data?.condicion;
+    if (!condicion) {
+      return;
+    }
+
+    const sourceNode = nodes.find((node) => node.id === edge.source);
+    const sourceLabel = sourceNode?.data?.label || edge.source;
+
+    if (!condicion.campo?.toString().trim()) {
+      errores.push(`La transición que sale de "${sourceLabel}" tiene una condición sin campo.`);
+    }
+
+    if (!supportedConditionOperators.has(condicion.operador)) {
+      errores.push(`La transición que sale de "${sourceLabel}" usa un operador inválido.`);
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(condicion, 'valor')) {
+      errores.push(`La transición que sale de "${sourceLabel}" debe definir un valor a comparar.`);
     }
   });
 

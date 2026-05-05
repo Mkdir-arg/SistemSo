@@ -20,11 +20,12 @@ SUPPORTED_ACTION_FORM_TYPES = frozenset({"boolean_decision", "text_input", "choi
 SUPPORTED_ACTION_ACTOR_MODES = frozenset({"group"})
 SUPPORTED_ACTION_SURFACES = frozenset({"backoffice"})
 SUPPORTED_ACTION_UI_TYPES = frozenset({"form"})
-SUPPORTED_ACTION_UI_LAYOUTS = frozenset({"single_column"})
+SUPPORTED_ACTION_UI_LAYOUTS = frozenset({"single_column", "two_column"})
 SUPPORTED_ACTIONABLE_SCHEMA_VERSIONS = frozenset({4})
 SUPPORTED_HTTP_METHODS = frozenset({"GET", "POST", "PUT", "PATCH", "DELETE"})
+SUPPORTED_ACTION_UI_INFO_TONES = frozenset({"info", "success", "warning", "danger", "neutral"})
 SUPPORTED_ACTION_UI_FIELD_KINDS = frozenset(
-	{"text", "textarea", "number", "date", "radio", "select", "checkbox"}
+	{"text", "textarea", "number", "date", "radio", "select", "checkbox", "info", "summary", "table"}
 )
 
 
@@ -455,6 +456,135 @@ def _normalize_ui_options(node_id, field_id, options):
 	return normalized_options
 
 
+def _normalize_ui_table_columns(node_id, field_id, columns):
+	if not isinstance(columns, list) or not columns:
+		raise ValueError(
+			f'El nodo "{node_id}" debe definir columnas en el bloque tabla "{field_id}".'
+		)
+
+	normalized_columns = []
+	seen_keys = set()
+	for column_index, column in enumerate(columns, start=1):
+		if not isinstance(column, dict):
+			raise ValueError(
+				f'El nodo "{node_id}" debe definir la columna #{column_index} de "{field_id}" como objeto JSON.'
+			)
+
+		key = _normalize_optional_string(
+			column.get("key"),
+			field_label=f'columns[{column_index}].key',
+			node_id=node_id,
+		)
+		label = _normalize_optional_string(
+			column.get("label"),
+			field_label=f'columns[{column_index}].label',
+			node_id=node_id,
+		)
+
+		if key in seen_keys:
+			raise ValueError(
+				f'El nodo "{node_id}" no puede repetir columnas en el bloque tabla "{field_id}": "{key}".'
+			)
+		seen_keys.add(key)
+		normalized_columns.append({
+			"key": key,
+			"label": label,
+		})
+
+	return normalized_columns
+
+
+def _normalize_ui_display_value(node_id, field_id, field_label, value):
+	if value is None:
+		return ""
+	if isinstance(value, bool):
+		return value
+	if isinstance(value, (int, float)):
+		return value
+	if isinstance(value, str):
+		return _normalize_optional_string(
+			value,
+			field_label=field_label,
+			node_id=node_id,
+			allow_blank=True,
+		)
+	if isinstance(value, (list, dict)):
+		return value
+	raise ValueError(
+		f'El nodo "{node_id}" debe usar valores simples o estructuras JSON en "{field_label}" del bloque "{field_id}".'
+	)
+
+
+def _normalize_ui_table_rows(node_id, field_id, rows, columns):
+	if not isinstance(rows, list):
+		raise ValueError(
+			f'El nodo "{node_id}" debe definir "rows" como lista en el bloque tabla "{field_id}".'
+		)
+
+	column_keys = [column["key"] for column in columns]
+	column_key_set = set(column_keys)
+	normalized_rows = []
+	for row_index, row in enumerate(rows, start=1):
+		if not isinstance(row, dict):
+			raise ValueError(
+				f'El nodo "{node_id}" debe definir la fila #{row_index} de "{field_id}" como objeto JSON.'
+			)
+
+		extra_keys = set(row.keys()) - column_key_set
+		if extra_keys:
+			raise ValueError(
+				f'El nodo "{node_id}" usa columnas no declaradas en la fila #{row_index} de "{field_id}": {", ".join(sorted(extra_keys))}.'
+			)
+
+		normalized_row = {}
+		for column_key in column_keys:
+			normalized_row[column_key] = _normalize_ui_display_value(
+				node_id,
+				field_id,
+				field_label=f'rows[{row_index}].{column_key}',
+				value=row.get(column_key, ""),
+			)
+		normalized_rows.append(normalized_row)
+
+	return normalized_rows
+
+
+def _normalize_ui_summary_items(node_id, field_id, items):
+	if not isinstance(items, list) or not items:
+		raise ValueError(
+			f'El nodo "{node_id}" debe definir items en el bloque resumen "{field_id}".'
+		)
+
+	normalized_items = []
+	for item_index, item in enumerate(items, start=1):
+		if not isinstance(item, dict):
+			raise ValueError(
+				f'El nodo "{node_id}" debe definir el item #{item_index} de "{field_id}" como objeto JSON.'
+			)
+
+		label = _normalize_optional_string(
+			item.get("label"),
+			field_label=f'items[{item_index}].label',
+			node_id=node_id,
+		)
+		if "value" not in item:
+			raise ValueError(
+				f'El nodo "{node_id}" debe definir "value" en el item #{item_index} del bloque resumen "{field_id}".'
+			)
+
+		normalized_items.append({
+			"label": label,
+			"value": _normalize_ui_display_value(
+				node_id,
+				field_id,
+				field_label=f'items[{item_index}].value',
+				value=item.get("value"),
+			),
+		})
+
+	return normalized_items
+
+
 def _normalize_ui_field(node_id, field, seen_field_ids):
 	if not isinstance(field, dict):
 		raise ValueError(f'El nodo "{node_id}" debe definir cada campo de UI como objeto JSON.')
@@ -486,6 +616,8 @@ def _normalize_ui_field(node_id, field, seen_field_ids):
 	}
 
 	for key in ("placeholder", "help_text"):
+		if kind in {"info", "summary", "table"}:
+			continue
 		value = field.get(key)
 		if value is None:
 			continue
@@ -506,6 +638,71 @@ def _normalize_ui_field(node_id, field, seen_field_ids):
 
 	if kind in {"radio", "select"}:
 		normalized_field["options"] = _normalize_ui_options(node_id, field_id, field.get("options"))
+
+	if kind == "info":
+		if required:
+			raise ValueError(
+				f'El nodo "{node_id}" no puede marcar como obligatorio el bloque informativo "{field_id}".'
+			)
+		content = field.get("content")
+		if not isinstance(content, str) or not content.strip():
+			raise ValueError(
+				f'El nodo "{node_id}" debe definir "content" en el bloque informativo "{field_id}".'
+			)
+		tone = field.get("tone", "info")
+		if tone not in SUPPORTED_ACTION_UI_INFO_TONES:
+			raise ValueError(
+				f'El nodo "{node_id}" usa un tono no soportado en el bloque informativo "{field_id}": "{tone}".'
+			)
+		normalized_field["required"] = False
+		normalized_field["content"] = _normalize_optional_string(
+			content,
+			field_label=f'field.content ({field_id})',
+			node_id=node_id,
+			allow_blank=True,
+		)
+		normalized_field["tone"] = tone
+
+	if kind == "summary":
+		if required:
+			raise ValueError(
+				f'El nodo "{node_id}" no puede marcar como obligatorio el bloque resumen "{field_id}".'
+			)
+		normalized_field["required"] = False
+		normalized_field["items"] = _normalize_ui_summary_items(
+			node_id,
+			field_id,
+			field.get("items"),
+		)
+		empty_message = field.get("empty_message", "Sin indicadores para mostrar.")
+		normalized_field["empty_message"] = _normalize_optional_string(
+			empty_message,
+			field_label=f'field.empty_message ({field_id})',
+			node_id=node_id,
+			allow_blank=True,
+		)
+
+	if kind == "table":
+		if required:
+			raise ValueError(
+				f'El nodo "{node_id}" no puede marcar como obligatorio el bloque tabla "{field_id}".'
+			)
+		columns = _normalize_ui_table_columns(node_id, field_id, field.get("columns"))
+		normalized_field["required"] = False
+		normalized_field["columns"] = columns
+		normalized_field["rows"] = _normalize_ui_table_rows(
+			node_id,
+			field_id,
+			field.get("rows", []),
+			columns,
+		)
+		empty_message = field.get("empty_message", "Sin registros para mostrar.")
+		normalized_field["empty_message"] = _normalize_optional_string(
+			empty_message,
+			field_label=f'field.empty_message ({field_id})',
+			node_id=node_id,
+			allow_blank=True,
+		)
 
 	return normalized_field
 
@@ -582,6 +779,14 @@ def _normalize_action_ui_config(node_id, ui_config):
 				section_title,
 				field_label=f"config.ui.sections[{section_index}].title",
 				node_id=node_id,
+			)
+		section_description = section.get("description")
+		if section_description is not None:
+			normalized_section["description"] = _normalize_optional_string(
+				section_description,
+				field_label=f"config.ui.sections[{section_index}].description",
+				node_id=node_id,
+				allow_blank=True,
 			)
 		normalized_sections.append(normalized_section)
 

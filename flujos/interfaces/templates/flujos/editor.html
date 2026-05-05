@@ -6,9 +6,30 @@
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'flujos/dist/assets/index.css' %}">
 <style>
+    .transition-all.duration-300 > main.py-10 {
+        padding-top: 0 !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .app-main {
+        margin-top: 0 !important;
+        margin-left: 0 !important;
+        min-height: auto !important;
+    }
+
+    .app-main > .app-content {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .app-main > .app-content > .container-fluid {
+        padding: 0 !important;
+    }
+
     .editor-page {
         display: grid;
-        gap: 1.25rem;
+        gap: .9rem;
+        margin-top: 0;
     }
 
     .editor-hero {
@@ -16,14 +37,13 @@
             radial-gradient(circle at top right, rgba(13, 110, 253, 0.12), transparent 32%),
             linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
         border: 1px solid rgba(13, 110, 253, 0.12);
-        border-radius: 1.25rem;
-        overflow: hidden;
+        border-radius: 1rem;
     }
 
     .editor-hero-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
-        gap: 1.25rem;
+        grid-template-columns: minmax(0, 1fr);
+        gap: .85rem;
     }
 
     .editor-kicker {
@@ -44,67 +64,47 @@
         display: flex;
         flex-wrap: wrap;
         gap: .5rem;
-        margin-top: 1rem;
+        margin-top: .75rem;
     }
 
     .editor-meta-chip {
         display: inline-flex;
         align-items: center;
         gap: .45rem;
-        padding: .45rem .8rem;
+        padding: .38rem .72rem;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.82);
         border: 1px solid rgba(148, 163, 184, 0.28);
         color: #334155;
-        font-size: .88rem;
+        font-size: .83rem;
     }
 
     .editor-meta-chip strong {
         color: #0f172a;
     }
 
-    .editor-stat-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: .85rem;
-        margin-top: 1.25rem;
+    .editor-inline-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .55rem;
+        margin-top: .75rem;
     }
 
-    .editor-stat-card {
-        padding: 1rem 1.1rem;
-        border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.78);
-        border: 1px solid rgba(226, 232, 240, 0.95);
-        box-shadow: 0 16px 36px -30px rgba(15, 23, 42, 0.55);
-    }
-
-    .editor-stat-card .value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        line-height: 1;
-        color: #0f172a;
-        margin: .35rem 0;
-    }
-
-    .editor-tip-card {
-        height: 100%;
-        background: linear-gradient(180deg, rgba(15, 23, 42, 0.02), rgba(15, 23, 42, 0.06));
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        border-radius: 1rem;
-        padding: 1.25rem;
-    }
-
-    .editor-tip-icon {
-        width: 2rem;
-        height: 2rem;
+    .editor-inline-stat {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
+        gap: .45rem;
+        padding: .42rem .78rem;
         border-radius: 999px;
-        background: rgba(13, 110, 253, 0.12);
-        color: #0d6efd;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        color: #334155;
+        font-size: .82rem;
+    }
+
+    .editor-inline-stat strong {
+        color: #0f172a;
         font-weight: 700;
-        flex-shrink: 0;
     }
 
     .editor-surface {
@@ -137,26 +137,24 @@
 
     .editor-root-shell {
         width: 100%;
-        min-height: 760px;
-        height: calc(100vh - 315px);
+        min-height: 600px;
+        height: clamp(620px, calc(100vh - 250px), 780px);
     }
 
     @media (max-width: 991.98px) {
-        .editor-hero-grid,
-        .editor-stat-grid {
+        .editor-hero-grid {
             grid-template-columns: 1fr;
         }
 
         .editor-root-shell {
-            min-height: 560px;
-            height: 70vh;
+            min-height: 500px;
+            height: clamp(520px, 70vh, 700px);
         }
     }
 </style>
 {% endblock %}
 
-{% block titulo-pagina %}Editor de Flujo{% endblock %}
-{% block titulo-pagina-content %}Editor de Flujo — {{ programa.nombre }}{% endblock %}
+{% block titulo-pagina %}{% endblock %}
 
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'configuracion:programas' %}">Programas</a></li>
@@ -165,18 +163,18 @@
 
 {% block content %}
 <div class="editor-page">
-    <section class="editor-hero p-4 p-xl-4">
-        <div class="editor-hero-grid align-items-stretch">
+    <section class="editor-hero p-3 p-xl-3">
+        <div class="editor-hero-grid">
             <div>
                 <span class="editor-kicker">
                     <i class="fas fa-diagram-project"></i>
                     Editor de Flujo
                 </span>
-                <div class="mt-3">
+                <div class="mt-2">
                     <div class="text-uppercase text-muted small mb-1">Programa</div>
-                    <h2 class="h2 mb-2">{{ programa.nombre }}</h2>
-                    <p class="text-muted mb-0" style="max-width: 60ch;">
-                        Diseñá el circuito operativo del programa con una vista clara del estado actual. Publicar crea una nueva versión sin interrumpir las instancias que ya están corriendo.
+                    <h2 class="h3 mb-1">{{ programa.nombre }}</h2>
+                    <p class="text-muted mb-0 small" style="max-width: 72ch;">
+                        Diseñá y publicá el circuito operativo sin cortar los casos ya activos.
                     </p>
                 </div>
 
@@ -192,54 +190,14 @@
                     {% endif %}
                 </div>
 
-                <div class="editor-stat-grid">
-                    <article class="editor-stat-card">
-                        <div class="text-uppercase text-muted small mb-1">Versiones registradas</div>
-                        <div class="value">{{ cantidad_versiones }}</div>
-                        <div class="text-muted small">Historial total disponible para este flujo.</div>
-                    </article>
-                    <article class="editor-stat-card">
-                        <div class="text-uppercase text-muted small mb-1">Versión activa</div>
-                        {% if version_publicada %}
-                        <div class="value">v{{ version_publicada.numero_version }}</div>
-                        <div class="text-muted small">Publicada {{ version_publicada.fecha_publicacion|date:"d/m/Y H:i" }}</div>
-                        {% else %}
-                        <div class="value">-</div>
-                        <div class="text-muted small">Todavía no hay una versión publicada.</div>
-                        {% endif %}
-                    </article>
-                    <article class="editor-stat-card">
-                        <div class="text-uppercase text-muted small mb-1">Instancias activas</div>
-                        <div class="value">{{ instancias_activas }}</div>
-                        <div class="text-muted small">Casos en ejecución sobre la versión publicada actual.</div>
-                    </article>
+                <div class="editor-inline-stats">
+                    <span class="editor-inline-stat"><strong>Versiones</strong> {{ cantidad_versiones }}</span>
+                    {% if version_publicada %}
+                    <span class="editor-inline-stat"><strong>Publicada</strong> {{ version_publicada.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+                    {% endif %}
+                    <span class="editor-inline-stat"><strong>Instancias activas</strong> {{ instancias_activas }}</span>
                 </div>
             </div>
-
-            <aside class="editor-tip-card">
-                <div class="text-uppercase text-muted small mb-3">Cómo usar este editor</div>
-                <div class="d-flex gap-3 mb-3">
-                    <span class="editor-tip-icon">1</span>
-                    <div>
-                        <div class="fw-semibold">Armá el recorrido</div>
-                        <div class="text-muted small">Definí nodos y transiciones según la operatoria real.</div>
-                    </div>
-                </div>
-                <div class="d-flex gap-3 mb-3">
-                    <span class="editor-tip-icon">2</span>
-                    <div>
-                        <div class="fw-semibold">Validá antes de publicar</div>
-                        <div class="text-muted small">El sistema revisa estructura y conectividad antes de aceptar una nueva versión.</div>
-                    </div>
-                </div>
-                <div class="d-flex gap-3">
-                    <span class="editor-tip-icon">3</span>
-                    <div>
-                        <div class="fw-semibold">Publicá sin cortar procesos</div>
-                        <div class="text-muted small">Las instancias activas siguen con su versión actual y las nuevas usan la publicada.</div>
-                    </div>
-                </div>
-            </aside>
         </div>
     </section>
 

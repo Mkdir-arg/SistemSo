@@ -11,6 +11,16 @@ from flujos.application.dto import normalize_flow_definition
 from flujos.infrastructure.selectors import get_assignable_users_queryset
 
 
+DISPLAY_UI_FIELD_KINDS = {'info', 'summary', 'table'}
+INFO_ALERT_CLASS_BY_TONE = {
+    'info': 'info',
+    'success': 'success',
+    'warning': 'warning',
+    'danger': 'danger',
+    'neutral': 'secondary',
+}
+
+
 class DefinicionFlujoForm(forms.Form):
     def __init__(self, *args, validation_mode="draft", **kwargs):
         super().__init__(*args, **kwargs)
@@ -177,18 +187,83 @@ class TareaFormularioDeclarativoForm(forms.Form):
         self.sections = []
 
         for section in self.schema.get('sections', []):
-            field_names = []
+            items = []
+            bound_fields = []
             for field_schema in section.get('fields', []):
+                if field_schema.get('kind') in DISPLAY_UI_FIELD_KINDS:
+                    items.append(self._build_display_item(field_schema))
+                    continue
                 field_name = field_schema['id']
                 self.fields[field_name] = self._build_declared_field(field_schema)
-                field_names.append(field_name)
+                bound_field = self[field_name]
+                bound_fields.append(bound_field)
+                items.append(
+                    {
+                        'type': 'field',
+                        'bound_field': bound_field,
+                        'schema': field_schema,
+                    }
+                )
             self.sections.append(
                 {
                     'id': section['id'],
                     'title': section.get('title', ''),
-                    'bound_fields': [self[field_name] for field_name in field_names],
+                    'description': section.get('description', ''),
+                    'items': items,
+                    'bound_fields': bound_fields,
                 }
             )
+
+    def _build_display_item(self, field_schema):
+        if field_schema['kind'] == 'info':
+            return {
+                'type': 'display',
+                'display_kind': 'info',
+                'schema': field_schema,
+                'alert_class': INFO_ALERT_CLASS_BY_TONE.get(field_schema.get('tone', 'info'), 'info'),
+            }
+
+        if field_schema['kind'] == 'summary':
+            items = [
+                {
+                    'label': item.get('label', ''),
+                    'value': item.get('value', ''),
+                }
+                for item in field_schema.get('items', [])
+            ]
+            return {
+                'type': 'display',
+                'display_kind': 'summary',
+                'schema': field_schema,
+                'items': items,
+                'empty_message': field_schema.get('empty_message', 'Sin indicadores para mostrar.'),
+            }
+
+        if field_schema['kind'] == 'table':
+            columns = field_schema.get('columns', [])
+            rows = [
+                {
+                    'cells': [
+                        {
+                            'key': column['key'],
+                            'label': column['label'],
+                            'value': row.get(column['key'], ''),
+                        }
+                        for column in columns
+                    ]
+                }
+                for row in field_schema.get('rows', [])
+            ]
+            return {
+                'type': 'display',
+                'display_kind': 'table',
+                'schema': field_schema,
+                'columns': columns,
+                'rows': rows,
+                'empty_message': field_schema.get('empty_message', 'Sin registros para mostrar.'),
+            }
+
+        raise ValueError(f'Tipo de bloque declarativo no soportado: {field_schema["kind"]}')
 
     def _build_declared_field(self, field_schema):
         kind = field_schema['kind']

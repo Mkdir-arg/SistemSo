@@ -132,6 +132,98 @@ const LIBRARY_SECTIONS = [
         },
       },
       {
+        tipo: 'accion_humana',
+        label: 'Pantalla + resumen',
+        icon: '📊',
+        color: '#1d4ed8',
+        desc: 'Pantalla declarativa con info, resumen visual y tabla de contexto',
+        template: {
+          label: 'Pantalla con resumen',
+          descripcion: 'Mostrá contexto del caso y capturá una decisión del operador en la misma pantalla.',
+          actor: {
+            mode: 'group',
+            value: 'programaOperar',
+          },
+          surface: ['backoffice'],
+          config: {
+            ui: {
+              type: 'form',
+              title: 'Revisión operativa',
+              description: 'Verificá el contexto del caso y completá la resolución del paso.',
+              layout: 'two_column',
+              sections: [
+                {
+                  id: 'contexto',
+                  title: 'Contexto del caso',
+                  description: 'Resumen automático del caso antes de tomar la decisión.',
+                  fields: [
+                    {
+                      id: 'recordatorio',
+                      kind: 'info',
+                      label: 'Antes de continuar',
+                      tone: 'info',
+                      content: 'Ciudadano {{ ciudadano.nombre_completo }} · Programa {{ programa.nombre }}',
+                    },
+                    {
+                      id: 'indicadores',
+                      kind: 'summary',
+                      label: 'Indicadores del caso',
+                      items: [
+                        { label: 'DNI', value: '{{ ciudadano.dni }}' },
+                        { label: 'Programa', value: '{{ programa.codigo }}' },
+                        { label: 'Estado', value: 'En revision' },
+                      ],
+                      empty_message: 'Sin indicadores para mostrar.',
+                    },
+                    {
+                      id: 'resumen',
+                      kind: 'table',
+                      label: 'Resumen',
+                      columns: [
+                        { key: 'campo', label: 'Campo' },
+                        { key: 'valor', label: 'Valor' },
+                      ],
+                      rows: [
+                        { campo: 'DNI', valor: '{{ ciudadano.dni }}' },
+                        { campo: 'Programa', valor: '{{ programa.codigo }}' },
+                      ],
+                      empty_message: 'Sin datos para mostrar.',
+                    },
+                  ],
+                },
+                {
+                  id: 'resolucion',
+                  title: 'Resolución',
+                  description: 'Captura operativa del paso actual.',
+                  fields: [
+                    {
+                      id: 'resultado',
+                      kind: 'radio',
+                      label: 'Resultado',
+                      required: true,
+                      options: [
+                        { value: 'aprobado', label: 'Aprobado' },
+                        { value: 'observado', label: 'Observado' },
+                      ],
+                    },
+                    {
+                      id: 'observacion',
+                      kind: 'textarea',
+                      label: 'Observación',
+                      required: false,
+                      rows: 4,
+                    },
+                  ],
+                },
+              ],
+              submit: {
+                label: 'Guardar y continuar',
+              },
+            },
+          },
+        },
+      },
+      {
         tipo: 'accion_email',
         label: 'Notificar por email',
         icon: '📨',

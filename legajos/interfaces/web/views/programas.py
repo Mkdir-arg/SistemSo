@@ -1,6 +1,8 @@
 """
 Vistas para Gestión Operativa de Programas
 """
+from collections import defaultdict
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,7 +12,9 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
+from django.utils.text import slugify
 
+from flujos.models import InstanciaFlujo, TareaFlujo
 from legajos.models_programas import Programa, InscripcionPrograma
 from legajos.models_institucional import (
     InstitucionPrograma,
@@ -22,6 +26,174 @@ from legajos.models_institucional import (
     EstadoDerivacion,
     EstadoCaso,
 )
+
+
+FLOW_STAGE_ICON_BY_TYPE = {
+    'accion_humana': 'user-check',
+    'decision': 'code-branch',
+    'espera': 'hourglass-half',
+    'accion_email': 'envelope',
+    'accion_http': 'globe',
+    'fin': 'flag-checkered',
+}
+
+FLOW_STAGE_TYPE_LABELS = {
+    'accion_humana': 'Acción humana',
+    'decision': 'Decisión',
+    'espera': 'Espera',
+    'accion_email': 'Acción email',
+    'accion_http': 'Acción HTTP',
+    'fin': 'Fin',
+}
+
+FLOW_FORM_TYPE_LABELS = {
+    'boolean_decision': 'Formulario tipado v2 · decisión booleana',
+    'text_input': 'Formulario tipado v2 · texto libre',
+    'choice_select': 'Formulario tipado v2 · selección cerrada',
+}
+
+
+def _order_flow_stage_ids(definicion):
+    nodos = definicion.get('nodos') or []
+    transiciones = definicion.get('transiciones') or []
+    node_map = {
+        nodo.get('id'): nodo
+        for nodo in nodos
+        if nodo.get('id')
+    }
+    outgoing = defaultdict(list)
+    for transicion in transiciones:
+        outgoing[transicion.get('desde')].append(transicion)
+
+    visited = set()
+    ordered_ids = []
+
+    def visit(node_id):
+        if not node_id or node_id in visited or node_id not in node_map:
+            return
+
+        visited.add(node_id)
+        node = node_map[node_id]
+        if node.get('tipo') != 'inicio':
+            ordered_ids.append(node_id)
+
+        for transicion in outgoing.get(node_id, []):
+            visit(transicion.get('hasta'))
+
+    inicio_id = next(
+        (nodo.get('id') for nodo in nodos if nodo.get('tipo') == 'inicio'),
+        None,
+    )
+    visit(inicio_id)
+
+    for nodo in nodos:
+        visit(nodo.get('id'))
+
+    return ordered_ids, node_map, outgoing
+
+
+def _build_flow_stage_highlights(node, outgoing, node_map):
+    config = node.get('config') or {}
+    highlights = []
+    tipo = node.get('tipo')
+
+    if tipo == 'accion_humana':
+        if config.get('ui'):
+            highlights.append('Captura: pantalla declarativa v3')
+        elif config.get('formulario'):
+            form_type = (config.get('formulario') or {}).get('type')
+            highlights.append(FLOW_FORM_TYPE_LABELS.get(form_type, 'Captura: formulario tipado v2'))
+        else:
+            highlights.append('Captura: sin contrato configurado')
+
+        actor = node.get('actor') or {}
+        if actor.get('mode') == 'group' and actor.get('value'):
+            highlights.append(f'Responsable: {actor["value"]}')
+
+        surface = node.get('surface') or []
+        if surface:
+            highlights.append(f'Superficie: {", ".join(surface)}')
+
+    elif tipo == 'decision':
+        highlights.append('Evalúa condiciones y bifurca el recorrido del caso')
+    elif tipo == 'espera':
+        highlights.append('Mantiene la instancia en pausa hasta el próximo avance')
+    elif tipo == 'accion_email':
+        highlights.append('Ejecuta una notificación automática por email')
+    elif tipo == 'accion_http':
+        method = (config.get('http') or {}).get('method')
+        if method:
+            highlights.append(f'Acción automática HTTP {method}')
+        else:
+            highlights.append('Ejecuta una integración HTTP automática')
+    elif tipo == 'fin':
+        highlights.append('Marca el cierre del recorrido para este programa')
+
+    next_nodes = []
+    for transicion in outgoing.get(node.get('id'), []):
+        destino = node_map.get(transicion.get('hasta'))
+        if destino:
+            next_nodes.append(destino.get('nombre') or destino.get('id'))
+
+    if next_nodes:
+        suffix = '...' if len(next_nodes) > 3 else ''
+        highlights.append(f'Siguientes: {", ".join(next_nodes[:3])}{suffix}')
+
+    return highlights
+
+
+def _build_program_flow_context(programa):
+    version_publicada = programa.flujo_activo
+    if not version_publicada or not isinstance(version_publicada.definicion, dict):
+        return None
+
+    definicion = version_publicada.definicion
+    ordered_ids, node_map, outgoing = _order_flow_stage_ids(definicion)
+    if not ordered_ids:
+        return None
+
+    active_instances_by_node = dict(
+        InstanciaFlujo.objects.filter(
+            version_flujo=version_publicada,
+            estado=InstanciaFlujo.Estado.ACTIVA,
+        )
+        .values('nodo_actual')
+        .annotate(total=Count('id'))
+        .values_list('nodo_actual', 'total')
+    )
+    pending_tasks_by_node = dict(
+        TareaFlujo.objects.filter(
+            instancia__version_flujo=version_publicada,
+            estado=TareaFlujo.Estado.PENDIENTE,
+        )
+        .values('nodo_id')
+        .annotate(total=Count('id'))
+        .values_list('nodo_id', 'total')
+    )
+
+    stages = []
+    for node_id in ordered_ids:
+        node = node_map[node_id]
+        tipo = node.get('tipo')
+        stages.append({
+            'id': node_id,
+            'tab_id': slugify(node_id) or node_id,
+            'nombre': node.get('nombre') or node_id,
+            'tipo': tipo,
+            'tipo_label': FLOW_STAGE_TYPE_LABELS.get(tipo, tipo.replace('_', ' ').title()),
+            'icon': FLOW_STAGE_ICON_BY_TYPE.get(tipo, 'circle'),
+            'descripcion': (node.get('config') or {}).get('descripcion') or '',
+            'active_instances': active_instances_by_node.get(node_id, 0),
+            'pending_tasks': pending_tasks_by_node.get(node_id, 0),
+            'transitions_count': len(outgoing.get(node_id, [])),
+            'highlights': _build_flow_stage_highlights(node, outgoing, node_map),
+        })
+
+    return {
+        'version': version_publicada.numero_version,
+        'stages': stages,
+        'active_instances': sum(active_instances_by_node.values()),
+    }
 
 
 class ProgramaListView(LoginRequiredMixin, ListView):
@@ -89,6 +261,7 @@ class ProgramaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         programa = self.get_object()
+        context['flujo_activo'] = _build_program_flow_context(programa)
         
         # Si es Ñachec, cargar datos específicos
         if programa.tipo in ['NACHEC', 'ÑACHEC']:

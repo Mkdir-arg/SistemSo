@@ -245,10 +245,12 @@ class FlujosBackofficeTasksTests(TestCase):
                                 'type': 'form',
                                 'title': 'Revision de ingreso',
                                 'description': 'Completa la revision inicial del caso.',
+                                'layout': 'two_column',
                                 'sections': [
                                     {
                                         'id': 'principal',
                                         'title': 'Datos principales',
+                                        'description': 'Resolvé el paso cargando el resultado y observaciones.',
                                         'fields': [
                                             {
                                                 'id': 'resultado',
@@ -266,6 +268,45 @@ class FlujosBackofficeTasksTests(TestCase):
                                                 'label': 'Observacion',
                                                 'required': False,
                                                 'rows': 4,
+                                            },
+                                        ],
+                                    },
+                                    {
+                                        'id': 'contexto',
+                                        'title': 'Contexto del caso',
+                                        'description': 'Resumen visible del caso antes de decidir.',
+                                        'fields': [
+                                            {
+                                                'id': 'recordatorio',
+                                                'kind': 'info',
+                                                'label': 'Antes de resolver',
+                                                'content': 'Ciudadano {{ ciudadano.nombre_completo }} · Programa {{ programa.nombre }}',
+                                                'tone': 'info',
+                                            },
+                                            {
+                                                'id': 'indicadores',
+                                                'kind': 'summary',
+                                                'label': 'Indicadores del caso',
+                                                'items': [
+                                                    {'label': 'DNI', 'value': '{{ ciudadano.dni }}'},
+                                                    {'label': 'Programa', 'value': '{{ programa.codigo }}'},
+                                                    {'label': 'Estado', 'value': 'En revisión'},
+                                                ],
+                                                'empty_message': 'Sin indicadores para mostrar.',
+                                            },
+                                            {
+                                                'id': 'resumen_caso',
+                                                'kind': 'table',
+                                                'label': 'Resumen del caso',
+                                                'columns': [
+                                                    {'key': 'campo', 'label': 'Campo'},
+                                                    {'key': 'valor', 'label': 'Valor'},
+                                                ],
+                                                'rows': [
+                                                    {'campo': 'DNI', 'valor': '{{ ciudadano.dni }}'},
+                                                    {'campo': 'Programa', 'valor': '{{ programa.codigo }}'},
+                                                ],
+                                                'empty_message': 'Sin datos para mostrar.',
                                             },
                                         ],
                                     }
@@ -463,12 +504,29 @@ class FlujosBackofficeTasksTests(TestCase):
         payload = response.json()
         self.assertEqual(payload['task']['resolution_form']['type'], 'ui_form')
         self.assertEqual(payload['task']['resolution_form']['title'], 'Revision de ingreso')
+        self.assertEqual(payload['task']['resolution_form']['layout'], 'two_column')
+        self.assertEqual(payload['task']['resolution_form']['sections'][0]['description'], 'Resolvé el paso cargando el resultado y observaciones.')
         self.assertEqual(payload['task']['resolution_form']['sections'][0]['fields'][0]['id'], 'resultado')
+        self.assertEqual(payload['task']['resolution_form']['sections'][1]['fields'][1]['kind'], 'summary')
+        self.assertEqual(payload['task']['resolution_form']['sections'][1]['fields'][2]['kind'], 'table')
 
     def test_runtime_snapshots_ui_schema_when_creating_task(self):
         self.assertEqual(self.tarea_ui.datos['ui_schema']['type'], 'form')
         self.assertEqual(self.tarea_ui.datos['actor'], {'mode': 'group', 'value': 'programaOperar'})
         self.assertEqual(self.tarea_ui.datos['surface'], ['backoffice'])
+        self.assertEqual(self.tarea_ui.datos['ui_schema']['layout'], 'two_column')
+        self.assertEqual(
+            self.tarea_ui.datos['ui_schema']['sections'][1]['fields'][0]['content'],
+            'Ciudadano Mario Suarez · Programa Programa Tareas UI',
+        )
+        self.assertEqual(
+            self.tarea_ui.datos['ui_schema']['sections'][1]['fields'][1]['items'][1]['value'],
+            'PROG-TASK-005',
+        )
+        self.assertEqual(
+            self.tarea_ui.datos['ui_schema']['sections'][1]['fields'][2]['rows'][1]['valor'],
+            'PROG-TASK-005',
+        )
 
     def test_tarea_detalle_renders_and_resolves_ui_form(self):
         response = self.client.get(reverse('flujos_editor:tarea_detalle', args=[self.tarea_ui.pk]))
@@ -476,8 +534,14 @@ class FlujosBackofficeTasksTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Revision de ingreso')
         self.assertContains(response, 'Datos principales')
+        self.assertContains(response, 'Resolvé el paso cargando el resultado y observaciones.')
         self.assertContains(response, 'Resultado')
         self.assertContains(response, 'Observacion')
+        self.assertContains(response, 'Antes de resolver')
+        self.assertContains(response, 'Indicadores del caso')
+        self.assertContains(response, 'En revisión')
+        self.assertContains(response, 'Mario Suarez')
+        self.assertContains(response, 'PROG-TASK-005')
 
         post_response = self.client.post(
             reverse('flujos_editor:tarea_detalle', args=[self.tarea_ui.pk]),

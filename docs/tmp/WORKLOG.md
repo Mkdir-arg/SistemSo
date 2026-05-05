@@ -1,5 +1,406 @@
 # Worklog temporal
 
+## 2026-05-05 - Descolapsar cuerpo del popup de configuración
+
+**Tarea:** Hacer visible el contenido del popup de configuración cuando hoy solo aparece el encabezado del modal.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/app.css`
+
+**Cambios realizados:**
+- Se le dio altura efectiva al diálogo del modal para que el body tenga espacio real y no quede colapsado.
+- Se convirtió el body del modal en contenedor flex y el panel modal en hijo flex scrolleable.
+- Se hizo que el bloque interno de propiedades también participe del alto disponible del modal.
+
+**Decisiones o supuestos:**
+- El síntoma visible era “solo header, sin contenido”, consistente con un colapso del body del modal más que con falta de datos del nodo.
+- Se mantuvo el cambio en CSS porque el header ya probaba que el nodo seleccionado sí llegaba correctamente al popup.
+
+**Pendientes:**
+- Confirmar visualmente que el popup vuelve a mostrar el formulario completo de `Derivación` y que el scroll sigue funcionando en contenido largo.
+
+## 2026-05-05 - Compactar encabezado del Editor de Flujo
+
+**Tarea:** Reducir la sección superior del editor para darle más espacio útil visible al área de diseño del flujo.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `flujos/interfaces/templates/flujos/editor.html`
+
+**Cambios realizados:**
+- Se eliminó la columna lateral de ayuda y el bloque grande de tarjetas de resumen del hero del editor.
+- Se condensó la información relevante en chips y métricas inline más compactas.
+- Se aumentó el alto útil del shell del editor aprovechando la reducción del encabezado superior.
+
+**Decisiones o supuestos:**
+- Se priorizó superficie visible para el canvas por encima de contenido explicativo redundante.
+- Se mantuvieron solo los datos operativos mínimos: código, versión, estado, cantidad de versiones e instancias activas.
+
+**Pendientes:**
+- Si todavía querés más foco en el canvas, el siguiente paso natural es compactar también el header interno de `Diseño del flujo`.
+
+## 2026-05-05 - Habilitar scroll real en popup de Configuración de Derivación
+
+**Tarea:** Corregir el popup de configuración para que el contenido largo no quede cortado y pueda desplazarse dentro del modal.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/app.css`
+- `static/flujos/dist/assets/index.css`
+
+**Cambios realizados:**
+- Se convirtió `flow-config-modal__body` en un flex item real con `flex: 1 1 0` para que ocupe el alto restante del diálogo.
+- Se hizo que `flow-modal-panel` tome `height: 100%` y `min-height: 0` para que su `overflow-y: auto` opere sobre un alto acotado.
+- Se replicó el ajuste en el bundle estático servido por Django mediante `npm run build` para que impacte en la vista real.
+
+**Decisiones o supuestos:**
+- El corte no estaba en el contenido del panel sino en la relación de alturas entre el body del modal y el panel scrolleable.
+- Se evitó tocar JSX o estructura del modal porque el problema era estrictamente de layout CSS.
+
+**Pendientes:**
+- Verificar visualmente el caso de contenido muy largo dentro de `Pantalla` y `Operativa` para confirmar que el scroll aparece en todo el recorrido.
+
+## 2026-05-05 - Agrandar un poco más el Canvas principal
+
+**Tarea:** Darle más alto visible al `Canvas principal` del editor de flujo sin reabrir el problema del layout roto.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `flujos/interfaces/templates/flujos/editor.html`
+
+**Cambios realizados:**
+- Se aumentó la altura mínima del `editor-root-shell` en desktop para darle más espacio útil al canvas.
+- También se subió el `clamp(...)` máximo/intermedio para que el editor gane alto visible en resoluciones amplias.
+- Se ajustó la altura responsive para que en pantallas menores no quede demasiado comprimido.
+
+**Decisiones o supuestos:**
+- Se mantuvo el cambio acotado al shell del editor porque el pedido fue agrandar el canvas, no remaquetar toolbar o paneles.
+- Se evitó tocar React Flow o el layout interno del canvas para no alterar zoom, centrado o interacción.
+
+**Pendientes:**
+- Si todavía lo querés más alto, el siguiente ajuste natural es subir solo el `max` del `clamp(...)` en desktop.
+
+## 2026-05-05 - Reducir espacio blanco del editor de flujo por altura excesiva
+
+**Tarea:** Corregir el espacio blanco visible en `/flujos/programas/<id>/flujo/editar/` ajustando la altura del shell del editor.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `flujos/interfaces/templates/flujos/editor.html`
+
+**Cambios realizados:**
+- Se redujo la altura mínima del contenedor `editor-root-shell`, que estaba fijada demasiado alta para pantallas como la del usuario.
+- La altura del editor pasó a usar `clamp(...)` para mantener un canvas amplio sin inflar la vista con blanco innecesario.
+- También se compactó la altura responsive en pantallas menores a `992px`.
+
+**Decisiones o supuestos:**
+- Se corrigió en el template Django porque el hueco venía del contenedor general del editor, no del render interno de React Flow.
+- Se mantuvo un alto suficiente para trabajar cómodo con nodos y conexiones sin volver el editor demasiado corto.
+
+**Pendientes:**
+- Si después de usarlo con flujos más grandes todavía se siente alto o bajo, ajustar la cota máxima del `clamp(...)` según uso real.
+
+## 2026-05-05 - Quitar encabezado heredado roto y subir el editor
+
+**Tarea:** Corregir el espacio blanco superior del editor de flujo que seguía apareciendo por la herencia de `includes/main.html`.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `flujos/interfaces/templates/flujos/editor.html`
+
+**Cambios realizados:**
+- Se anuló correctamente el bloque `titulo-pagina` en vez de renderizar texto suelto, eliminando el `Editor de Flujo` colgado arriba del contenido.
+- Se forzó a cero el padding superior heredado de `app-content` y `container-fluid` solo para esta vista.
+- Se dejó el `editor-page` apenas más arriba para que el hero del editor arranque pegado al contenido útil.
+
+**Decisiones o supuestos:**
+- La pantalla ya tiene su propio encabezado visual dentro del hero, por lo que el header heredado del layout era duplicado y visualmente incorrecto.
+- El ajuste se acotó al template del editor para no tocar el espaciado global del backoffice.
+
+**Pendientes:**
+- Si todavía queda demasiado aire arriba en alguna resolución puntual, medir en navegador autenticado y ajustar solo el margen superior local del `editor-page`.
+
+## 2026-05-05 - Neutralizar layout legacy duplicado en el editor de flujo
+
+**Tarea:** Eliminar el corrimiento y espacio extra que seguían viniendo del `app-main` legacy sobre una base nueva con sidebar/layout propio.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `flujos/interfaces/templates/flujos/editor.html`
+
+**Cambios realizados:**
+- Se anuló localmente `margin-top`, `margin-left` y `min-height` de `.app-main` para esta vista.
+- Se compactó a cero el padding heredado del `app-content`, del `container-fluid` interno y del wrapper superior `main.py-10`.
+- Se dejó `editor-page` sin margen superior adicional para evitar acumulación de aire arriba.
+
+**Decisiones o supuestos:**
+- El problema no era solo el header vacío: esta pantalla estaba recibiendo espaciado de un layout legacy además del layout actual basado en Tailwind/sidebar.
+- La neutralización se aplicó solo en el template del editor para no romper otras pantallas que todavía dependan del comportamiento viejo.
+
+**Pendientes:**
+- Verificar visualmente si además conviene sacar `py-10` del wrapper superior en una iteración posterior; por ahora se evitó tocar el layout global.
+
+## 2026-05-05 - Integrar etapas del flujo dentro del panel operativo
+
+**Tarea:** Reubicar las solapas generadas desde el flujo publicado dentro del `Panel operativo del programa`, dejando `Dashboard` primero y eliminando tabs legacy que ya no van.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `legajos/interfaces/templates/legajos/programas/programa_detail.html`
+
+**Cambios realizados:**
+- Se eliminó el bloque superior separado de `Flujo activo publicado` para que la navegación viva dentro del panel operativo principal.
+- La barra de tabs ahora deja `Dashboard` fijo como primera solapa, agrega a continuación las etapas configuradas del flujo publicado y conserva `Indicadores` como vista histórica.
+- Se removieron las tabs legacy de `Derivaciones`, `Acompañamientos` e `Instituciones`, junto con sus paneles asociados.
+- La metadata de versión publicada e instancias activas del flujo se movió al encabezado del panel operativo.
+
+**Decisiones o supuestos:**
+- Se mantuvo `Indicadores` porque sigue representando lectura histórica y no fue señalado para eliminación.
+- Las etapas del flujo se montan como tabs del mismo sistema existente para evitar duplicar navegación y JavaScript.
+
+**Pendientes:**
+- Si también hay que aplicar esta misma convención al detalle especial de Ñachec, replicarlo en su template específico.
+
+## 2026-05-05 - Compactar proporción del modal de Pantalla en el editor de flujos
+
+**Tarea:** Corregir la proporción del popup de configuración en la pestaña `Pantalla` para que no obligue a usar zoom extremo del navegador.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/app.css`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+- `frontend/flow-editor/src/components/ScreenPreview.jsx`
+- `static/flujos/dist/*`
+
+**Cambios realizados:**
+- El modal de configuración ahora usa más ancho útil del viewport y reduce padding interno cuando se abre en modo popup.
+- La pestaña `Pantalla` usa una densidad más compacta en labels, inputs, cards y acciones cuando se edita dentro del modal.
+- La vista previa viva se renderiza en modo compacto dentro del popup para que entre mejor sin depender del zoom del navegador.
+- Se reinstalaron dependencias de `frontend/flow-editor` y se recompiló el bundle con Vite hacia `static/flujos/dist`.
+
+**Decisiones o supuestos:**
+- El ajuste se aplicó solo al modo modal para no achicar innecesariamente el panel lateral normal del editor.
+- Se priorizó mejorar proporción y lectura general antes que rediseñar la estructura completa de la pestaña `Pantalla`.
+
+**Pendientes:**
+- Si todavía queda grande en ciertos monitores o escalas DPI, evaluar una segunda iteración con layout en dos columnas para la configuración y una preview colapsable.
+
+## 2026-05-05 - Exponer etapas del flujo activo en detalle de programa
+
+**Tarea:** Hacer visible dentro de Programas la versión publicada del flujo activo, mostrando sus nodos como solapas internas del detalle.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `legajos/interfaces/web/views/programas.py`
+- `legajos/interfaces/templates/legajos/programas/programa_detail.html`
+
+**Cambios realizados:**
+- La vista `ProgramaDetailView` ahora arma un contexto `flujo_activo` desde la versión publicada del programa, ordenando nodos por recorrido y agrupando instancias activas y tareas pendientes por etapa.
+- Se agregó una navegación nueva de etapas en `programa_detail.html`, donde cada solapa sale de los nodos del flujo publicado y muestra tipo, carga operativa y resumen de la etapa.
+- Se dejó el panel operativo legacy debajo de esa capa para no perder derivaciones, acompañamientos, instituciones e indicadores existentes.
+- Se validó con `py_compile` sobre la vista y con carga real de la plantilla vía `manage.py shell` dentro del contenedor `app`.
+
+**Decisiones o supuestos:**
+- Se interpretó “las solapas son los nodos del flujo” como etapas operativas visibles dentro del detalle del programa, sin reemplazar todavía la operatoria histórica.
+- Se excluyó el nodo `inicio` de las solapas porque no representa una etapa útil de trabajo para el operador.
+
+**Pendientes:**
+- Si producto quiere reemplazo total y no convivencia, convertir también el panel operativo legacy en vistas derivadas del flujo o esconderlo cuando exista flujo publicado.
+
+## 2026-05-05 - Corregir SyntaxError en formulario de derivación
+
+**Tarea:** Reparar el `SyntaxError` introducido en el queryset de programas destino del formulario de derivación.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `legajos/interfaces/web/forms/derivacion.py`
+
+**Cambios realizados:**
+- Se envolvió la cadena del queryset en paréntesis para que `.distinct()` no quedara en una línea inválida para Python.
+- Se validó el archivo con `python -m py_compile` dentro del contenedor `app`.
+
+**Decisiones o supuestos:**
+- Se mantuvo intacto el filtro funcional de programas activos con flujo publicado; el ajuste fue puramente sintáctico.
+
+**Pendientes:**
+- Ninguno para este fix puntual.
+
+## 2026-05-05 - Filtrar programas destino por flujo publicado
+
+**Tarea:** Ajustar la derivación de ciudadanos para que el selector de programa destino solo ofrezca destinos activos con flujo publicado.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `legajos/interfaces/web/forms/derivacion.py`
+- `legajos/interfaces/web/templates/legajos/derivar_programa.html`
+
+**Cambios realizados:**
+- El queryset de `institucion_programa` ahora filtra por relación activa, programa activo y existencia de una versión de flujo `PUBLICADA`.
+- Se agregó una ayuda visual en el formulario para aclarar que solo se muestran programas activos con flujo publicado.
+
+**Decisiones o supuestos:**
+- Se tomó `flujo publicado` como criterio operativo para habilitar un programa destino, porque en este circuito el flujo publicado es lo que realmente permite recibir y procesar derivaciones.
+- Se mantuvo la selección por `InstitucionPrograma` para no romper el contrato actual de derivación institución-programa.
+
+**Pendientes:**
+- Si el producto necesita distinguir entre programas activos sin flujo y programas con flujo borrador, sumar estados o badges más explícitos en el selector.
+
+## 2026-05-05 - Mover la configuración de nodos a un modal
+
+**Tarea:** Sacar el panel fijo de configuración del costado del canvas y abrir la edición del nodo o transición en un popup desde un botón contextual.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/App.jsx`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+- `frontend/flow-editor/src/app.css`
+- `static/flujos/dist/*`
+
+**Cambios realizados:**
+- El layout del editor dejó de reservar una tercera columna fija para configuración al costado del canvas.
+- Cuando hay un nodo o transición seleccionado, el toolbar del canvas ahora muestra un botón `Configurar nodo` o `Configurar transición`.
+- La configuración existente se reutiliza dentro de un modal con scroll propio, sin duplicar la lógica del inspector.
+- El modal ahora divide la configuración del nodo por solapas temáticas (`General`, `Operativa`, `Pantalla`, `Automatización`) para bajar el ruido visual cuando el paso tiene mucha configuración.
+- El modal se puede cerrar desde el botón de cierre, tocando el backdrop o con `Escape`.
+- Se recompiló `static/flujos/dist` con Vite y se volvió a limpiar `frontend/flow-editor/node_modules`.
+
+**Decisiones o supuestos:**
+- Se mantuvo el `PropertiesPanel` actual como fuente única de edición para no abrir divergencias entre un inspector lateral y un popup.
+- El pedido se interpretó como sacar la configuración fija del costado del canvas, no como eliminar la capacidad de configurar transiciones.
+
+**Pendientes:**
+- Si hace falta una interacción todavía más directa, sumar un acceso rápido flotante sobre el nodo seleccionado, apertura automática del modal al doble click o tabs secundarias dentro del editor de pantalla.
+
+## 2026-05-05 - Ajustar corrimiento inicial del canvas
+
+**Tarea:** Corregir el encuadre inicial del editor para que el diagrama no quede tan corrido hacia abajo y a la derecha al abrir el flujo.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/App.jsx`
+- `static/flujos/dist/*`
+
+**Cambios realizados:**
+- Se redujo el padding del `fitView` inicial de React Flow para que el diagrama arranque más cerca del origen visible del canvas.
+- Se ajustaron las posiciones por defecto y de fallback de los nodos para evitar que los flujos nuevos o incompletos queden demasiado corridos hacia abajo y a la derecha.
+- Se recompiló `static/flujos/dist` con Vite y se volvió a limpiar `frontend/flow-editor/node_modules`.
+
+**Decisiones o supuestos:**
+- Se atacó primero el encuadre inicial del viewport y los defaults del editor, porque era la corrección más chica y con menos riesgo sobre el resto del configurador.
+- No se reescribieron posiciones ya guardadas en base; este ajuste mejora la apertura del canvas y los nodos creados con defaults del editor.
+
+**Pendientes:**
+- Si todavía aparece corrido en flujos viejos con posiciones persistidas raras, agregar una normalización opcional de coordenadas al cargar la definición.
+
+## 2026-05-05 - Agregar colapso de secciones y campos al inspector
+
+**Tarea:** Reducir el ruido del configurador de pantallas permitiendo colapsar y expandir secciones y campos dentro del inspector React del editor de flujos.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+- `static/flujos/dist/*`
+
+**Cambios realizados:**
+- El inspector ahora mantiene estado local de colapso por nodo, sección y campo sin tocar la definición persistida del flujo.
+- Cada sección muestra un encabezado compacto con cantidad de bloques y acción `Expandir/Colapsar`.
+- Cada campo muestra su etiqueta, tipo y acción `Expandir/Colapsar`, manteniendo visibles las acciones rápidas de mover o duplicar.
+- El inspector ahora suma acciones globales `Expandir todo / Colapsar todo` para abrir o cerrar de una vez todas las secciones y campos del nodo actual.
+- La mejora reduce el ruido visual cuando la pantalla tiene muchas secciones, tablas o bloques de resumen dentro del mismo nodo.
+- Se recompiló `static/flujos/dist` con Vite y se volvió a limpiar `frontend/flow-editor/node_modules`.
+
+**Decisiones o supuestos:**
+- El estado de colapso es puramente local del inspector; no forma parte del contrato `config.ui` ni se guarda en backend.
+- Se priorizó colapso simple sobre drag & drop interno para cerrar un corte chico y usable sin abrir más complejidad de interacción.
+
+**Pendientes:**
+- Si sigue haciendo falta más velocidad de armado, sumar drag & drop interno dentro de una sección o acciones masivas por tipo de bloque.
+
+## 2026-05-05 - Agregar bloque summary al configurador de pantallas
+
+**Tarea:** Extender las pantallas declarativas del creador de flujos con un bloque visual `summary` para mostrar indicadores o tarjetas de contexto dentro de una tarea humana.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `flujos/application/dto.py`
+- `flujos/interfaces/web/forms.py`
+- `flujos/interfaces/templates/flujos/backoffice/tarea_detalle.html`
+- `flujos/tests/test_flow_definition_form.py`
+- `flujos/tests/test_backoffice_tasks.py`
+- `frontend/flow-editor/src/components/PropertiesPanel.jsx`
+- `frontend/flow-editor/src/components/ScreenPreview.jsx`
+- `frontend/flow-editor/src/components/NodePanel.jsx`
+- `frontend/flow-editor/src/utils/validators.js`
+- `static/flujos/dist/*`
+
+**Cambios realizados:**
+- El contrato `config.ui` ahora acepta el bloque declarativo `summary` con `items` y `empty_message`.
+- El renderer web de tareas muestra ese bloque como tarjetas/resumen visual dentro del detalle backoffice.
+- El snapshot runtime reutiliza la interpolación existente, por lo que los placeholders dentro de `summary.items[].value` quedan resueltos al crear la tarea.
+- El inspector React permite crear, editar y borrar items del resumen visual, además de agregarlo rápido desde una sección.
+- La vista previa viva del editor ahora renderiza el bloque `summary` como grilla de métricas/cards.
+- El editor dejó de sugerir bloques de display (`info`, `summary`, `table`) como campos evaluables para condiciones de transición.
+- La plantilla `Pantalla + resumen` del panel de nodos ahora incluye también un bloque `summary` listo para usar.
+- Se ejecutaron los tests focales `flujos.tests.test_flow_definition_form` y `flujos.tests.test_backoffice_tasks` dentro del contenedor `sistemso-app-1`: 50 tests OK.
+- Se recompiló `static/flujos/dist` con Vite y se volvió a limpiar `frontend/flow-editor/node_modules`.
+
+**Decisiones o supuestos:**
+- `summary` se implementó como bloque de display, no como campo capturable; por eso no participa en condiciones ni en payload de respuesta.
+- El resumen visual usa items `label/value` simples para mantener el contrato chico y versionable sin introducir layouts anidados todavía.
+
+**Pendientes:**
+- Si el producto lo necesita, sumar variantes visuales del resumen (`metric`, `card`, badges, tendencia) sin romper este contrato base.
+- Evaluar drag & drop interno o colapso de secciones para seguir mejorando la composición en el inspector.
+
 ## 2026-05-05 - Agregar acciones automáticas al creador de flujos
 
 **Tarea:** Extender el motor y el editor para que el flujo no solo arme pantallas humanas sino también acciones automáticas ejecutables dentro del mismo contrato versionado.
@@ -29,6 +430,14 @@
 - El editor React ahora permite arrastrar, visualizar y configurar acciones email y HTTP desde el mismo panel lateral del canvas.
 - El validador frontend bloquea publicaciones con acciones automáticas incompletas o inconsistentes.
 - Se agregaron tests unitarios para contrato v4 y smokes de runtime para email y HTTP.
+- Se regeneró `static/flujos/dist` con Vite para publicar los cambios del editor y luego se volvió a limpiar `frontend/flow-editor/node_modules`.
+- El inspector de transiciones ahora permite configurar condiciones desde cualquier nodo origen, con sugerencias tipadas para resultados de acciones automáticas y campos runtime del paso anterior.
+- El contrato de pantallas declarativas ahora soporta bloques `info` y `table`, con placeholders resueltos al crear la tarea para mezclar formulario y vista dentro del mismo nodo.
+- La biblioteca del editor suma una plantilla `Pantalla + resumen` para crear más rápido nodos con contexto visible y captura operativa en una sola pantalla.
+- El editor ahora muestra vista previa en vivo de la pantalla, soporta layout de dos columnas y descripciones por sección para acercar el configurador a una experiencia final de armado.
+- Se recompiló `static/flujos/dist` con la preview viva del configurador y luego se volvió a limpiar `frontend/flow-editor/node_modules`.
+- El inspector del configurador ahora permite subir, bajar y duplicar secciones y campos, para componer pantallas operativas sin rehacer bloques manualmente.
+- Cada sección ahora ofrece quick-add de `campo`, `bloque info` y `tabla`, acelerando el armado de pantallas mixtas desde el panel lateral.
 
 **Decisiones o supuestos:**
 - Este corte no implementa todavía scheduler ni delays reales; las acciones automáticas iniciales son sincrónicas y encadenan el flujo en el mismo avance.
@@ -37,7 +446,9 @@
 
 **Pendientes:**
 - Sumar más tipos de acción automática si el producto lo requiere: `delay`, `webhook firmado`, `notificacion interna`, `integraciones específicas`.
-- Mejorar el editor de condiciones para autocompletar resultados de acciones automáticas en vez de escribir los campos manualmente.
+- Agregar un builder visual más fuerte para reglas complejas (`in`, múltiples comparaciones, grupos AND/OR) sin depender de edición manual de JSON o texto.
+- Extender el mismo enfoque a bloques más ricos de pantalla (`summary`, grillas dinámicas, repetidores) para acercarse a tablas y vistas operativas más complejas.
+- Si sigue haciendo falta una experiencia más cerrada de maquetación, sumar drag & drop interno o colapso de secciones dentro del inspector.
 
 ## 2026-05-05 - Llevar config.ui al editor visual de flujos
 

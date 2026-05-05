@@ -46,10 +46,12 @@ class DefinicionFlujoFormTests(SimpleTestCase):
                             "type": "form",
                             "title": "Revision operativa",
                             "description": "Completa la revision inicial.",
+                            "layout": "two_column",
                             "sections": [
                                 {
                                     "id": "principal",
                                     "title": "Datos principales",
+                                    "description": "Captura principal del paso.",
                                     "fields": [
                                         {
                                             "id": "resultado",
@@ -91,7 +93,83 @@ class DefinicionFlujoFormTests(SimpleTestCase):
         self.assertEqual(nodo["actor"], {"mode": "group", "value": "programaOperar"})
         self.assertEqual(nodo["surface"], ["backoffice"])
         self.assertEqual(nodo["config"]["ui"]["type"], "form")
+        self.assertEqual(nodo["config"]["ui"]["layout"], "two_column")
+        self.assertEqual(nodo["config"]["ui"]["sections"][0]["description"], "Captura principal del paso.")
         self.assertEqual(nodo["config"]["ui"]["sections"][0]["fields"][0]["id"], "resultado")
+
+    def test_accepts_schema_v3_action_node_with_info_summary_and_table_blocks(self):
+        definicion = {
+            "schema_version": 3,
+            "nodos": [
+                {"id": "inicio", "tipo": "inicio", "nombre": "Inicio"},
+                {
+                    "id": "revision",
+                    "tipo": "accion_humana",
+                    "nombre": "Revision",
+                    "actor": {"mode": "group", "value": "programaOperar"},
+                    "surface": ["backoffice"],
+                    "config": {
+                        "ui": {
+                            "type": "form",
+                            "title": "Revision operativa",
+                            "description": "Pantalla compuesta.",
+                            "sections": [
+                                {
+                                    "id": "contexto",
+                                    "title": "Contexto",
+                                    "fields": [
+                                        {
+                                            "id": "alerta",
+                                            "kind": "info",
+                                            "label": "Antes de continuar",
+                                            "content": "Verificá la documentación cargada.",
+                                            "tone": "warning",
+                                        },
+                                        {
+                                            "id": "resumen_rapido",
+                                            "kind": "summary",
+                                            "label": "Resumen rápido",
+                                            "items": [
+                                                {"label": "DNI", "value": "30111222"},
+                                                {"label": "Programa", "value": "PROG-001"},
+                                            ],
+                                        },
+                                        {
+                                            "id": "resumen",
+                                            "kind": "table",
+                                            "label": "Resumen del caso",
+                                            "columns": [
+                                                {"key": "campo", "label": "Campo"},
+                                                {"key": "valor", "label": "Valor"},
+                                            ],
+                                            "rows": [
+                                                {"campo": "Programa", "valor": "PROG-001"},
+                                            ],
+                                        },
+                                    ],
+                                }
+                            ],
+                            "submit": {"label": "Guardar y continuar"},
+                        }
+                    },
+                },
+                {"id": "fin", "tipo": "fin", "nombre": "Fin"},
+            ],
+            "transiciones": [
+                {"desde": "inicio", "hasta": "revision", "condicion": None},
+                {"desde": "revision", "hasta": "fin", "condicion": None},
+            ],
+        }
+
+        form = DefinicionFlujoForm({"definicion": definicion}, validation_mode="publish")
+
+        self.assertTrue(form.is_valid(), form.errors)
+        fields = form.cleaned_data["definicion"]["nodos"][1]["config"]["ui"]["sections"][0]["fields"]
+        self.assertEqual(fields[0]["kind"], "info")
+        self.assertEqual(fields[1]["kind"], "summary")
+        self.assertEqual(fields[1]["items"][0]["label"], "DNI")
+        self.assertEqual(fields[2]["kind"], "table")
+        self.assertEqual(fields[2]["columns"][0]["key"], "campo")
 
     def test_rejects_v3_runtime_contract_when_schema_version_is_2(self):
         definicion = {

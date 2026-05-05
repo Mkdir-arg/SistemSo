@@ -32,10 +32,15 @@ const NODE_TYPES = {
   decision: DecisionNode,
 };
 
+const INITIAL_FIT_VIEW_OPTIONS = {
+  padding: 0.035,
+  minZoom: 0.75,
+};
+
 const NODO_INICIO_DEFAULT = {
   id: 'n_inicio',
   type: 'inicio',
-  position: { x: 250, y: 80 },
+  position: { x: 96, y: 56 },
   data: { tipo: 'inicio', label: 'Inicio', descripcion: '' },
 };
 
@@ -78,7 +83,7 @@ function definicionToFlow(definicion) {
     return {
       id: nodo.id,
       type: nodo.tipo,
-      position: position || { x: 100 + i * 200, y: 100 + (i % 2) * 120 },
+      position: position || { x: 96 + i * 220, y: 56 + (i % 2) * 140 },
       data: {
         tipo: nodo.tipo,
         label: nodo.nombre,
@@ -161,6 +166,7 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -245,6 +251,7 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
     setSelectedEdge(null);
+    setIsConfigModalOpen(false);
   }, []);
 
   const onUpdateNode = useCallback((nodeId, patch) => {
@@ -308,11 +315,34 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
   const tieneInicio = nodes.some((n) => n.data?.tipo === 'inicio');
   const { errores, advertencias } = validarFlujo(nodes, edges);
   const puedePublicarAhora = puedePublicar(nodes, edges);
+  const hasSelection = Boolean(selectedNode || selectedEdge);
   const selectionLabel = selectedNode
     ? `Nodo: ${selectedNode.data?.label || selectedNode.data?.tipo || selectedNode.id}`
     : selectedEdge
       ? `Transición: ${selectedEdge.source} -> ${selectedEdge.target}`
       : 'Sin selección';
+  const configButtonLabel = selectedNode ? 'Configurar nodo' : 'Configurar transición';
+
+  useEffect(() => {
+    if (!hasSelection) {
+      setIsConfigModalOpen(false);
+    }
+  }, [hasSelection]);
+
+  useEffect(() => {
+    if (!isConfigModalOpen) {
+      return undefined;
+    }
+
+    const handleWindowKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsConfigModalOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleWindowKeyDown);
+    return () => window.removeEventListener('keydown', handleWindowKeyDown);
+  }, [isConfigModalOpen]);
 
   if (cargando) {
     return (
@@ -395,6 +425,15 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
             <div className="flow-canvas-meta">
               <span className="flow-chip">{selectionLabel}</span>
               <span className="flow-chip">Delete para borrar</span>
+              {hasSelection && (
+                <button
+                  type="button"
+                  className="flow-btn flow-btn--secondary flow-btn--compact"
+                  onClick={() => setIsConfigModalOpen(true)}
+                >
+                  {configButtonLabel}
+                </button>
+              )}
             </div>
           </div>
 
@@ -414,6 +453,7 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
               onPaneClick={onPaneClick}
               nodeTypes={NODE_TYPES}
               fitView
+              fitViewOptions={INITIAL_FIT_VIEW_OPTIONS}
               deleteKeyCode="Delete"
               defaultEdgeOptions={{
                 type: 'smoothstep',
@@ -427,15 +467,48 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
             </ReactFlow>
           </div>
         </section>
-
-        <PropertiesPanel
-          selectedNode={selectedNode}
-          selectedEdge={selectedEdge}
-          nodes={nodes}
-          onUpdateNode={onUpdateNode}
-          onUpdateEdge={onUpdateEdge}
-        />
       </div>
+
+      {isConfigModalOpen && hasSelection && (
+        <div
+          className="flow-config-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="flow-config-modal-title"
+          onClick={() => setIsConfigModalOpen(false)}
+        >
+          <div className="flow-config-modal__dialog" onClick={(event) => event.stopPropagation()}>
+            <div className="flow-config-modal__header">
+              <div>
+                <div className="flow-panel-kicker">Configuración</div>
+                <h4 id="flow-config-modal-title" className="flow-config-modal__title">
+                  {selectedNode
+                    ? (selectedNode.data?.label || selectedNode.data?.tipo || selectedNode.id)
+                    : `${selectedEdge.source} -> ${selectedEdge.target}`}
+                </h4>
+              </div>
+              <button
+                type="button"
+                className="flow-config-modal__close"
+                onClick={() => setIsConfigModalOpen(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div className="flow-config-modal__body">
+              <PropertiesPanel
+                selectedNode={selectedNode}
+                selectedEdge={selectedEdge}
+                nodes={nodes}
+                onUpdateNode={onUpdateNode}
+                onUpdateEdge={onUpdateEdge}
+                presentation="modal"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

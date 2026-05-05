@@ -45,15 +45,25 @@ class DerivarProgramaForm(forms.ModelForm):
         allow_inscripcion_directa = kwargs.pop('allow_inscripcion_directa', False)
         super().__init__(*args, **kwargs)
 
-        # Destino: InstitucionPrograma activos
-        self.fields['institucion_programa'].queryset = InstitucionPrograma.objects.filter(
-            activo=True,
-            estado_programa='ACTIVO',
-        ).select_related('institucion', 'programa').order_by('programa__orden', 'institucion__nombre')
+        # Destino: solo programas activos con flujo publicado y habilitados en una institucion
+        self.fields['institucion_programa'].queryset = (
+            InstitucionPrograma.objects.filter(
+                activo=True,
+                estado_programa='ACTIVO',
+                programa__estado=Programa.Estado.ACTIVO,
+                programa__flujo__versiones__estado='PUBLICADA',
+            )
+            .select_related('institucion', 'programa')
+            .order_by('programa__orden', 'institucion__nombre')
+            .distinct()
+        )
         self.fields['institucion_programa'].label_from_instance = lambda obj: (
             f"{obj.programa.nombre} — {obj.institucion.nombre}"
         )
         self.fields['institucion_programa'].empty_label = 'Seleccionar programa destino...'
+        self.fields['institucion_programa'].help_text = (
+            'Solo se muestran programas activos con flujo publicado.'
+        )
 
         # Origen: programas activos del ciudadano
         if ciudadano:

@@ -29,6 +29,9 @@
                         Programa destino *
                     </label>
                     {{ form.institucion_programa }}
+                    {% if form.institucion_programa.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.institucion_programa.help_text }}</p>
+                    {% endif %}
                     {% if form.institucion_programa.errors %}
                     <p class="mt-1 text-sm text-red-600">{{ form.institucion_programa.errors.0 }}</p>
                     {% endif %}

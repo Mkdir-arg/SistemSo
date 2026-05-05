@@ -10,8 +10,10 @@ from django.utils import timezone
 
 from flujos.infrastructure.runtime_actions import (
     SUPPORTED_AUTOMATED_NODE_TYPES,
+    build_flow_template_context,
     execute_automatic_node,
     merge_flow_context_data,
+    render_flow_template_value,
     resolve_flow_context_path,
 )
 
@@ -303,6 +305,12 @@ class FlowRuntime:
     @staticmethod
     def _crear_tarea_accion_humana(instancia: InstanciaFlujo, nodo: dict) -> TareaFlujo:
         config = nodo.get('config') or {}
+        ui_schema = None
+        if config.get('ui') is not None:
+            ui_schema = render_flow_template_value(
+                config.get('ui'),
+                build_flow_template_context(instancia),
+            )
         return TareaFlujo.objects.create(
             instancia=instancia,
             nodo_id=nodo['id'],
@@ -316,7 +324,7 @@ class FlowRuntime:
                 },
                 'actor': deepcopy(nodo.get('actor')) if nodo.get('actor') is not None else None,
                 'surface': deepcopy(nodo.get('surface')) if nodo.get('surface') is not None else None,
-                'ui_schema': deepcopy(config.get('ui')) if config.get('ui') is not None else None,
+                'ui_schema': ui_schema,
                 'tipo': nodo.get('tipo'),
                 'config': deepcopy(config),
             },

@@ -245,25 +245,105 @@
                     </div>
                     {% endif %}
 
+                    <div class="row g-3">
                     {% for section in form.sections %}
-                    <div class="mb-4">
+                    <div class="{% if resolution_schema.layout == 'two_column' %}col-xl-6{% else %}col-12{% endif %}">
+                    <div class="border rounded p-3 h-100 bg-white">
                         {% if section.title %}
                         <div class="text-muted small text-uppercase mb-2">{{ section.title }}</div>
                         {% endif %}
-                        {% for field in section.bound_fields %}
+                        {% if section.description %}
+                        <div class="text-muted small mb-3">{{ section.description }}</div>
+                        {% endif %}
+                        {% for item in section.items %}
+                        {% if item.type == 'field' %}
                         <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                            <label for="{{ item.bound_field.id_for_label }}" class="form-label">{{ item.bound_field.label }}</label>
+                            {{ item.bound_field }}
+                            {% if item.bound_field.errors %}
+                            <div class="text-danger small mt-1">{{ item.bound_field.errors|join:", " }}</div>
                             {% endif %}
-                            {% if field.help_text %}
-                            <div class="form-text">{{ field.help_text }}</div>
+                            {% if item.bound_field.help_text %}
+                            <div class="form-text">{{ item.bound_field.help_text }}</div>
                             {% endif %}
                         </div>
+                        {% elif item.display_kind == 'info' %}
+                        <div class="alert alert-{{ item.alert_class }} mb-3">
+                            <div class="fw-semibold mb-1">{{ item.schema.label }}</div>
+                            <div>{{ item.schema.content|linebreaksbr }}</div>
+                        </div>
+                        {% elif item.display_kind == 'summary' %}
+                        <div class="mb-3">
+                            <div class="fw-semibold mb-2">{{ item.schema.label }}</div>
+                            {% if item.items %}
+                            <div class="row g-2">
+                                {% for summary_item in item.items %}
+                                <div class="col-sm-6 col-xl-4">
+                                    <div class="border rounded p-3 h-100 bg-light">
+                                        <div class="text-muted small text-uppercase mb-1">{{ summary_item.label }}</div>
+                                        <div class="fw-semibold">
+                                            {% if summary_item.value == False %}
+                                            false
+                                            {% elif summary_item.value == True %}
+                                            true
+                                            {% elif summary_item.value == '' %}
+                                            -
+                                            {% else %}
+                                            {{ summary_item.value }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="border rounded px-3 py-3 bg-light text-muted small">{{ item.empty_message }}</div>
+                            {% endif %}
+                        </div>
+                        {% elif item.display_kind == 'table' %}
+                        <div class="mb-3">
+                            <div class="fw-semibold mb-2">{{ item.schema.label }}</div>
+                            {% if item.rows %}
+                            <div class="table-responsive border rounded">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            {% for column in item.columns %}
+                                            <th>{{ column.label }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in item.rows %}
+                                        <tr>
+                                            {% for cell in row.cells %}
+                                            <td>
+                                                {% if cell.value == False %}
+                                                false
+                                                {% elif cell.value == True %}
+                                                true
+                                                {% elif cell.value == '' %}
+                                                -
+                                                {% else %}
+                                                {{ cell.value }}
+                                                {% endif %}
+                                            </td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="border rounded px-3 py-3 bg-light text-muted small">{{ item.empty_message }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                         {% endfor %}
                     </div>
+                    </div>
                     {% endfor %}
+                    </div>
 
                     <div class="alert alert-info d-flex align-items-start gap-2">
                         <i class="fas fa-circle-info mt-1"></i>

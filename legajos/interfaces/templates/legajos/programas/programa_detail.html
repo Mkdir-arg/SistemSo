@@ -64,26 +64,41 @@
         </div>
     </div>
 
-    <!-- Tabs de Navegación -->
+    <!-- Panel Operativo -->
     <div class="bg-white rounded-xl shadow-lg mb-8">
+        <div class="px-6 py-4 border-b border-[#E5E7EB] bg-[#FCFCFD]">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-[#252F40]">Panel operativo del programa</h3>
+                    <p class="text-sm text-[#6B7280] mt-1">Dashboard, etapas configuradas del flujo publicado e indicadores históricos del programa.</p>
+                </div>
+                {% if flujo_activo %}
+                <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center rounded-full bg-white px-3 py-1.5 text-sm font-medium text-[#252F40] border border-[#DBEAFE]">
+                        <i class="fas fa-diagram-project text-blue-600 mr-2"></i>v{{ flujo_activo.version }} publicada
+                    </span>
+                    <span class="inline-flex items-center rounded-full bg-white px-3 py-1.5 text-sm font-medium text-[#252F40] border border-[#DBEAFE]">
+                        <i class="fas fa-play-circle text-green-600 mr-2"></i>{{ flujo_activo.active_instances }} instancias activas
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px overflow-x-auto">
                 <button onclick="cambiarTab('dashboard')" data-tab="dashboard" class="tab-button border-b-2 border-blue-500 text-blue-600 py-4 px-6 font-medium whitespace-nowrap flex items-center">
                     <i class="fas fa-chart-bar mr-2"></i>Dashboard
                 </button>
-                <button onclick="cambiarTab('derivaciones')" data-tab="derivaciones" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
-                    <i class="fas fa-inbox mr-2"></i>Derivaciones
-                    {% if total_derivaciones_pendientes > 0 %}
-                    <span class="ml-2 badge-nodo badge-sm badge-warning">{{ total_derivaciones_pendientes }}</span>
+                {% if flujo_activo %}
+                {% for stage in flujo_activo.stages %}
+                <button onclick="cambiarTab('flow-{{ stage.tab_id }}')" data-tab="flow-{{ stage.tab_id }}" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
+                    <i class="fas fa-{{ stage.icon }} mr-2"></i>{{ stage.nombre }}
+                    {% if stage.pending_tasks > 0 %}
+                    <span class="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">{{ stage.pending_tasks }}</span>
                     {% endif %}
                 </button>
-                <button onclick="cambiarTab('acompanamientos')" data-tab="acompanamientos" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
-                    <i class="fas fa-hands-helping mr-2"></i>Acompañamientos
-                    <span class="ml-2 badge-nodo badge-sm badge-success">{{ total_acompanamientos_activos }}</span>
-                </button>
-                <button onclick="cambiarTab('instituciones')" data-tab="instituciones" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
-                    <i class="fas fa-building mr-2"></i>Instituciones
-                </button>
+                {% endfor %}
+                {% endif %}
                 <button onclick="cambiarTab('indicadores')" data-tab="indicadores" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center">
                     <i class="fas fa-chart-pie mr-2"></i>Indicadores
                 </button>
@@ -232,241 +247,80 @@
         </div>
     </div>
 
-    <!-- Tab: Derivaciones -->
-    <div id="tab-derivaciones" class="tab-content hidden">
-        <div class="space-y-6">
-            
-            <!-- Derivaciones de Ciudadanos -->
-            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-bold text-[#252F40]">Derivaciones de Ciudadanos</h3>
-                    <div class="flex gap-2">
-                        <span class="badge-nodo badge-sm badge-warning">{{ stats_ciudadanos.pendientes }} Pendientes</span>
-                        <span class="badge-nodo badge-sm badge-success">{{ stats_ciudadanos.aceptadas }} Aceptadas</span>
-                        <span class="badge-nodo badge-sm badge-danger">{{ stats_ciudadanos.rechazadas }} Rechazadas</span>
-                    </div>
+    {% if flujo_activo %}
+    {% for stage in flujo_activo.stages %}
+    <div id="tab-flow-{{ stage.tab_id }}" class="tab-content hidden">
+        <div class="p-6 space-y-6 bg-white rounded-xl shadow-sm border border-[#E5E7EB]">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div class="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[#8C8C8C] mb-2">Tipo</p>
+                    <p class="text-lg font-semibold text-[#252F40]">{{ stage.tipo_label }}</p>
                 </div>
-                
-                {% if derivaciones_ciudadanos %}
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Origen</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Urgencia</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Fecha</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-[#E5E7EB]">
-                            {% for derivacion in derivaciones_ciudadanos %}
-                            <tr class="hover:bg-[#F9FAFB]">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
-                                    <a href="{% url 'legajos:ciudadano_detalle' derivacion.ciudadano.pk %}" class="text-blue-600 hover:underline">
-                                        {{ derivacion.ciudadano.nombre_completo }}
-                                    </a>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.programa_origen.nombre|default:"Espontáneo" }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="badge-nodo badge-sm {% if derivacion.estado == 'PENDIENTE' %}badge-warning{% elif derivacion.estado == 'ACEPTADA' %}badge-success{% else %}badge-danger{% endif %}">
-                                        {{ derivacion.get_estado_display }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="badge-nodo badge-sm {% if derivacion.urgencia == 'ALTA' %}badge-danger{% elif derivacion.urgencia == 'MEDIA' %}badge-warning{% else %}badge-gray{% endif %}">
-                                        {{ derivacion.get_urgencia_display }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ derivacion.creado|date:"d/m/Y H:i" }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    {% if derivacion.estado == 'PENDIENTE' %}
-                                    <form method="post" action="{% url 'legajos:derivacion_ciudadano_aceptar' derivacion.pk %}" class="inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="text-green-600 hover:underline mr-2">Aceptar</button>
-                                    </form>
-                                    <a href="{% url 'legajos:derivacion_ciudadano_rechazar' derivacion.pk %}" class="text-red-600 hover:underline">Rechazar</a>
-                                    {% elif derivacion.inscripcion_creada and derivacion.inscripcion_creada.legajo_id %}
-                                    <a href="{% url 'legajos:detalle' derivacion.inscripcion_creada.legajo_id %}" class="text-blue-600 hover:underline">
-                                        <i class="fas fa-folder-open mr-1"></i>Ver Legajo
-                                    </a>
-                                    {% else %}
-                                    -
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[#8C8C8C] mb-2">Instancias en etapa</p>
+                    <p class="text-3xl font-bold text-[#252F40]">{{ stage.active_instances }}</p>
                 </div>
-                {% else %}
-                <p class="text-gray-500 text-center py-8">No hay derivaciones de ciudadanos</p>
-                {% endif %}
+                <div class="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[#8C8C8C] mb-2">Tareas pendientes</p>
+                    <p class="text-3xl font-bold text-[#252F40]">{{ stage.pending_tasks }}</p>
+                </div>
+                <div class="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[#8C8C8C] mb-2">Salidas configuradas</p>
+                    <p class="text-3xl font-bold text-[#252F40]">{{ stage.transitions_count }}</p>
+                </div>
             </div>
-            
-            <!-- Derivaciones Institucionales -->
-            <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
-                <h3 class="text-2xl font-bold text-[#252F40] mb-6">Derivaciones a Instituciones</h3>
-                
-                {% if derivaciones_institucionales %}
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Institución</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Urgencia</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-[#E5E7EB]">
-                            {% for derivacion in derivaciones_institucionales %}
-                            <tr class="hover:bg-[#F9FAFB]">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.ciudadano.nombre_completo }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">{{ derivacion.institucion.nombre }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="badge-nodo badge-sm {% if derivacion.estado == 'PENDIENTE' %}badge-warning{% elif derivacion.estado == 'ACEPTADA' %}badge-success{% else %}badge-danger{% endif %}">
-                                        {{ derivacion.get_estado_display }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="badge-nodo badge-sm {% if derivacion.urgencia == 'ALTA' %}badge-danger{% elif derivacion.urgencia == 'MEDIA' %}badge-warning{% else %}badge-gray{% endif %}">
-                                        {{ derivacion.get_urgencia_display }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ derivacion.creado|date:"d/m/Y H:i" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="text-gray-500 text-center py-8">No hay derivaciones institucionales</p>
-                {% endif %}
-            </div>
-            
-        </div>
-    </div>
 
-    <!-- Tab: Acompañamientos -->
-    <div id="tab-acompanamientos" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-[#252F40]">Acompañamientos Activos</h3>
-                <div class="flex gap-2">
-                    <span class="badge-nodo badge-sm badge-success">{{ stats_acompanamientos.activos }} Activos</span>
-                    <span class="badge-nodo badge-sm badge-warning">{{ stats_acompanamientos.seguimiento }} En Seguimiento</span>
-                    <span class="badge-nodo badge-sm badge-gray">{{ stats_acompanamientos.cerrados }} Cerrados</span>
-                    {% if stats_acompanamientos.bajas %}<span class="badge-nodo badge-sm badge-danger">{{ stats_acompanamientos.bajas }} Bajas</span>{% endif %}
-                </div>
-            </div>
-            
-            {% if acompanamientos %}
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Código</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Ciudadano</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Institución</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Estado</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Responsable</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Inscripción</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#374151] uppercase">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[#E5E7EB]">
-                        {% for acomp in acompanamientos %}
-                        <tr class="hover:bg-[#F9FAFB]">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#252F40]">{{ acomp.codigo }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#252F40]">
-                                <a href="{% url 'legajos:ciudadano_detalle' acomp.ciudadano.pk %}" class="text-blue-600 hover:underline">
-                                    {{ acomp.ciudadano.nombre_completo }}
-                                </a>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ acomp.institucion_nombre|default:"-" }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="badge-nodo badge-sm {% if acomp.estado == 'ACTIVO' %}badge-success{% elif acomp.estado == 'EN_SEGUIMIENTO' %}badge-warning{% elif acomp.estado == 'DADO_DE_BAJA' %}badge-danger{% else %}badge-gray{% endif %}">
-                                    {{ acomp.get_estado_display }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ acomp.responsable.get_full_name|default:"-" }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8C8C8C]">{{ acomp.fecha_inscripcion|date:"d/m/Y" }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <div class="flex items-center gap-3">
-                                    {% if acomp.legajo_id %}
-                                    <a href="{% url 'legajos:detalle' acomp.legajo_id %}" class="text-blue-600 hover:underline">
-                                        <i class="fas fa-folder-open mr-1"></i>Ver Detalle
-                                    </a>
-                                    {% else %}
-                                    <a href="{% url 'legajos:crear_legajo_acompanamiento' acomp.id %}" class="text-green-600 hover:underline">
-                                        <i class="fas fa-plus mr-1"></i>Crear Acompañamiento
-                                    </a>
-                                    {% endif %}
-                                    {% if acomp.estado == 'ACTIVO' or acomp.estado == 'EN_SEGUIMIENTO' or acomp.estado == 'PENDIENTE' %}
-                                    <button type="button"
-                                        onclick="confirmarBaja({{ acomp.id }}, '{{ acomp.ciudadano.nombre_completo|escapejs }}')"
-                                        class="text-red-600 hover:underline text-sm">
-                                        <i class="fas fa-user-times mr-1"></i>Dar de Baja
-                                    </button>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
+            <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6">
+                <div class="rounded-2xl border border-[#E5E7EB] p-6 bg-white">
+                    <div class="flex items-center justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-2">Etapa del flujo publicado</p>
+                            <h4 class="text-2xl font-bold text-[#252F40]">{{ stage.nombre }}</h4>
+                        </div>
+                        <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+                            <i class="fas fa-{{ stage.icon }} mr-2"></i>{{ stage.tipo_label }}
+                        </span>
+                    </div>
+
+                    {% if stage.descripcion %}
+                    <p class="text-sm leading-6 text-[#4B5563] mb-4">{{ stage.descripcion }}</p>
+                    {% else %}
+                    <p class="text-sm leading-6 text-[#6B7280] mb-4">Esta solapa se arma desde la definición publicada del flujo y resume cómo opera esta etapa dentro del programa.</p>
+                    {% endif %}
+
+                    {% if stage.highlights %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% for highlight in stage.highlights %}
+                        <div class="rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] px-4 py-3 text-sm text-[#374151]">
+                            <i class="fas fa-check text-green-600 mr-2"></i>{{ highlight }}
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <p class="text-gray-500 text-center py-8">No hay acompañamientos registrados</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Tab: Instituciones -->
-    <div id="tab-instituciones" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-8">
-            <h3 class="text-2xl font-bold text-[#252F40] mb-6">Instituciones Participantes</h3>
-            
-            {% if instituciones %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for ip in instituciones %}
-                <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 hover:shadow-lg transition-all">
-                    <h4 class="text-lg font-semibold text-[#252F40] mb-2">{{ ip.institucion.nombre }}</h4>
-                    <p class="text-sm text-[#8C8C8C] mb-4">{{ ip.institucion.get_tipo_display }}</p>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-xs text-[#8C8C8C]">Casos Activos</p>
-                            <p class="text-xl font-bold text-[#10B981]">{{ ip.casos_activos }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-[#8C8C8C]">Pendientes</p>
-                            <p class="text-xl font-bold text-[#F59E0B]">{{ ip.derivaciones_pendientes }}</p>
-                        </div>
-                    </div>
-                    
-                    {% if ip.cupo_maximo %}
-                    <div class="mt-4 pt-4 border-t border-[#E5E7EB]">
-                        <p class="text-xs text-[#8C8C8C] mb-1">Cupo</p>
-                        <div class="flex items-center space-x-2">
-                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ ip.casos_activos|floatformat:0 }}%"></div>
-                            </div>
-                            <span class="text-xs font-medium">{{ ip.casos_activos }}/{{ ip.cupo_maximo }}</span>
-                        </div>
                     </div>
                     {% endif %}
                 </div>
-                {% endfor %}
+
+                <div class="rounded-2xl border border-[#E5E7EB] p-6 bg-[#FCFCFD]">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[#8C8C8C] mb-3">Lectura operativa</p>
+                    <div class="space-y-3 text-sm text-[#4B5563]">
+                        <div class="flex items-start justify-between gap-4 border-b border-[#E5E7EB] pb-3">
+                            <span>Casos que hoy están acá</span>
+                            <strong class="text-[#252F40]">{{ stage.active_instances }}</strong>
+                        </div>
+                        <div class="flex items-start justify-between gap-4 border-b border-[#E5E7EB] pb-3">
+                            <span>Trabajo pendiente en bandeja</span>
+                            <strong class="text-[#252F40]">{{ stage.pending_tasks }}</strong>
+                        </div>
+                        <div class="flex items-start justify-between gap-4">
+                            <span>Próximas transiciones posibles</span>
+                            <strong class="text-[#252F40]">{{ stage.transitions_count }}</strong>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {% else %}
-            <p class="text-gray-500 text-center py-8">No hay instituciones habilitadas</p>
-            {% endif %}
         </div>
     </div>
+    {% endfor %}
+    {% endif %}
 
     <!-- Tab: Indicadores -->
     <div id="tab-indicadores" class="tab-content hidden">

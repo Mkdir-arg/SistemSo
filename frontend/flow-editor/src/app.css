@@ -148,6 +148,11 @@
   color: #ffffff;
 }
 
+.flow-btn--compact {
+  padding: 0.58rem 0.85rem;
+  font-size: 0.78rem;
+}
+
 .flow-toast {
   position: fixed;
   top: 1rem;
@@ -177,7 +182,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 255px minmax(0, 1fr) 360px;
+  grid-template-columns: 255px minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -315,8 +320,82 @@
   overflow-y: auto;
 }
 
+.flow-modal-panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .flow-properties {
   padding: 1rem 1rem 1.35rem;
+}
+
+.flow-properties--modal {
+  flex: 1 1 auto;
+  padding: 0.78rem 0.9rem 1rem;
+}
+
+.flow-config-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+.flow-config-modal__dialog {
+  width: min(1280px, calc(100vw - 1.5rem));
+  height: min(920px, calc(100vh - 1.5rem));
+  max-height: calc(100vh - 1.5rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 36px 80px -42px rgba(15, 23, 42, 0.72);
+}
+
+.flow-config-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(255, 255, 255, 0.96) 100%);
+}
+
+.flow-config-modal__title {
+  margin: 0.2rem 0 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.flow-config-modal__close {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+}
+
+.flow-config-modal__body {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .flow-empty-panel {
@@ -437,7 +516,7 @@
 
 @media (max-width: 1200px) {
   .flow-body {
-    grid-template-columns: 220px minmax(0, 1fr) 320px;
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 }
 
@@ -449,16 +528,29 @@
 
   .flow-body {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
-  .flow-node-panel,
-  .flow-side-panel {
+  .flow-node-panel {
     border: none;
     border-bottom: 1px solid rgba(203, 213, 225, 0.95);
   }
 
-  .flow-side-panel {
-    border-top: 1px solid rgba(203, 213, 225, 0.95);
+  .flow-config-modal {
+    padding: 0.75rem;
+  }
+
+  .flow-config-modal__dialog {
+    width: 100%;
+    height: calc(100vh - 1.5rem);
+    max-height: calc(100vh - 1.5rem);
+  }
+
+  .flow-config-modal__header {
+    flex-direction: column;
+  }
+
+  .flow-config-modal__close {
+    align-self: stretch;
   }
 }
