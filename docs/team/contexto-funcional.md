@@ -3,7 +3,7 @@
 > **Regla:** El Analista Funcional lee este documento ANTES de escribir cualquier user story.
 > **Regla:** El Documentador actualiza este documento al cierre de cada Fase 5.
 
-> Última actualización: 2026-04-03 (sesión 9 — DX-059 stack local docker)
+> Última actualización: 2026-05-01 (sesión 12 — flujos operativos tipados)
 
 
 ---
@@ -343,8 +343,11 @@ Hay dos caminos para que un ciudadano ingrese a un programa. Son la **misma acci
 
 #### Flujos de programas
 - El flujo define completamente el comportamiento del programa: pasos, formularios, evaluaciones, tareas territoriales, roles por paso
+- Los nodos `accion_humana` generan tareas operativas reales para el backoffice y no quedan solo como logging
+- El contrato actual del formulario por paso se define en `config.formulario` del nodo y hoy soporta `boolean_decision`, `text_input` y `choice_select`
+- Publicar una nueva versión del flujo no interrumpe las instancias activas: las existentes siguen en su versión y las nuevas toman la versión publicada
 - Las **tareas territoriales** son un tipo de nodo dentro del flujo (formulario que se completa en app móvil y vuelve vinculado al ciudadano/caso)
-- El motor de flujos se adapta del sistema NODO (backend Django, editor visual React — pendiente de implementación)
+- El motor de flujos se adapta del sistema NODO (backend Django, editor visual React) y ya tiene superficie operativa básica en backoffice
 
 ### Roles y permisos del sistema
 
@@ -760,3 +763,18 @@ El portal es la superficie pública para el ciudadano. Está completamente separ
 - Se retiraron entrypoints top-level de `views`, `forms`, `services`, `selectors`, `signals`, `api_views`, `serializers`, `templates`, `static` y realtime.
 - Se agregaron tests de arquitectura para bloquear regresiones de layout, imports legacy y tests de fachadas antiguas.
 - Los loaders de templates/static ahora contemplan `*/interfaces/templates` y `*/interfaces/static`.
+
+## Actualizacion 2026-05-01 - flujos operativos tipados
+
+### Regla confirmada
+
+- Un paso `accion_humana` del flujo genera una tarea operativa real y trazable en backoffice.
+- La captura de datos de un paso humano ya no depende solo de JSON libre: el contrato vive en `config.formulario` del nodo.
+- Publicar una nueva versión del flujo no mueve casos en curso de versión; la convivencia entre versiones es intencional.
+
+### Sesion 12
+
+- Se materializo `TareaFlujo` como unidad operativa del runtime para pasos humanos.
+- Se agrego bandeja web, detalle de tarea, asignacion/reasignacion y resolucion por API JSON para operar el flujo.
+- Se incorporaron formularios tipados `boolean_decision`, `text_input` y `choice_select` con validacion de contrato en backend.
+- El editor React paso a configurar visualmente `config.formulario` y a validar ese contrato antes de publicar.

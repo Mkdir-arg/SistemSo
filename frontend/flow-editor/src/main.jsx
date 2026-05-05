@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+import './app.css';
 import 'reactflow/dist/style.css';
 
 const rootEl = document.getElementById('flow-editor-root');

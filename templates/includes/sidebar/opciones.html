@@ -3,6 +3,7 @@
     {% module_active "conversaciones" as conversaciones_active %}
     {% module_active "chatbot" as chatbot_active %}
     {% module_active "tramites" as tramites_active %}
+    {% module_active "flujos" as flujos_active %}
     <style>
         .sidebar-nav .text-\[\#FF0080\] {
             color: var(--nav-active-color) !important;
@@ -140,6 +141,39 @@
                     </a>
                 </template>
             </div>
+
+            <!-- Flujos -->
+            {% if flujos_active %}
+                {% if request.user.is_superuser or request.user|has_group:"programaConfigurar" or request.user|has_group:"programaOperar" %}
+                    <div x-data="{ open: {% if 'tareas/' in pagina_actual or 'flujo/' in pagina_actual %}true{% else %}false{% endif %} }" class="relative">
+                        <template x-if="!sidebarCollapsed">
+                            <div>
+                                <button @click="open = !open" class="text-[#4A5565] hover:bg-[#F9FAFB] group flex w-full items-center gap-x-3 rounded-xl p-3 text-left text-sm font-semibold transition-all">
+                                    <i class="fas fa-project-diagram text-base"></i>
+                                    <span class="flex-1">Flujos</span>
+                                    <i class="fas fa-chevron-down text-xs transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                                </button>
+                                <div x-show="open" x-transition class="mt-1 ml-6 space-y-1">
+                                    <a href="{% url 'flujos_editor:bandeja_tareas' %}" class="{% if 'tareas/' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                        <i class="fas fa-list-check mr-2 text-xs {% if 'tareas/' in pagina_actual %}text-[#FF0080]{% endif %}"></i>Bandeja de tareas
+                                    </a>
+                                    {% if request.user.is_superuser or request.user|has_group:"programaConfigurar" %}
+                                        <a href="{% url 'configuracion:programas' %}" class="{% if pagina_actual == 'programas/' %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] font-semibold{% else %}text-[#8C8C8C] hover:bg-[#F9FAFB] hover:text-[#4A5565]{% endif %} block rounded-xl py-2 px-3 text-sm transition-colors">
+                                            <i class="fas fa-pen-ruler mr-2 text-xs {% if pagina_actual == 'programas/' %}text-[#FF0080]{% endif %}"></i>Editor por programa
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </template>
+
+                        <template x-if="sidebarCollapsed">
+                            <a href="{% url 'flujos_editor:bandeja_tareas' %}" class="{% if 'tareas/' in pagina_actual or 'flujo/' in pagina_actual %}bg-[#F9FAFB] text-[#FF0080] shadow-[0_4px_8px_0_rgba(0,0,0,0.1)] rounded-xl{% else %}text-[#4A5565] hover:bg-[#F9FAFB] rounded-xl{% endif %} group flex items-center justify-center p-3 text-sm font-semibold transition-all">
+                                <i class="fas fa-project-diagram text-base {% if 'tareas/' in pagina_actual or 'flujo/' in pagina_actual %}text-[#FF0080]{% endif %}"></i>
+                            </a>
+                        </template>
+                    </div>
+                {% endif %}
+            {% endif %}
 
             <!-- Relevamientos -->
             <div class="relative">

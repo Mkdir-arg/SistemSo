@@ -235,3 +235,84 @@ class InstanciaLog(models.Model):
 
     def __str__(self):
         return f'Log {self.pk}: {self.nodo_desde} → {self.nodo_hasta}'
+
+
+class TareaFlujo(models.Model):
+    """
+    Trabajo pendiente materializado para nodos de accion humana.
+    Sirve como base de bandeja operativa del runtime.
+    """
+
+    class Estado(models.TextChoices):
+        PENDIENTE = 'PENDIENTE', 'Pendiente'
+        RESUELTA = 'RESUELTA', 'Resuelta'
+        CANCELADA = 'CANCELADA', 'Cancelada'
+
+    instancia = models.ForeignKey(
+        InstanciaFlujo,
+        on_delete=models.CASCADE,
+        related_name='tareas',
+        verbose_name='Instancia',
+    )
+    nodo_id = models.CharField(
+        max_length=255,
+        db_index=True,
+        verbose_name='Nodo',
+    )
+    nombre = models.CharField(
+        max_length=255,
+        verbose_name='Nombre',
+    )
+    descripcion = models.TextField(
+        blank=True,
+        verbose_name='Descripción',
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=Estado.choices,
+        default=Estado.PENDIENTE,
+        db_index=True,
+        verbose_name='Estado',
+    )
+    asignado_a = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tareas_flujo_asignadas',
+        verbose_name='Asignado a',
+    )
+    resuelto_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tareas_flujo_resueltas',
+        verbose_name='Resuelto por',
+    )
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Fecha de creación',
+    )
+    fecha_resolucion = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Fecha de resolución',
+    )
+    datos = models.JSONField(
+        default=dict,
+        verbose_name='Datos',
+        help_text='Snapshot mínimo del nodo y metadata operativa.',
+    )
+
+    class Meta:
+        verbose_name = 'Tarea de flujo'
+        verbose_name_plural = 'Tareas de flujo'
+        ordering = ['-fecha_creacion']
+        indexes = [
+            models.Index(fields=['instancia', 'estado'], name='ix_tareaflujo_inst_estado'),
+            models.Index(fields=['estado', 'asignado_a'], name='ix_tareaflujo_estado_asig'),
+        ]
+
+    def __str__(self):
+        return f'Tarea {self.pk}: {self.nombre} ({self.estado})'

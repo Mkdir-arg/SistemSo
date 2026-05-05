@@ -18,11 +18,19 @@ def cancelar_instancia_inscripcion(*, inscripcion, usuario, motivo):
     if instancia.estado != "ACTIVA":
         return instancia
 
-    from flujos.models import InstanciaLog
+    from flujos.models import InstanciaLog, TareaFlujo
 
     instancia.estado = "CANCELADA"
     instancia.fecha_cierre = timezone.now()
     instancia.save(update_fields=["estado", "fecha_cierre"])
+    TareaFlujo.objects.filter(
+        instancia=instancia,
+        estado=TareaFlujo.Estado.PENDIENTE,
+    ).update(
+        estado=TareaFlujo.Estado.CANCELADA,
+        fecha_resolucion=timezone.now(),
+        resuelto_por=usuario,
+    )
     InstanciaLog.objects.create(
         instancia=instancia,
         nodo_desde=instancia.nodo_actual,

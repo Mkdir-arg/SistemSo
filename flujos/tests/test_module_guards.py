@@ -25,12 +25,34 @@ class FlujosModuleGuardsTests(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertContains(response, "Flujos", status_code=403)
 
+    def test_bandeja_returns_403_when_module_is_disabled(self):
+        ModuleState.objects.filter(slug="flujos").update(is_enabled=False)
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("flujos_editor:bandeja_tareas"))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "Flujos", status_code=403)
+
     def test_api_returns_json_when_module_is_disabled(self):
         ModuleState.objects.filter(slug="flujos").update(is_enabled=False)
         self.client.force_login(self.user)
 
         response = self.client.get(
             reverse("flujos:api_definicion", args=[1]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            HTTP_ACCEPT="application/json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()["code"], "module_inactive")
+
+    def test_api_tarea_detalle_returns_json_when_module_is_disabled(self):
+        ModuleState.objects.filter(slug="flujos").update(is_enabled=False)
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse("flujos:api_tarea_detalle", args=[1]),
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
             HTTP_ACCEPT="application/json",
         )

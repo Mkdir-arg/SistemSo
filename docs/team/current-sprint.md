@@ -84,6 +84,7 @@ _Se define en el sprint planning._
 - DX-060 completado el 2026-04-23: monolito modular activable con `system_modules`, shells resilientes y piloto hexagonal en `turnos`.
 - DX-061 completado el 2026-04-24: layout hexagonal literal en todos los modulos declarados, URLConfs canonicas y tests de arquitectura.
 - DX-062 completado el 2026-04-27: maxima literalidad fisica; adapters top-level retirados y superficies movidas a `interfaces/` o `infrastructure/`.
+- 2026-05-01: `flujos` paso a operatoria real con `TareaFlujo`, bandeja/API de tareas, formularios tipados y editor visual capaz de configurar `config.formulario`.
 
 ## Impedimentos
 

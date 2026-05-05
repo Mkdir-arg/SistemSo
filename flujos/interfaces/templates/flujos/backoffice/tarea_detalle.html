@@ -1,0 +1,331 @@
+{% extends "includes/main.html" %}
+
+{% block title %}Tarea de flujo #{{ tarea.pk }}{% endblock %}
+
+{% block titulo-pagina-content %}Tarea de flujo #{{ tarea.pk }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'flujos_editor:bandeja_tareas' %}">Tareas de flujo</a></li>
+<li class="breadcrumb-item active">Detalle</li>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card card-outline card-primary h-100">
+            <div class="card-header"><h3 class="card-title">Programa</h3></div>
+            <div class="card-body">
+                <div class="fw-semibold">{{ tarea.instancia.inscripcion.programa.nombre }}</div>
+                <div class="text-muted small">{{ tarea.instancia.inscripcion.programa.codigo }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-outline card-primary h-100">
+            <div class="card-header"><h3 class="card-title">Ciudadano</h3></div>
+            <div class="card-body">
+                <div class="fw-semibold">{{ tarea.instancia.inscripcion.ciudadano.nombre }} {{ tarea.instancia.inscripcion.ciudadano.apellido }}</div>
+                <div class="text-muted small">DNI {{ tarea.instancia.inscripcion.ciudadano.dni }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-outline card-primary h-100">
+            <div class="card-header"><h3 class="card-title">Estado</h3></div>
+            <div class="card-body">
+                <div class="fw-semibold">{{ tarea.get_estado_display }}</div>
+                <div class="text-muted small">Instancia #{{ tarea.instancia_id }} · nodo {{ tarea.nodo_id }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="card card-outline card-secondary h-100">
+            <div class="card-header">
+                <h3 class="card-title">Resumen operativo</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="text-muted small">Paso</div>
+                    <div class="fw-semibold">{{ tarea.nombre }}</div>
+                    {% if tarea.descripcion %}
+                    <div class="text-muted small mt-1">{{ tarea.descripcion }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <div class="text-muted small">Asignado</div>
+                    <div class="fw-semibold">{{ tarea.asignado_a|default:"Sin asignar" }}</div>
+                    {% if tarea.resuelto_por %}
+                    <div class="text-muted small mt-1">Resuelto por {{ tarea.resuelto_por }}</div>
+                    {% endif %}
+                </div>
+                {% if tarea.estado == 'PENDIENTE' %}
+                <form method="post" action="{% url 'flujos_editor:tarea_asignar' pk=tarea.pk %}" class="mb-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next_url }}">
+                    <label for="id_asignado_a" class="form-label">Asignar / reasignar</label>
+                    <div class="input-group">
+                        <select id="id_asignado_a" name="asignado_a" class="form-select">
+                            <option value="">Sin asignar</option>
+                            {% for usuario in usuarios_asignables %}
+                            <option value="{{ usuario.pk }}" {% if tarea.asignado_a_id == usuario.pk %}selected{% endif %}>
+                                {{ usuario.get_full_name|default:usuario.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-outline-primary">Guardar</button>
+                    </div>
+                </form>
+                {% endif %}
+                <div>
+                    <div class="text-muted small mb-2">Posibles salidas</div>
+                    <ul class="list-group list-group-flush">
+                        {% for transicion in tarea.transiciones_salida %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">Hacia {{ transicion.hasta }}</div>
+                            {% if transicion.es_libre %}
+                            <div class="text-muted small">Transición libre</div>
+                            {% else %}
+                            <div class="text-muted small">
+                                Requiere que {{ transicion.condicion.campo }} {{ transicion.condicion.operador }} {{ transicion.condicion.valor }}
+                            </div>
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item px-0 text-muted small">Este nodo no tiene salidas configuradas.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-outline card-light mt-4">
+            <div class="card-header">
+                <h3 class="card-title">Contexto del caso</h3>
+            </div>
+            <div class="card-body">
+                {% if tarea.instancia.datos %}
+                <div class="row g-2">
+                    {% for key, value in tarea.instancia.datos.items %}
+                    <div class="col-12">
+                        <div class="border rounded px-3 py-2 bg-light">
+                            <div class="text-muted text-uppercase small">{{ key }}</div>
+                            <div class="fw-semibold">{{ value|default:"-" }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-muted small mb-0">Todavía no hay datos acumulados en esta instancia.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card card-outline card-light mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Historial</h3>
+                <span class="badge bg-light text-dark">{{ timeline|length }} evento{{ timeline|length|pluralize }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if timeline %}
+                <div class="list-group list-group-flush">
+                    {% for item in timeline %}
+                    <div class="list-group-item py-3">
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+                            <div>
+                                <div class="fw-semibold">{{ item.motivo|default:"Evento de flujo" }}</div>
+                                <div class="text-muted small">
+                                    {% if item.usuario %}
+                                    {{ item.usuario.nombre }}
+                                    {% else %}
+                                    Sistema
+                                    {% endif %}
+                                    · {{ item.timestamp|slice:":16"|cut:"T"|default:"Sin fecha" }}
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary-subtle text-secondary">
+                                {{ item.nodo_desde|default:"-" }} → {{ item.nodo_hasta|default:"-" }}
+                            </span>
+                        </div>
+                        {% if item.datos_transicion %}
+                        <div class="mt-2 d-flex flex-wrap gap-2">
+                            {% for key, value in item.datos_transicion.items %}
+                            <span class="badge bg-light text-dark border">{{ key }}: {{ value }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-3 text-muted small">Todavía no hay eventos registrados para esta instancia.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7 mb-4">
+        <div class="card card-outline card-primary h-100">
+            <div class="card-header">
+                <h3 class="card-title">Resolver tarea</h3>
+            </div>
+            <div class="card-body">
+                {% if tarea.estado != 'PENDIENTE' %}
+                <div class="alert alert-info mb-0">
+                    Esta tarea ya fue procesada y queda disponible solo para consulta.
+                </div>
+                {% else %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next_url }}">
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if resolution_schema.type == 'boolean_decision' %}
+                    <div class="mb-4">
+                        <div class="text-muted small text-uppercase mb-2">{{ form.decision.label }}</div>
+                        <div class="row">
+                            {% for radio in form.decision %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ radio.id_for_label }}" class="border rounded w-100 h-100 p-3 mb-0 {% if forloop.first %}border-success{% else %}border-danger{% endif %}">
+                                    <div class="d-flex align-items-start gap-2">
+                                        {{ radio.tag }}
+                                        <div>
+                                            <div class="fw-semibold {% if forloop.first %}text-success{% else %}text-danger{% endif %}">
+                                                {{ radio.choice_label }}
+                                            </div>
+                                            <div class="text-muted small">
+                                                {% if forloop.first %}
+                                                Continúa el circuito por la salida positiva.
+                                                {% else %}
+                                                Deriva el caso por la salida negativa.
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.decision.errors %}
+                        <div class="text-danger small mt-1">{{ form.decision.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.observacion %}
+                    <div class="mb-3">
+                        <label for="{{ form.observacion.id_for_label }}" class="form-label">{{ form.observacion.label }}</label>
+                        {{ form.observacion }}
+                        {% if form.observacion.errors %}
+                        <div class="text-danger small mt-1">{{ form.observacion.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="alert alert-info d-flex align-items-start gap-2">
+                        <i class="fas fa-circle-info mt-1"></i>
+                        <div>
+                            La decisión se traducirá automáticamente al campo <strong>{{ resolution_schema.field_name }}</strong> del runtime.
+                        </div>
+                    </div>
+                    {% elif resolution_schema.type == 'ui_form' %}
+                    {% if resolution_schema.title %}
+                    <div class="mb-3">
+                        <h4 class="h5 mb-1">{{ resolution_schema.title }}</h4>
+                        {% if resolution_schema.description %}
+                        <div class="text-muted small">{{ resolution_schema.description }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% for section in form.sections %}
+                    <div class="mb-4">
+                        {% if section.title %}
+                        <div class="text-muted small text-uppercase mb-2">{{ section.title }}</div>
+                        {% endif %}
+                        {% for field in section.bound_fields %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="alert alert-info d-flex align-items-start gap-2">
+                        <i class="fas fa-circle-info mt-1"></i>
+                        <div>
+                            Esta tarea usa una pantalla declarativa del flujo y guardará su respuesta directamente en el contexto del caso.
+                        </div>
+                    </div>
+                    {% elif resolution_schema.type != 'json' %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="alert alert-info d-flex align-items-start gap-2">
+                        <i class="fas fa-circle-info mt-1"></i>
+                        <div>
+                            Formulario tipado detectado. El valor se guardará en <strong>{{ resolution_schema.field_name }}</strong> para continuar el flujo.
+                        </div>
+                    </div>
+                    {% else %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    {% if tarea.campos_requeridos %}
+                    <div class="alert alert-warning">
+                        Campos esperados por las transiciones condicionales: <strong>{{ tarea.campos_requeridos|join:", " }}</strong>.
+                    </div>
+                    {% elif tarea.puede_resolver %}
+                    <div class="alert alert-secondary">
+                        Esta tarea puede resolverse sin cargar datos adicionales.
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="{{ next_url }}" class="btn btn-outline-secondary">Volver</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-play me-1"></i>Resolver tarea
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

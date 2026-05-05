@@ -2,6 +2,20 @@
 # Decisiones Técnicas
 
 > Registro corto de decisiones arquitectónicas relevantes.
+## 2026-05-01 - `accion_humana` se materializa como trabajo operativo
+
+**Decision:** Los pasos humanos del motor de flujos generan `TareaFlujo` y se operan desde bandeja, detalle y API con asignacion, reasignacion y auditoria.
+
+**Motivo:** El logging por si solo no alcanzaba para una operatoria real de programas ni para futuras integraciones.
+
+---
+## 2026-05-01 - `config.formulario` es el contrato unico del formulario por paso
+
+**Decision:** El formulario de un nodo `accion_humana` se declara explicitamente en `config.formulario`; hoy soporta `boolean_decision`, `text_input` y `choice_select`, y el editor React lo persiste visualmente.
+
+**Motivo:** Evitar heuristicas fragiles, alinear backend/editor y permitir que otras UIs consuman el mismo schema.
+
+---
 ## 2026-04-24 - Hexagonal literal total por modulo
 
 **Decision:** Todos los modulos declarados adoptan layout fisico `domain/`, `application/`, `infrastructure/` e `interfaces/`, incluidos shells, core tecnico y control plane. Las URLConfs publicas se publican desde `interfaces/`; `models.py` puede seguir top-level solo como adapter ORM de Django.

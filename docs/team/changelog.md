@@ -14,6 +14,18 @@
 
 ---
 
+### [2026-05-01] Motor de flujos - operatoria humana, bandeja y formularios tipados
+**Sprint**: Sin sprint activo
+**User Story**: Como operador del backoffice quiero una bandeja operativa de tareas de flujo con formularios tipados para resolver pasos humanos sin editar JSON manualmente.
+**Archivos modificados**: `flujos/models.py`, `flujos/runtime.py`, `flujos/application/dto.py`, `flujos/application/services.py`, `flujos/infrastructure/selectors.py`, `flujos/interfaces/web/forms.py`, `flujos/interfaces/web/views.py`, `flujos/interfaces/api/urls.py`, `flujos/interfaces/templates/flujos/backoffice/bandeja_tareas.html`, `flujos/interfaces/templates/flujos/backoffice/tarea_detalle.html`, `flujos/tests/test_backoffice_tasks.py`, `flujos/tests/test_flow_definition_form.py`, `flujos/tests/test_runtime_action_tasks.py`
+**Descripción**: El motor de flujos dejó de ser solo runtime + logging y pasó a tener operatoria humana real. Los nodos `accion_humana` ahora materializan `TareaFlujo`, existe bandeja web y detalle operativo, se puede asignar/reasignar/resolver por web y API, se auditan los cambios de responsable y el contrato `config.formulario` valida y expone formularios tipados `boolean_decision`, `text_input` y `choice_select`.
+
+### [2026-05-01] Editor visual de flujos - configuracion visual de formularios tipados
+**Sprint**: Sin sprint activo
+**User Story**: Como configurador de programas quiero editar visualmente el formulario de cada paso humano del flujo para no depender de JSON manual y publicar versiones mas usables.
+**Archivos modificados**: `frontend/flow-editor/src/App.jsx`, `frontend/flow-editor/src/components/PropertiesPanel.jsx`, `frontend/flow-editor/src/components/nodes/AccionHumanaNode.jsx`, `frontend/flow-editor/src/utils/validators.js`, `flujos/interfaces/templates/flujos/editor.html`, `flujos/tests/test_editor_ui.py`, `static/flujos/dist/index.html`, `static/flujos/dist/assets/index.css`, `static/flujos/dist/assets/index.js`
+**Descripción**: El editor React ahora persiste `config.formulario` en nodos `accion_humana`, permite configurarlo visualmente desde el panel derecho, muestra el tipo de captura directamente en el nodo, endurece validaciones de publicación y suma una shell de edición más operativa con estado de versiones, guía y métricas básicas del flujo.
+
 ## 2026-04-27 - DX-063 Smokes funcionales modulares
 
 **User Story:** Como equipo de desarrollo quiero smokes automatizados para validar la arquitectura modular desde comportamiento real y no solo desde AST.

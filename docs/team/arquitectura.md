@@ -3,7 +3,7 @@
 > **Regla:** El Arquitecto lee este documento ANTES de proponer cualquier diseño técnico.
 > **Regla:** El Arquitecto actualiza este documento cuando toma una decisión técnica relevante.
 
-> Última actualización: 2026-04-27
+> Última actualización: 2026-05-01
 
 
 ---
@@ -125,6 +125,15 @@ SistemSo/
 **Por qué no todo React:** el resto del sistema no necesita SPA. Introducir React globalmente agregaría complejidad de build sin beneficio. El editor es el único componente que lo justifica.
 
 **Consecuencia:** se agrega `frontend/flow-editor/` a la raíz del proyecto. El pipeline de CI debe compilar el editor antes del deploy. El template `flujos/editor.html` carga los assets compilados.
+
+---
+
+### DT-023 — Operatoria humana de flujos con `TareaFlujo` y contrato `config.formulario` (2026-05-01)
+**Contexto:** La v1.0 del motor de flujos podia iniciar y avanzar instancias, pero los pasos humanos quedaban reducidos a logging y no habia un contrato estable para formularios por nodo entre backend y editor.
+
+**Decisión:** Los nodos `accion_humana` materializan trabajo en `TareaFlujo` y se operan desde una bandeja/detalle web y endpoints JSON de listar, ver, asignar y resolver. El formulario del paso queda declarado explicitamente en `config.formulario`, con soporte actual para `boolean_decision`, `text_input` y `choice_select`, validado en backend al guardar/publicar y editable desde el editor React.
+
+**Consecuencia:** Runtime, backoffice, API y editor comparten el mismo contrato de entrada por paso humano. El modulo ya tiene trazabilidad operativa, asignacion/reasignacion auditable y una base clara para sumar mas tipos de formularios o futuras UIs consumidoras.
 
 ---
 
@@ -268,6 +277,7 @@ SistemSo/
 | DT-011 | `conversaciones` ya no concentra toda la lógica en `views.py`, pero mantiene endpoints legacy con `@csrf_exempt` y mezcla polling HTTP con notificaciones realtime parciales | Media | Actualizada 2026-03-13 |
 | DT-012 | La migración a paquetes reales (`views/`, `services/`, `selectors/`, `signals/`) ya alcanzó `turnos`, `users`, `chatbot`, `configuracion`, `portal`, `conversaciones` y parte de `core`; sigue incompleta en `legajos` y en la capa de auditoría/signals de `core` | Media | Actualizada 2026-03-13 |
 | DT-013 | El entorno local con Docker ya fue simplificado, pero el runtime de desarrollo usa Daphne sin autoreload y todavía conserva comandos de bootstrap opcional separados del arranque diario | Baja | 2026-04-03 |
+| DT-014 | `flujos` ya tiene formularios tipados y editor visual para configurarlos, pero sigue faltando smoke test automatizado del round-trip editor/backend y mas tipos de paso/rol por nodo | Media | 2026-05-01 |
 
 ---
 

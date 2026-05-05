@@ -11,6 +11,7 @@ from core.models import (
     Institucion,
     DocumentoRequerido,
 )
+from core.models_secretaria import Secretaria, Subsecretaria
 from core.models_auditoria import LogAccion, LogDescargaArchivo, SesionUsuario, AlertaAuditoria
 from core.models_auditoria_extendida import (
     AuditoriaCiudadano, AuditoriaLegajo, AuditoriaEvaluacion,
@@ -24,6 +25,30 @@ admin.site.register(Sexo)
 admin.site.register(Mes)
 admin.site.register(Dia)
 admin.site.register(Turno)
+
+
+class SubsecretariaInline(admin.TabularInline):
+    model = Subsecretaria
+    extra = 0
+    fields = ('nombre', 'descripcion', 'activo')
+
+
+@admin.register(Secretaria)
+class SecretariaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'activo')
+    list_filter = ('activo',)
+    search_fields = ('nombre',)
+    ordering = ('nombre',)
+    inlines = [SubsecretariaInline]
+
+
+@admin.register(Subsecretaria)
+class SubsecretariaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'secretaria', 'activo')
+    list_filter = ('activo', 'secretaria')
+    search_fields = ('nombre', 'secretaria__nombre')
+    ordering = ('secretaria__nombre', 'nombre')
+    list_select_related = ('secretaria',)
 
 
 @admin.register(Localidad)

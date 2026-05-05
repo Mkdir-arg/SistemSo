@@ -27,8 +27,8 @@
 | Búsqueda Rápida Ciudadano | `busqueda-rapida-ciudadano/` | v1.0 | 2026-03-15 |
 | Refactor DX Interno | `refactor-dx/` | v1.58 | 2026-04-03 |
 | Arquitectura Modular Activable | `arquitectura-modular/` | v1.1 | 2026-04-27 |
-| Motor de Flujos | `motor-flujos/` | v1.0 | 2026-03-15 |
-| Editor Visual de Flujos | `editor-visual-flujos/` | v1.0 | 2026-03-15 |
+| Motor de Flujos | `motor-flujos/` | v1.1 | 2026-05-01 |
+| Editor Visual de Flujos | `editor-visual-flujos/` | v1.1 | 2026-05-01 |
 | Derivación e Inscripción a Programas | `derivacion-inscripcion-programas/` | v1.0 | 2026-03-15 |
 | Actividades Institucionales | `actividades-institucionales/` | v1.2 | 2026-03-19 |
 | Ficha del Ciudadano — Perfil Social | `ficha-ciudadano/` | v1.0 | 2026-03-19 |

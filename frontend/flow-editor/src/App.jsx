@@ -2,15 +2,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   addEdge,
   Background,
+  BackgroundVariant,
   Controls,
+  MarkerType,
   MiniMap,
   useEdgesState,
   useNodesState,
 } from 'reactflow';
 
 import NodePanel from './components/NodePanel.jsx';
+import AccionEmailNode from './components/nodes/AccionEmailNode.jsx';
 import PropertiesPanel from './components/PropertiesPanel.jsx';
 import AccionHumanaNode from './components/nodes/AccionHumanaNode.jsx';
+import AccionHttpNode from './components/nodes/AccionHttpNode.jsx';
 import DecisionNode from './components/nodes/DecisionNode.jsx';
 import EsperaNode from './components/nodes/EsperaNode.jsx';
 import FinNode from './components/nodes/FinNode.jsx';
@@ -22,6 +26,8 @@ const NODE_TYPES = {
   inicio: InicioNode,
   fin: FinNode,
   accion_humana: AccionHumanaNode,
+  accion_email: AccionEmailNode,
+  accion_http: AccionHttpNode,
   espera: EsperaNode,
   decision: DecisionNode,
 };
@@ -38,15 +44,51 @@ function nuevoId() {
   return `n_${Date.now()}_${nodeCounter++}`;
 }
 
+function parseDropTemplate(event) {
+  const rawTemplate = event.dataTransfer.getData('application/reactflow-template');
+  if (!rawTemplate) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawTemplate);
+  } catch {
+    return null;
+  }
+}
+
 function definicionToFlow(definicion) {
   if (!definicion || !definicion.nodos) return { nodes: [NODO_INICIO_DEFAULT], edges: [] };
 
-  const nodes = definicion.nodos.map((nodo, i) => ({
-    id: nodo.id,
-    type: nodo.tipo,
-    position: nodo.config?.position || { x: 100 + i * 200, y: 100 + (i % 2) * 120 },
-    data: { tipo: nodo.tipo, label: nodo.nombre, descripcion: nodo.config?.descripcion || '' },
-  }));
+  const nodes = definicion.nodos.map((nodo, i) => {
+    const rawConfig = nodo.config || {};
+    const {
+      position,
+      descripcion,
+      formulario,
+      ui,
+      ...extraConfig
+    } = rawConfig;
+    const config = {
+      ...extraConfig,
+      formulario: formulario || null,
+      ui: ui || null,
+    };
+
+    return {
+      id: nodo.id,
+      type: nodo.tipo,
+      position: position || { x: 100 + i * 200, y: 100 + (i % 2) * 120 },
+      data: {
+        tipo: nodo.tipo,
+        label: nodo.nombre,
+        descripcion: descripcion || '',
+        config,
+        actor: nodo.actor || null,
+        surface: Array.isArray(nodo.surface) ? nodo.surface : [],
+      },
+    };
+  });
 
   const edges = (definicion.transiciones || []).map((t, i) => ({
     id: `e_${t.desde}_${t.hasta}_${i}`,
@@ -61,16 +103,49 @@ function definicionToFlow(definicion) {
 }
 
 function flowToDefinicion(nodes, edges) {
+  const usesSchemaV4 = nodes.some((node) => (
+    node.data?.tipo === 'accion_email' || node.data?.tipo === 'accion_http'
+  ));
+  const usesSchemaV3 = nodes.some((node) => (
+    node.data?.tipo === 'accion_humana'
+    && (
+      node.data?.actor
+      || (Array.isArray(node.data?.surface) && node.data.surface.length > 0)
+      || node.data?.config?.ui
+    )
+  ));
+
   return {
-    nodos: nodes.map((n) => ({
-      id: n.id,
-      tipo: n.data.tipo,
-      nombre: n.data.label || '',
-      config: {
+    schema_version: usesSchemaV4 ? 4 : (usesSchemaV3 ? 3 : 2),
+    nodos: nodes.map((n) => {
+      const config = {
+        ...(n.data.config || {}),
         descripcion: n.data.descripcion || '',
         position: n.position,
-      },
-    })),
+      };
+      if (!config.formulario) {
+        delete config.formulario;
+      }
+      if (!config.ui) {
+        delete config.ui;
+      }
+
+      const serializedNode = {
+        id: n.id,
+        tipo: n.data.tipo,
+        nombre: n.data.label || '',
+        config,
+      };
+
+      if (n.data?.actor?.mode && n.data?.actor?.value) {
+        serializedNode.actor = n.data.actor;
+      }
+      if (Array.isArray(n.data?.surface) && n.data.surface.length > 0) {
+        serializedNode.surface = n.data.surface;
+      }
+
+      return serializedNode;
+    }),
     transiciones: edges.map((e) => ({
       desde: e.source,
       hasta: e.target,
@@ -121,7 +196,8 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
-      const tipo = event.dataTransfer.getData('application/reactflow-tipo');
+      const template = parseDropTemplate(event);
+      const tipo = template?.tipo || event.dataTransfer.getData('application/reactflow-tipo');
       if (!tipo || !reactFlowInstance) return;
 
       const position = reactFlowInstance.screenToFlowPosition({
@@ -131,13 +207,20 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
 
       const id = nuevoId();
       const etiquetas = {
-        inicio: 'Inicio', fin: 'Fin', accion_humana: 'Acción', espera: 'Espera', decision: 'Decisión',
+        inicio: 'Inicio', fin: 'Fin', accion_humana: 'Acción', accion_email: 'Email', accion_http: 'HTTP', espera: 'Espera', decision: 'Decisión',
       };
       const nuevoNodo = {
         id,
         type: tipo,
         position,
-        data: { tipo, label: etiquetas[tipo] || tipo, descripcion: '' },
+        data: {
+          tipo,
+          label: template?.label || etiquetas[tipo] || tipo,
+          descripcion: template?.descripcion || '',
+          config: template?.config || {},
+          actor: template?.actor || null,
+          surface: template?.surface || [],
+        },
       };
       setNodes((ns) => [...ns, nuevoNodo]);
     },
@@ -225,99 +308,125 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
   const tieneInicio = nodes.some((n) => n.data?.tipo === 'inicio');
   const { errores, advertencias } = validarFlujo(nodes, edges);
   const puedePublicarAhora = puedePublicar(nodes, edges);
+  const selectionLabel = selectedNode
+    ? `Nodo: ${selectedNode.data?.label || selectedNode.data?.tipo || selectedNode.id}`
+    : selectedEdge
+      ? `Transición: ${selectedEdge.source} -> ${selectedEdge.target}`
+      : 'Sin selección';
 
   if (cargando) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748b' }}>
+      <div className="flow-loading-state">
         Cargando editor...
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Toolbar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px',
-        background: '#fff', borderBottom: '1px solid #e2e8f0', flexShrink: 0,
-      }}>
-        <span style={{ fontWeight: 600, fontSize: 13, color: '#1e293b', flex: 1 }}>
-          {programaNombre}
-          {versionInfo && (
-            <span style={{ marginLeft: 8, fontSize: 11, color: '#64748b' }}>
-              v{versionInfo.numero} — {versionInfo.estado}
+    <div className="flow-app">
+      <header className="flow-toolbar">
+        <div className="flow-toolbar__main">
+          <div className="flow-toolbar__eyebrow">Editor operativo</div>
+          <div>
+            <div className="flow-toolbar__title-row">
+              <h3 className="flow-toolbar__title">{programaNombre}</h3>
+              <span className={`flow-chip ${versionInfo ? 'flow-chip--status' : ''}`}>
+                {versionInfo ? `v${versionInfo.numero} · ${versionInfo.estado}` : 'Sin borrador guardado'}
+              </span>
+            </div>
+            <p className="flow-toolbar__subtitle">
+              Arrastrá nodos, conectá decisiones y configurá formularios operativos desde un único espacio de trabajo.
+            </p>
+          </div>
+          <div className="flow-status-row">
+            <span className="flow-chip">{nodes.length} nodos</span>
+            <span className="flow-chip">{edges.length} transiciones</span>
+            <span className={`flow-chip ${puedePublicarAhora ? 'flow-chip--success' : 'flow-chip--warning'}`}>
+              {puedePublicarAhora ? 'Listo para publicar' : 'Borrador en revisión'}
             </span>
-          )}
-        </span>
+            {errores.length > 0 && (
+              <span className="flow-chip flow-chip--error" title={errores.join('\n')}>
+                {errores.length} error{errores.length > 1 ? 'es' : ''}
+              </span>
+            )}
+            {advertencias.length > 0 && (
+              <span className="flow-chip flow-chip--warning" title={advertencias.join('\n')}>
+                {advertencias.length} advertencia{advertencias.length > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        </div>
 
-        {errores.length > 0 && (
-          <span style={{ fontSize: 11, color: '#ef4444' }} title={errores.join('\n')}>
-            ⚠ {errores.length} error{errores.length > 1 ? 'es' : ''}
-          </span>
-        )}
-        {advertencias.length > 0 && (
-          <span style={{ fontSize: 11, color: '#f59e0b' }} title={advertencias.join('\n')}>
-            ⚠ {advertencias.length} advertencia{advertencias.length > 1 ? 's' : ''}
-          </span>
-        )}
+        <div className="flow-actions">
+          <button
+            onClick={handleGuardar}
+            disabled={guardando}
+            className="flow-btn flow-btn--secondary"
+          >
+            {guardando ? 'Guardando...' : 'Guardar borrador'}
+          </button>
+          <button
+            onClick={handlePublicar}
+            disabled={!puedePublicarAhora || publicando}
+            title={!puedePublicarAhora ? errores.join('\n') : 'Publicar flujo'}
+            className="flow-btn flow-btn--primary"
+          >
+            {publicando ? 'Publicando...' : 'Publicar flujo'}
+          </button>
+        </div>
+      </header>
 
-        <button
-          onClick={handleGuardar}
-          disabled={guardando}
-          style={btnToolbar('#2563eb')}
-        >
-          {guardando ? 'Guardando...' : 'Guardar borrador'}
-        </button>
-        <button
-          onClick={handlePublicar}
-          disabled={!puedePublicarAhora || publicando}
-          title={!puedePublicarAhora ? errores.join('\n') : 'Publicar flujo'}
-          style={btnToolbar('#059669', !puedePublicarAhora || publicando)}
-        >
-          {publicando ? 'Publicando...' : 'Publicar flujo'}
-        </button>
-      </div>
-
-      {/* Toast */}
       {toast && (
-        <div style={{
-          position: 'fixed', top: 16, right: 16, zIndex: 9999,
-          background: toast.tipo === 'error' ? '#fef2f2' : '#f0fdf4',
-          border: `1px solid ${toast.tipo === 'error' ? '#fca5a5' : '#86efac'}`,
-          color: toast.tipo === 'error' ? '#dc2626' : '#16a34a',
-          padding: '10px 16px', borderRadius: 6, fontSize: 13, maxWidth: 360,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        }}>
+        <div className={`flow-toast ${toast.tipo === 'error' ? 'is-error' : 'is-success'}`}>
           {toast.mensaje}
         </div>
       )}
 
-      {/* Editor body */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="flow-body">
         <NodePanel tieneInicio={tieneInicio} />
 
-        <div ref={reactFlowWrapper} style={{ flex: 1 }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onInit={setReactFlowInstance}
-            onNodeClick={onNodeClick}
-            onEdgeClick={onEdgeClick}
-            onPaneClick={onPaneClick}
-            nodeTypes={NODE_TYPES}
-            fitView
-            deleteKeyCode="Delete"
-          >
-            <Background />
-            <Controls />
-            <MiniMap nodeStrokeWidth={3} />
-          </ReactFlow>
-        </div>
+        <section className="flow-canvas-shell">
+          <div className="flow-canvas-topbar">
+            <div>
+              <div className="flow-panel-kicker">Diseño actual</div>
+              <h4 className="flow-canvas-title">Canvas principal</h4>
+              <p className="flow-canvas-subtitle">Seleccioná, conectá y ordená el circuito sobre una vista amplia y limpia.</p>
+            </div>
+            <div className="flow-canvas-meta">
+              <span className="flow-chip">{selectionLabel}</span>
+              <span className="flow-chip">Delete para borrar</span>
+            </div>
+          </div>
+
+          <div ref={reactFlowWrapper} className="flow-canvas-view">
+            <ReactFlow
+              className="flow-canvas"
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onInit={setReactFlowInstance}
+              onNodeClick={onNodeClick}
+              onEdgeClick={onEdgeClick}
+              onPaneClick={onPaneClick}
+              nodeTypes={NODE_TYPES}
+              fitView
+              deleteKeyCode="Delete"
+              defaultEdgeOptions={{
+                type: 'smoothstep',
+                markerEnd: { type: MarkerType.ArrowClosed, color: '#64748b' },
+                style: { stroke: '#64748b', strokeWidth: 2 },
+              }}
+            >
+              <Background variant={BackgroundVariant.Dots} color="#cbd5e1" gap={22} size={1.1} />
+              <Controls position="bottom-right" />
+              <MiniMap className="flow-minimap" nodeStrokeWidth={3} maskColor="rgba(248, 250, 252, 0.78)" />
+            </ReactFlow>
+          </div>
+        </section>
 
         <PropertiesPanel
           selectedNode={selectedNode}
@@ -329,17 +438,4 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
       </div>
     </div>
   );
-}
-
-function btnToolbar(color, disabled = false) {
-  return {
-    padding: '6px 14px',
-    background: disabled ? '#e2e8f0' : color,
-    color: disabled ? '#94a3b8' : '#fff',
-    border: 'none',
-    borderRadius: 5,
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: disabled ? 'not-allowed' : 'pointer',
-  };
 }

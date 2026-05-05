@@ -7,7 +7,7 @@ MODULE_DEFINITION = ModuleDefinition(
     app_config="flujos",
     module_type="removable",
     description="Editor visual y runtime del motor de flujos.",
-    managed_groups=("programaConfigurar",),
+    managed_groups=("programaConfigurar", "programaOperar"),
     web_routes=(
         UrlDefinition(
             handle="flujos.editor",

@@ -1,0 +1,250 @@
+{% extends "includes/main.html" %}
+
+{% block title %}Bandeja de tareas de flujo{% endblock %}
+
+{% block titulo-pagina-content %}Bandeja de tareas de flujo{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Tareas de flujo</li>
+{% endblock %}
+
+{% block content %}
+<div class="card card-outline card-primary mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+            <div>
+                <div class="text-muted text-uppercase small">Panel operativo</div>
+                <h2 class="h4 mb-1">Bandeja de tareas</h2>
+                <p class="text-muted mb-0">Priorizá, asigná y resolvé tareas del flujo sin perder contexto del caso.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                {% if filtros_activos %}
+                    {% for filtro in filtros_activos %}
+                    <span class="badge rounded-pill bg-light text-dark border">{{ filtro }}</span>
+                    {% endfor %}
+                {% else %}
+                <span class="badge rounded-pill bg-light text-dark border">Sin filtros activos</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="id_programa" class="form-label">Programa</label>
+                <select id="id_programa" name="programa" class="form-select">
+                    <option value="">Todos</option>
+                    {% for programa in programas_filter %}
+                    <option value="{{ programa.pk }}" {% if filtros.programa == programa.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ programa.nombre }} ({{ programa.codigo }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="id_asignado" class="form-label">Asignado</label>
+                <select id="id_asignado" name="asignado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="sin_asignar" {% if filtros.asignado == 'sin_asignar' %}selected{% endif %}>Sin asignar</option>
+                    {% for usuario in usuarios_asignados_filter %}
+                    <option value="{{ usuario.pk }}" {% if filtros.asignado == usuario.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ usuario.get_full_name|default:usuario.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="id_estado" class="form-label">Estado</label>
+                <select id="id_estado" name="estado" class="form-select">
+                    {% for value, label in estados_filter %}
+                    <option value="{{ value }}" {% if filtros.estado == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <a href="{% url 'flujos_editor:bandeja_tareas' %}" class="btn btn-outline-secondary">Limpiar</a>
+            </div>
+        </form>
+
+        {% if filtros_activos %}
+        <div class="alert alert-light border mt-4 mb-0">
+            <div class="fw-semibold mb-1">Vista filtrada</div>
+            <div class="text-muted small">Los accesos rápidos y el regreso desde detalle respetarán la selección actual.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="small-box text-bg-primary">
+            <div class="inner">
+                <h3>{{ total }}</h3>
+                <p>Tareas en resultado</p>
+            </div>
+            <div class="icon"><i class="fas fa-list-check"></i></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="small-box text-bg-success">
+            <div class="inner">
+                <h3>{{ resolubles }}</h3>
+                <p>Resolubles desde la bandeja</p>
+            </div>
+            <div class="icon"><i class="fas fa-play"></i></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="small-box text-bg-warning">
+            <div class="inner">
+                <h3>{{ bloqueadas }}</h3>
+                <p>Requieren datos o lógica adicional</p>
+            </div>
+            <div class="icon"><i class="fas fa-triangle-exclamation"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-outline card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Tareas en seguimiento</h3>
+    </div>
+    <div class="card-body">
+        {% if tareas %}
+        <div class="d-flex flex-column gap-3">
+            {% for tarea in tareas %}
+            <article class="border rounded-3 p-3 p-lg-4 bg-light-subtle">
+                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                    <div>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <span class="badge rounded-pill bg-primary-subtle text-primary">{{ tarea.instancia.inscripcion.programa.codigo }}</span>
+                            <span class="badge rounded-pill bg-light text-dark border">Instancia #{{ tarea.instancia_id }}</span>
+                            {% if tarea.estado == 'PENDIENTE' %}
+                                {% if tarea.puede_resolver %}
+                                <span class="badge rounded-pill text-bg-success">Lista para resolver</span>
+                                {% elif tarea.requiere_payload %}
+                                <span class="badge rounded-pill text-bg-warning">Requiere datos</span>
+                                {% else %}
+                                <span class="badge rounded-pill text-bg-secondary">Pendiente</span>
+                                {% endif %}
+                            {% elif tarea.estado == 'RESUELTA' %}
+                            <span class="badge rounded-pill text-bg-primary">Resuelta</span>
+                            {% else %}
+                            <span class="badge rounded-pill text-bg-secondary">Cancelada</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="h5 mb-1">{{ tarea.nombre }}</h3>
+                        <div class="text-muted mb-2">{{ tarea.instancia.inscripcion.programa.nombre }}</div>
+                        {% if tarea.descripcion %}
+                        <p class="text-muted small mb-0">{{ tarea.descripcion }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-lg-end">
+                        <div class="text-muted text-uppercase small">Creada</div>
+                        <div class="fw-semibold">{{ tarea.fecha_creacion|date:"d/m/Y H:i" }}</div>
+                        <div class="text-muted small">Nodo {{ tarea.nodo_id }} · {{ tarea.instancia.version_flujo.flujo.nombre }} v{{ tarea.instancia.version_flujo.numero_version }}</div>
+                    </div>
+                </div>
+
+                <div class="row g-3 align-items-start">
+                    <div class="col-lg-4">
+                        <div class="border rounded p-3 h-100 bg-white">
+                            <div class="text-muted text-uppercase small mb-1">Ciudadano</div>
+                            <div class="fw-semibold">{{ tarea.instancia.inscripcion.ciudadano.nombre }} {{ tarea.instancia.inscripcion.ciudadano.apellido }}</div>
+                            <div class="text-muted small">DNI {{ tarea.instancia.inscripcion.ciudadano.dni }}</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="border rounded p-3 h-100 bg-white">
+                            <div class="text-muted text-uppercase small mb-1">Responsable</div>
+                            {% if tarea.asignado_a %}
+                            <div class="fw-semibold">{{ tarea.asignado_a.get_full_name|default:tarea.asignado_a.username }}</div>
+                            <div class="text-muted small">{{ tarea.asignado_a.username }}</div>
+                            {% else %}
+                            <div class="fw-semibold">Sin asignar</div>
+                            <div class="text-muted small">Tomá responsabilidad o derivala.</div>
+                            {% endif %}
+
+                            {% if tarea.estado == 'PENDIENTE' %}
+                            <form method="post" action="{% url 'flujos_editor:tarea_asignar' pk=tarea.pk %}" class="mt-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{% url 'flujos_editor:bandeja_tareas' %}{% if bandeja_querystring %}?{{ bandeja_querystring }}{% endif %}">
+                                <div class="input-group input-group-sm">
+                                    <select name="asignado_a" class="form-select form-select-sm">
+                                        <option value="">Sin asignar</option>
+                                        {% for usuario in usuarios_asignables %}
+                                        <option value="{{ usuario.pk }}" {% if tarea.asignado_a_id == usuario.pk %}selected{% endif %}>
+                                            {{ usuario.get_full_name|default:usuario.username }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-outline-secondary">Guardar</button>
+                                </div>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="border rounded p-3 h-100 bg-white">
+                            <div class="text-muted text-uppercase small mb-1">Siguiente acción</div>
+                            {% if tarea.puede_resolver %}
+                            <div class="fw-semibold text-success">Podés resolverla ahora mismo</div>
+                            <div class="text-muted small">La salida es libre y no requiere datos adicionales.</div>
+                            {% elif tarea.requiere_payload %}
+                            <div class="fw-semibold text-warning">Necesita intervención guiada</div>
+                            <div class="text-muted small">Campos esperados: {{ tarea.campos_requeridos|join:", " }}</div>
+                            {% else %}
+                            <div class="fw-semibold">Revisar detalle</div>
+                            <div class="text-muted small">Verificá el contexto antes de continuar.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mt-3 pt-3 border-top">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for transicion in tarea.transiciones_salida %}
+                        <span class="badge bg-white text-dark border">
+                            {{ transicion.hasta }}
+                            {% if transicion.es_libre %}
+                            · libre
+                            {% elif transicion.condicion %}
+                            · {{ transicion.condicion.campo }} {{ transicion.condicion.operador }} {{ transicion.condicion.valor }}
+                            {% endif %}
+                        </span>
+                        {% empty %}
+                        <span class="text-muted small">Sin salidas configuradas.</span>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                        <a href="{% url 'flujos_editor:tarea_detalle' pk=tarea.pk %}?next={% url 'flujos_editor:bandeja_tareas' %}{% if bandeja_querystring %}%3F{{ bandeja_querystring|urlencode }}{% endif %}"
+                           class="btn btn-outline-secondary btn-sm">
+                            Abrir detalle
+                        </a>
+                        {% if tarea.puede_resolver %}
+                        <form method="post" action="{% url 'flujos_editor:tarea_resolver' pk=tarea.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'flujos_editor:bandeja_tareas' %}{% if bandeja_querystring %}?{{ bandeja_querystring }}{% endif %}">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-play me-1"></i>Resolver ahora
+                            </button>
+                        </form>
+                        {% elif tarea.requiere_payload %}
+                        <a href="{% url 'flujos_editor:tarea_detalle' pk=tarea.pk %}?next={% url 'flujos_editor:bandeja_tareas' %}{% if bandeja_querystring %}%3F{{ bandeja_querystring|urlencode }}{% endif %}"
+                           class="btn btn-primary btn-sm">
+                            Completar datos
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-muted">
+            No hay tareas de flujo pendientes.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
