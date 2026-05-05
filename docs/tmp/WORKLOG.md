@@ -2,6 +2,29 @@
 
 ## 2026-05-05 - Descolapsar cuerpo del popup de configuración
 
+## 2026-05-05 - Rediseñar header del Editor de Flujo
+
+**Tarea:** Llevar la información del header a una disposición horizontal más compacta y agrandar la altura útil del área de diseño del flujo.
+
+**Archivos creados:**
+- Ninguno
+
+**Archivos modificados:**
+- `docs/tmp/WORKLOG.md`
+- `flujos/interfaces/templates/flujos/editor.html`
+
+**Cambios realizados:**
+- Se rediseñó el hero superior como una banda horizontal con título a la izquierda y chips/métricas en línea a la derecha.
+- Se compactó el encabezado interno de “Diseño del flujo” para que ocupe menos alto visible.
+- Se convirtió la nota operativa en una franja más fina y se amplió el alto útil del canvas principal.
+
+**Decisiones o supuestos:**
+- El problema principal era de proporción vertical: demasiada altura consumida por textos y badges antes del canvas.
+- Se preservó toda la información relevante, pero redistribuida a lo ancho para mejorar lectura y viewport útil.
+
+**Pendientes:**
+- Confirmar visualmente el nuevo balance entre header y canvas en desktop y tablet.
+
 **Tarea:** Hacer visible el contenido del popup de configuración cuando hoy solo aparece el encabezado del modal.
 
 **Archivos creados:**

@@ -42,8 +42,31 @@
 
     .editor-hero-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: .85rem;
+        grid-template-columns: minmax(280px, 1.15fr) minmax(0, 1.85fr);
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .editor-hero-copy {
+        min-width: 0;
+    }
+
+    .editor-hero-copy h2 {
+        margin: .55rem 0 .35rem;
+        line-height: 1.1;
+    }
+
+    .editor-hero-copy p {
+        margin: 0;
+        color: #475569;
+        max-width: 60ch;
+    }
+
+    .editor-hero-rail {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: .6rem;
     }
 
     .editor-kicker {
@@ -64,7 +87,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: .5rem;
-        margin-top: .75rem;
+        margin: 0;
     }
 
     .editor-meta-chip {
@@ -87,7 +110,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: .55rem;
-        margin-top: .75rem;
+        margin: 0;
     }
 
     .editor-inline-stat {
@@ -119,36 +142,82 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        gap: 1rem;
-        padding: 1.1rem 1.25rem;
+        align-items: center;
+        gap: .85rem;
+        padding: .85rem 1.1rem;
         border-bottom: 1px solid rgba(226, 232, 240, 0.85);
         background: rgba(255, 255, 255, 0.92);
     }
 
+    .editor-surface-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .7rem;
+        min-width: 0;
+    }
+
+    .editor-surface-heading h3 {
+        margin: 0;
+    }
+
+    .editor-surface-subtitle {
+        margin: 0;
+        color: #64748b;
+        font-size: .87rem;
+    }
+
+    .editor-surface-meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: .5rem;
+        align-items: center;
+    }
+
+    .editor-surface-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .4rem .72rem;
+        border-radius: 999px;
+        border: 1px solid rgba(203, 213, 225, 0.95);
+        background: #fff;
+        color: #334155;
+        font-size: .8rem;
+        white-space: nowrap;
+    }
+
     .editor-surface-note {
-        margin: 0 1.25rem 1rem;
-        padding: .85rem 1rem;
+        margin: 0;
+        padding: .72rem 1.1rem;
         border-radius: .95rem;
-        border: 1px solid rgba(191, 219, 254, 0.95);
-        background: rgba(239, 246, 255, 0.92);
+        border-top: 1px solid rgba(191, 219, 254, 0.9);
+        background: rgba(239, 246, 255, 0.86);
         color: #1e3a8a;
-        font-size: .92rem;
+        font-size: .88rem;
     }
 
     .editor-root-shell {
         width: 100%;
-        min-height: 600px;
-        height: clamp(620px, calc(100vh - 250px), 780px);
+        min-height: 700px;
+        height: clamp(720px, calc(100vh - 195px), 900px);
     }
 
     @media (max-width: 991.98px) {
         .editor-hero-grid {
             grid-template-columns: 1fr;
+            gap: .75rem;
+        }
+
+        .editor-hero-rail,
+        .editor-surface-meta {
+            justify-content: flex-start;
         }
 
         .editor-root-shell {
-            min-height: 500px;
-            height: clamp(520px, 70vh, 700px);
+            min-height: 560px;
+            height: clamp(580px, 72vh, 760px);
         }
     }
 </style>
@@ -165,19 +234,18 @@
 <div class="editor-page">
     <section class="editor-hero p-3 p-xl-3">
         <div class="editor-hero-grid">
-            <div>
+            <div class="editor-hero-copy">
                 <span class="editor-kicker">
                     <i class="fas fa-diagram-project"></i>
                     Editor de Flujo
                 </span>
-                <div class="mt-2">
-                    <div class="text-uppercase text-muted small mb-1">Programa</div>
-                    <h2 class="h3 mb-1">{{ programa.nombre }}</h2>
-                    <p class="text-muted mb-0 small" style="max-width: 72ch;">
-                        Diseñá y publicá el circuito operativo sin cortar los casos ya activos.
-                    </p>
-                </div>
+                <h2 class="h3">{{ programa.nombre }}</h2>
+                <p>
+                    Diseñá, ajustá transiciones y publicá el circuito operativo desde una vista más limpia, con más espacio útil para el canvas.
+                </p>
+            </div>
 
+            <div class="editor-hero-rail">
                 <div class="editor-program-meta">
                     <span class="editor-meta-chip"><strong>Código</strong> {{ programa.codigo }}</span>
                     {% if version_publicada %}
@@ -203,24 +271,25 @@
 
     <section class="editor-surface">
         <div class="editor-surface-header">
-            <div>
-                <h3 class="h5 fw-semibold mb-1">Diseño del flujo</h3>
-                <div class="text-muted small">Editá nodos, conexiones y reglas de transición en un solo espacio de trabajo.</div>
+            <div class="editor-surface-heading">
+                <h3 class="h5 fw-semibold">Diseño del flujo</h3>
+                <p class="editor-surface-subtitle">Editá nodos, conexiones y reglas de transición en un solo espacio de trabajo.</p>
             </div>
-            {% if ultima_version %}
-            <span class="badge rounded-pill bg-light text-dark border align-self-start">
-                Última versión: v{{ ultima_version.numero_version }} · {{ ultima_version.get_estado_display }}
-            </span>
-            {% endif %}
+            <div class="editor-surface-meta">
+                <span class="editor-surface-pill"><strong>Editor operativo</strong></span>
+                {% if ultima_version %}
+                <span class="editor-surface-pill">v{{ ultima_version.numero_version }} · {{ ultima_version.get_estado_display }}</span>
+                {% endif %}
+            </div>
         </div>
 
         {% if instancias_activas %}
-        <div class="editor-surface-note mt-3" role="alert">
+        <div class="editor-surface-note" role="alert">
             <i class="fas fa-info-circle me-2"></i>
             Este programa tiene <strong>{{ instancias_activas }} instancia{{ instancias_activas|pluralize }}</strong> activa{{ instancias_activas|pluralize }}. Podés publicar una nueva versión sin afectar los casos ya iniciados.
         </div>
         {% else %}
-        <div class="editor-surface-note mt-3" role="alert" style="border-color: rgba(253, 224, 71, 0.9); background: rgba(254, 252, 232, 0.95); color: #854d0e;">
+        <div class="editor-surface-note" role="alert" style="border-top-color: rgba(253, 224, 71, 0.9); background: rgba(254, 252, 232, 0.92); color: #854d0e;">
             <i class="fas fa-lightbulb me-2"></i>
             Si todavía no publicaste, podés diseñar y validar el circuito con tranquilidad antes de habilitarlo para nuevos casos.
         </div>
