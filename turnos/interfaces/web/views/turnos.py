@@ -1,8 +1,11 @@
-from datetime import date
+﻿from datetime import date
+from urllib.parse import urlencode
+import re
 
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, TemplateView
 
@@ -66,44 +69,104 @@ class TurnoDetailView(TurnoOperarRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        next_url = request.GET.get('next', '')
         if 'notas_backoffice' in request.POST:
+            nota_nueva = (request.POST.get('notas_backoffice') or '').strip()
+            if nota_nueva:
+                autor = request.user.get_full_name() or request.user.username
+                marca_tiempo = timezone.localtime().strftime('%d/%m/%Y %H:%M')
+                entrada = f"[{marca_tiempo}] {autor}: {nota_nueva}"
+                notas_previas = (self.object.notas_backoffice or '').strip()
+                notas_finales = f"{notas_previas}\n{entrada}".strip() if notas_previas else entrada
+            else:
+                notas_finales = (self.object.notas_backoffice or '').strip()
             actualizar_notas_turno_backoffice(
-                self.object, request.POST.get('notas_backoffice', '')
+                self.object, notas_finales
             )
-            messages.success(request, 'Notas actualizadas.')
-        return redirect('turnos:turno_detalle', pk=self.object.pk)
+            messages.success(request, 'Nota agregada al historial interno.')
+
+        redirect_url = f"/turnos/turnos/{self.object.pk}/"
+        if next_url:
+            redirect_url = f"{redirect_url}?{urlencode({'next': next_url})}"
+        return redirect(redirect_url)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         turno = self.object
+        next_url = self.request.GET.get('next')
+        if next_url:
+            agenda_url = next_url
+        else:
+            agenda_url = f"/turnos/agenda/?fecha={turno.fecha.isoformat()}"
+            config = getattr(turno, 'config_efectiva', None)
+            if config and getattr(config, 'pk', None):
+                agenda_url = f"{agenda_url}&config={config.pk}"
+
+        notas_brutas = (turno.notas_backoffice or '').strip()
+        notas_historial = []
+        motivo_cancelacion_sistema = ''
+        patron_nota = re.compile(r'^\[(?P<fecha>[^\]]+)\]\s+(?P<autor>[^:]+):\s*(?P<texto>.*)$')
+        for linea in [ln.strip() for ln in notas_brutas.splitlines() if ln.strip()]:
+            if '[CANCELACION_SISTEMA]' in linea:
+                if not motivo_cancelacion_sistema:
+                    motivo_cancelacion_sistema = linea.split('[CANCELACION_SISTEMA]', 1)[1].strip()
+                continue
+            if '[RECHAZO_SISTEMA]' in linea:
+                if not motivo_cancelacion_sistema:
+                    motivo_cancelacion_sistema = linea.split('[RECHAZO_SISTEMA]', 1)[1].strip()
+                continue
+            match = patron_nota.match(linea)
+            if match:
+                notas_historial.append(
+                    {
+                        'fecha': match.group('fecha').strip(),
+                        'autor': match.group('autor').strip(),
+                        'texto': match.group('texto').strip(),
+                    }
+                )
+            else:
+                notas_historial.append({'fecha': '', 'autor': 'Sistema', 'texto': linea})
+        notas_historial.reverse()
+
         context.update(
             {
                 'form_aprobar': AprobarTurnoForm(),
                 'form_rechazar': RechazarTurnoForm(),
                 'form_cancelar': CancelarTurnoBackofficeForm(),
+                'next_url': next_url or '',
+                'agenda_url': agenda_url,
                 'puede_aprobar': turno.estado == TurnoCiudadano.Estado.PENDIENTE,
                 'puede_completar': (
                     turno.estado == TurnoCiudadano.Estado.CONFIRMADO and turno.fecha <= date.today()
                 ),
                 'puede_cancelar': turno.estado
                 in [TurnoCiudadano.Estado.PENDIENTE, TurnoCiudadano.Estado.CONFIRMADO],
+                'notas_historial': notas_historial,
+                'motivo_cancelacion_sistema': motivo_cancelacion_sistema,
             }
         )
         return context
+
+
+def _detail_redirect(pk, next_url=''):
+    if next_url:
+        return redirect(f"/turnos/turnos/{pk}/?{urlencode({'next': next_url})}")
+    return redirect(f"/turnos/turnos/{pk}/")
 
 
 @turno_operar_required
 @require_POST
 def turno_aprobar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
+    next_url = request.POST.get('next') or ''
     if turno.estado != TurnoCiudadano.Estado.PENDIENTE:
         messages.warning(request, 'Este turno ya fue procesado.')
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     form = AprobarTurnoForm(request.POST)
     if not form.is_valid():
         messages.error(request, 'Datos inválidos.')
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     try:
         turno = aprobar_turno_backoffice(
@@ -111,68 +174,71 @@ def turno_aprobar(request, pk):
         )
     except TurnoActionError as exc:
         messages.warning(request, str(exc))
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     messages.success(
         request,
         f'Turno {turno.codigo_turno} confirmado. Se notificó al ciudadano por email.',
     )
-    return redirect(request.POST.get('next', 'turnos:bandeja_pendientes'))
+    return redirect(next_url or 'turnos:bandeja_pendientes')
 
 
 @turno_operar_required
 @require_POST
 def turno_rechazar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
+    next_url = request.POST.get('next') or ''
     if turno.estado != TurnoCiudadano.Estado.PENDIENTE:
         messages.warning(request, 'Este turno ya fue procesado.')
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     form = RechazarTurnoForm(request.POST)
     if not form.is_valid():
         messages.error(request, 'Debe ingresar un motivo de rechazo.')
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     try:
         turno = rechazar_turno_backoffice(pk, request.user, form.cleaned_data['motivo'])
     except TurnoActionError as exc:
         messages.warning(request, str(exc))
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     messages.success(request, f'Turno {turno.codigo_turno} rechazado. Se notificó al ciudadano.')
-    return redirect(request.POST.get('next', 'turnos:bandeja_pendientes'))
+    return redirect(next_url or 'turnos:bandeja_pendientes')
 
 
 @turno_operar_required
 @require_POST
 def turno_cancelar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
+    next_url = request.POST.get('next') or ''
     form = CancelarTurnoBackofficeForm(request.POST)
     if not form.is_valid():
         messages.error(request, 'Debe ingresar un motivo de cancelación.')
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     try:
-        turno = cancelar_turno_backoffice(turno, form.cleaned_data['motivo'])
+        turno = cancelar_turno_backoffice(turno, form.cleaned_data['motivo'], user=request.user)
     except TurnoActionError as exc:
         messages.warning(request, str(exc))
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
 
     messages.success(request, f'Turno {turno.codigo_turno} cancelado. Se notificó al ciudadano.')
-    return redirect('turnos:agenda')
+    return redirect(next_url or 'turnos:agenda')
 
 
 @turno_operar_required
 @require_POST
 def turno_completar(request, pk):
     turno = get_object_or_404(TurnoCiudadano, pk=pk)
+    next_url = request.POST.get('next') or ''
     try:
         turno = completar_turno_backoffice(turno)
     except TurnoActionError as exc:
         messages.warning(request, str(exc))
-        return redirect('turnos:turno_detalle', pk=pk)
+        return _detail_redirect(pk, next_url)
     messages.success(request, f'Turno {turno.codigo_turno} marcado como completado.')
-    return redirect(request.POST.get('next', 'turnos:agenda'))
+    return redirect(next_url or 'turnos:agenda')
 
 
 @operador_required

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 
@@ -89,6 +91,13 @@ def _normalizar_valor_campo(campo, valor):
             if d:
                 return d.isoformat()
         raise ValueError(f"El campo '{campo.nombre}' requiere una fecha valida (ISO).")
+    if tipo == CampoDinamicoTramite.TipoDato.HORARIO:
+        valor_str = str(valor).strip()
+        try:
+            datetime.strptime(valor_str, "%H:%M")
+        except ValueError as exc:
+            raise ValueError(f"El campo '{campo.nombre}' requiere un horario valido (HH:MM).") from exc
+        return valor_str
     if tipo == CampoDinamicoTramite.TipoDato.SELECCION:
         valor_str = str(valor).strip()
         existe = CampoDinamicoOpcion.objects.filter(campo=campo, activo=True, valor=valor_str).exists()

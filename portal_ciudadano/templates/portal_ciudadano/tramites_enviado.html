@@ -1,0 +1,27 @@
+﻿{% extends "portal_ciudadano/base_seccion.html" %}
+
+{% block title %}Trámite iniciado - Portal Ciudadano{% endblock %}
+{% block hero_title %}Trámite iniciado{% endblock %}
+{% block hero_subtitle %}{% endblock %}
+{% block hero_text %}Tu trámite fue iniciado correctamente. Podés revisar el estado cuando quieras desde Mis Trámites.{% endblock %}
+
+{% block content %}
+<article class="card flush-top" style="width:min(620px,100%);margin:0 auto;">
+    <i class="fa-regular fa-circle-check" style="font-size:42px;color:#16a34a;display:block;text-align:center;"></i>
+    <h2 style="margin-top:14px;text-align:center;font-size:30px;line-height:1.2;">
+        {{ tramite.tipo_tramite.nombre|default:"Trámite" }}
+    </h2>
+
+    <dl style="margin:16px 0 0;">
+        <div class="data-row"><dt>Modalidad</dt><dd>{{ modalidad|default:"-" }}</dd></div>
+        <div class="data-row"><dt>Fecha</dt><dd>{{ tramite.fecha_inicio|date:"d/m/Y"|default:"-" }}</dd></div>
+        <div class="data-row"><dt>Estado</dt><dd>{{ tramite.estado.nombre|default:"-" }}</dd></div>
+        <div class="data-row"><dt>Código</dt><dd>{{ numero|default:"-" }}</dd></div>
+    </dl>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
+        <a class="btn btn-primary" href="{% url 'portal_ciudadano:mis_solicitudes' %}">Ver mis trámites</a>
+        <a class="btn btn-secondary" href="{% url 'portal_ciudadano:mi_perfil' %}">Mi Perfil</a>
+    </div>
+</article>
+{% endblock %}

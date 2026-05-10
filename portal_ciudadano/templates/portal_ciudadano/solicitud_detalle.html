@@ -47,7 +47,7 @@
             flex-wrap: wrap;
             padding: 12px 0;
         }
-        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 8px; }
         .brand-mark {
             width: 56px;
             height: 68px;
@@ -64,20 +64,10 @@
         }
         .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
         .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
-        .top-links {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-        .icon-link {
-            width: 16px;
-            height: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .top-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .icon-link { width: 34px; height: 34px; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); transition: all .2s ease; }
+        .icon-link:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+        .icon-link i { line-height: 1; }
         .icon-img {
             width: 16px;
             height: 16px;
@@ -136,6 +126,11 @@
             background: #fff;
             padding: 18px 16px;
         }
+        .section-card.highlight {
+            border: 1px solid #f5c2e7;
+            background: linear-gradient(180deg, #fff4fb 0%, #fff 100%);
+            box-shadow: 0 6px 18px rgba(216, 27, 96, 0.08);
+        }
         .section-title {
             margin: 0 0 14px;
             color: #101828;
@@ -170,17 +165,89 @@
         }
         .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
 
-        .attachments {
-            margin: 0;
-            padding-left: 18px;
-            display: grid;
-            gap: 6px;
+        .attachments-carousel {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: thin;
         }
-        .attachments a {
-            color: #6b306f;
-            text-decoration: underline;
-            font-size: 14px;
-            line-height: 20px;
+        .attachment-card {
+            min-width: 140px;
+            max-width: 140px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #f8fafc;
+            padding: 8px;
+            text-align: center;
+        }
+        .attachment-thumb {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+        }
+        .attachment-icon {
+            width: 100%;
+            height: 90px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667085;
+            font-size: 28px;
+        }
+        .attachment-name {
+            margin-top: 6px;
+            font-size: 12px;
+            line-height: 16px;
+            color: #344054;
+            word-break: break-word;
+        }
+        .closing-observaciones {
+            margin: 0;
+            color: #101828;
+            font-size: 15px;
+            line-height: 1.55;
+            word-break: break-word;
+        }
+        .closing-observaciones a { color: #be185d; text-decoration: underline; }
+        .closing-observaciones ul, .closing-observaciones ol { margin: 8px 0 0 20px; padding: 0; }
+        .closing-observaciones li { margin: 3px 0; }
+        .closing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .closing-item {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #f8fafc;
+            padding: 10px;
+        }
+        .closing-thumb {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+        }
+        .closing-icon {
+            width: 100%;
+            height: 130px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667085;
+            font-size: 34px;
         }
 
         .history-list {
@@ -200,7 +267,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 4px;
         }
         .history-action {
@@ -220,6 +287,18 @@
             font-size: 13px;
             line-height: 18px;
         }
+        .field-input, .field-textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            line-height: 20px;
+            font-family: "Inter", sans-serif;
+            color: #101828;
+            background: #fff;
+        }
+        .field-textarea { min-height: 88px; resize: vertical; }
 
         .actions {
             display: flex;
@@ -360,11 +439,40 @@
                 </div>
             </a>
             <div class="top-links">
-                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><img src="{% static 'custom/portal-ciudadano/home.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><img src="{% static 'custom/portal-ciudadano/calendar-month.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Solicitudes"><img src="{% static 'custom/portal-ciudadano/bell.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><i class="fa-solid fa-house"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><i class="fa-regular fa-user"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Seguimiento"><i class="fa-regular fa-rectangle-list"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><i class="fa-regular fa-calendar-days"></i></a>
+                <div class="notif-wrap" style="position:relative;">
+                <button type="button" class="icon-link" data-notif-toggle aria-label="Avisos de turnos" style="position:relative;">
+                    <i class="fa-regular fa-bell"></i>
+                    {% if portal_notificaciones_count %}
+                    <span style="position:absolute;top:-6px;right:-8px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;line-height:14px;font-weight:700;text-align:center;">?</span>
+                    {% endif %}
+                </button>
+                <div data-notif-menu style="display:none;position:absolute;top:34px;right:0;width:min(340px,84vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 22px rgba(16,24,40,.16);padding:8px;z-index:30;">
+                    {% if portal_notificaciones %}
+                        {% for notif in portal_notificaciones %}
+                        <a href="{{ notif.url }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid {% if notif.seen %}#e5e7eb{% elif notif.kind == "solicitud_datos" %}#bfdbfe{% else %}#fde68a{% endif %};background:{% if notif.seen %}#f9fafb{% elif notif.kind == "solicitud_datos" %}#eff6ff{% else %}#fffbeb{% endif %};opacity:{% if notif.seen %}0.72{% else %}1{% endif %};border-radius:10px;padding:8px;margin-bottom:6px;">
+                            <div style="min-width:0;flex:1;">
+                            <p style="margin:0 0 2px;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:11px;font-weight:700;">{{ notif.title }}</p>
+                            {% if notif.subtitle %}<p style="margin:0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.subtitle }}</p>{% endif %}
+                            {% if notif.detail %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.detail }}</p>{% endif %}
+                            {% if notif.extra %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.extra }}</p>{% endif %}
+                            </div>
+                            <span aria-hidden="true" style="flex:0 0 auto;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:14px;line-height:1;font-weight:700;">&gt;</span>
+                        </a>
+                        {% endfor %}
+                        
+                    {% else %}
+                        <div style="border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;padding:10px;">
+                            <p style="margin:0 0 2px;color:#475467;font-size:11px;font-weight:700;">Sin notificaciones</p>
+                            <p style="margin:0;color:#667085;font-size:11px;">No ten?s avisos de turnos por el momento.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><i class="fa-regular fa-comments"></i></a>
                 <form method="post" action="{% url 'portal_ciudadano:logout' %}" style="margin:0;">
                     {% csrf_token %}
                     <button type="submit" class="profile-btn">
@@ -382,6 +490,46 @@
         </section>
 
         <section class="content">
+            {% if cierre_info %}
+            <article class="section-card highlight">
+                <h2 class="section-title">Finalización</h2>
+                <p class="item-label">Fecha</p>
+                <p class="item-value" style="margin-bottom:10px;">{{ cierre_info.fecha|date:"d/m/Y H:i" }}</p>
+                <p class="item-label">Observaciones</p>
+                <div class="closing-observaciones">{{ cierre_info.observacion|default:"Sin observaciones."|safe }}</div>
+                {% if cierre_info.adjuntos %}
+                <div style="margin-top:14px;">
+                    <p class="item-label">Adjuntos</p>
+                    <div class="closing-grid">
+                        {% for item in cierre_info.adjuntos %}
+                        <div class="closing-item">
+                            <a href="{{ item.archivo.url }}" target="_blank" rel="noopener">
+                                {% with ext4=item.archivo.url|lower|slice:"-4:" ext5=item.archivo.url|lower|slice:"-5:" %}
+                                    {% if ext4 == ".png" or ext4 == ".jpg" or ext5 == ".jpeg" or ext5 == ".webp" or ext4 == ".gif" %}
+                                        <img src="{{ item.archivo.url }}" alt="{{ item.nombre_original|default:'Adjunto' }}" class="closing-thumb">
+                                    {% elif ext4 == ".pdf" %}
+                                        <div class="closing-icon"><i class="fa-regular fa-file-pdf"></i></div>
+                                    {% elif ext4 == ".doc" or ext5 == ".docx" %}
+                                        <div class="closing-icon"><i class="fa-regular fa-file-word"></i></div>
+                                    {% elif ext4 == ".xls" or ext5 == ".xlsx" %}
+                                        <div class="closing-icon"><i class="fa-regular fa-file-excel"></i></div>
+                                    {% else %}
+                                        <div class="closing-icon"><i class="fa-regular fa-file-lines"></i></div>
+                                    {% endif %}
+                                {% endwith %}
+                            </a>
+                            <div class="attachment-name">{{ item.nombre_original|default:item.archivo.name }}</div>
+                            <a href="{{ item.archivo.url }}" download class="tiny-btn secondary" style="margin-top:8px;min-height:34px;padding:6px 10px;font-size:12px;">
+                                <i class="fa-solid fa-download"></i> Descargar
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </article>
+            {% endif %}
+
             <article class="section-card">
                 <h2 class="section-title">Datos principales</h2>
                 <div class="grid-3">
@@ -425,40 +573,6 @@
             </article>
 
             <article class="section-card">
-                <h2 class="section-title">Descripción y ubicación</h2>
-                <div class="grid-2">
-                    <div>
-                        <p class="item-label">Título</p>
-                        <p class="item-value">{{ solicitud_obj.titulo|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="item-label">Referencia</p>
-                        <p class="item-value">{{ solicitud_obj.referencia|default:"-" }}</p>
-                    </div>
-                    <div style="grid-column: 1 / -1;">
-                        <p class="item-label">Descripción</p>
-                        <p class="item-value">{{ solicitud_obj.descripcion|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="item-label">Provincia</p>
-                        <p class="item-value">{{ solicitud_obj.provincia.nombre|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="item-label">Municipio</p>
-                        <p class="item-value">{{ solicitud_obj.municipio.nombre|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="item-label">Localidad</p>
-                        <p class="item-value">{{ solicitud_obj.localidad.nombre|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="item-label">Barrio</p>
-                        <p class="item-value">{{ solicitud_obj.barrio|default:"-" }}</p>
-                    </div>
-                </div>
-            </article>
-
-            <article class="section-card">
                 <h2 class="section-title">Datos de contacto</h2>
                 <div class="grid-3">
                     <div>
@@ -485,29 +599,56 @@
             </article>
 
             <article class="section-card">
-                <h2 class="section-title">Campos adicionales</h2>
+                <h2 class="section-title">Datos solicitados</h2>
                 {% if datos_dinamicos %}
                 <div class="grid-2">
                     {% for item in datos_dinamicos %}
                     <div>
                         <p class="item-label">{{ item.campo.nombre }}</p>
-                        <p class="item-value">{{ item.valor|default:"-" }}</p>
+                        {% with ext4=item.valor|default:""|lower|slice:"-4:" ext5=item.valor|default:""|lower|slice:"-5:" ext4u=item.valor_preview_url|default:""|lower|slice:"-4:" ext5u=item.valor_preview_url|default:""|lower|slice:"-5:" %}
+                            {% if item.campo.tipo_dato == "archivo" %}
+                                {% if item.valor_preview_url and ext4u == ".png" or item.valor_preview_url and ext4u == ".jpg" or item.valor_preview_url and ext5u == ".jpeg" or item.valor_preview_url and ext5u == ".webp" or item.valor_preview_url and ext4u == ".gif" %}
+                                    <img src="{{ item.valor_preview_url }}" alt="{{ item.campo.nombre }}" style="margin-top:8px;max-height:120px;border:1px solid #e5e7eb;border-radius:8px;" onerror="this.style.display='none';">
+                                {% elif ext4 == ".png" or ext4 == ".jpg" or ext5 == ".jpeg" or ext5 == ".webp" or ext4 == ".gif" %}
+                                    <img src="{{ item.valor }}" alt="{{ item.campo.nombre }}" style="margin-top:8px;max-height:120px;border:1px solid #e5e7eb;border-radius:8px;" onerror="this.style.display='none';">
+                                {% else %}
+                                    <p class="item-value">Archivo cargado</p>
+                                {% endif %}
+                            {% else %}
+                                <p class="item-value">{{ item.valor|default:"-" }}</p>
+                            {% endif %}
+                        {% endwith %}
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="item-value">No hay campos adicionales cargados.</p>
+                <p class="item-value">No hay datos cargados.</p>
                 {% endif %}
             </article>
 
             <article class="section-card">
                 <h2 class="section-title">Adjuntos</h2>
                 {% if adjuntos %}
-                <ul class="attachments">
+                <div class="attachments-carousel">
                     {% for item in adjuntos %}
-                    <li><a href="{{ item.archivo.url }}" target="_blank" rel="noopener">{{ item.nombre_original|default:item.archivo.name }}</a></li>
+                    <a href="{{ item.archivo.url }}" target="_blank" rel="noopener" class="attachment-card">
+                        {% with ext4=item.archivo.url|lower|slice:"-4:" ext5=item.archivo.url|lower|slice:"-5:" %}
+                            {% if ext4 == ".png" or ext4 == ".jpg" or ext5 == ".jpeg" or ext5 == ".webp" or ext4 == ".gif" %}
+                                <img src="{{ item.archivo.url }}" alt="{{ item.nombre_original|default:'Adjunto' }}" class="attachment-thumb">
+                            {% elif ext4 == ".pdf" %}
+                                <div class="attachment-icon"><i class="fa-regular fa-file-pdf"></i></div>
+                            {% elif ext4 == ".doc" or ext5 == ".docx" %}
+                                <div class="attachment-icon"><i class="fa-regular fa-file-word"></i></div>
+                            {% elif ext4 == ".xls" or ext5 == ".xlsx" %}
+                                <div class="attachment-icon"><i class="fa-regular fa-file-excel"></i></div>
+                            {% else %}
+                                <div class="attachment-icon"><i class="fa-regular fa-file-lines"></i></div>
+                            {% endif %}
+                        {% endwith %}
+                        <div class="attachment-name">{{ item.nombre_original|default:item.archivo.name }}</div>
+                    </a>
                     {% endfor %}
-                </ul>
+                </div>
                 {% else %}
                 <p class="item-value">No hay archivos adjuntos.</p>
                 {% endif %}
@@ -520,15 +661,14 @@
                     {% for h in historial %}
                     <li class="history-item">
                         <div class="history-head">
-                            <span class="history-action">{{ h.accion|title }}</span>
+                            <span class="history-action">{{ h.accion_label|default:h.accion }}</span>
                             <span class="history-date">{{ h.fecha|date:"d/m/Y H:i" }}</span>
                         </div>
                         <div class="history-meta">
                             Estado: {{ h.estado_nuevo.nombre|default:"-" }} | Área: {{ h.area_nueva.nombre|default:"-" }}
-                            {% if h.usuario %} | Usuario: {{ h.usuario.get_full_name|default:h.usuario.username }}{% endif %}
                         </div>
                         {% if h.comentario %}
-                        <div class="history-meta">Comentario: {{ h.comentario }}</div>
+                        <div class="history-meta">Comentario: {{ h.comentario_label|default:h.comentario }}</div>
                         {% endif %}
                     </li>
                     {% endfor %}
@@ -538,13 +678,39 @@
                 {% endif %}
             </article>
 
+            {% if solicitudes_datos_pendientes %}
+            <article class="section-card">
+                <h2 class="section-title">Solicitud de modificación de datos</h2>
+                {% for solicitud_datos_pendiente in solicitudes_datos_pendientes %}
+                <div style="border:1px solid #e5e7eb; border-radius:12px; padding:12px; margin-bottom:12px;">
+                    <p class="item-value" style="margin-bottom:10px;">
+                        El área te solicitó actualizar información el {{ solicitud_datos_pendiente.fecha|date:"d/m/Y H:i" }}.
+                    </p>
+                    {% if solicitud_datos_pendiente.comentario %}
+                    <p class="item-value" style="margin-bottom:14px; white-space:pre-line;">{{ solicitud_datos_pendiente.comentario_label|default:solicitud_datos_pendiente.comentario }}</p>
+                    {% endif %}
+                    <form method="post" enctype="multipart/form-data" class="grid-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="solicitud_id" value="{{ solicitud_datos_pendiente.id }}">
+                        <div style="grid-column: 1 / -1;">
+                            <p class="item-label">Nuevo valor</p>
+                            {% if solicitud_datos_pendiente.input_type == "file" %}
+                            <input type="file" name="{{ solicitud_datos_pendiente.input_name }}" class="field-input" required>
+                            {% else %}
+                            <input type="text" name="{{ solicitud_datos_pendiente.input_name }}" class="field-input" required>
+                            {% endif %}
+                        </div>
+                        <div style="grid-column: 1 / -1; display:flex; justify-content:flex-end;">
+                            <button type="submit" class="tiny-btn">Enviar información solicitada</button>
+                        </div>
+                    </form>
+                </div>
+                {% endfor %}
+            </article>
+            {% endif %}
+
             <div class="actions">
                 <a href="{% url 'portal_ciudadano:mis_solicitudes' %}" class="tiny-btn secondary"><i class="fa-solid fa-arrow-left"></i> Volver a Mis solicitudes</a>
-                {% if solicitud_tipo == "reclamo" %}
-                <a href="{% url 'portal_ciudadano:reclamos' %}" class="tiny-btn">Nueva solicitud</a>
-                {% else %}
-                <a href="{% url 'portal_ciudadano:tramites' %}" class="tiny-btn">Nuevo trámite</a>
-                {% endif %}
             </div>
         </section>
     </main>
@@ -575,6 +741,44 @@
             <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
         </div>
     </footer>
+<script>
+(function () {
+  window.marcarNotificacionesTurnosLeidas = function(btn){
+    if (btn && btn.dataset.notifReadSent === '1') return;
+    if (btn) btn.dataset.notifReadSent = '1';
+    fetch('{% url "portal_ciudadano:notificaciones_turnos_leidas" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }).then(function(){
+      document.querySelectorAll('[data-notif-toggle] span').forEach(function(badge){ badge.style.display = 'none'; });
+    }).catch(function(){});
+  };
+  document.querySelectorAll('[data-notif-toggle]').forEach(function(btn){
+    var wrap = btn.closest('.notif-wrap');
+    var menu = wrap ? wrap.querySelector('[data-notif-menu]') : null;
+    if (!menu) return;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var open = menu.style.display === 'block';
+      document.querySelectorAll('[data-notif-menu]').forEach(function(m){ m.style.display = 'none'; });
+      menu.style.display = open ? 'none' : 'block';
+      if (!open && window.marcarNotificacionesTurnosLeidas) { window.marcarNotificacionesTurnosLeidas(btn); }
+    });
+  });
+  document.addEventListener('click', function(e){
+    document.querySelectorAll('[data-notif-menu]').forEach(function(menu){
+      var wrap = menu.closest('.notif-wrap');
+      if (!wrap) return;
+      if (!wrap.contains(e.target)) menu.style.display = 'none';
+    });
+  });
+})();
+</script>
 </body>
 </html>
+
 

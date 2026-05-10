@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 
 DIAS_SEMANA = [
@@ -24,6 +25,22 @@ class ConfiguracionTurnos(models.Model):
         AMBOS = 'AMBOS', 'Ambos'
 
     nombre = models.CharField(max_length=200, verbose_name='Nombre')
+    sede = models.ForeignKey(
+        'turnos.SedeTurno',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='configuraciones',
+        verbose_name='Sede',
+    )
+    tipo_tramite = models.ForeignKey(
+        'tramites.TipoTramite',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='configuraciones_turno',
+        verbose_name='Trámite',
+    )
     activo = models.BooleanField(default=True, verbose_name='Activo')
     requiere_aprobacion = models.BooleanField(
         default=False,
@@ -62,6 +79,13 @@ class ConfiguracionTurnos(models.Model):
         verbose_name = 'Configuración de turnos'
         verbose_name_plural = 'Configuraciones de turnos'
         ordering = ['nombre']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['sede', 'tipo_tramite'],
+                condition=Q(sede__isnull=False, tipo_tramite__isnull=False),
+                name='turnos_config_sede_tipo_unique',
+            ),
+        ]
 
     def __str__(self):
         return self.nombre
@@ -78,6 +102,30 @@ class ConfiguracionTurnos(models.Model):
         if hasattr(self, 'recursoturnos'):
             return ('recurso', self.recursoturnos)
         return (None, None)
+
+
+class SedeTurno(models.Model):
+    nombre = models.CharField(max_length=160, verbose_name='Nombre')
+    direccion = models.CharField(max_length=240, blank=True, verbose_name='Direccion')
+    telefono = models.CharField(max_length=60, blank=True, verbose_name='Telefono')
+    permite_turnos = models.BooleanField(default=True, verbose_name='Permite turnos')
+    activo = models.BooleanField(default=True, verbose_name='Activa')
+    tramites_habilitados = models.ManyToManyField(
+        'tramites.TipoTramite',
+        blank=True,
+        related_name='sedes_turno',
+        verbose_name='Tramites habilitados',
+    )
+    creado = models.DateTimeField(auto_now_add=True)
+    modificado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Sede de tramites'
+        verbose_name_plural = 'Sedes de tramites'
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
 
 
 class DisponibilidadConfiguracion(models.Model):

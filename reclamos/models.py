@@ -20,12 +20,12 @@ class Area(AuditModel):
     email_contacto = models.EmailField(blank=True)
     telefono_contacto = models.CharField(max_length=40, blank=True)
     orden = models.PositiveIntegerField(null=True, blank=True, db_index=True)
-    municipio = models.ForeignKey(
-        "core.Municipio",
+    parent = models.ForeignKey(
+        "self",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="areas_reclamos",
+        related_name="subareas",
     )
 
     class Meta:
@@ -33,11 +33,12 @@ class Area(AuditModel):
         verbose_name_plural = "Areas"
         ordering = ["orden", "nombre", "id"]
         constraints = [
-            models.UniqueConstraint(fields=["codigo", "municipio"], name="reclamos_area_codigo_municipio_uk"),
+            models.UniqueConstraint(fields=["codigo"], name="reclamos_area_codigo_uk"),
         ]
 
     def __str__(self):
-        return f"{self.nombre} ({self.codigo})" if self.codigo else self.nombre
+        base = f"{self.nombre} ({self.codigo})" if self.codigo else self.nombre
+        return f"{self.parent.nombre} / {base}" if self.parent else base
 
 
 class PrioridadReclamo(AuditModel):
@@ -46,20 +47,13 @@ class PrioridadReclamo(AuditModel):
     descripcion = models.TextField(blank=True)
     nivel = models.PositiveSmallIntegerField(db_index=True)
     color = models.CharField(max_length=20, blank=True)
-    municipio = models.ForeignKey(
-        "core.Municipio",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="prioridades_reclamo",
-    )
 
     class Meta:
         verbose_name = "Prioridad de reclamo"
         verbose_name_plural = "Prioridades de reclamo"
         ordering = ["nivel", "nombre", "id"]
         constraints = [
-            models.UniqueConstraint(fields=["codigo", "municipio"], name="reclamos_prioridad_codigo_municipio_uk"),
+            models.UniqueConstraint(fields=["codigo"], name="reclamos_prioridad_codigo_uk"),
         ]
 
     def __str__(self):
@@ -74,20 +68,13 @@ class EstadoReclamo(AuditModel):
     es_final = models.BooleanField(default=False, db_index=True)
     color = models.CharField(max_length=20, blank=True)
     orden = models.PositiveIntegerField(default=0, db_index=True)
-    municipio = models.ForeignKey(
-        "core.Municipio",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="estados_reclamo",
-    )
 
     class Meta:
         verbose_name = "Estado de reclamo"
         verbose_name_plural = "Estados de reclamo"
         ordering = ["orden", "nombre", "id"]
         constraints = [
-            models.UniqueConstraint(fields=["codigo", "municipio"], name="reclamos_estado_codigo_municipio_uk"),
+            models.UniqueConstraint(fields=["codigo"], name="reclamos_estado_codigo_uk"),
         ]
 
     def __str__(self):
@@ -144,6 +131,8 @@ class EstadoReclamoTransicion(AuditModel):
 class TipoReclamo(AuditModel):
     nombre = models.CharField(max_length=120, db_index=True)
     descripcion = models.TextField(blank=True)
+    imagen_portada = models.ImageField(upload_to="reclamos/tipos/portadas/%Y/%m/", null=True, blank=True)
+    destacado = models.BooleanField(default=False, db_index=True)
     area = models.ForeignKey("reclamos.Area", on_delete=models.PROTECT, related_name="tipos_reclamo")
     requiere_ubicacion = models.BooleanField(default=False)
     requiere_adjunto = models.BooleanField(default=False)
@@ -157,20 +146,13 @@ class TipoReclamo(AuditModel):
         related_name="tipos_reclamo_default",
     )
     orden = models.PositiveIntegerField(default=0, db_index=True)
-    municipio = models.ForeignKey(
-        "core.Municipio",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="tipos_reclamo",
-    )
 
     class Meta:
         verbose_name = "Tipo de reclamo"
         verbose_name_plural = "Tipos de reclamo"
         ordering = ["orden", "nombre", "id"]
         constraints = [
-            models.UniqueConstraint(fields=["nombre", "municipio"], name="reclamos_tipo_nombre_municipio_uk"),
+            models.UniqueConstraint(fields=["nombre"], name="reclamos_tipo_nombre_uk"),
         ]
 
     def __str__(self):
@@ -182,6 +164,7 @@ class CampoDinamicoReclamo(AuditModel):
         TEXTO = "texto", "Texto"
         NUMERO = "numero", "Numero"
         FECHA = "fecha", "Fecha"
+        HORARIO = "horario", "Horario"
         BOOLEANO = "booleano", "Booleano"
         SELECCION = "seleccion", "Seleccion"
         EMAIL = "email", "Email"

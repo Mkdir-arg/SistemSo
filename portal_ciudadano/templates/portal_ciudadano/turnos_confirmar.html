@@ -2,37 +2,171 @@
 
 {% block title %}Confirmar Turno - Portal Ciudadano{% endblock %}
 {% block hero_title %}Confirmar turno{% endblock %}
-{% block hero_subtitle %}revisá la información{% endblock %}
-{% block hero_text %}Confirmá los datos del turno antes de reservarlo definitivamente.{% endblock %}
+{% block hero_subtitle %}revisa la informacion{% endblock %}
+{% block hero_text %}Confirma los datos del turno antes de reservarlo definitivamente.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .steps {
+        width: min(840px, 100%);
+        margin: 24px auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 6px;
+        flex-wrap: nowrap;
+    }
+    .step {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: max-content;
+        flex: 0 0 auto;
+    }
+    .step .text {
+        font-size: clamp(14px, 1.2vw, 16px);
+        font-weight: 500;
+        line-height: 24px;
+        color: #475467;
+        white-space: nowrap;
+    }
+    .step.current .text,
+    .step.done .text { color: #ff0080; }
+    .step-dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        color: #475467;
+        font-weight: 700;
+        background: #eef1f5;
+        border: 0;
+    }
+    .step.current .step-dot,
+    .step.done .step-dot { color: #ff0080; background: #f4e8f0; }
+    .step-line {
+        width: clamp(40px, 8vw, 120px);
+        height: 1px;
+        background: #d8dee8;
+        flex: 0 0 auto;
+    }
+    .tiny-btn {
+        min-height: 42px;
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 22px;
+        background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: "Inter", sans-serif;
+        text-decoration: none;
+    }
+    .tiny-btn.secondary {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        color: #4a5565;
+    }
+    .aviso-reemplazo {
+        margin: 14px 0;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid #f5b8d6;
+        background: #fff1f8;
+        color: #7a1848;
+    }
+    .aviso-reemplazo h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        line-height: 1.2;
+        font-weight: 800;
+    }
+    .aviso-reemplazo p {
+        margin: 0 0 8px;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+    .aviso-reemplazo ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="stack" style="width:min(620px,100%);margin:0 auto;">
-    <a class="btn btn-secondary" href="{% url 'portal_ciudadano:turno_calendario' recurso.pk %}" style="width:fit-content;">
-        <i class="fa-solid fa-arrow-left"></i> Volver al calendario
-    </a>
     <article class="card flush-top">
         <h2>Resumen del turno</h2>
         <dl>
-            <div class="data-row"><dt>Organismo / Profesional</dt><dd>{{ recurso.nombre }}</dd></div>
-            {% if recurso.direccion %}<div class="data-row"><dt>Dirección</dt><dd>{{ recurso.direccion }}</dd></div>{% endif %}
+            <div class="data-row"><dt>Sede</dt><dd>{{ sede_nombre|default:recurso.nombre }}</dd></div>
+            <div class="data-row"><dt>Tramite</dt><dd>{{ tramite_nombre|default:"-" }}</dd></div>
             <div class="data-row"><dt>Fecha</dt><dd>{{ fecha }}</dd></div>
-            <div class="data-row"><dt>Horario</dt><dd>{{ hora_inicio }} - {{ hora_fin }}</dd></div>
+            <div class="data-row"><dt>Horario</dt><dd>{{ hora_inicio }}</dd></div>
             <div class="data-row"><dt>A nombre de</dt><dd>{{ ciudadano.nombre }} {{ ciudadano.apellido }}</dd></div>
+            <div class="data-row"><dt>Dni</dt><dd>{{ ciudadano.dni|default:"-" }}</dd></div>
         </dl>
         {% if recurso.requiere_aprobacion %}
-        <p class="status warn" style="margin:12px 0;width:fit-content;">Este turno queda pendiente de confirmación.</p>
+        <p class="status warn" style="margin:12px 0;width:fit-content;">Este turno queda pendiente de confirmacion.</p>
+        {% endif %}
+        {% if aviso_reemplazo_turno %}
+        <section class="aviso-reemplazo">
+            <h3>Atencion: ya tenes un turno vigente</h3>
+            <p>{{ aviso_reemplazo_turno }}</p>
+            <ul>
+                <li>Sede: {{ aviso_turno_detalle.sede|default:"-" }}</li>
+                <li>Fecha: {{ aviso_turno_detalle.fecha|default:"-" }}</li>
+                <li>Horario: {{ aviso_turno_detalle.hora_inicio|default:"-" }}</li>
+                <li>Codigo: {{ aviso_turno_detalle.codigo|default:"-" }}</li>
+            </ul>
+        </section>
+        {% endif %}
+        {% if bloqueo_mensaje %}
+        <p class="status warn" style="margin:12px 0;">{{ bloqueo_mensaje }}</p>
         {% endif %}
         <form method="post" action="{% url 'portal_ciudadano:confirmar_turno' recurso.pk %}" class="stack" style="margin-top:18px;">
             {% csrf_token %}
             {{ form.fecha }}
             {{ form.hora_inicio }}
             {{ form.hora_fin }}
-            <label for="motivo" class="muted" style="font-weight:600;color:var(--text-heading);">Motivo de la consulta <span class="muted">(opcional)</span></label>
-            <textarea id="motivo" name="motivo" rows="3" placeholder="Describí brevemente el motivo de tu turno..." style="width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;">{{ form.motivo.value|default:"" }}</textarea>
-            <button class="btn btn-primary" type="submit" style="width:100%;min-height:42px;">
-                <i class="fa-solid fa-check"></i> Confirmar turno
-            </button>
+            <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+                <a class="tiny-btn secondary" href="{{ volver_url }}">
+                    <i class="fa-solid fa-arrow-left"></i> Editar
+                </a>
+                <button class="tiny-btn" type="submit" {% if bloqueo_mensaje %}disabled style="opacity:.65;cursor:not-allowed;"{% endif %}>
+                    <i class="fa-solid fa-check"></i> Confirmar
+                </button>
+            </div>
         </form>
     </article>
+
+    <section class="steps" aria-label="Paso a paso de trámite">
+        <div class="step done">
+            <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+            <span class="text">Tipo</span>
+        </div>
+        <span class="step-line"></span>
+        <div class="step done">
+            <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+            <span class="text">Seleccion</span>
+        </div>
+        <span class="step-line"></span>
+        <div class="step current" aria-current="step">
+            <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+            <span class="text">Confirmacion</span>
+        </div>
+    </section>
 </div>
 {% endblock %}

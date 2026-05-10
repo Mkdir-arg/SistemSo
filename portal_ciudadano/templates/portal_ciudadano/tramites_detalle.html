@@ -55,7 +55,7 @@
             flex-wrap: wrap;
             padding: 12px 0;
         }
-        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 8px; }
         .brand-mark {
             width: 56px;
             height: 68px;
@@ -73,20 +73,10 @@
         .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
         .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
 
-        .top-links {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-        .icon-link {
-            width: 16px;
-            height: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .top-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .icon-link { width: 34px; height: 34px; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); transition: all .2s ease; }
+        .icon-link:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+        .icon-link i { line-height: 1; }
         .icon-img {
             width: 16px;
             height: 16px;
@@ -114,7 +104,7 @@
             background: linear-gradient(360deg, var(--brand-gradient-end) 0%, var(--brand-gradient-start) 100%);
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
-            padding: 56px 100px 92px;
+            padding: 42px 100px 56px;
         }
         .hero h1 {
             margin: 0;
@@ -132,10 +122,190 @@
             font-size: clamp(24px, 2.4vw, 38px);
             line-height: 1.08;
         }
+        .hero-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            width: fit-content;
+            margin-bottom: 12px;
+        }
 
         .detail-wrap {
             width: min(940px, 100%);
             margin: 44px auto 0;
+        }
+        .modo-cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+        .modo-card {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 1px 0.5px 0.05px rgba(29, 41, 61, 0.02);
+            padding: 24px;
+            display: grid;
+            gap: 8px;
+        }
+        .modo-card h3 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.1;
+            color: var(--text-heading);
+        }
+        .modo-card p {
+            margin: 0;
+            color: #475467;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .modo-card .tiny-btn {
+            width: fit-content;
+        }
+        .selector-panel {
+            margin-top: 16px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            padding: 18px;
+        }
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .agenda-two-col {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .agenda-three-col {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .agenda-col {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px;
+            min-height: 140px;
+            background: #fcfcfd;
+        }
+        .agenda-col h4 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #475467;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+        .date-btn {
+            width: 100%;
+            text-align: left;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            padding: 8px 10px;
+            font-size: 14px;
+            color: #101828;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .date-btn.active {
+            border-color: #c91b72;
+            color: #c91b72;
+            background: #fff7fb;
+        }
+        .calendar-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .cal-nav {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: #fff;
+            cursor: pointer;
+        }
+        .cal-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #101828;
+        }
+        .cal-weekdays, .cal-days {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .cal-weekdays span {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475467;
+            padding: 6px 0;
+        }
+        .cal-day {
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: #101828;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .cal-day.off {
+            color: #c0c8d6;
+            background: #f8fafc;
+            cursor: not-allowed;
+        }
+        .cal-day.active {
+            color: #fff;
+            border-color: transparent;
+            background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%);
+        }
+        .slot-list {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .slot-chip {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--text-heading);
+            padding: 8px 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .slot-chip:hover {
+            border-color: #c91b72;
+            color: #c91b72;
+        }
+        .result-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
         }
         .grid {
             display: grid;
@@ -145,7 +315,7 @@
         .field {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 16px;
         }
         .field.full { grid-column: 1 / -1; }
@@ -161,6 +331,7 @@
         input[type="tel"],
         input[type="number"],
         input[type="date"],
+        input[type="time"],
         select,
         textarea,
         input[type="file"] {
@@ -184,6 +355,48 @@
             font-size: 14px;
             line-height: 20px;
             margin-top: -4px;
+        }
+        .help-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin-left: 6px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: help;
+            background: #f8fafc;
+            vertical-align: middle;
+        }
+        .help-tooltip .help-tooltip-text {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            transform: translateX(-50%);
+            width: max-content;
+            max-width: 260px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.3;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .15s ease;
+            z-index: 20;
+            white-space: normal;
+            text-align: left;
+        }
+        .help-tooltip:hover .help-tooltip-text {
+            opacity: 1;
+            visibility: visible;
         }
 
         .extra-card {
@@ -232,14 +445,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 8px;
             padding: 0 6px;
             flex-wrap: nowrap;
         }
         .step {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             min-width: max-content;
             flex: 0 0 auto;
         }
@@ -369,14 +582,14 @@
         @media (max-width: 900px) {
             .topbar-inner {
                 justify-content: flex-start;
-                gap: 12px;
+                gap: 8px;
                 padding: 10px 0;
             }
             .brand { width: 100%; }
             .top-links {
                 width: 100%;
                 justify-content: flex-start;
-                gap: 10px;
+                gap: 8px;
             }
             .profile-btn {
                 font-size: 11px;
@@ -384,11 +597,15 @@
                 padding: 5px 10px;
             }
             .hero {
-                padding: 32px 20px 80px;
+                padding: 26px 20px 44px;
             }
             .hero h1 { font-size: 38px; }
             .detail-wrap { margin-top: 24px; }
             .grid { grid-template-columns: 1fr; }
+            .modo-cards { grid-template-columns: 1fr; }
+            .selector-grid { grid-template-columns: 1fr; }
+            .agenda-two-col { grid-template-columns: 1fr; }
+            .agenda-three-col { grid-template-columns: 1fr; }
             label {
                 font-size: 14px;
                 line-height: 20px;
@@ -417,7 +634,7 @@
             .step-line { width: 24px; }
             .footer-inner {
                 align-items: flex-start;
-                gap: 12px;
+                gap: 8px;
             }
             .legal-row { font-size: 12px; }
             .chat-bubble {
@@ -439,7 +656,7 @@
             }
             .brand-title strong { font-size: 26px; line-height: 30px; }
             .brand-title span { font-size: 18px; line-height: 20px; }
-            .icon-link { width: 14px; height: 14px; }
+            .icon-link { width: 30px; height: 30px; font-size: 14px; }
             .icon-img { width: 14px; height: 14px; }
             .hero h1 { font-size: 30px; }
             .footer { padding-top: 24px; }
@@ -457,11 +674,40 @@
                 </div>
             </a>
             <div class="top-links">
-                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><img src="{% static 'custom/portal-ciudadano/home.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><img src="{% static 'custom/portal-ciudadano/calendar-month.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:reclamos' %}" aria-label="Solicitudes"><img src="{% static 'custom/portal-ciudadano/bell.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><i class="fa-solid fa-house"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><i class="fa-regular fa-user"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Seguimiento"><i class="fa-regular fa-rectangle-list"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><i class="fa-regular fa-calendar-days"></i></a>
+                <div class="notif-wrap" style="position:relative;">
+                <button type="button" class="icon-link" data-notif-toggle aria-label="Avisos de turnos" style="position:relative;">
+                    <i class="fa-regular fa-bell"></i>
+                    {% if portal_notificaciones_count %}
+                    <span style="position:absolute;top:-6px;right:-8px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;line-height:14px;font-weight:700;text-align:center;">?</span>
+                    {% endif %}
+                </button>
+                <div data-notif-menu style="display:none;position:absolute;top:34px;right:0;width:min(340px,84vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 22px rgba(16,24,40,.16);padding:8px;z-index:30;">
+                    {% if portal_notificaciones %}
+                        {% for notif in portal_notificaciones %}
+                        <a href="{{ notif.url }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid {% if notif.seen %}#e5e7eb{% elif notif.kind == "solicitud_datos" %}#bfdbfe{% else %}#fde68a{% endif %};background:{% if notif.seen %}#f9fafb{% elif notif.kind == "solicitud_datos" %}#eff6ff{% else %}#fffbeb{% endif %};opacity:{% if notif.seen %}0.72{% else %}1{% endif %};border-radius:10px;padding:8px;margin-bottom:6px;">
+                            <div style="min-width:0;flex:1;">
+                            <p style="margin:0 0 2px;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:11px;font-weight:700;">{{ notif.title }}</p>
+                            {% if notif.subtitle %}<p style="margin:0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.subtitle }}</p>{% endif %}
+                            {% if notif.detail %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.detail }}</p>{% endif %}
+                            {% if notif.extra %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.extra }}</p>{% endif %}
+                            </div>
+                            <span aria-hidden="true" style="flex:0 0 auto;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:14px;line-height:1;font-weight:700;">&gt;</span>
+                        </a>
+                        {% endfor %}
+                        
+                    {% else %}
+                        <div style="border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;padding:10px;">
+                            <p style="margin:0 0 2px;color:#475467;font-size:11px;font-weight:700;">Sin notificaciones</p>
+                            <p style="margin:0;color:#667085;font-size:11px;">No ten?s avisos de turnos por el momento.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><i class="fa-regular fa-comments"></i></a>
                 <form method="post" action="{% url 'portal_ciudadano:logout' %}" style="margin:0;">
                     {% csrf_token %}
                     <button type="submit" class="profile-btn">
@@ -475,71 +721,224 @@
 
     <main class="container">
         <section class="hero animate-fadeInUp">
-            <h1>Detalle del trámite,<span>completá la información para que podamos gestionar tu pedido</span></h1>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div>
+                    <div class="hero-status-badge">
+                        <i class="fa-solid fa-circle-info"></i>
+                        {% if tramite_permite_online and tramite_permite_presencial %}
+                            Online / Presencial
+                        {% elif tramite_permite_online %}
+                            Disponible online
+                        {% elif tramite_requiere_turno %}
+                            Presencial con turno
+                        {% elif tramite_permite_presencial %}
+                            Presencial sin turno
+                        {% else %}
+                            Tramite disponible
+                        {% endif %}
+                    </div>
+                    <h1 style="margin:0;">{{ tipo_seleccionado.nombre|default:"Tramite" }}</h1>
+                </div>
+                <a href="{% url 'portal_ciudadano:tramites' %}" class="tiny-btn" style="text-decoration:none;background:#f9fafb;border:1px solid #e5e7eb;color:#4a5565;min-height:36px;padding:8px 14px;">
+                    <i class="fa-solid fa-arrow-left"></i> Volver
+                </a>
+            </div>
+            <p style="margin-top:14px;font-size:28px;line-height:1.2;font-weight:700;color:rgba(255,255,255,.92);">{{ area_principal_nombre|default:"-" }} - {{ subarea_nombre|default:"-" }}</p>
         </section>
 
         <section class="detail-wrap animate-fadeInUp">
-            <div class="extra-card">
-                <h2>Tipo seleccionado: {{ tipo_seleccionado.nombre|default:"Sin definir" }}</h2>
-                <p>Mostramos los requisitos y campos adicionales configurados para este trámite.</p>
-                {% if requisitos %}
-                <ul class="req-list">
-                    {% for req in requisitos %}
-                    <li>{{ req.nombre }}{% if req.obligatorio %} (obligatorio){% endif %}</li>
-                    {% endfor %}
-                </ul>
+            {% if not mostrar_selector_turno %}
+            <div class="extra-card" style="margin-bottom: 22px;">
+                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;text-align:center;">
+                    <div>
+                        <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.03em;color:#6b7280;text-transform:uppercase;">Tipo de tramite</p>
+                        <p style="margin:0;font-size:20px;font-weight:800;color:#111827;line-height:1.2;">
+                            {% if tramite_permite_online and tramite_permite_presencial %}
+                                Online / Presencial
+                            {% elif tramite_permite_online %}
+                                Online
+                            {% elif tramite_permite_presencial %}
+                                Presencial
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div style="border-left:1px solid #d1d5db;padding-left:18px;">
+                        <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.03em;color:#6b7280;text-transform:uppercase;">Requiere turno</p>
+                        <p style="margin:0;font-size:20px;font-weight:800;color:#111827;line-height:1.2;">{% if tramite_requiere_turno %}Si{% else %}No{% endif %}</p>
+                    </div>
+                    <div style="border-left:1px solid #d1d5db;padding-left:18px;">
+                        <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.03em;color:#6b7280;text-transform:uppercase;">Costo</p>
+                        <p style="margin:0;font-size:20px;font-weight:800;color:#111827;line-height:1.2;">
+                            {% if tipo_seleccionado.costo %}
+                                <span data-costo-resumen="{{ tipo_seleccionado.costo }}">$ {{ tipo_seleccionado.costo|floatformat:0 }}</span>
+                            {% else %}
+                                Sin Costo
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if not mostrar_selector_turno %}
+            <div style="margin:56px 0 40px;">
+                {% with requisitos_txt=tipo_seleccionado.requisitos_info|striptags|cut:" "|cut:"\n"|cut:"\r"|cut:"\t" %}
+                {% if requisitos_txt %}
+                <h2 style="margin:0 0 18px;font-size:22px;line-height:1.2;">Requisitos</h2>
+                <div style="color:#475467;font-size:15px;line-height:1.75;">
+                    {{ tipo_seleccionado.requisitos_info|safe }}
+                </div>
+                {% endif %}
+                {% endwith %}
+                {% with info_extra_txt=tipo_seleccionado.informacion_extra|striptags|cut:" "|cut:"\n"|cut:"\r"|cut:"\t" %}
+                {% if info_extra_txt %}
+                <h2 style="margin:56px 0 18px;font-size:22px;line-height:1.2;">Informacion extra</h2>
+                <div style="color:#475467;font-size:15px;line-height:1.75;">
+                    {{ tipo_seleccionado.informacion_extra|safe }}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% endif %}
+
+            {% if not mostrar_selector_turno %}
+            <div style="margin:18px 0 34px;display:flex;justify-content:flex-end;">
+                <a class="tiny-btn" href="{% url 'portal_ciudadano:tramites_detalle_iniciar' %}?tipo={{ tipo_seleccionado.id }}" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;min-width:280px;padding:14px 28px;font-size:17px;font-weight:800;box-shadow:0 10px 24px rgba(121,40,202,.28);">
+                    <i class="fa-solid fa-circle-play"></i> Iniciar Tramite
+                </a>
+            </div>
+            {% else %}
+            {% if tramite_requiere_turno %}
+            <div class="modo-cards">
+                <article class="modo-card">
+                    <h3>Elegir por sede</h3>
+                    <p>Seleccioná la sede y luego elegí un horario disponible en su agenda semanal.</p>
+                    <button class="tiny-btn" id="btn_modo_sede" type="button">Continuar</button>
+                </article>
+                <article class="modo-card">
+                    <h3>Elegir por fecha</h3>
+                    <p>Seleccioná una fecha y te mostramos los turnos disponibles por sede para ese día.</p>
+                    <button class="tiny-btn" id="btn_modo_fecha" type="button">Continuar</button>
+                </article>
+            </div>
+
+            <div id="panel_sede" class="selector-panel" style="display:none;">
+                <h3 style="margin:0 0 10px;">Seleccion por sede</h3>
+                {% if tramite_sedes_agenda %}
+                <p id="sede_hint" class="input-help" style="margin-top:8px;">Seleccioná sede, fecha y horario para continuar.</p>
+                <div class="agenda-three-col">
+                    <div class="agenda-col">
+                        <h4>Sedes</h4>
+                        <div id="sede_lista"></div>
+                    </div>
+                    <div class="agenda-col">
+                        <div class="calendar-head">
+                            <button type="button" class="cal-nav" id="cal_prev"><i class="fa-solid fa-chevron-left"></i></button>
+                            <h4 class="cal-title" id="cal_title">Calendario</h4>
+                            <button type="button" class="cal-nav" id="cal_next"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div class="cal-weekdays">
+                            <span>L</span><span>M</span><span>Mi</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                        </div>
+                        <div id="sede_fechas" class="cal-days"></div>
+                    </div>
+                    <div class="agenda-col">
+                        <h4>Horarios disponibles</h4>
+                        <div id="sede_slots"></div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="input-help">No hay sedes con agenda configurada para este trámite.</p>
                 {% endif %}
             </div>
 
-            <form class="grid" style="margin-top: 18px;" method="post" action="{% url 'portal_ciudadano:tramites_detalle' %}" enctype="multipart/form-data">
+            <div id="panel_fecha" class="selector-panel" style="display:none;">
+                <h3 style="margin:0 0 10px;">Seleccion por fecha</h3>
+                <p id="fecha_hint" class="input-help" style="margin-top:8px;">Seleccioná una fecha y luego una sede para ver horarios.</p>
+                <div class="agenda-three-col">
+                    <div class="agenda-col">
+                        <div class="calendar-head">
+                            <button type="button" class="cal-nav" id="fcal_prev"><i class="fa-solid fa-chevron-left"></i></button>
+                            <h4 class="cal-title" id="fcal_title">Calendario</h4>
+                            <button type="button" class="cal-nav" id="fcal_next"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div class="cal-weekdays">
+                            <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                        </div>
+                        <div id="fecha_cal_days" class="cal-days"></div>
+                    </div>
+                    <div class="agenda-col">
+                        <h4>Sedes</h4>
+                        <div id="fecha_sedes"></div>
+                    </div>
+                    <div class="agenda-col">
+                        <h4>Horarios disponibles</h4>
+                        <div id="fecha_horarios" class="slot-list"></div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <form method="post" enctype="multipart/form-data" style="margin-top:14px;display:grid;gap:16px;">
                 {% csrf_token %}
-                <input type="hidden" name="tipo_id" value="{{ form.initial.tipo_id }}">
+                <input type="hidden" name="tipo_id" value="{{ tipo_seleccionado.id }}">
 
-                <div class="field full">
-                    <label for="descripcion">Descripción <span class="req">*</span></label>
-                    <textarea id="descripcion" name="descripcion" placeholder="Describí tu solicitud con el mayor detalle posible"></textarea>
-                </div>
-
-                <div class="field">
-                    <label for="fecha_aproximada">Fecha aproximada <span class="req">*</span></label>
-                    <input id="fecha_aproximada" name="fecha_aproximada" type="date">
-                </div>
-
-                <div class="field">
-                    <label for="adjuntos">Archivos adjuntos (opcional)</label>
-                    <input id="adjuntos" name="adjuntos" type="file">
-                </div>
-
-                {% for campo in campos_extra %}
-                <div class="field {% if campo.input_kind == 'checkbox' %}full{% endif %}">
-                    <label for="extra_{{ campo.id }}">{{ campo.nombre }} {% if campo.obligatorio %}<span class="req">*</span>{% endif %}</label>
-                    {% if campo.input_kind == 'select' %}
-                    <select id="extra_{{ campo.id }}" name="extra_{{ campo.id }}">
-                        <option value="">Seleccionar</option>
-                        {% for opcion in campo.opciones %}
-                        <option value="{{ opcion.valor }}">{{ opcion.etiqueta }}</option>
+                {% if campos_extra %}
+                <div class="selector-panel">
+                    <h3 style="margin:0 0 12px;">Completa los datos para continuar</h3>
+                    {% if tramite_permite_online and tramite_permite_presencial %}
+                    <div style="margin-bottom:12px;">
+                        <label for="{{ form.modalidad_atencion.id_for_label }}" style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Modalidad de atencion</label>
+                        <select id="{{ form.modalidad_atencion.id_for_label }}" name="modalidad_atencion" class="date-btn" style="margin:0;">
+                            <option value="">Seleccionar modalidad</option>
+                            {% if tramite_permite_online %}<option value="virtual" {% if form.modalidad_atencion.value == "virtual" %}selected{% endif %}>Virtual</option>{% endif %}
+                            {% if tramite_permite_presencial %}<option value="presencial" {% if form.modalidad_atencion.value == "presencial" %}selected{% endif %}>Presencial</option>{% endif %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div style="display:grid;gap:12px;">
+                        {% for campo in campos_extra %}
+                        <div>
+                            <label for="extra_{{ campo.id }}" style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">
+                                {{ campo.nombre }}{% if campo.obligatorio %} *{% endif %}
+                            </label>
+                            {% if campo.input_kind == "select" %}
+                            <select id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" class="date-btn" style="margin:0;" {% if campo.obligatorio %}required{% endif %}>
+                                <option value="">Seleccionar</option>
+                                {% for op in campo.opciones %}
+                                <option value="{{ op.valor }}">{{ op.etiqueta }}</option>
+                                {% endfor %}
+                            </select>
+                            {% elif campo.input_kind == "checkbox" %}
+                            <label style="display:inline-flex;align-items:center;gap:8px;color:#374151;">
+                                <input type="checkbox" id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" value="1">
+                                <span>Si</span>
+                            </label>
+                            {% elif campo.input_kind == "file" %}
+                            <input type="file" id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" class="date-btn" style="margin:0;padding:8px 10px;" {% if campo.obligatorio %}required{% endif %}>
+                            {% else %}
+                            <input type="{{ campo.input_kind }}" id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" class="date-btn" style="margin:0;" placeholder="{{ campo.placeholder }}" {% if campo.obligatorio %}required{% endif %}>
+                            {% endif %}
+                            {% if campo.ayuda %}
+                            <p class="input-help" style="margin-top:6px;">{{ campo.ayuda }}</p>
+                            {% endif %}
+                        </div>
                         {% endfor %}
-                    </select>
-                    {% elif campo.input_kind == 'checkbox' %}
-                    <input id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" type="checkbox" style="width:22px;height:22px;">
-                    {% elif campo.input_kind == 'file' %}
-                    <input id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" type="file">
-                    {% else %}
-                    <input id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" type="{{ campo.input_kind }}" placeholder="{{ campo.placeholder }}">
-                    {% endif %}
-                    {% if campo.ayuda %}
-                    <small class="input-help">{{ campo.ayuda }}</small>
-                    {% endif %}
+                    </div>
                 </div>
-                {% endfor %}
+                {% endif %}
 
-                <div class="field full" style="display:flex;flex-direction:row;justify-content:flex-end;gap:12px;margin-top:8px;">
-                    <a href="{% url 'portal_ciudadano:tramites' %}" class="tiny-btn" style="text-decoration:none;background:#f9fafb;border:1px solid #e5e7eb;color:#4a5565;">Volver</a>
-                    <button class="tiny-btn" type="submit">Continuar</button>
+                <div style="display:flex;justify-content:flex-end;">
+                    <button class="tiny-btn" type="submit" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;min-width:260px;padding:12px 24px;font-size:16px;font-weight:800;box-shadow:0 10px 24px rgba(121,40,202,.28);">
+                        <i class="fa-solid fa-circle-play"></i> Continuar tramite
+                    </button>
                 </div>
             </form>
+            {% endif %}
+            {% endif %}
         </section>
 
+        {% if mostrar_selector_turno %}
         <section class="steps" aria-label="Paso a paso de tramite">
             <div class="step done">
                 <span class="step-dot"><i class="fa-solid fa-check"></i></span>
@@ -548,14 +947,15 @@
             <span class="step-line"></span>
             <div class="step current" aria-current="step">
                 <span class="step-dot"><i class="fa-solid fa-check"></i></span>
-                <span class="text">Detalle</span>
+                <span class="text">Seleccion</span>
             </div>
             <span class="step-line"></span>
             <div class="step">
                 <span class="step-dot"><i class="fa-solid fa-check"></i></span>
-                <span class="text">Confirmar</span>
+                <span class="text">Confirmacion</span>
             </div>
         </section>
+        {% endif %}
     </main>
 
     <a href="{% url 'portal_ciudadano:chat' %}" class="chat-bubble" aria-label="Abrir chat">
@@ -584,7 +984,343 @@
             <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
         </div>
     </footer>
+<script>
+        (function () {
+  window.marcarNotificacionesTurnosLeidas = function(btn){
+    if (btn && btn.dataset.notifReadSent === '1') return;
+    if (btn) btn.dataset.notifReadSent = '1';
+    fetch('{% url "portal_ciudadano:notificaciones_turnos_leidas" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }).then(function(){
+      document.querySelectorAll('[data-notif-toggle] span').forEach(function(badge){ badge.style.display = 'none'; });
+    }).catch(function(){});
+  };
+            const mostrarSelector = {% if mostrar_selector_turno %}true{% else %}false{% endif %};
+            if (!mostrarSelector) return;
+            const btnModoSede = document.getElementById("btn_modo_sede");
+            const btnModoFecha = document.getElementById("btn_modo_fecha");
+            const panelSede = document.getElementById("panel_sede");
+            const panelFecha = document.getElementById("panel_fecha");
+            const sedeLista = document.getElementById("sede_lista");
+            const sedeHint = document.getElementById("sede_hint");
+            const sedeFechas = document.getElementById("sede_fechas");
+            const sedeSlots = document.getElementById("sede_slots");
+            const calTitle = document.getElementById("cal_title");
+            const calPrev = document.getElementById("cal_prev");
+            const calNext = document.getElementById("cal_next");
+            const fechaHint = document.getElementById("fecha_hint");
+            const fechaCalDays = document.getElementById("fecha_cal_days");
+            const fechaSedes = document.getElementById("fecha_sedes");
+            const fechaHorarios = document.getElementById("fecha_horarios");
+            const fcalTitle = document.getElementById("fcal_title");
+            const fcalPrev = document.getElementById("fcal_prev");
+            const fcalNext = document.getElementById("fcal_next");
+
+            function showPanel(mode) {
+                if (panelSede) panelSede.style.display = mode === "sede" ? "block" : "none";
+                if (panelFecha) panelFecha.style.display = mode === "fecha" ? "block" : "none";
+                if (mode === "sede") {
+                    cargarAgendaSede();
+                }
+            }
+            if (btnModoSede) btnModoSede.addEventListener("click", () => showPanel("sede"));
+            if (btnModoFecha) btnModoFecha.addEventListener("click", () => {
+                showPanel("fecha");
+                const today = new Date();
+                fechaSelectedKey = today.toISOString().slice(0, 10);
+                fechaViewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                renderFechaCalendar();
+                cargarFechaData(fechaSelectedKey);
+            });
+
+            let sedeAgendaData = [];
+            let sedeAgendaMap = {};
+            let sedeViewDate = new Date();
+            let sedeSelectedDate = null;
+            let sedeSelectedRecursoId = null;
+
+            function renderSedeSlotsByDate(fechaKey) {
+                sedeSlots.innerHTML = "";
+                const dia = sedeAgendaMap[fechaKey];
+                (dia && dia.slots ? dia.slots : []).forEach((slot) => {
+                    const a = document.createElement("a");
+                    a.className = "slot-chip";
+                    a.textContent = slot.hora_inicio;
+                    a.href = slot.confirmar_url;
+                    sedeSlots.appendChild(a);
+                });
+            }
+
+            function renderSedeCalendar() {
+                if (!sedeFechas) return;
+                sedeFechas.innerHTML = "";
+                if (calTitle) calTitle.textContent = sedeViewDate.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+                const year = sedeViewDate.getFullYear();
+                const month = sedeViewDate.getMonth();
+                const first = new Date(year, month, 1);
+                const offset = (first.getDay() + 6) % 7;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                for (let i = 0; i < offset; i++) {
+                    const empty = document.createElement("button");
+                    empty.type = "button";
+                    empty.className = "cal-day off";
+                    empty.disabled = true;
+                    empty.textContent = "";
+                    sedeFechas.appendChild(empty);
+                }
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const d = new Date(year, month, day);
+                    const key = d.toISOString().slice(0, 10);
+                    const available = !!sedeAgendaMap[key];
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.className = "cal-day" + (available ? "" : " off") + (key === sedeSelectedDate ? " active" : "");
+                    b.textContent = String(day);
+                    b.disabled = !available;
+                    b.addEventListener("click", () => {
+                        sedeSelectedDate = key;
+                        renderSedeCalendar();
+                        renderSedeSlotsByDate(key);
+                    });
+                    sedeFechas.appendChild(b);
+                }
+            }
+
+            async function cargarAgendaSede(recursoId) {
+                    sedeSelectedRecursoId = recursoId || sedeSelectedRecursoId;
+                    const recursoIdToLoad = sedeSelectedRecursoId;
+                    const recursoIdStr = recursoIdToLoad ? String(recursoIdToLoad) : "";
+                    if (!recursoIdStr) {
+                        sedeHint.textContent = "Seleccioná una sede.";
+                        if (sedeFechas) sedeFechas.innerHTML = "";
+                        if (sedeSlots) sedeSlots.innerHTML = "";
+                        return;
+                    }
+                    const recursoIdFinal = recursoIdStr;
+                    sedeHint.textContent = "Buscando agenda...";
+                    if (sedeFechas) sedeFechas.innerHTML = "";
+                    sedeSlots.innerHTML = "";
+                    const url = "{% url 'portal_ciudadano:agenda_sede' 0 %}".replace("/0/", "/" + recursoIdFinal + "/");
+                    const response = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+                    const data = await response.json();
+                    if (!response.ok) {
+                        sedeHint.textContent = data.error || "No se pudo consultar disponibilidad.";
+                        return;
+                    }
+                    sedeAgendaData = data.agenda || [];
+                    sedeAgendaMap = {};
+                    sedeAgendaData.forEach((d) => { sedeAgendaMap[d.fecha] = d; });
+                    if (!sedeAgendaData.length) {
+                        sedeHint.textContent = "No hay horarios disponibles para los próximos días.";
+                        return;
+                    }
+                    sedeHint.textContent = "Elegí fecha y horario para continuar.";
+                    sedeViewDate = new Date(sedeAgendaData[0].fecha + "T00:00:00");
+                    sedeSelectedDate = sedeAgendaData[0].fecha;
+                    renderSedeCalendar();
+                    renderSedeSlotsByDate(sedeSelectedDate);
+            }
+
+            if (calPrev) {
+                calPrev.onclick = () => {
+                    sedeViewDate = new Date(sedeViewDate.getFullYear(), sedeViewDate.getMonth() - 1, 1);
+                    renderSedeCalendar();
+                };
+            }
+            if (calNext) {
+                calNext.onclick = () => {
+                    sedeViewDate = new Date(sedeViewDate.getFullYear(), sedeViewDate.getMonth() + 1, 1);
+                    renderSedeCalendar();
+                };
+            }
+
+            if (sedeLista) {
+                const sedesCfg = [{% for s in tramite_sedes_agenda %}{ id: "{{ s.recurso_id }}", nombre: "{{ s.sede_nombre|escapejs }}" }{% if not forloop.last %},{% endif %}{% endfor %}];
+                sedesCfg.forEach((s, idx) => {
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.className = "date-btn" + (idx === 0 ? " active" : "");
+                    b.textContent = s.nombre;
+                    b.addEventListener("click", () => {
+                        Array.from((sedeLista || document).querySelectorAll(".date-btn")).forEach((x) => x.classList.remove("active"));
+                        b.classList.add("active");
+                        cargarAgendaSede(s.id);
+                    });
+                    sedeLista.appendChild(b);
+                });
+                if (sedesCfg.length) {
+                    sedeSelectedRecursoId = sedesCfg[0].id;
+                }
+            }
+
+            let fechaSelectedKey = null;
+            let fechaSelectedSede = null;
+            let fechaViewDate = new Date();
+            const tramiteTipoId = "{{ tipo_seleccionado.id|default:'' }}";
+            const maxAnticipacionDias = Number("{{ tramite_max_anticipacion_dias|default:10 }}") || 10;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const maxFechaPermitida = new Date(today);
+            maxFechaPermitida.setDate(maxFechaPermitida.getDate() + maxAnticipacionDias);
+
+            function formatMonthTitle(d) {
+                return d.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+            }
+
+            async function cargarFechaData(fechaKey) {
+                fechaHint.textContent = "Buscando sedes disponibles...";
+                if (fechaSedes) fechaSedes.innerHTML = "";
+                if (fechaHorarios) fechaHorarios.innerHTML = "";
+                const url = "{% url 'portal_ciudadano:turnos_disponibles_por_fecha' %}?fecha=" + encodeURIComponent(fechaKey) + "&tipo_id=" + encodeURIComponent(tramiteTipoId);
+                const response = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+                const data = await response.json();
+                if (!response.ok) {
+                    fechaHint.textContent = data.error || "No se pudo consultar disponibilidad.";
+                    return;
+                }
+                const sedes = data.recursos || [];
+                if (!sedes.length) {
+                    fechaHint.textContent = "No hay sedes con turnos para esa fecha.";
+                    return;
+                }
+                const sedesConSlots = sedes.filter((s) => (s.slots || []).length > 0);
+                if (!sedesConSlots.length) {
+                    fechaHint.textContent = "No hay horarios disponibles para esa fecha en ninguna sede.";
+                } else {
+                    fechaHint.textContent = "Seleccioná sede y horario para continuar.";
+                }
+
+                function renderHorarios(sede) {
+                    fechaHorarios.innerHTML = "";
+                    if (!(sede.slots || []).length) {
+                        const empty = document.createElement("p");
+                        empty.className = "input-help";
+                        empty.textContent = "Esta sede no tiene horarios disponibles para la fecha seleccionada.";
+                        fechaHorarios.appendChild(empty);
+                        return;
+                    }
+                    (sede.slots || []).forEach((slot) => {
+                        const a = document.createElement("a");
+                        a.className = "slot-chip";
+                        a.textContent = slot.hora_inicio;
+                        a.href = slot.confirmar_url;
+                        fechaHorarios.appendChild(a);
+                    });
+                }
+
+                sedes.forEach((sede, idx) => {
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.className = "date-btn" + (idx === 0 ? " active" : "");
+                    b.textContent = sede.sede_nombre || sede.nombre;
+                    b.addEventListener("click", () => {
+                        Array.from((fechaSedes || document).querySelectorAll(".date-btn")).forEach((x) => x.classList.remove("active"));
+                        b.classList.add("active");
+                        fechaSelectedSede = sede.id;
+                        renderHorarios(sede);
+                    });
+                    fechaSedes.appendChild(b);
+                });
+                fechaSelectedSede = sedes[0].id;
+                renderHorarios(sedes[0]);
+            }
+
+            function renderFechaCalendar() {
+                if (!fechaCalDays) return;
+                fechaCalDays.innerHTML = "";
+                if (fcalTitle) fcalTitle.textContent = formatMonthTitle(fechaViewDate);
+                const year = fechaViewDate.getFullYear();
+                const month = fechaViewDate.getMonth();
+                const first = new Date(year, month, 1);
+                const offset = (first.getDay() + 6) % 7;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                for (let i = 0; i < offset; i++) {
+                    const empty = document.createElement("button");
+                    empty.type = "button";
+                    empty.className = "cal-day off";
+                    empty.disabled = true;
+                    empty.textContent = "";
+                    fechaCalDays.appendChild(empty);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const d = new Date(year, month, day);
+                    const key = d.toISOString().slice(0, 10);
+                    const isPast = d < today;
+                    const isAfterMax = d > maxFechaPermitida;
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.className = "cal-day" + (isPast || isAfterMax ? " off" : "") + (key === fechaSelectedKey ? " active" : "");
+                    b.textContent = String(day);
+                    b.disabled = isPast || isAfterMax;
+                    b.addEventListener("click", async () => {
+                        fechaSelectedKey = key;
+                        renderFechaCalendar();
+                        await cargarFechaData(key);
+                    });
+                    fechaCalDays.appendChild(b);
+                }
+            }
+
+            if (fcalPrev) {
+                fcalPrev.onclick = () => {
+                    const nextDate = new Date(fechaViewDate.getFullYear(), fechaViewDate.getMonth() - 1, 1);
+                    const minMonthDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    if (nextDate < minMonthDate) return;
+                    fechaViewDate = nextDate;
+                    renderFechaCalendar();
+                };
+            }
+            if (fcalNext) {
+                fcalNext.onclick = () => {
+                    const nextDate = new Date(fechaViewDate.getFullYear(), fechaViewDate.getMonth() + 1, 1);
+                    fechaViewDate = nextDate;
+                    renderFechaCalendar();
+                };
+            }
+        })();
+</script>
+<script>
+    (function () {
+        document.querySelectorAll("[data-costo-resumen]").forEach((item) => {
+            const raw = parseFloat((item.getAttribute("data-costo-resumen") || "").toString().replace(",", "."));
+            if (Number.isNaN(raw)) return;
+            const formatted = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(raw);
+            item.textContent = "$ " + formatted;
+        });
+    })();
+</script>
+<script>
+(function () {
+  document.querySelectorAll('[data-notif-toggle]').forEach(function(btn){
+    var wrap = btn.closest('.notif-wrap');
+    var menu = wrap ? wrap.querySelector('[data-notif-menu]') : null;
+    if (!menu) return;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var open = menu.style.display === 'block';
+      document.querySelectorAll('[data-notif-menu]').forEach(function(m){ m.style.display = 'none'; });
+      menu.style.display = open ? 'none' : 'block';
+      if (!open && window.marcarNotificacionesTurnosLeidas) { window.marcarNotificacionesTurnosLeidas(btn); }
+    });
+  });
+  document.addEventListener('click', function(e){
+    document.querySelectorAll('[data-notif-menu]').forEach(function(menu){
+      var wrap = menu.closest('.notif-wrap');
+      if (!wrap) return;
+      if (!wrap.contains(e.target)) menu.style.display = 'none';
+    });
+  });
+})();
+</script>
 </body>
 </html>
+
 
 

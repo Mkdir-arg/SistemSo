@@ -26,8 +26,8 @@ def rechazar_turno_backoffice(turno_id, user, motivo):
     return TurnosBackofficeApplicationService.rechazar_turno(turno_id, user, motivo)
 
 
-def cancelar_turno_backoffice(turno, motivo):
-    return TurnosBackofficeApplicationService.cancelar_turno(turno, motivo)
+def cancelar_turno_backoffice(turno, motivo, user=None):
+    return TurnosBackofficeApplicationService.cancelar_turno(turno, motivo, user=user)
 
 
 def completar_turno_backoffice(turno):

@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <style>
         :root {
             --bg: #ffffff;
@@ -55,7 +56,7 @@
             flex-wrap: wrap;
             padding: 12px 0;
         }
-        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 8px; }
         .brand-mark {
             width: 56px;
             height: 68px;
@@ -73,20 +74,10 @@
         .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
         .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
 
-        .top-links {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-        .icon-link {
-            width: 16px;
-            height: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .top-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .icon-link { width: 34px; height: 34px; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); transition: all .2s ease; }
+        .icon-link:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+        .icon-link i { line-height: 1; }
         .icon-img {
             width: 16px;
             height: 16px;
@@ -137,6 +128,24 @@
             width: min(940px, 100%);
             margin: 44px auto 0;
         }
+        .area-selected {
+            margin-top: 14px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+        .area-selected strong {
+            font-weight: 700;
+            color: #fff;
+        }
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -147,7 +156,7 @@
         .field {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 0;
         }
         .field.full { grid-column: 1 / -1; }
@@ -163,6 +172,7 @@
         input[type="tel"],
         input[type="number"],
         input[type="date"],
+        input[type="time"],
         select,
         textarea,
         input[type="file"] {
@@ -186,6 +196,48 @@
             font-size: 14px;
             line-height: 20px;
             margin-top: -4px;
+        }
+        .help-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin-left: 6px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: help;
+            background: #f8fafc;
+            vertical-align: middle;
+        }
+        .help-tooltip .help-tooltip-text {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            transform: translateX(-50%);
+            width: max-content;
+            max-width: 260px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.3;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .15s ease;
+            z-index: 20;
+            white-space: normal;
+            text-align: left;
+        }
+        .help-tooltip:hover .help-tooltip-text {
+            opacity: 1;
+            visibility: visible;
         }
 
         .tiny-btn {
@@ -231,7 +283,7 @@
             margin-top: 10px;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 10px;
+            gap: 8px;
         }
         .thumb-item {
             border: 1px solid #e5e7eb;
@@ -264,6 +316,25 @@
             color: #4b5563;
             word-break: break-word;
         }
+        .map-wrapper {
+            margin-top: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+        #direccion-map {
+            width: 100%;
+            height: 220px;
+        }
+        .map-help {
+            margin: 0;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #64748b;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+        }
 
         .steps {
             width: min(840px, 100%);
@@ -271,14 +342,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 8px;
             padding: 0 6px;
             flex-wrap: nowrap;
         }
         .step {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             min-width: max-content;
             flex: 0 0 auto;
         }
@@ -408,14 +479,14 @@
         @media (max-width: 900px) {
             .topbar-inner {
                 justify-content: flex-start;
-                gap: 12px;
+                gap: 8px;
                 padding: 10px 0;
             }
             .brand { width: 100%; }
             .top-links {
                 width: 100%;
                 justify-content: flex-start;
-                gap: 10px;
+                gap: 8px;
             }
             .profile-btn {
                 font-size: 11px;
@@ -456,7 +527,7 @@
             .step-line { width: 24px; }
             .footer-inner {
                 align-items: flex-start;
-                gap: 12px;
+                gap: 8px;
             }
             .legal-row { font-size: 12px; }
             .chat-bubble {
@@ -478,7 +549,7 @@
             }
             .brand-title strong { font-size: 26px; line-height: 30px; }
             .brand-title span { font-size: 18px; line-height: 20px; }
-            .icon-link { width: 14px; height: 14px; }
+            .icon-link { width: 30px; height: 30px; font-size: 14px; }
             .icon-img { width: 14px; height: 14px; }
             .hero h1 { font-size: 30px; }
             .footer { padding-top: 24px; }
@@ -496,15 +567,44 @@
                 </div>
             </a>
             <div class="top-links">
-                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><img src="{% static 'custom/portal-ciudadano/home.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><i class="fa-solid fa-house"></i></a>
                 {% if request.user.is_authenticated %}
-                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><i class="fa-regular fa-user"></i></a>
                 {% else %}
                 <a class="icon-link" href="{% url 'portal_ciudadano:login' %}?next=/portal-ciudadano/mi-perfil/" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
                 {% endif %}
-                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><img src="{% static 'custom/portal-ciudadano/calendar-month.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:reclamos' %}" aria-label="Solicitudes"><img src="{% static 'custom/portal-ciudadano/bell.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Seguimiento"><i class="fa-regular fa-rectangle-list"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><i class="fa-regular fa-calendar-days"></i></a>
+                <div class="notif-wrap" style="position:relative;">
+                <button type="button" class="icon-link" data-notif-toggle aria-label="Avisos de turnos" style="position:relative;">
+                    <i class="fa-regular fa-bell"></i>
+                    {% if portal_notificaciones_count %}
+                    <span style="position:absolute;top:-6px;right:-8px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;line-height:14px;font-weight:700;text-align:center;">?</span>
+                    {% endif %}
+                </button>
+                <div data-notif-menu style="display:none;position:absolute;top:34px;right:0;width:min(340px,84vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 22px rgba(16,24,40,.16);padding:8px;z-index:30;">
+                    {% if portal_notificaciones %}
+                        {% for notif in portal_notificaciones %}
+                        <a href="{{ notif.url }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid {% if notif.seen %}#e5e7eb{% elif notif.kind == "solicitud_datos" %}#bfdbfe{% else %}#fde68a{% endif %};background:{% if notif.seen %}#f9fafb{% elif notif.kind == "solicitud_datos" %}#eff6ff{% else %}#fffbeb{% endif %};opacity:{% if notif.seen %}0.72{% else %}1{% endif %};border-radius:10px;padding:8px;margin-bottom:6px;">
+                            <div style="min-width:0;flex:1;">
+                            <p style="margin:0 0 2px;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:11px;font-weight:700;">{{ notif.title }}</p>
+                            {% if notif.subtitle %}<p style="margin:0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.subtitle }}</p>{% endif %}
+                            {% if notif.detail %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.detail }}</p>{% endif %}
+                            {% if notif.extra %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.extra }}</p>{% endif %}
+                            </div>
+                            <span aria-hidden="true" style="flex:0 0 auto;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:14px;line-height:1;font-weight:700;">&gt;</span>
+                        </a>
+                        {% endfor %}
+                        
+                    {% else %}
+                        <div style="border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;padding:10px;">
+                            <p style="margin:0 0 2px;color:#475467;font-size:11px;font-weight:700;">Sin notificaciones</p>
+                            <p style="margin:0;color:#667085;font-size:11px;">No ten?s avisos de turnos por el momento.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><i class="fa-regular fa-comments"></i></a>
                 {% if request.user.is_authenticated %}
                 <form method="post" action="{% url 'portal_ciudadano:logout' %}" style="margin:0;">
                     {% csrf_token %}
@@ -526,6 +626,13 @@
     <main class="container">
         <section class="hero animate-fadeInUp">
             <h1>Detalle de la solicitud,<span>completá la información para que podamos gestionar tu pedido</span></h1>
+            {% if tipo_seleccionado %}
+            <div class="area-selected">
+                <span>Área: <strong>{{ area_principal_nombre|default:"-" }}</strong></span>
+                <span>Subárea: <strong>{{ subarea_nombre|default:"-" }}</strong></span>
+                <span>Solicitud sobre: <strong>{{ tipo_seleccionado.nombre|default:"-" }}</strong></span>
+            </div>
+            {% endif %}
         </section>
 
         <section class="detail-wrap animate-fadeInUp">
@@ -533,15 +640,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="area_id" value="{{ form.data.area_id|default:form.initial.area_id }}">
 
-                <div class="field">
-                    <label for="tipo_id">Sub-Área <span class="req">*</span></label>
-                    <select id="tipo_id" name="tipo_id" required>
-                        <option value="">Seleccione el tipo de problema</option>
-                        {% for tipo in tipos_reclamo %}
-                        <option value="{{ tipo.id }}" {% if tipo_seleccionado and tipo.id == tipo_seleccionado.id %}selected{% endif %}>{{ tipo.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <input type="hidden" name="tipo_id" value="{{ form.data.tipo_id|default:form.initial.tipo_id }}">
 
                 <div class="field">
                     <label for="titulo_solicitud">Título de la solicitud <span class="req">*</span></label>
@@ -556,6 +655,10 @@
                 <div class="field">
                     <label for="direccion_ubicacion">Dirección / ubicación <span class="req">*</span></label>
                     <input id="direccion_ubicacion" name="direccion_ubicacion" type="text" placeholder="Ej: Av. Rivadavia 1234, esquina Mitre" value="{{ form.data.direccion_ubicacion|default:'' }}" required>
+                    <div class="map-wrapper">
+                        <div id="direccion-map" aria-label="Mapa de ubicación aproximada"></div>
+                        <p class="map-help" id="map-help">Escribí una dirección para ubicarla en el mapa.</p>
+                    </div>
                 </div>
 
                 <div class="field">
@@ -577,7 +680,15 @@
 
                 {% for campo in campos_extra %}
                 <div class="field {% if campo.input_kind == 'checkbox' %}full{% endif %}">
-                    <label for="extra_{{ campo.id }}">{{ campo.nombre }} {% if campo.obligatorio %}<span class="req">*</span>{% endif %}</label>
+                    <label for="extra_{{ campo.id }}">
+                        {{ campo.nombre }} {% if campo.obligatorio %}<span class="req">*</span>{% endif %}
+                        {% if campo.ayuda %}
+                        <span class="help-tooltip" aria-label="Ayuda">
+                            ?
+                            <span class="help-tooltip-text">{{ campo.ayuda }}</span>
+                        </span>
+                        {% endif %}
+                    </label>
                     {% if campo.input_kind == 'select' %}
                     <select id="extra_{{ campo.id }}" name="extra_{{ campo.id }}">
                         <option value="">Seleccionar</option>
@@ -591,9 +702,6 @@
                     <input id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" type="file">
                     {% else %}
                     <input id="extra_{{ campo.id }}" name="extra_{{ campo.id }}" type="{{ campo.input_kind }}" placeholder="{{ campo.placeholder }}">
-                    {% endif %}
-                    {% if campo.ayuda %}
-                    <small class="input-help">{{ campo.ayuda }}</small>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -649,8 +757,22 @@
             <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
         </div>
     </footer>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         (function () {
+  window.marcarNotificacionesTurnosLeidas = function(btn){
+    if (btn && btn.dataset.notifReadSent === '1') return;
+    if (btn) btn.dataset.notifReadSent = '1';
+    fetch('{% url "portal_ciudadano:notificaciones_turnos_leidas" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }).then(function(){
+      document.querySelectorAll('[data-notif-toggle] span').forEach(function(badge){ badge.style.display = 'none'; });
+    }).catch(function(){});
+  };
             var input = document.getElementById("adjuntos");
             var preview = document.getElementById("adjuntos-preview");
             if (!input || !preview) return;
@@ -695,8 +817,99 @@
                 });
             });
         })();
+
+        (function () {
+            var inputDireccion = document.getElementById("direccion_ubicacion");
+            var mapNode = document.getElementById("direccion-map");
+            var mapHelp = document.getElementById("map-help");
+            if (!inputDireccion || !mapNode || typeof L === "undefined") return;
+
+            var map = L.map("direccion-map", { zoomControl: true }).setView([-33.302, -66.337], 13);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: "&copy; OpenStreetMap",
+            }).addTo(map);
+            var marker = null;
+            var timer = null;
+
+            function setHelp(text) {
+                if (mapHelp) mapHelp.textContent = text;
+            }
+
+            function updateMarker(lat, lon, label) {
+                var latLng = [lat, lon];
+                if (!marker) {
+                    marker = L.marker(latLng).addTo(map);
+                } else {
+                    marker.setLatLng(latLng);
+                }
+                marker.bindPopup(label || "Ubicación aproximada").openPopup();
+                map.setView(latLng, 16);
+            }
+
+            function buscarDireccion() {
+                var value = (inputDireccion.value || "").trim();
+                if (!value) {
+                    setHelp("Escribí una dirección para ubicarla en el mapa.");
+                    return;
+                }
+                setHelp("Buscando dirección...");
+                var query = encodeURIComponent(value + ", San Luis, Argentina");
+                fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + query, {
+                    headers: { "Accept": "application/json" },
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (!data || !data.length) {
+                            setHelp("No se pudo ubicar la dirección. Probá con más detalle.");
+                            return;
+                        }
+                        var item = data[0];
+                        updateMarker(parseFloat(item.lat), parseFloat(item.lon), item.display_name);
+                        setHelp("Ubicación aproximada encontrada.");
+                    })
+                    .catch(function () {
+                        setHelp("No se pudo consultar el mapa en este momento.");
+                    });
+            }
+
+            inputDireccion.addEventListener("input", function () {
+                if (timer) window.clearTimeout(timer);
+                timer = window.setTimeout(buscarDireccion, 700);
+            });
+            inputDireccion.addEventListener("blur", buscarDireccion);
+
+            if ((inputDireccion.value || "").trim()) {
+                buscarDireccion();
+            }
+        })();
     </script>
+<script>
+(function () {
+  document.querySelectorAll('[data-notif-toggle]').forEach(function(btn){
+    var wrap = btn.closest('.notif-wrap');
+    var menu = wrap ? wrap.querySelector('[data-notif-menu]') : null;
+    if (!menu) return;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var open = menu.style.display === 'block';
+      document.querySelectorAll('[data-notif-menu]').forEach(function(m){ m.style.display = 'none'; });
+      menu.style.display = open ? 'none' : 'block';
+      if (!open && window.marcarNotificacionesTurnosLeidas) { window.marcarNotificacionesTurnosLeidas(btn); }
+    });
+  });
+  document.addEventListener('click', function(e){
+    document.querySelectorAll('[data-notif-menu]').forEach(function(menu){
+      var wrap = menu.closest('.notif-wrap');
+      if (!wrap) return;
+      if (!wrap.contains(e.target)) menu.style.display = 'none';
+    });
+  });
+})();
+</script>
 </body>
 </html>
+
 
 

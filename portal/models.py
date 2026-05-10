@@ -93,6 +93,8 @@ class TurnoCiudadano(models.Model):
         CONFIRMADO = 'CONFIRMADO', 'Confirmado'
         CANCELADO_CIUDADANO = 'CANCELADO_CIU', 'Cancelado por el ciudadano'
         CANCELADO_SISTEMA = 'CANCELADO_SIS', 'Cancelado por el sistema'
+        REPROGRAMADO_CIUDADANO = 'REPROG_CIU', 'Modificado por el ciudadano'
+        REPROGRAMADO_SISTEMA = 'REPROG_SIS', 'Modificado por el sistema'
         COMPLETADO = 'COMPLETADO', 'Completado'
 
     class ContextoTipo(models.TextChoices):
@@ -177,6 +179,22 @@ class TurnoCiudadano(models.Model):
     email_cancelacion_enviado = models.BooleanField(
         default=False, verbose_name='Email de cancelación enviado'
     )
+    reemplaza_turno = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='turnos_nuevos_por_reprogramacion',
+        verbose_name='Reemplaza turno',
+    )
+    reemplazado_por_turno = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='turnos_anteriores_reprogramados',
+        verbose_name='Reemplazado por turno',
+    )
     creado = models.DateTimeField(auto_now_add=True)
     modificado = models.DateTimeField(auto_now=True)
 
@@ -219,3 +237,4 @@ class TurnoCiudadano(models.Model):
         if self.recurso_id:
             return self.recurso.nombre
         return '—'
+

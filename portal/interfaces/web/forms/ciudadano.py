@@ -166,8 +166,8 @@ class CiudadanoEnviarMensajeForm(forms.Form):
 
 class CiudadanoConfirmarTurnoForm(forms.Form):
     fecha = forms.DateField(widget=forms.HiddenInput())
-    hora_inicio = forms.TimeField(widget=forms.HiddenInput(), input_formats=['%H:%M'])
-    hora_fin = forms.TimeField(widget=forms.HiddenInput(), input_formats=['%H:%M'])
+    hora_inicio = forms.TimeField(widget=forms.HiddenInput(), input_formats=['%H:%M', '%H:%M:%S'])
+    hora_fin = forms.TimeField(widget=forms.HiddenInput(), input_formats=['%H:%M', '%H:%M:%S'])
     motivo = forms.CharField(
         required=False,
         max_length=1000,

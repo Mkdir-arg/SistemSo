@@ -264,7 +264,7 @@
                         {% endfor %}
                     </div>
                     <div class="flex gap-3">
-                        <a href="{% url 'portal:crear_usuario' %}"
+                        <a href="{% url 'tramites:lista_tramites' %}"
                            class="flex-1 text-center text-white font-bold py-3 rounded-xl transition-all duration-300 hover:shadow-lg hover:opacity-90"
                            style="background: linear-gradient(90deg, {{ branding.portal.home.secondary_button_gradient_start }} 0%, {{ branding.portal.home.secondary_button_gradient_end }} 100%);">
                             <i class="fas fa-rocket mr-2"></i>Iniciar trámite
@@ -532,3 +532,4 @@
 
 </div>
 {% endblock %}
+

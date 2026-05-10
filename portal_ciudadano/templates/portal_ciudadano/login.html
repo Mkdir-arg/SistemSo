@@ -65,7 +65,7 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .brand-mark {
             width: 56px;
@@ -203,7 +203,7 @@
             line-height: 28px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .login-title .icon-img {
             width: 20px;
@@ -417,14 +417,14 @@
         @media (max-width: 900px) {
             .topbar-inner {
                 justify-content: flex-start;
-                gap: 12px;
+                gap: 8px;
                 padding: 10px 0;
             }
             .brand { width: 100%; }
             .top-links {
                 width: 100%;
                 justify-content: flex-start;
-                gap: 12px;
+                gap: 8px;
                 font-size: 13px;
                 line-height: 18px;
             }
@@ -455,7 +455,7 @@
             }
             .footer-inner {
                 align-items: flex-start;
-                gap: 12px;
+                gap: 8px;
             }
             .legal-row { font-size: 12px; }
             .chat-bubble {
@@ -477,7 +477,7 @@
             }
             .brand-title strong { font-size: 26px; line-height: 30px; }
             .brand-title span { font-size: 18px; line-height: 20px; }
-            .top-links { gap: 10px; }
+            .top-links { gap: 8px; }
             .top-links .item { font-size: 12px; line-height: 16px; }
             .hero h1 { font-size: 30px; }
             .hero h1 span { font-size: 26px; }
@@ -571,17 +571,17 @@
                             {% endif %}
                         </div>
 
-                        <a href="{% url 'portal:ciudadano_password_reset' %}" class="forgot">¿Olvidaste tu contraseña?</a>
+                        <a href="{% url 'portal_ciudadano:password_reset' %}" class="forgot">¿Olvidaste tu contraseña?</a>
                         <button type="submit" class="submit">Ingresar</button>
                     </form>
                     <p class="register">
                         ¿No estas registrado?
-                        <a href="{% url 'portal:ciudadano_registro_step1' %}?next={{ next|urlencode }}">Crear cuenta</a>
+                        <a href="{% url 'portal_ciudadano:registro_step1' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Crear cuenta</a>
                     </p>
                 </div>
             </section>
             {% if mostrar_boton_reclamo_anonimo %}
-            <a href="{% url 'portal_ciudadano:reclamos' %}?anonimo=1" class="anon-cta">Ingresar reclamo anónimo</a>
+            <a href="{{ anonimo_reclamo_url }}" class="anon-cta">Ingresar reclamo anónimo</a>
             {% endif %}
         </div>
     </main>

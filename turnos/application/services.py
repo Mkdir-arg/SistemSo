@@ -65,6 +65,14 @@ class TurnosCiudadanoApplicationService:
 
 class TurnosBackofficeApplicationService:
     @staticmethod
+    def _append_nota(turno, texto):
+        texto = (texto or "").strip()
+        if not texto:
+            return turno.notas_backoffice or ""
+        previo = (turno.notas_backoffice or "").strip()
+        return f"{previo}\n{texto}".strip() if previo else texto
+
+    @staticmethod
     def actualizar_notas(turno, notas):
         turno.notas_backoffice = notas.strip()
         orm_repositories.save_turno(turno, update_fields=["notas_backoffice", "modificado"])
@@ -98,7 +106,9 @@ class TurnosBackofficeApplicationService:
             raise TurnoActionError(str(exc)) from exc
 
         turno.estado = STATUS_CANCELLED_BY_SYSTEM
-        turno.notas_backoffice = motivo
+        turno.notas_backoffice = TurnosBackofficeApplicationService._append_nota(
+            turno, f"[RECHAZO_SISTEMA] {motivo}"
+        )
         turno.aprobado_por = user
         turno.fecha_aprobacion = unit_of_work.now()
         orm_repositories.save_turno(turno)
@@ -106,17 +116,22 @@ class TurnosBackofficeApplicationService:
         return turno
 
     @staticmethod
-    def cancelar_turno(turno, motivo):
+    def cancelar_turno(turno, motivo, user=None):
         try:
             ensure_cancellable(turno.estado)
         except ValueError as exc:
             raise TurnoActionError(str(exc)) from exc
 
         turno.estado = STATUS_CANCELLED_BY_SYSTEM
-        turno.notas_backoffice = motivo
+        turno.notas_backoffice = TurnosBackofficeApplicationService._append_nota(
+            turno, f"[CANCELACION_SISTEMA] {motivo}"
+        )
+        if user is not None:
+            turno.aprobado_por = user
+            turno.fecha_aprobacion = unit_of_work.now()
         orm_repositories.save_turno(
             turno,
-            update_fields=["estado", "notas_backoffice", "modificado"],
+            update_fields=["estado", "notas_backoffice", "aprobado_por", "fecha_aprobacion", "modificado"],
         )
         notifications.send_cancellation(turno, motivo=motivo)
         return turno

@@ -37,31 +37,31 @@ from .serializers import (
 
 
 class AreaViewSet(viewsets.ModelViewSet):
-    queryset = Area.objects.select_related("municipio").all()
+    queryset = Area.objects.all()
     serializer_class = AreaSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["activo", "municipio"]
+    filterset_fields = ["activo", "parent"]
     search_fields = ["nombre", "codigo"]
     ordering = ["orden", "nombre"]
 
 
 class TipoReclamoViewSet(viewsets.ModelViewSet):
-    queryset = TipoReclamo.objects.select_related("area", "prioridad_default", "municipio").all()
+    queryset = TipoReclamo.objects.select_related("area", "prioridad_default").all()
     serializer_class = TipoReclamoSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["activo", "area", "municipio", "permite_anonimo"]
+    filterset_fields = ["activo", "area", "permite_anonimo"]
     search_fields = ["nombre", "descripcion"]
     ordering = ["orden", "nombre"]
 
 
 class EstadoReclamoViewSet(viewsets.ModelViewSet):
-    queryset = EstadoReclamo.objects.select_related("municipio").all()
+    queryset = EstadoReclamo.objects.all()
     serializer_class = EstadoReclamoSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["activo", "es_inicial", "es_final", "municipio"]
+    filterset_fields = ["activo", "es_inicial", "es_final"]
     search_fields = ["nombre", "codigo", "descripcion"]
     ordering = ["orden", "nombre"]
 
@@ -80,11 +80,11 @@ class EstadoReclamoTransicionViewSet(viewsets.ModelViewSet):
 
 
 class PrioridadReclamoViewSet(viewsets.ModelViewSet):
-    queryset = PrioridadReclamo.objects.select_related("municipio").all()
+    queryset = PrioridadReclamo.objects.all()
     serializer_class = PrioridadReclamoSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["activo", "municipio", "nivel"]
+    filterset_fields = ["activo", "nivel"]
     search_fields = ["nombre", "codigo", "descripcion"]
     ordering = ["nivel", "nombre"]
 

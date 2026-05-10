@@ -5,10 +5,10 @@
 {% block main-content %}
 <div class="max-w-3xl mx-auto px-4 py-8">
 
-  <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-    <a href="{% url 'turnos:agenda' %}" class="hover:text-gray-700">Agenda</a>
-    <i class="fas fa-chevron-right text-xs"></i>
-    <span>Turno {{ turno.codigo_turno }}</span>
+  <div class="mb-6">
+    <a href="{{ agenda_url }}" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
+      <i class="fas fa-arrow-left text-xs"></i> Volver
+    </a>
   </div>
 
   <!-- Encabezado del turno -->
@@ -28,6 +28,8 @@
         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">Confirmado</span>
         {% elif turno.estado == 'COMPLETADO' %}
         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">Completado</span>
+        {% elif turno.estado == 'CANCELADO_SIS' %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">Cancelado por sistema</span>
         {% else %}
         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-500">Cancelado</span>
         {% endif %}
@@ -36,16 +38,28 @@
 
     <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
       <div>
+        <p class="text-gray-400 text-xs font-medium uppercase">Codigo</p>
+        <p class="text-gray-900 font-mono font-medium">{{ turno.codigo_turno|default:"-" }}</p>
+      </div>
+      <div>
         <p class="text-gray-400 text-xs font-medium uppercase">Fecha</p>
         <p class="text-gray-900 font-medium">{{ turno.fecha|date:"d/m/Y" }}</p>
       </div>
       <div>
         <p class="text-gray-400 text-xs font-medium uppercase">Horario</p>
-        <p class="text-gray-900 font-medium">{{ turno.hora_inicio|time:"H:i" }}–{{ turno.hora_fin|time:"H:i" }}</p>
+        <p class="text-gray-900 font-medium">{{ turno.hora_inicio|time:"H:i" }}</p>
       </div>
       <div>
-        <p class="text-gray-400 text-xs font-medium uppercase">Servicio</p>
-        <p class="text-gray-900 font-medium">{{ turno.nombre_entidad }}</p>
+        <p class="text-gray-400 text-xs font-medium uppercase">Tramite</p>
+        <p class="text-gray-900 font-medium">{{ turno.config_efectiva.tipo_tramite.nombre|default:"-" }}</p>
+      </div>
+      <div>
+        <p class="text-gray-400 text-xs font-medium uppercase">Sede</p>
+        <p class="text-gray-900 font-medium">{{ turno.config_efectiva.sede.nombre|default:turno.nombre_entidad|default:"-" }}</p>
+      </div>
+      <div>
+        <p class="text-gray-400 text-xs font-medium uppercase">Direccion</p>
+        <p class="text-gray-900 font-medium">{{ turno.config_efectiva.sede.direccion|default:turno.recurso.direccion|default:"-" }}</p>
       </div>
       <div>
         <p class="text-gray-400 text-xs font-medium uppercase">Motivo</p>
@@ -55,6 +69,20 @@
         <p class="text-gray-400 text-xs font-medium uppercase">Solicitado</p>
         <p class="text-gray-700">{{ turno.creado|date:"d/m/Y H:i" }}</p>
       </div>
+      {% if turno.estado == 'CANCELADO_CIU' or turno.estado == 'CANCELADO_SIS' or turno.estado == 'REPROG_CIU' or turno.estado == 'REPROG_SIS' %}
+      <div>
+        <p class="text-gray-400 text-xs font-medium uppercase">Cancelado por</p>
+        <p class="text-gray-700">
+          {% if turno.estado == 'CANCELADO_CIU' or turno.estado == 'REPROG_CIU' %}
+            Ciudadano
+          {% elif turno.aprobado_por %}
+            {{ turno.aprobado_por.get_full_name|default:turno.aprobado_por.username }}
+          {% else %}
+            Sistema
+          {% endif %}
+        </p>
+      </div>
+      {% endif %}
       {% if turno.aprobado_por %}
       <div>
         <p class="text-gray-400 text-xs font-medium uppercase">Procesado por</p>
@@ -63,6 +91,13 @@
       </div>
       {% endif %}
     </div>
+
+    {% if turno.estado == 'CANCELADO_SIS' and motivo_cancelacion_sistema %}
+    <div class="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+      <p class="text-xs font-semibold uppercase tracking-wide text-red-700 mb-1">Motivo de cancelacion por sistema</p>
+      <p class="text-sm text-red-800">{{ motivo_cancelacion_sistema }}</p>
+    </div>
+    {% endif %}
 
     <!-- Emails enviados -->
     <div class="mt-4 flex gap-3 text-xs">
@@ -87,12 +122,34 @@
       {% csrf_token %}
       <textarea name="notas_backoffice" rows="3"
                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                placeholder="Agregar notas internas...">{{ turno.notas_backoffice }}</textarea>
+                placeholder="Escribi una nota (se agrega al historial interno)..."></textarea>
       <div class="mt-2 text-right">
         <button type="submit"
                 class="text-xs bg-gray-800 hover:bg-gray-900 text-white font-medium py-1.5 px-4 rounded-lg transition-colors">
           Guardar notas
         </button>
+      </div>
+      <div class="mt-4 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Historial</div>
+      <div class="rounded-lg border border-gray-200 bg-gray-50">
+        {% if notas_historial %}
+          <ul class="divide-y divide-gray-200">
+            {% for nota in notas_historial %}
+            <li class="p-3">
+              <div class="flex items-center justify-between gap-3 mb-1">
+                <p class="text-xs font-semibold text-gray-700">{{ nota.autor|default:"Sistema" }}</p>
+                {% if nota.fecha %}
+                <p class="text-xs text-gray-500">{{ nota.fecha }}</p>
+                {% endif %}
+              </div>
+              <p class="text-sm text-gray-700 whitespace-pre-line">{{ nota.texto }}</p>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="p-3">
+            <span class="text-sm text-gray-400">Sin notas internas registradas.</span>
+          </div>
+        {% endif %}
       </div>
     </form>
   </div>
@@ -105,6 +162,7 @@
       {% if puede_aprobar %}
       <form method="post" action="{% url 'turnos:turno_aprobar' pk=turno.pk %}">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ agenda_url }}">
         <button type="submit"
                 class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm">
           <i class="fas fa-check"></i> Aprobar turno
@@ -120,6 +178,7 @@
       {% if puede_completar %}
       <form method="post" action="{% url 'turnos:turno_completar' pk=turno.pk %}">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ agenda_url }}">
         <button type="submit"
                 class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm">
           <i class="fas fa-check-double"></i> Marcar completado
@@ -140,6 +199,7 @@
     <div id="form-rechazar" class="hidden mt-4 border-t border-gray-100 pt-4">
       <form method="post" action="{% url 'turnos:turno_rechazar' pk=turno.pk %}">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ agenda_url }}">
         <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de rechazo <span class="text-red-500">*</span></label>
         {{ form_rechazar.motivo }}
         <div class="mt-2 flex gap-2">
@@ -156,7 +216,9 @@
     <div id="form-cancelar" class="hidden mt-4 border-t border-gray-100 pt-4">
       <form method="post" action="{% url 'turnos:turno_cancelar' pk=turno.pk %}">
         {% csrf_token %}
-        <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de cancelación <span class="text-red-500">*</span></label>
+        <input type="hidden" name="next" value="{{ agenda_url }}">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Justificativo de cancelacion por sistema <span class="text-red-500">*</span></label>
+        <p class="text-xs text-gray-500 mb-2">Este texto se guarda como trazabilidad y se informa al ciudadano.</p>
         {{ form_cancelar.motivo }}
         <div class="mt-2 flex gap-2">
           <button type="submit" class="text-sm bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-4 rounded-lg transition-colors">
@@ -172,7 +234,7 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block customJS %}
 <script>
 function mostrarFormRechazar() {
   document.getElementById('form-rechazar').classList.remove('hidden');

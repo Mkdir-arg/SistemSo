@@ -1,0 +1,41 @@
+{% extends 'portal_ciudadano/base_seccion.html' %}
+{% block title %}Consulta - Portal Ciudadano{% endblock %}
+{% block hero_title %}Consulta{% endblock %}
+
+{% block content %}
+<div style="max-width:660px;margin:0 auto">
+
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <p style="margin:0 0 2px;font-size:15px;font-weight:600">{{ conversacion.motivo }}</p>
+        <p style="margin:0;font-size:13px;color:#6b7280">{{ conversacion.fecha_creacion|date:"d/m/Y H:i" }} ·
+            <span style="{% if conversacion.estado == 'abierta' %}color:#1d4ed8{% else %}color:#6b7280{% endif %}">{{ conversacion.estado|capfirst }}</span>
+        </p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        {% for msg in mensajes %}
+        <div style="max-width:80%;padding:12px 16px;border-radius:12px;font-size:14px;
+            {% if msg.es_ciudadano %}margin-left:auto;background:#ede9fe;color:#3b0764{% else %}background:#f3f4f6;color:#101828{% endif %}">
+            <p style="margin:0 0 4px">{{ msg.texto }}</p>
+            <p style="margin:0;font-size:11px;opacity:.6">{{ msg.fecha_envio|date:"d/m H:i" }}</p>
+        </div>
+        {% empty %}
+        <p style="color:#9ca3af;font-size:14px;text-align:center">Sin mensajes aún.</p>
+        {% endfor %}
+    </div>
+
+    {% if puede_enviar %}
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px">
+        <form method="post" action="{% url 'portal_ciudadano:enviar_mensaje' pk=conversacion.pk %}" novalidate>
+            {% csrf_token %}
+            {{ mensaje_form.texto }}
+            <button type="submit" style="margin-top:10px;padding:8px 20px;border:0;border-radius:10px;background:linear-gradient(45deg,#7928ca,#ff0080);color:#fff;font-size:14px;font-weight:500;cursor:pointer">
+                Enviar
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div style="margin-top:16px"><a href="{% url 'portal_ciudadano:mis_consultas' %}" style="font-size:14px;color:#6b7280">← Volver</a></div>
+</div>
+{% endblock %}

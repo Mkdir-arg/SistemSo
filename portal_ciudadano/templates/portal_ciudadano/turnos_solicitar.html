@@ -2,40 +2,123 @@
 
 {% block title %}Solicitar Turno - Portal Ciudadano{% endblock %}
 {% block hero_title %}Solicitar turno{% endblock %}
-{% block hero_subtitle %}elegí dónde atenderte{% endblock %}
-{% block hero_text %}Seleccioná el organismo, área o profesional disponible para ver días y horarios de atención.{% endblock %}
+{% block hero_subtitle %}elegi como buscar disponibilidad{% endblock %}
+{% block hero_text %}Podes buscar por sede o por fecha. Luego elegis el horario y confirmas tu turno.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modo-tabs { display:flex; gap:8px; flex-wrap:wrap; }
+    .modo-tab { border:1px solid var(--line); border-radius:999px; padding:8px 14px; font-size:13px; font-weight:700; }
+    .modo-tab.active { background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%); color:#fff; border-color: transparent; }
+    .slot-chip { border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 8px 10px; font-size: 13px; font-weight: 600; color: var(--text-heading); display:inline-flex; gap:6px; align-items:center; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="stack">
-    <a class="btn btn-secondary" href="{% url 'portal_ciudadano:turnos' %}" style="width:fit-content;">
-        <i class="fa-solid fa-arrow-left"></i> Mis turnos
+    <a class="btn btn-secondary" href="{% url 'portal_ciudadano:tramites' %}" style="width:fit-content;">
+        <i class="fa-solid fa-arrow-left"></i> Volver a tramites
     </a>
-    {% if recursos %}
-    {% regroup recursos by get_tipo_display as recursos_por_tipo %}
-    {% for grupo in recursos_por_tipo %}
-    <section class="stack">
-        <h2 style="margin:0;font-size:20px;">{{ grupo.grouper }}</h2>
-        <div class="grid-3">
-            {% for recurso in grupo.list %}
-            <article class="card flush-top">
-                <h3>{{ recurso.nombre }}</h3>
-                {% if recurso.descripcion %}<p class="muted">{{ recurso.descripcion }}</p>{% endif %}
-                {% if recurso.direccion %}<p class="muted"><i class="fa-solid fa-location-dot"></i> {{ recurso.direccion }}</p>{% endif %}
-                {% if recurso.telefono %}<p class="muted"><i class="fa-solid fa-phone"></i> {{ recurso.telefono }}</p>{% endif %}
-                {% if recurso.requiere_aprobacion %}<p class="status warn" style="width:fit-content;">Requiere confirmación</p>{% endif %}
-                <a class="btn btn-primary" style="margin-top:12px;width:100%;" href="{% url 'portal_ciudadano:turno_calendario' recurso.pk %}">
-                    <i class="fa-regular fa-calendar"></i> Elegir horario
-                </a>
-            </article>
-            {% endfor %}
+
+    <article class="card flush-top stack">
+        <div class="modo-tabs">
+            <a class="modo-tab {% if modo == 'sede' %}active{% endif %}" href="{% url 'portal_ciudadano:solicitar_turno' %}?modo=sede">Por sede</a>
+            <a class="modo-tab {% if modo == 'fecha' %}active{% endif %}" href="{% url 'portal_ciudadano:solicitar_turno' %}?modo=fecha">Por fecha</a>
         </div>
-    </section>
-    {% endfor %}
-    {% else %}
-    <article class="card flush-top" style="text-align:center;">
-        <i class="fa-regular fa-calendar-xmark" style="font-size:32px;color:#cbd5e1;"></i>
-        <p class="muted" style="margin-top:12px;">No hay recursos disponibles para solicitar turnos en este momento.</p>
+
+        {% if modo == 'sede' %}
+            {% if recursos_por_tipo %}
+                {% for tipo_nombre, recursos_tipo in recursos_por_tipo.items %}
+                <section class="stack">
+                    <h2 style="margin:0;font-size:20px;">{{ tipo_nombre }}</h2>
+                    <div class="grid-3">
+                        {% for recurso in recursos_tipo %}
+                        <article class="card flush-top">
+                            <h3>{{ recurso.nombre }}</h3>
+                            {% if recurso.descripcion %}<p class="muted">{{ recurso.descripcion }}</p>{% endif %}
+                            {% if recurso.direccion %}<p class="muted"><i class="fa-solid fa-location-dot"></i> {{ recurso.direccion }}</p>{% endif %}
+                            {% if recurso.telefono %}<p class="muted"><i class="fa-solid fa-phone"></i> {{ recurso.telefono }}</p>{% endif %}
+                            <a class="btn btn-primary" style="margin-top:12px;width:100%;" href="{% url 'portal_ciudadano:turno_calendario' recurso.pk %}">
+                                <i class="fa-regular fa-calendar"></i> Ver agenda de esta sede
+                            </a>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endfor %}
+            {% else %}
+            <p class="muted">No hay sedes con turnos disponibles en este momento.</p>
+            {% endif %}
+        {% else %}
+            <div class="grid-2" style="align-items:end;">
+                <div>
+                    <label for="fechaDisponibilidad" class="muted" style="display:block;margin-bottom:6px;">Fecha</label>
+                    <input id="fechaDisponibilidad" type="date" class="btn btn-secondary" style="width:100%;justify-content:flex-start;" min="{{ today_iso }}">
+                </div>
+                <div>
+                    <button id="buscarDisponibilidad" class="btn btn-primary" type="button" style="width:100%;">Buscar turnos disponibles</button>
+                </div>
+            </div>
+            <p class="muted" id="fechaHint">Elegi una fecha para ver horarios por sede.</p>
+            <div id="fechaResultados" class="stack"></div>
+        {% endif %}
     </article>
-    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if modo == 'fecha' %}
+<script>
+(() => {
+    const fechaInput = document.getElementById("fechaDisponibilidad");
+    const buscarBtn = document.getElementById("buscarDisponibilidad");
+    const hintEl = document.getElementById("fechaHint");
+    const resultadosEl = document.getElementById("fechaResultados");
+
+    function cardRecurso(item) {
+        const slots = (item.slots || []).map((slot) => {
+            return `<a class="slot-chip" href="${slot.confirmar_url}">${slot.hora_inicio} - ${slot.hora_fin} <span class="status info">${slot.cupo_restante} cupos</span></a>`;
+        }).join(" ");
+
+        return `
+            <article class="card">
+                <h3>${item.nombre}</h3>
+                ${item.direccion ? `<p class="muted"><i class="fa-solid fa-location-dot"></i> ${item.direccion}</p>` : ""}
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">${slots}</div>
+            </article>
+        `;
+    }
+
+    async function buscar() {
+        const fecha = (fechaInput.value || "").trim();
+        if (!fecha) {
+            hintEl.textContent = "Selecciona una fecha valida.";
+            return;
+        }
+        hintEl.textContent = "Buscando disponibilidad...";
+        resultadosEl.innerHTML = "";
+
+        const url = `{% url 'portal_ciudadano:turnos_disponibles_por_fecha' %}?fecha=${encodeURIComponent(fecha)}`;
+        const response = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+        const data = await response.json();
+
+        if (!response.ok) {
+            hintEl.textContent = data.error || "No se pudo consultar disponibilidad.";
+            return;
+        }
+
+        const recursos = data.recursos || [];
+        if (!recursos.length) {
+            hintEl.textContent = "No hay turnos disponibles para la fecha seleccionada.";
+            return;
+        }
+
+        hintEl.textContent = `Turnos disponibles para ${fecha}.`;
+        resultadosEl.innerHTML = recursos.map(cardRecurso).join("");
+    }
+
+    buscarBtn.addEventListener("click", buscar);
+})();
+</script>
+{% endif %}
 {% endblock %}

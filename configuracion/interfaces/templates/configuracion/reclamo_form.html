@@ -39,9 +39,30 @@
                 </div>
 
                 <div>
-                    <label for="{{ form.area_actual.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Area actual</label>
-                    {{ form.area_actual }}
-                    {% if form.area_actual.errors %}<p class="text-red-600 text-sm mt-1">{{ form.area_actual.errors|striptags }}</p>{% endif %}
+                    <label for="{{ form.area_principal.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                    {{ form.area_principal }}
+                    {% if form.area_principal.errors %}<p class="text-red-600 text-sm mt-1">{{ form.area_principal.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.subarea.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Subarea</label>
+                    <select
+                        name="{{ form.subarea.name }}"
+                        id="{{ form.subarea.id_for_label }}"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul"
+                    >
+                        <option value="">---------</option>
+                        {% for area in form.subarea.field.queryset %}
+                            <option
+                                value="{{ area.id }}"
+                                data-parent="{{ area.parent_id }}"
+                                {% if form.subarea.value|stringformat:'s' == area.id|stringformat:'s' %}selected{% endif %}
+                            >
+                                {{ area.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.subarea.errors %}<p class="text-red-600 text-sm mt-1">{{ form.subarea.errors|striptags }}</p>{% endif %}
                 </div>
 
                 <div>
@@ -76,6 +97,7 @@
                     {{ form.canal_detalle }}
                 </div>
             </div>
+            {{ form.area_actual }}
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <label class="flex items-center gap-2 text-sm text-gray-700">{{ form.es_anonimo }} Es anonimo</label>
@@ -94,4 +116,36 @@
         </form>
     </div>
 </div>
+
+<script>
+    (function () {
+        const areaSelect = document.getElementById("{{ form.area_principal.id_for_label }}");
+        const subareaSelect = document.getElementById("{{ form.subarea.id_for_label }}");
+        if (!areaSelect || !subareaSelect) return;
+
+        const optionMeta = {};
+        Array.from(subareaSelect.options).forEach((opt) => {
+            optionMeta[opt.value] = opt.dataset.parent || "";
+        });
+
+        function filtrarSubareas() {
+            const parentId = areaSelect.value;
+            const current = subareaSelect.value;
+            let keepCurrent = false;
+            Array.from(subareaSelect.options).forEach((opt) => {
+                if (!opt.value) {
+                    opt.hidden = false;
+                    return;
+                }
+                const ok = parentId && optionMeta[opt.value] === parentId;
+                opt.hidden = !ok;
+                if (ok && opt.value === current) keepCurrent = true;
+            });
+            if (!keepCurrent) subareaSelect.value = "";
+        }
+
+        filtrarSubareas();
+        areaSelect.addEventListener("change", filtrarSubareas);
+    })();
+</script>
 {% endblock %}

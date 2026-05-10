@@ -1,0 +1,39 @@
+{% extends 'portal_ciudadano/base_seccion.html' %}
+{% block title %}Mis consultas - Portal Ciudadano{% endblock %}
+{% block hero_title %}Mis consultas{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 style="margin:0;font-size:18px;font-weight:700">Consultas y conversaciones</h2>
+        <a href="{% url 'portal_ciudadano:nueva_consulta' %}" style="padding:8px 16px;background:linear-gradient(45deg,#7928ca,#ff0080);color:#fff;border-radius:10px;font-size:14px;font-weight:500">
+            + Nueva consulta
+        </a>
+    </div>
+
+    {% if conversaciones %}
+    <div style="display:flex;flex-direction:column;gap:12px">
+        {% for conv in conversaciones %}
+        <a href="{% url 'portal_ciudadano:consulta_detalle' pk=conv.pk %}"
+           style="display:block;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;color:#101828">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+                <div>
+                    <p style="margin:0 0 2px;font-size:15px;font-weight:600">{{ conv.motivo|truncatechars:80 }}</p>
+                    <p style="margin:0;font-size:13px;color:#6b7280">{{ conv.fecha_creacion|date:"d/m/Y" }}</p>
+                </div>
+                <span style="flex-shrink:0;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+                    {% if conv.estado == 'abierta' %}background:#dbeafe;color:#1d4ed8{% elif conv.estado == 'cerrada' %}background:#f3f4f6;color:#6b7280{% else %}background:#fef9c3;color:#854d0e{% endif %}">
+                    {{ conv.estado|capfirst }}
+                </span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:48px 0;color:#9ca3af">
+        <i class="fas fa-comments" style="font-size:40px;margin-bottom:12px;display:block"></i>
+        <p style="margin:0;font-size:15px">No tenés consultas todavía.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

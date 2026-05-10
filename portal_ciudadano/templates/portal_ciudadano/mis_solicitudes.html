@@ -47,7 +47,7 @@
             flex-wrap: wrap;
             padding: 12px 0;
         }
-        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 8px; }
         .brand-mark {
             width: 56px;
             height: 68px;
@@ -64,20 +64,10 @@
         }
         .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
         .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
-        .top-links {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-        .icon-link {
-            width: 16px;
-            height: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .top-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .icon-link { width: 34px; height: 34px; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); transition: all .2s ease; }
+        .icon-link:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+        .icon-link i { line-height: 1; }
         .icon-img {
             width: 16px;
             height: 16px;
@@ -136,8 +126,8 @@
             background: #fff;
             padding: 14px;
             display: grid;
-            grid-template-columns: 1.3fr 0.8fr 1fr auto auto;
-            gap: 10px;
+            grid-template-columns: 1.3fr 1fr auto auto;
+            gap: 8px;
             align-items: center;
         }
         .filters input,
@@ -177,6 +167,33 @@
             line-height: 36px;
             font-weight: 700;
         }
+        .tabs {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 6px;
+            background: #fff;
+        }
+        .tab-link {
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 20px;
+            color: #4a5565;
+            background: transparent;
+        }
+        .tab-link.active {
+            color: #fff;
+            background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%);
+        }
+        .tab-link .count {
+            margin-left: 6px;
+            font-size: 13px;
+            font-weight: 800;
+        }
         .list-card {
             border: 1px solid var(--line);
             border-radius: 12px;
@@ -187,7 +204,7 @@
         .list-row {
             display: grid;
             grid-template-columns: 160px 1fr 140px 120px 120px;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
             padding: 12px 16px;
         }
@@ -219,6 +236,11 @@
             color: #c91b72;
             width: max-content;
         }
+        .badge.badge-ok { background: #ecfdf3; color: #067647; }
+        .badge.badge-info { background: #eff8ff; color: #175cd3; }
+        .badge.badge-warn { background: #fffaeb; color: #b54708; }
+        .badge.badge-danger { background: #fef3f2; color: #b42318; }
+        .badge.badge-neutral { background: #f2f4f7; color: #344054; }
         .empty {
             padding: 20px 16px;
             color: #667085;
@@ -364,11 +386,40 @@
                 </div>
             </a>
             <div class="top-links">
-                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><img src="{% static 'custom/portal-ciudadano/home.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><img src="{% static 'custom/portal-ciudadano/calendar-month.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Solicitudes"><img src="{% static 'custom/portal-ciudadano/bell.svg' %}" alt="" class="icon-img"></a>
-                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><img src="{% static 'custom/portal-ciudadano/messages.svg' %}" alt="" class="icon-img"></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><i class="fa-solid fa-house"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><i class="fa-regular fa-user"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Seguimiento"><i class="fa-regular fa-rectangle-list"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><i class="fa-regular fa-calendar-days"></i></a>
+                <div class="notif-wrap" style="position:relative;">
+                <button type="button" class="icon-link" data-notif-toggle aria-label="Avisos de turnos" style="position:relative;">
+                    <i class="fa-regular fa-bell"></i>
+                    {% if portal_notificaciones_count %}
+                    <span style="position:absolute;top:-6px;right:-8px;min-width:14px;height:14px;padding:0 3px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;line-height:14px;font-weight:700;text-align:center;">?</span>
+                    {% endif %}
+                </button>
+                <div data-notif-menu style="display:none;position:absolute;top:34px;right:0;width:min(340px,84vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 22px rgba(16,24,40,.16);padding:8px;z-index:30;">
+                    {% if portal_notificaciones %}
+                        {% for notif in portal_notificaciones %}
+                        <a href="{{ notif.url }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid {% if notif.seen %}#e5e7eb{% elif notif.kind == "solicitud_datos" %}#bfdbfe{% else %}#fde68a{% endif %};background:{% if notif.seen %}#f9fafb{% elif notif.kind == "solicitud_datos" %}#eff6ff{% else %}#fffbeb{% endif %};opacity:{% if notif.seen %}0.72{% else %}1{% endif %};border-radius:10px;padding:8px;margin-bottom:6px;">
+                            <div style="min-width:0;flex:1;">
+                            <p style="margin:0 0 2px;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:11px;font-weight:700;">{{ notif.title }}</p>
+                            {% if notif.subtitle %}<p style="margin:0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.subtitle }}</p>{% endif %}
+                            {% if notif.detail %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.detail }}</p>{% endif %}
+                            {% if notif.extra %}<p style="margin:2px 0 0;color:{% if notif.kind == "solicitud_datos" %}#1e3a8a{% else %}#7c2d12{% endif %};font-size:11px;">{{ notif.extra }}</p>{% endif %}
+                            </div>
+                            <span aria-hidden="true" style="flex:0 0 auto;color:{% if notif.kind == "solicitud_datos" %}#1d4ed8{% else %}#9a3412{% endif %};font-size:14px;line-height:1;font-weight:700;">&gt;</span>
+                        </a>
+                        {% endfor %}
+                        
+                    {% else %}
+                        <div style="border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;padding:10px;">
+                            <p style="margin:0 0 2px;color:#475467;font-size:11px;font-weight:700;">Sin notificaciones</p>
+                            <p style="margin:0;color:#667085;font-size:11px;">No ten?s avisos de turnos por el momento.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><i class="fa-regular fa-comments"></i></a>
                 <form method="post" action="{% url 'portal_ciudadano:logout' %}" style="margin:0;">
                     {% csrf_token %}
                     <button type="submit" class="profile-btn">
@@ -386,13 +437,18 @@
         </section>
 
         <section class="content">
+            <nav class="tabs" aria-label="Tipo de solicitudes">
+                <a href="{% url 'portal_ciudadano:mis_solicitudes' %}?tab=reclamos" class="tab-link {% if active_tab == 'reclamos' %}active{% endif %}">
+                    Reclamos <span class="count">{{ reclamos_count }}</span>
+                </a>
+                <a href="{% url 'portal_ciudadano:mis_solicitudes' %}?tab=tramites" class="tab-link {% if active_tab == 'tramites' %}active{% endif %}">
+                    Trámites <span class="count">{{ tramites_count }}</span>
+                </a>
+            </nav>
+
             <form class="filters" method="get">
+                <input type="hidden" name="tab" value="{{ active_tab }}">
                 <input type="text" name="q" placeholder="Buscar por número o título" value="{{ filtro_q }}">
-                <select name="tipo">
-                    <option value="todas" {% if filtro_tipo == "todas" %}selected{% endif %}>Todas</option>
-                    <option value="reclamos" {% if filtro_tipo == "reclamos" %}selected{% endif %}>Solo reclamos</option>
-                    <option value="tramites" {% if filtro_tipo == "tramites" %}selected{% endif %}>Solo trámites</option>
-                </select>
                 <select name="estado">
                     <option value="">Todos los estados</option>
                     {% for estado_item in estados_disponibles %}
@@ -400,7 +456,7 @@
                     {% endfor %}
                 </select>
                 <button type="submit" class="filter-btn primary">Filtrar</button>
-                <a href="{% url 'portal_ciudadano:mis_solicitudes' %}" class="filter-btn secondary">Limpiar</a>
+                <a href="{% url 'portal_ciudadano:mis_solicitudes' %}?tab={{ active_tab }}" class="filter-btn secondary">Limpiar</a>
             </form>
 
             {% if show_reclamos %}
@@ -417,7 +473,7 @@
                 <div class="list-row">
                     <div data-label="Número">{{ item.numero }}</div>
                     <div data-label="Detalle"><strong>{{ item.titulo }}</strong><br><span class="muted">{{ item.tipo_reclamo.nombre }}</span></div>
-                    <div class="badge-wrap"><span class="badge">{{ item.estado.nombre }}</span></div>
+                    <div class="badge-wrap"><span class="badge {{ item.estado_badge_class|default:'badge-neutral' }}">{{ item.estado.nombre }}</span></div>
                     <div data-label="Fecha">{{ item.fecha_ingreso|date:"d/m/Y" }}</div>
                     <div data-label="Acción"><a href="{% url 'portal_ciudadano:detalle_reclamo' item.pk %}" class="detail-link">Ver detalle</a></div>
                 </div>
@@ -441,7 +497,7 @@
                 <div class="list-row">
                     <div data-label="Número">{{ item.numero }}</div>
                     <div data-label="Detalle"><strong>{{ item.titulo }}</strong><br><span class="muted">{{ item.tipo_tramite.nombre }}</span></div>
-                    <div class="badge-wrap"><span class="badge">{{ item.estado.nombre }}</span></div>
+                    <div class="badge-wrap"><span class="badge {{ item.estado_badge_class|default:'badge-neutral' }}">{{ item.estado.nombre }}</span></div>
                     <div data-label="Fecha">{{ item.fecha_inicio|date:"d/m/Y" }}</div>
                     <div data-label="Acción"><a href="{% url 'portal_ciudadano:detalle_tramite' item.pk %}" class="detail-link">Ver detalle</a></div>
                 </div>
@@ -479,6 +535,44 @@
             <div class="right">iCore &nbsp;&nbsp; About Us &nbsp;&nbsp; Blog &nbsp;&nbsp; License</div>
         </div>
     </footer>
+<script>
+(function () {
+  window.marcarNotificacionesTurnosLeidas = function(btn){
+    if (btn && btn.dataset.notifReadSent === '1') return;
+    if (btn) btn.dataset.notifReadSent = '1';
+    fetch('{% url "portal_ciudadano:notificaciones_turnos_leidas" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }).then(function(){
+      document.querySelectorAll('[data-notif-toggle] span').forEach(function(badge){ badge.style.display = 'none'; });
+    }).catch(function(){});
+  };
+  document.querySelectorAll('[data-notif-toggle]').forEach(function(btn){
+    var wrap = btn.closest('.notif-wrap');
+    var menu = wrap ? wrap.querySelector('[data-notif-menu]') : null;
+    if (!menu) return;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var open = menu.style.display === 'block';
+      document.querySelectorAll('[data-notif-menu]').forEach(function(m){ m.style.display = 'none'; });
+      menu.style.display = open ? 'none' : 'block';
+      if (!open && window.marcarNotificacionesTurnosLeidas) { window.marcarNotificacionesTurnosLeidas(btn); }
+    });
+  });
+  document.addEventListener('click', function(e){
+    document.querySelectorAll('[data-notif-menu]').forEach(function(menu){
+      var wrap = menu.closest('.notif-wrap');
+      if (!wrap) return;
+      if (!wrap.contains(e.target)) menu.style.display = 'none';
+    });
+  });
+})();
+</script>
 </body>
 </html>
+
 

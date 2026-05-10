@@ -1,44 +1,107 @@
-{% extends "portal_ciudadano/base_seccion.html" %}
+﻿{% extends "portal_ciudadano/base_seccion.html" %}
 
 {% block title %}Mis Turnos - Portal Ciudadano{% endblock %}
 {% block hero_title %}Mis Turnos{% endblock %}
-{% block hero_subtitle %}atención municipal{% endblock %}
-{% block hero_text %}Gestioná tus turnos, consultá próximos horarios y solicitá una nueva atención cuando la necesites.{% endblock %}
+{% block hero_subtitle %}atencion municipal{% endblock %}
+{% block hero_text %}Gestiona tus turnos, consulta proximos horarios y solicita una nueva atencion cuando la necesites.{% endblock %}
 
 {% block content %}
 <div class="stack">
-    <article class="card flush-top">
+    <article class="card">
         <div class="title-row">
             <div>
-                <h2>Próximos turnos</h2>
-                <p class="muted">Turnos pendientes o confirmados a tu nombre.</p>
+                <h2>Mis Turnos</h2>
+                <p class="muted">Gestiona tus turnos y solicitudes.</p>
             </div>
-            <a class="btn btn-primary" href="{% url 'portal_ciudadano:solicitar_turno' %}">
-                <i class="fa-solid fa-plus"></i> Solicitar nuevo turno
-            </a>
         </div>
+    </article>
+
+    <article class="card">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <button type="button" id="tab-proximos-btn" class="btn btn-primary" onclick="mostrarTabTurnos('proximos')">Proximos turnos</button>
+            <button type="button" id="tab-pasados-btn" class="btn btn-secondary" onclick="mostrarTabTurnos('pasados')">Turnos pasados</button>
+        </div>
+
+        <div id="tab-proximos">
+            <div class="title-row" style="margin-bottom:12px;">
+                <h2 style="font-size:20px;line-height:30px;">Proximos turnos</h2>
+            </div>
+        {% if turnos_cancelados_sistema %}
+        <div class="stack" style="margin-bottom:12px;">
+            {% for turno in turnos_cancelados_sistema %}
+            <div class="card" style="background:#fff7ed;border:1px solid #fed7aa;padding:12px 14px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                    <div style="min-width:0;">
+                        <p style="margin:0;font-size:13px;font-weight:700;color:#9a3412;">Turno cancelado por el sistema</p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#7c2d12;">
+                            {{ turno.fecha|date:"d/m/Y" }} - {{ turno.hora_inicio|time:"H:i" }} - {{ turno.codigo_turno|default:"-" }}
+                        </p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#7c2d12;">
+                            {% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.tipo_tramite %}
+                            {{ turno.recurso.configuracion_turnos.tipo_tramite.nombre }}
+                            {% else %}
+                            TrÃ¡mite
+                            {% endif %}
+                        </p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#7c2d12;">Motivo: {{ turno.motivo_notificacion_cancelacion|default:"Sin detalle informado." }}</p>
+                    </div>
+                    {% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.tipo_tramite %}
+                    <a class="btn btn-primary" href="{% url 'portal_ciudadano:tramites_detalle_iniciar' %}?tipo={{ turno.recurso.configuracion_turnos.tipo_tramite.id }}">
+                        Generar nuevo turno
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% if turnos_proximos %}
         <div class="stack">
             {% for turno in turnos_proximos %}
-            <div class="card" style="background:#f9fafb;">
-                <div class="title-row" style="margin-bottom:0;">
-                    <div>
-                        <h3>{{ turno.recurso.nombre }}</h3>
-                        <p class="muted">
-                            {{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}
-                            {% if turno.recurso.direccion %} · {{ turno.recurso.direccion }}{% endif %}
+            <div class="card" style="background:#f9fafb;padding:14px 16px;">
+                <div class="title-row" style="margin-bottom:0;align-items:flex-start;">
+                    <div style="display:flex;gap:12px;align-items:flex-start;flex:1;min-width:0;">
+                        <div style="width:68px;min-width:68px;height:74px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <span style="font-size:9px;font-weight:700;line-height:1;color:#9ca3af;">
+                                {% if turno.fecha|date:"w" == "1" %}LUN{% elif turno.fecha|date:"w" == "2" %}MAR{% elif turno.fecha|date:"w" == "3" %}MIE{% elif turno.fecha|date:"w" == "4" %}JUE{% elif turno.fecha|date:"w" == "5" %}VIE{% elif turno.fecha|date:"w" == "6" %}SAB{% else %}DOM{% endif %}
+                            </span>
+                            <span style="font-size:23px;font-weight:800;line-height:1;color:#252f40;margin-top:4px;">{{ turno.fecha|date:"d" }}</span>
+                            <span style="font-size:11px;font-weight:800;line-height:1;margin-top:4px;color:#6b7280;">{{ turno.fecha|date:"M"|upper }}</span>
+                        </div>
+                        <div style="min-width:0;flex:1;">
+                        <p style="margin:0;font-size:14px;font-weight:600;color:#252f40;">
+                            {% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.sede %}
+                            {{ turno.recurso.configuracion_turnos.sede.nombre }}
+                            {% else %}
+                            {{ turno.recurso.nombre|default:"-" }}
+                            {% endif %}
                         </p>
-                        <p class="muted">Código: <strong>{{ turno.codigo_turno }}</strong></p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">
+                            {% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.sede and turno.recurso.configuracion_turnos.sede.direccion %}
+                            {{ turno.recurso.configuracion_turnos.sede.direccion }}
+                            {% elif turno.recurso.direccion %}
+                            {{ turno.recurso.direccion }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">{% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.tipo_tramite %}{{ turno.recurso.configuracion_turnos.tipo_tramite.nombre }}{% else %}-{% endif %}</p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">Codigo: {{ turno.codigo_turno|default:"-" }}</p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">Horario: {{ turno.hora_inicio|time:"H:i" }}</p>
+                        </div>
                     </div>
                     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         {% if turno.estado == "CONFIRMADO" %}
                         <span class="status ok">Confirmado</span>
                         {% elif turno.estado == "PENDIENTE" %}
                         <span class="status warn">Pendiente</span>
-                        {% else %}
-                        <span class="status neutral">{{ turno.get_estado_display }}</span>
+                        {% endif %}
+                        {% if turno.estado == "PENDIENTE" or turno.estado == "CONFIRMADO" %}
+                        {% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.tipo_tramite %}
+                        <a class="btn btn-primary" href="{% url 'portal_ciudadano:tramites_detalle_iniciar' %}?tipo={{ turno.recurso.configuracion_turnos.tipo_tramite.id }}">Modificar</a>
                         {% endif %}
                         <a class="btn btn-secondary" href="{% url 'portal_ciudadano:cancelar_turno' turno.pk %}">Cancelar</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -47,29 +110,103 @@
         {% else %}
         <div class="card" style="text-align:center;background:#f9fafb;">
             <i class="fa-regular fa-calendar-xmark" style="font-size:32px;color:#cbd5e1;"></i>
-            <p class="muted" style="margin-top:12px;">No tenés turnos próximos.</p>
-            <a class="btn btn-primary" style="margin-top:12px;" href="{% url 'portal_ciudadano:solicitar_turno' %}">Solicitar un turno</a>
+            <p class="muted" style="margin-top:12px;">No tenes turnos proximos.</p>
         </div>
         {% endif %}
-    </article>
+        </div>
 
+        <div id="tab-pasados" style="display:none;">
+            <div class="title-row" style="margin-bottom:12px;">
+                <h2 style="font-size:20px;line-height:30px;">Turnos pasados</h2>
+            </div>
     {% if turnos_historial %}
-    <article class="card">
-        <h2>Historial</h2>
-        <div class="stack" style="margin-top:12px;">
+        <div class="stack">
             {% for turno in turnos_historial %}
-            <div class="card" style="background:#f9fafb;">
+            <div class="card" style="background:#f9fafb;padding:14px 16px;">
                 <div class="title-row" style="margin-bottom:0;">
-                    <div>
-                        <strong>{{ turno.recurso.nombre }}</strong>
-                        <p class="muted">{{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }} · Cód. {{ turno.codigo_turno }}</p>
+                    <div style="display:flex;gap:12px;align-items:flex-start;min-width:0;">
+                        <div style="width:68px;min-width:68px;height:74px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <span style="font-size:9px;font-weight:700;line-height:1;color:#9ca3af;">
+                                {% if turno.fecha|date:"w" == "1" %}LUN{% elif turno.fecha|date:"w" == "2" %}MAR{% elif turno.fecha|date:"w" == "3" %}MIE{% elif turno.fecha|date:"w" == "4" %}JUE{% elif turno.fecha|date:"w" == "5" %}VIE{% elif turno.fecha|date:"w" == "6" %}SAB{% else %}DOM{% endif %}
+                            </span>
+                            <span style="font-size:23px;font-weight:800;line-height:1;color:#252f40;margin-top:4px;">{{ turno.fecha|date:"d" }}</span>
+                            <span style="font-size:11px;font-weight:800;line-height:1;margin-top:4px;color:#6b7280;">{{ turno.fecha|date:"M"|upper }}</span>
+                        </div>
+                        <div style="min-width:0;">
+                        <p style="margin:2px 0 0;font-size:14px;font-weight:600;color:#252f40;">
+                            {% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.sede %}
+                            {{ turno.recurso.configuracion_turnos.sede.nombre }}
+                            {% else %}
+                            {{ turno.recurso.nombre|default:"-" }}
+                            {% endif %}
+                        </p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">
+                            {% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.sede and turno.recurso.configuracion_turnos.sede.direccion %}
+                            {{ turno.recurso.configuracion_turnos.sede.direccion }}
+                            {% elif turno.recurso.direccion %}
+                            {{ turno.recurso.direccion }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">{% if turno.recurso.configuracion_turnos and turno.recurso.configuracion_turnos.tipo_tramite %}{{ turno.recurso.configuracion_turnos.tipo_tramite.nombre }}{% else %}-{% endif %}</p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">Codigo: {{ turno.codigo_turno|default:"-" }}</p>
+                        <p style="margin:2px 0 0;font-size:11px;color:#6b7280;">Horario: {{ turno.hora_inicio|time:"H:i" }}</p>
+                        </div>
                     </div>
+                    {% if turno.estado == 'COMPLETADO' %}
+                    <span class="status info">Completado</span>
+                    {% elif turno.estado == 'CANCELADO_CIU' %}
+                    <span class="status neutral">Cancelado</span>
+                    {% elif turno.estado == 'CANCELADO_SIS' %}
+                    <span class="status warn">Cancelado por el sistema</span>
+                    {% elif turno.estado == 'REPROG_CIU' %}
+                    <span class="status info">Modificado por el ciudadano</span>
+                    {% elif turno.estado == 'REPROG_SIS' %}
+                    <span class="status warn">Modificado por el sistema</span>
+                    {% else %}
                     <span class="status neutral">{{ turno.get_estado_display }}</span>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
         </div>
+    {% else %}
+        <div class="card" style="text-align:center;background:#f9fafb;">
+            <i class="fa-regular fa-calendar" style="font-size:32px;color:#cbd5e1;"></i>
+            <p class="muted" style="margin-top:12px;">No tenes turnos pasados.</p>
+        </div>
+    {% endif %}
+        </div>
     </article>
+
+    {% if turnos_historial %}
     {% endif %}
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+function mostrarTabTurnos(tab) {
+    var proximos = document.getElementById('tab-proximos');
+    var pasados = document.getElementById('tab-pasados');
+    var btnProximos = document.getElementById('tab-proximos-btn');
+    var btnPasados = document.getElementById('tab-pasados-btn');
+
+    if (tab === 'pasados') {
+        proximos.style.display = 'none';
+        pasados.style.display = 'block';
+        btnProximos.className = 'btn btn-secondary';
+        btnPasados.className = 'btn btn-primary';
+        return;
+    }
+
+    proximos.style.display = 'block';
+    pasados.style.display = 'none';
+    btnProximos.className = 'btn btn-primary';
+    btnPasados.className = 'btn btn-secondary';
+}
+</script>
+{% endblock %}
+
+

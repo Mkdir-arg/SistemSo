@@ -1,4 +1,4 @@
-from django.urls import path
+﻿from django.urls import path
 from turnos.interfaces.web.views import backoffice as v
 
 app_name = 'turnos'
@@ -11,6 +11,11 @@ urlpatterns = [
     path('configuraciones/', v.configuracion_lista, name='configuracion_lista'),
     path('configuraciones/nueva/', v.configuracion_crear, name='configuracion_crear'),
     path('configuraciones/<int:pk>/editar/', v.configuracion_editar, name='configuracion_editar'),
+    path('configuraciones/<int:pk>/eliminar/', v.configuracion_eliminar, name='configuracion_eliminar'),
+    path('sedes/', v.sedes_lista, name='sedes_lista'),
+    path('sedes/nueva/', v.sede_crear, name='sede_crear'),
+    path('sedes/<int:pk>/', v.sede_detalle, name='sede_detalle'),
+    path('sedes/<int:pk>/editar/', v.sede_editar, name='sede_editar'),
 
     # Disponibilidad (grilla semanal)
     path('configuraciones/<int:pk>/disponibilidad/', v.disponibilidad_grilla, name='disponibilidad_grilla'),

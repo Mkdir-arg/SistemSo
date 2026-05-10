@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, date
 
 from .models import DisponibilidadTurnos, TurnoCiudadano
+from turnos.models import DisponibilidadConfiguracion
 
 
 def get_slots_disponibles(recurso, fecha: date) -> list:
@@ -10,11 +11,21 @@ def get_slots_disponibles(recurso, fecha: date) -> list:
     """
     dia_semana = fecha.weekday()  # 0=Lunes
 
-    disponibilidades = DisponibilidadTurnos.objects.filter(
-        recurso=recurso,
-        dia_semana=dia_semana,
-        activo=True,
+    disponibilidades = list(
+        DisponibilidadTurnos.objects.filter(
+            recurso=recurso,
+            dia_semana=dia_semana,
+            activo=True,
+        )
     )
+    if not disponibilidades and getattr(recurso, "configuracion_turnos_id", None):
+        disponibilidades = list(
+            DisponibilidadConfiguracion.objects.filter(
+                configuracion_id=recurso.configuracion_turnos_id,
+                dia_semana=dia_semana,
+                activo=True,
+            )
+        )
 
     slots = []
     for disp in disponibilidades:
@@ -60,9 +71,15 @@ def get_calendario_mensual(recurso, anio: int, mes: int) -> dict:
     dias_con_disponibilidad = {}
 
     dias_activos = set(
-        DisponibilidadTurnos.objects.filter(recurso=recurso, activo=True)
-        .values_list('dia_semana', flat=True)
+        DisponibilidadTurnos.objects.filter(recurso=recurso, activo=True).values_list('dia_semana', flat=True)
     )
+    if not dias_activos and getattr(recurso, "configuracion_turnos_id", None):
+        dias_activos = set(
+            DisponibilidadConfiguracion.objects.filter(
+                configuracion_id=recurso.configuracion_turnos_id,
+                activo=True,
+            ).values_list("dia_semana", flat=True)
+        )
 
     for dia in range(1, dias_en_mes + 1):
         fecha = date_type(anio, mes, dia)

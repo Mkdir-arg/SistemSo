@@ -1,0 +1,336 @@
+{% extends "includes/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block main-content %}
+<div class="max-w-6xl mx-auto mb-8">
+    <div class="mb-6">
+        <a href="{{ back_url }}" class="text-sm text-gray-500 hover:text-gray-700">
+            <i class="fas fa-arrow-left mr-1"></i>Volver al listado
+        </a>
+        <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900 mt-1">{{ page_title }}</h1>
+        <p class="text-gray-600 mt-2">Completa los datos del tipo y, si hace falta, agrega campos extra dinamicos.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        {{ campos_formset.management_form }}
+
+        {% if form.non_field_errors %}
+            <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-white text-xs font-semibold">1</span>
+                <h2 class="text-lg font-semibold text-gray-900">Datos principales</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="{{ form.area_principal.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                    {{ form.area_principal }}
+                    {% if form.area_principal.errors %}<p class="text-red-600 text-sm mt-1">{{ form.area_principal.errors|striptags }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.subarea.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Subarea</label>
+                    <select
+                        name="{{ form.subarea.name }}"
+                        id="{{ form.subarea.id_for_label }}"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul"
+                    >
+                        <option value="">---------</option>
+                        {% for area in form.subarea.field.queryset %}
+                            <option
+                                value="{{ area.id }}"
+                                data-parent="{{ area.parent_id }}"
+                                {% if form.subarea.value|stringformat:'s' == area.id|stringformat:'s' %}selected{% endif %}
+                            >
+                                {{ area.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.subarea.errors %}<p class="text-red-600 text-sm mt-1">{{ form.subarea.errors|striptags }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}<p class="text-red-600 text-sm mt-1">{{ form.nombre.errors|striptags }}</p>{% endif %}
+                </div>
+                <div class="md:col-span-2">
+                    <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}<p class="text-red-600 text-sm mt-1">{{ form.descripcion.errors|striptags }}</p>{% endif %}
+                </div>
+                <div class="md:col-span-2">
+                    <label for="{{ form.imagen_portada.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Imagen de portada</label>
+                    {{ form.imagen_portada }}
+                    {% if form.imagen_portada.errors %}<p class="text-red-600 text-sm mt-1">{{ form.imagen_portada.errors|striptags }}</p>{% endif %}
+                    {% if form.instance.imagen_portada %}
+                        <p class="text-xs text-gray-500 mt-2">Portada actual:</p>
+                        <img src="{{ form.instance.imagen_portada.url }}" alt="Portada actual" class="mt-1 h-28 w-auto rounded-lg border border-gray-200 object-cover">
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.prioridad_default.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Prioridad</label>
+                    {{ form.prioridad_default }}
+                    {% if form.prioridad_default.errors %}<p class="text-red-600 text-sm mt-1">{{ form.prioridad_default.errors|striptags }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.sla_horas.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">SLA (horas)</label>
+                    {{ form.sla_horas }}
+                    {% if form.sla_horas.errors %}<p class="text-red-600 text-sm mt-1">{{ form.sla_horas.errors|striptags }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.orden.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Orden</label>
+                    {{ form.orden }}
+                    {% if form.orden.errors %}<p class="text-red-600 text-sm mt-1">{{ form.orden.errors|striptags }}</p>{% endif %}
+                </div>
+            </div>
+            {{ form.area }}
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-white text-xs font-semibold">2</span>
+                <h2 class="text-lg font-semibold text-gray-900">Reglas</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
+                <label class="flex items-center gap-2">{{ form.activo }} Activo</label>
+                <label class="flex items-center gap-2">{{ form.destacado }} Destacado (portada)</label>
+                <label class="flex items-center gap-2">{{ form.requiere_adjunto }} Requiere adjunto</label>
+                <label class="flex items-center gap-2">{{ form.permite_anonimo }} Permite anonimo</label>
+                <label class="flex items-center gap-2">{{ form.requiere_ubicacion }} Requiere ubicacion</label>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-white text-xs font-semibold">3</span>
+                <h2 class="text-lg font-semibold text-gray-900">Campos extra dinamicos</h2>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Cada campo extra puede tener nombre, tipo de dato y validaciones.</p>
+
+            <div id="campos-dinamicos-container" class="space-y-4">
+                {% for campo_form in campos_formset %}
+                    <div class="border border-gray-200 rounded-lg p-4 campo-dinamico-item bg-gray-50/40">
+                        {{ campo_form.id }}
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.nombre.label }}</label>
+                                {{ campo_form.nombre }}
+                                {% if campo_form.nombre.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.nombre.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.codigo.label }}</label>
+                                {{ campo_form.codigo }}
+                                {% if campo_form.codigo.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.codigo.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.tipo_dato.label }}</label>
+                                {{ campo_form.tipo_dato }}
+                                {% if campo_form.tipo_dato.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.tipo_dato.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.orden.label }}</label>
+                                {{ campo_form.orden }}
+                                {% if campo_form.orden.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.orden.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.descripcion.label }}</label>
+                                {{ campo_form.descripcion }}
+                                {% if campo_form.descripcion.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.descripcion.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.ayuda.label }}</label>
+                                {{ campo_form.ayuda }}
+                                {% if campo_form.ayuda.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.ayuda.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div class="md:col-span-2 campo-opciones-wrapper">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.opciones_texto.label }}</label>
+                                {{ campo_form.opciones_texto }}
+                                {% if campo_form.opciones_texto.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.opciones_texto.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.placeholder.label }}</label>
+                                {{ campo_form.placeholder }}
+                                {% if campo_form.placeholder.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.placeholder.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.valor_default.label }}</label>
+                                {{ campo_form.valor_default }}
+                                {% if campo_form.valor_default.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.valor_default.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campo_form.longitud_maxima.label }}</label>
+                                {{ campo_form.longitud_maxima }}
+                                {% if campo_form.longitud_maxima.errors %}<p class="text-red-600 text-xs mt-1">{{ campo_form.longitud_maxima.errors|striptags }}</p>{% endif %}
+                            </div>
+                            <div class="flex items-center gap-4 pt-6">
+                                <label class="inline-flex items-center text-sm text-gray-700 gap-2">{{ campo_form.obligatorio }} {{ campo_form.obligatorio.label }}</label>
+                                <label class="inline-flex items-center text-sm text-gray-700 gap-2">{{ campo_form.activo }} {{ campo_form.activo.label }}</label>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between gap-3">
+                            <label class="hidden">{{ campo_form.DELETE }}</label>
+                            <button type="button" class="btn-eliminar-campo px-3 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 text-sm">
+                                <i class="fas fa-trash mr-1"></i>Eliminar campo extra
+                            </button>
+                        </div>
+                        {% if campo_form.non_field_errors %}
+                            <p class="text-red-600 text-xs mt-2">{{ campo_form.non_field_errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="mt-4">
+                <button type="button" id="agregar-campo" class="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm w-full sm:w-auto">
+                    <i class="fas fa-plus mr-1"></i>Agregar campo extra
+                </button>
+            </div>
+        </div>
+
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <a href="{{ back_url }}" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 text-center">Cancelar</a>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-arg-azul text-white hover:bg-arg-secundario">Guardar tipo de reclamo</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function () {
+        const areaSelect = document.getElementById("{{ form.area_principal.id_for_label }}");
+        const subareaSelect = document.getElementById("{{ form.subarea.id_for_label }}");
+        if (areaSelect && subareaSelect) {
+            const optionMeta = {};
+            Array.from(subareaSelect.options).forEach((opt) => {
+                optionMeta[opt.value] = opt.dataset.parent || "";
+            });
+
+            function filtrarSubareas() {
+                const parentId = areaSelect.value;
+                const current = subareaSelect.value;
+                let keepCurrent = false;
+                Array.from(subareaSelect.options).forEach((opt) => {
+                    if (!opt.value) {
+                        opt.hidden = false;
+                        return;
+                    }
+                    const ok = parentId && optionMeta[opt.value] === parentId;
+                    opt.hidden = !ok;
+                    if (ok && opt.value === current) keepCurrent = true;
+                });
+                if (!keepCurrent) subareaSelect.value = "";
+            }
+
+            filtrarSubareas();
+            areaSelect.addEventListener("change", filtrarSubareas);
+        }
+
+        const addButton = document.getElementById("agregar-campo");
+        const container = document.getElementById("campos-dinamicos-container");
+        const totalForms = document.getElementById("id_campos-TOTAL_FORMS");
+        if (!addButton || !container || !totalForms) return;
+
+        const emptyMarkup = `{% filter escapejs %}
+            {{ campos_formset.empty_form.id }}
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.nombre.label }}</label>
+                    {{ campos_formset.empty_form.nombre }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.codigo.label }}</label>
+                    {{ campos_formset.empty_form.codigo }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.tipo_dato.label }}</label>
+                    {{ campos_formset.empty_form.tipo_dato }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.orden.label }}</label>
+                    {{ campos_formset.empty_form.orden }}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.descripcion.label }}</label>
+                    {{ campos_formset.empty_form.descripcion }}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.ayuda.label }}</label>
+                    {{ campos_formset.empty_form.ayuda }}
+                </div>
+                <div class="md:col-span-2 campo-opciones-wrapper">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.opciones_texto.label }}</label>
+                    {{ campos_formset.empty_form.opciones_texto }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.placeholder.label }}</label>
+                    {{ campos_formset.empty_form.placeholder }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.valor_default.label }}</label>
+                    {{ campos_formset.empty_form.valor_default }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ campos_formset.empty_form.longitud_maxima.label }}</label>
+                    {{ campos_formset.empty_form.longitud_maxima }}
+                </div>
+                <div class="flex items-center gap-4 pt-6">
+                    <label class="inline-flex items-center text-sm text-gray-700 gap-2">{{ campos_formset.empty_form.obligatorio }} {{ campos_formset.empty_form.obligatorio.label }}</label>
+                    <label class="inline-flex items-center text-sm text-gray-700 gap-2">{{ campos_formset.empty_form.activo }} {{ campos_formset.empty_form.activo.label }}</label>
+                </div>
+            </div>
+            <div class="mt-3 flex items-center justify-between gap-3">
+                <label class="hidden">{{ campos_formset.empty_form.DELETE }}</label>
+                <button type="button" class="btn-eliminar-campo px-3 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 text-sm">
+                    <i class="fas fa-trash mr-1"></i>Eliminar campo extra
+                </button>
+            </div>
+        {% endfilter %}`;
+
+        function bindRemoveButton(scope) {
+            const button = scope.querySelector(".btn-eliminar-campo");
+            if (!button) return;
+            button.addEventListener("click", function () {
+                const card = button.closest(".campo-dinamico-item");
+                if (!card) return;
+                const deleteInput = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                if (deleteInput) {
+                    deleteInput.checked = true;
+                }
+                card.style.display = "none";
+            });
+        }
+
+        function bindTipoSelector(scope) {
+            const tipoSelect = scope.querySelector('select[name$="-tipo_dato"]');
+            const wrapper = scope.querySelector(".campo-opciones-wrapper");
+            if (!tipoSelect || !wrapper) return;
+            const refresh = function () {
+                wrapper.style.display = tipoSelect.value === "seleccion" ? "" : "none";
+            };
+            refresh();
+            tipoSelect.addEventListener("change", refresh);
+        }
+
+        container.querySelectorAll(".campo-dinamico-item").forEach(function (item) {
+            bindRemoveButton(item);
+            bindTipoSelector(item);
+        });
+
+        addButton.addEventListener("click", function () {
+            const index = parseInt(totalForms.value, 10);
+            const html = emptyMarkup.replace(/__prefix__/g, index);
+            const wrapper = document.createElement("div");
+            wrapper.className = "border border-gray-200 rounded-lg p-4 campo-dinamico-item bg-gray-50/40";
+            wrapper.innerHTML = html;
+            container.appendChild(wrapper);
+            bindRemoveButton(wrapper);
+            bindTipoSelector(wrapper);
+            totalForms.value = index + 1;
+        });
+    })();
+</script>
+{% endblock %}

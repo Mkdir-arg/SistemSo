@@ -19,8 +19,8 @@ from .models import (
 
 @admin.register(Area)
 class AreaAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "codigo", "municipio", "activo", "orden", "updated_at")
-    list_filter = ("activo", "municipio")
+    list_display = ("nombre", "codigo", "parent", "activo", "orden", "updated_at")
+    list_filter = ("activo", "parent")
     search_fields = ("nombre", "codigo", "email_contacto")
     ordering = ("orden", "nombre")
     readonly_fields = ("created_at", "updated_at")
@@ -28,8 +28,8 @@ class AreaAdmin(admin.ModelAdmin):
 
 @admin.register(TipoReclamo)
 class TipoReclamoAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "area", "municipio", "prioridad_default", "sla_horas", "activo")
-    list_filter = ("activo", "area", "municipio", "requiere_ubicacion", "requiere_adjunto", "permite_anonimo")
+    list_display = ("nombre", "area", "prioridad_default", "sla_horas", "activo")
+    list_filter = ("activo", "area", "requiere_ubicacion", "requiere_adjunto", "permite_anonimo")
     search_fields = ("nombre", "descripcion")
     raw_id_fields = ("area", "prioridad_default")
     ordering = ("orden", "nombre")
@@ -38,8 +38,8 @@ class TipoReclamoAdmin(admin.ModelAdmin):
 
 @admin.register(EstadoReclamo)
 class EstadoReclamoAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "codigo", "municipio", "es_inicial", "es_final", "orden", "activo")
-    list_filter = ("activo", "municipio", "es_inicial", "es_final")
+    list_display = ("nombre", "codigo", "es_inicial", "es_final", "orden", "activo")
+    list_filter = ("activo", "es_inicial", "es_final")
     search_fields = ("nombre", "codigo", "descripcion")
     ordering = ("orden", "nombre")
     readonly_fields = ("created_at", "updated_at")
@@ -66,8 +66,8 @@ class EstadoReclamoTransicionAdmin(admin.ModelAdmin):
 
 @admin.register(PrioridadReclamo)
 class PrioridadReclamoAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "codigo", "nivel", "municipio", "activo")
-    list_filter = ("activo", "municipio")
+    list_display = ("nombre", "codigo", "nivel", "activo")
+    list_filter = ("activo",)
     search_fields = ("nombre", "codigo", "descripcion")
     ordering = ("nivel", "nombre")
     readonly_fields = ("created_at", "updated_at")

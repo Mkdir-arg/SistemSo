@@ -46,7 +46,7 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .brand-mark { width: 56px; height: 68px; object-fit: contain; opacity: 0.58; }
         .brand-title { color: #f9fafb; font-weight: 800; letter-spacing: 0.3px; line-height: 1; }
@@ -852,8 +852,8 @@
                 (match, href, label) => {
                     const esCrear = /crear cuenta/i.test(label);
                     const estilo = esCrear
-                        ? "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;border:1px solid rgba(255,255,255,0.7);color:#ffffff;text-decoration:none;font-weight:600;font-size:12px;"
-                        : "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;background:#ffffff;color:#1f2937;text-decoration:none;font-weight:700;font-size:12px;";
+                        ? "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;border:1px solid rgba(255,255,255,0.7);color:#ffffff;text-decoration:none;font-weight:600;font-size:11px;"
+                        : "display:inline-flex;align-items:center;justify-content:center;margin-top:8px;margin-right:6px;padding:7px 12px;border-radius:9px;background:#ffffff;color:#1f2937;text-decoration:none;font-weight:700;font-size:11px;";
                     return `<a href="${href}" style="${estilo}">${label}</a>`;
                 }
             );

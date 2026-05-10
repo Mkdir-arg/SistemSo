@@ -3,7 +3,9 @@
 from .institucional import *  # noqa: F401,F403
 from .reclamos import (  # noqa: F401
     AreaConfigForm,
+    AreaRaizConfigForm,
     CampoDinamicoOpcionConfigForm,
+    CampoDinamicoReclamoInlineConfigForm,
     CampoDinamicoReclamoConfigForm,
     EstadoReclamoConfigForm,
     EstadoReclamoTransicionConfigForm,
@@ -11,12 +13,14 @@ from .reclamos import (  # noqa: F401
     ReclamoCambioEstadoForm,
     ReclamoConfigForm,
     ReclamoDerivacionForm,
+    ReclamoSolicitudDatoCampoForm,
     ReclamoSeguimientoForm,
+    SubareaConfigForm,
     TipoReclamoConfigForm,
 )
 from .tramites import (  # noqa: F401
-    AreaTramiteConfigForm,
     CampoDinamicoOpcionConfigForm,
+    CampoDinamicoTramiteInlineConfigForm,
     CampoDinamicoTramiteConfigForm,
     EstadoTramiteConfigForm,
     EstadoTramiteTransicionConfigForm,
@@ -27,4 +31,5 @@ from .tramites import (  # noqa: F401
     TramiteConfigForm,
     TramiteDerivacionForm,
     TramiteSeguimientoForm,
+    TramiteSolicitudDatoCampoForm,
 )

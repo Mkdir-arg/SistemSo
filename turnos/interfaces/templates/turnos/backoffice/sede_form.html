@@ -1,0 +1,267 @@
+{% extends 'includes/base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block main-content %}
+<div class="mb-8">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+    <div>
+      <a href="{% url 'turnos:sedes_lista' %}" class="text-sm text-[#8C8C8C] hover:text-[#4A5565]">
+        <i class="fas fa-arrow-left mr-1"></i>Volver al listado
+      </a>
+      <h1 class="text-2xl sm:text-3xl font-lora font-bold text-[#252F40] mt-1">{{ object.nombre|default:'Nueva sede' }}</h1>
+      <p class="text-[#4A5565] mt-1">{% if object and object.pk %}Detalle operativo de la sede y tramites habilitados{% else %}Carga de datos iniciales de la sede{% endif %}</p>
+    </div>
+    {% if object and object.pk %}
+    <div class="flex items-center gap-2">
+      {% if object.activo %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Activa</span>
+      {% else %}
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-[#8C8C8C]">Inactiva</span>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if object and object.pk %}
+  <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6 mb-6">
+    <h2 class="text-lg font-semibold text-[#252F40] mb-4">Detalle de la sede</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
+      <div><span class="font-medium text-[#4A5565]">Nombre:</span> {{ object.nombre }}</div>
+      <div><span class="font-medium text-[#4A5565]">Direccion:</span> {{ object.direccion|default:"-" }}</div>
+      <div><span class="font-medium text-[#4A5565]">Telefono:</span> {{ object.telefono|default:"-" }}</div>
+      <div><span class="font-medium text-[#4A5565]">Tramites habilitados:</span> {{ object.tramites_habilitados.count }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
+    <h2 class="text-xl font-bold text-[#252F40] mb-6">{{ titulo }}</h2>
+
+    {% if object and object.pk %}
+    <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] mb-4">
+      <div class="border-b border-[#E5E7EB]">
+        <nav class="flex -mb-px overflow-x-auto">
+          <button type="button" class="tab-btn tab-button border-b-2 border-blue-500 text-blue-600 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-datos">Datos de sede</button>
+          <button type="button" class="tab-btn tab-button border-b-2 border-transparent text-[#8C8C8C] hover:text-[#4A5565] hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-tramites">Tramites</button>
+        </nav>
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div id="tab-datos" class="space-y-8 {% if object and object.pk %}tab-panel{% endif %}">
+        <div>
+          <h2 class="text-sm font-semibold text-[#252F40] uppercase tracking-wide mb-3">Datos de la sede</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.nombre.label }}</label>
+              {{ form.nombre }}
+              {% if form.nombre.errors %}<p class="mt-1 text-xs text-red-600">{{ form.nombre.errors|join:", " }}</p>{% endif %}
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.direccion.label }}</label>
+              {{ form.direccion }}
+              {% if form.direccion.errors %}<p class="mt-1 text-xs text-red-600">{{ form.direccion.errors|join:", " }}</p>{% endif %}
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.telefono.label }}</label>
+              {{ form.telefono }}
+              {% if form.telefono.errors %}<p class="mt-1 text-xs text-red-600">{{ form.telefono.errors|join:", " }}</p>{% endif %}
+            </div>
+            <div class="flex items-end">
+              <label class="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-lg cursor-pointer hover:bg-[#F9FAFB] w-full">
+                {{ form.permite_turnos }}
+                <div>
+                  <p class="text-sm font-medium text-[#4A5565]">Permite turnos</p>
+                  <p class="text-xs text-gray-400">Si se desactiva, no se podra usar en agendas</p>
+                </div>
+              </label>
+            </div>
+            <div class="flex items-end">
+              <label class="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-lg cursor-pointer hover:bg-[#F9FAFB] w-full">
+                {{ form.activo }}
+                <div>
+                  <p class="text-sm font-medium text-[#4A5565]">Activa</p>
+                  <p class="text-xs text-gray-400">Disponible para asociar agendas</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="tab-tramites" class="space-y-8 mt-6 {% if object and object.pk %}tab-panel hidden mt-0{% endif %}">
+        <div class="pt-6 border-t border-[#E5E7EB]">
+          <h2 class="text-sm font-semibold text-[#252F40] uppercase tracking-wide mb-3">Tramites habilitados</h2>
+          <label class="block text-sm font-medium text-[#4A5565] mb-2">{{ form.tramites_habilitados.label }}</label>
+          <p class="text-xs text-gray-400 mb-2">Selecciona que tramites se pueden atender en esta sede.</p>
+          {{ form.tramites_habilitados }}
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3">
+            <div>
+              <p class="text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide mb-1">No habilitados</p>
+              <ul id="tramites_disponibles" class="min-h-[260px] max-h-[360px] overflow-auto border border-gray-300 rounded-lg p-2 space-y-1 bg-white"></ul>
+            </div>
+            <div class="flex md:flex-col items-center justify-center gap-2">
+              <button type="button" id="btn_add_all" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-[#F9FAFB]" title="Agregar todos">&gt;&gt;</button>
+              <button type="button" id="btn_add" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-[#F9FAFB]" title="Agregar seleccionados">&gt;</button>
+              <button type="button" id="btn_remove" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-[#F9FAFB]" title="Quitar seleccionados">&lt;</button>
+              <button type="button" id="btn_remove_all" class="px-2 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-[#F9FAFB]" title="Quitar todos">&lt;&lt;</button>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide mb-1">Habilitados en esta sede</p>
+              <ul id="tramites_habilitados_ui" class="min-h-[260px] max-h-[360px] overflow-auto border border-gray-300 rounded-lg p-2 space-y-1 bg-white"></ul>
+            </div>
+          </div>
+          {% if form.tramites_habilitados.errors %}<p class="mt-1 text-xs text-red-600">{{ form.tramites_habilitados.errors|join:", " }}</p>{% endif %}
+        </div>
+
+        {% if object and object.pk %}
+        <div class="pt-2 border-t border-[#E5E7EB]">
+          <h2 class="text-sm font-semibold text-[#252F40] uppercase tracking-wide mb-3">Agenda por tramite</h2>
+          <div class="overflow-hidden border border-[#E5E7EB] rounded-xl">
+            <table class="min-w-full divide-y divide-[#E5E7EB]">
+              <thead class="bg-[#F9FAFB]">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide">Tramite</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide">Estado de agenda</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide">Accion</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#E5E7EB]">
+                {% for item in tramites_agenda %}
+                <tr class="hover:bg-[#F9FAFB]">
+                  <td class="px-4 py-3 text-sm text-gray-800">{{ item.tramite.nombre }}</td>
+                  <td class="px-4 py-3 text-sm">
+                    {% if item.config_id and item.agenda_activa %}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Tiene agenda activa</span>
+                    {% elif item.config_id %}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Agenda inactiva</span>
+                    {% else %}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-[#4A5565]">Sin agenda</span>
+                    {% endif %}
+                  </td>
+                  <td class="px-4 py-3 text-right text-sm">
+                    {% if item.config_id %}
+                    <a href="{% url 'turnos:configuracion_editar' item.config_id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">Editar agenda</a>
+                    {% else %}
+                    <a href="{% url 'turnos:configuracion_crear' %}?sede={{ object.pk }}&tipo_tramite={{ item.tramite.id }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Crear agenda</a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="px-4 py-8 text-center text-sm text-[#8C8C8C]">No hay tramites habilitados para esta sede.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="flex items-center justify-between mt-8 pt-6 border-t border-[#E5E7EB]">
+        <div class="flex items-center gap-4">
+          <button type="button" onclick="window.history.back()" class="text-sm text-[#8C8C8C] hover:text-[#4A5565]">Atras</button>
+          <a href="{% url 'turnos:sedes_lista' %}" class="text-sm text-[#8C8C8C] hover:text-[#4A5565]">Cancelar</a>
+        </div>
+        <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg transition-colors">
+          <i class="fas fa-save"></i> {{ accion }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  (function () {
+    const tabs = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".tab-panel");
+    function activate(tabId) {
+      panels.forEach((panel) => panel.classList.toggle("hidden", panel.id !== tabId));
+      tabs.forEach((btn) => {
+        const active = btn.dataset.tab === tabId;
+        btn.classList.toggle("border-blue-500", active);
+        btn.classList.toggle("text-blue-600", active);
+        btn.classList.toggle("border-transparent", !active);
+        btn.classList.toggle("text-[#8C8C8C]", !active);
+      });
+    }
+    tabs.forEach((btn) => btn.addEventListener("click", () => activate(btn.dataset.tab)));
+
+    const realSelect = document.getElementById("id_tramites_habilitados_real");
+    const disponibles = document.getElementById("tramites_disponibles");
+    const habilitados = document.getElementById("tramites_habilitados_ui");
+    if (!realSelect || !disponibles || !habilitados) return;
+
+    const createItem = (value, text) => {
+      const li = document.createElement("li");
+      li.dataset.value = value;
+      li.className = "px-2 py-1.5 text-sm text-[#4A5565] border border-[#E5E7EB] rounded cursor-move hover:bg-[#F9FAFB]";
+      li.textContent = text;
+      li.addEventListener("click", () => li.classList.toggle("bg-indigo-50"));
+      return li;
+    };
+
+    const sortItems = (list) => {
+      const items = Array.from(list.children).sort((a, b) => a.textContent.localeCompare(b.textContent, "es"));
+      list.innerHTML = "";
+      items.forEach((it) => list.appendChild(it));
+    };
+
+    const moveSelected = (from, to) => {
+      Array.from(from.querySelectorAll(".bg-indigo-50")).forEach((item) => {
+        item.classList.remove("bg-indigo-50");
+        to.appendChild(item);
+      });
+      sortItems(from);
+      sortItems(to);
+      syncReal();
+    };
+
+    const moveAll = (from, to) => {
+      Array.from(from.children).forEach((item) => {
+        item.classList.remove("bg-indigo-50");
+        to.appendChild(item);
+      });
+      sortItems(to);
+      syncReal();
+    };
+
+    const syncReal = () => {
+      const selected = new Set(Array.from(habilitados.children).map((o) => o.dataset.value));
+      Array.from(realSelect.options).forEach((o) => { o.selected = selected.has(o.value); });
+    };
+
+    Array.from(realSelect.options).forEach((opt) => {
+      const target = opt.selected ? habilitados : disponibles;
+      target.appendChild(createItem(opt.value, opt.text));
+    });
+    sortItems(disponibles);
+    sortItems(habilitados);
+    syncReal();
+
+    if (window.Sortable) {
+      new Sortable(disponibles, { group: "tramites_sede", animation: 120, onAdd: syncReal, onUpdate: syncReal });
+      new Sortable(habilitados, { group: "tramites_sede", animation: 120, onAdd: syncReal, onUpdate: syncReal });
+    }
+
+    document.getElementById("btn_add").addEventListener("click", () => moveSelected(disponibles, habilitados));
+    document.getElementById("btn_remove").addEventListener("click", () => moveSelected(habilitados, disponibles));
+    document.getElementById("btn_add_all").addEventListener("click", () => moveAll(disponibles, habilitados));
+    document.getElementById("btn_remove_all").addEventListener("click", () => moveAll(habilitados, disponibles));
+    disponibles.addEventListener("dblclick", () => moveSelected(disponibles, habilitados));
+    habilitados.addEventListener("dblclick", () => moveSelected(habilitados, disponibles));
+
+    realSelect.closest("form").addEventListener("submit", syncReal);
+  })();
+</script>
+{% endblock %}
+

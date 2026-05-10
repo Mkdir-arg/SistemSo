@@ -7,6 +7,23 @@ from portal.models import TurnoCiudadano
 from turnos.models import ConfiguracionTurnos
 
 
+DAY_ABBR_ES = ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM"]
+MONTH_ABBR_ES = [
+    "ENE",
+    "FEB",
+    "MAR",
+    "ABR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AGO",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DIC",
+]
+
+
 def get_backoffice_home_context():
     hoy = date.today()
     return {
@@ -46,10 +63,20 @@ def build_agenda_context(fecha, config_id=None, estado_filter=None):
     ).order_by("hora_inicio")
 
     if config_id:
-        turnos = turnos.filter(configuracion_id=config_id)
+        turnos = turnos.filter(
+            Q(configuracion_id=config_id) | Q(recurso__configuracion_turnos_id=config_id)
+        )
 
     if estado_filter:
         turnos = turnos.filter(estado=estado_filter)
+
+    config_actual = None
+    if config_id and str(config_id).isdigit():
+        config_actual = (
+            ConfiguracionTurnos.objects.select_related("sede", "tipo_tramite", "tipo_tramite__area", "tipo_tramite__area__parent")
+            .filter(pk=int(config_id))
+            .first()
+        )
 
     contadores = {
         "pendiente": turnos.filter(estado=TurnoCiudadano.Estado.PENDIENTE).count(),
@@ -59,9 +86,25 @@ def build_agenda_context(fecha, config_id=None, estado_filter=None):
             estado__in=[
                 TurnoCiudadano.Estado.CANCELADO_CIUDADANO,
                 TurnoCiudadano.Estado.CANCELADO_SISTEMA,
+                TurnoCiudadano.Estado.REPROGRAMADO_CIUDADANO,
+                TurnoCiudadano.Estado.REPROGRAMADO_SISTEMA,
             ]
         ).count(),
     }
+    agenda_dias = []
+    for offset in range(-30, 31):
+        dia = fecha + timedelta(days=offset)
+        agenda_dias.append(
+            {
+                "fecha": dia,
+                "iso": dia.strftime("%Y-%m-%d"),
+                "dow": DAY_ABBR_ES[dia.weekday()],
+                "day": dia.day,
+                "month": MONTH_ABBR_ES[dia.month - 1],
+                "is_today": dia == hoy,
+                "is_selected": dia == fecha,
+            }
+        )
 
     return {
         "turnos": turnos,
@@ -74,6 +117,8 @@ def build_agenda_context(fecha, config_id=None, estado_filter=None):
         "estado_filter": estado_filter,
         "estados": TurnoCiudadano.Estado.choices,
         "hoy": hoy,
+        "config_actual": config_actual,
+        "agenda_dias": agenda_dias,
     }
 
 

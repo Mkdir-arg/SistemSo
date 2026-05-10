@@ -1,39 +1,81 @@
 {% extends "includes/base.html" %}
 
-{% block title %}Configuracion de Tramites{% endblock %}
+{% block title %}Configuraciones de Tramites{% endblock %}
 
 {% block main-content %}
 <div class="mb-8">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">Configuracion de Tramites</h1>
-            <p class="text-gray-600 mt-2">Administra catalogos operativos del modulo.</p>
+            <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">Configuraciones de Tramites</h1>
+            <p class="text-gray-600 mt-2">Gestion de estados y prioridades del modulo de tramites.</p>
         </div>
-        <a href="{% url 'configuracion:tramites_listado' %}" class="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium">
-            <i class="fas fa-arrow-left mr-2"></i>Volver a Listado
+        <a href="{% url 'configuracion:tramites_configuracion' %}" class="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Volver a Tipos de Tramite
         </a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {% for item in catalogos %}
-            <div class="bg-white rounded-xl shadow-lg p-5 border border-gray-100">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">{{ item.nombre }}</h2>
-                        <p class="text-sm text-gray-600 mt-1">{{ item.descripcion }}</p>
-                    </div>
-                    <i class="fas {{ item.icono }} text-gray-400 text-xl"></i>
-                </div>
-                <div class="mt-4">
-                    {% url item.url_name as item_url %}
-                    {% if item_url %}
-                        <a href="{{ item_url }}" class="inline-flex items-center text-sm font-medium text-arg-azul hover:text-arg-secundario">
-                            Abrir configuracion <i class="fas fa-arrow-right ml-2 text-xs"></i>
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        {% endfor %}
+    <div class="bg-white rounded-xl shadow-lg p-3 mb-4">
+        <div class="flex flex-wrap gap-2">
+            <a href="?tab=estados&activo={{ filtro_activo }}" class="px-4 py-2 rounded-lg text-sm {% if active_tab == 'estados' %}bg-arg-azul text-white{% else %}bg-gray-100 text-gray-700{% endif %}">Estados</a>
+            <a href="?tab=prioridades&activo={{ filtro_activo }}" class="px-4 py-2 rounded-lg text-sm {% if active_tab == 'prioridades' %}bg-arg-azul text-white{% else %}bg-gray-100 text-gray-700{% endif %}">Prioridades</a>
+        </div>
+        <form method="get" class="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+            <input type="hidden" name="tab" value="{{ active_tab }}">
+            <select name="activo" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-arg-azul">
+                <option value="">Estado (todos)</option>
+                <option value="1" {% if filtro_activo == '1' %}selected{% endif %}>Activos</option>
+                <option value="0" {% if filtro_activo == '0' %}selected{% endif %}>Inactivos</option>
+            </select>
+            <button type="submit" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100">Aplicar</button>
+            <a href="?tab={{ active_tab }}" class="rounded-lg border border-transparent px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100">Limpiar</a>
+        </form>
     </div>
+
+    {% if active_tab == 'estados' %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="p-4 border-b border-gray-200 flex justify-end">
+            <a href="{% url 'configuracion:tramites_estados_crear' %}" class="bg-arg-azul text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>Agregar Estado</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50"><tr><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Nombre</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Codigo</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Activo</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Acciones</th></tr></thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for item in estados %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-800">{{ item.nombre }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ item.codigo|default:"-" }}</td>
+                        <td class="px-6 py-4 text-sm">{% if item.activo %}<span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">Activo</span>{% else %}<span class="inline-flex items-center rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700">Inactivo</span>{% endif %}</td>
+                        <td class="px-6 py-4 text-sm"><div class="flex gap-2"><a href="{% url 'configuracion:tramites_estados_detalle' item.pk %}" class="text-arg-azul hover:text-arg-secundario" title="Detalle"><i class="fas fa-eye"></i></a><a href="{% url 'configuracion:tramites_estados_editar' item.pk %}" class="text-green-600 hover:text-green-800" title="Editar"><i class="fas fa-edit"></i></a><a href="{% url 'configuracion:tramites_estados_eliminar' item.pk %}" class="text-red-600 hover:text-red-800" title="Eliminar"><i class="fas fa-trash"></i></a></div></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if active_tab == 'prioridades' %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="p-4 border-b border-gray-200 flex justify-end">
+            <a href="{% url 'configuracion:tramites_prioridades_crear' %}" class="bg-arg-azul text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>Agregar Prioridad</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50"><tr><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Nombre</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Codigo</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Orden de prioridad</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Activo</th><th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Acciones</th></tr></thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for item in prioridades %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-800">{{ item.nombre }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ item.codigo|default:"-" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ item.nivel }}</td>
+                        <td class="px-6 py-4 text-sm">{% if item.activo %}<span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">Activo</span>{% else %}<span class="inline-flex items-center rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700">Inactivo</span>{% endif %}</td>
+                        <td class="px-6 py-4 text-sm"><div class="flex gap-2"><a href="{% url 'configuracion:tramites_prioridades_detalle' item.pk %}" class="text-arg-azul hover:text-arg-secundario" title="Detalle"><i class="fas fa-eye"></i></a><a href="{% url 'configuracion:tramites_prioridades_editar' item.pk %}" class="text-green-600 hover:text-green-800" title="Editar"><i class="fas fa-edit"></i></a><a href="{% url 'configuracion:tramites_prioridades_eliminar' item.pk %}" class="text-red-600 hover:text-red-800" title="Eliminar"><i class="fas fa-trash"></i></a></div></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

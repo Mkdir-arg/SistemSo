@@ -3,85 +3,173 @@
 {% block title %}{{ titulo }}{% endblock %}
 
 {% block main-content %}
-<div class="max-w-2xl mx-auto px-4 py-8">
+<div class="max-w-4xl mx-auto px-4 py-8">
 
-  <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-    <a href="{% url 'turnos:configuracion_lista' %}" class="hover:text-gray-700">Configuraciones</a>
+  <div class="flex items-center gap-2 text-sm text-[#8C8C8C] mb-6">
+    <a href="{% url 'turnos:configuracion_lista' %}{% if es_contexto_tramite and request.GET.tramite %}?tramite={{ request.GET.tramite }}{% endif %}" class="hover:text-[#4A5565]">Configuraciones</a>
     <i class="fas fa-chevron-right text-xs"></i>
     <span>{{ titulo }}</span>
   </div>
 
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-    <h1 class="text-xl font-bold text-gray-900 mb-6">{{ titulo }}</h1>
+  <div class="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
+    <h1 class="text-xl font-bold text-[#252F40] mb-6">{{ titulo }}</h1>
 
     <form method="post">
       {% csrf_token %}
 
-      <div class="space-y-5">
+      {% if config %}
+      <div class="mb-6 rounded-xl border border-[#E5E7EB] bg-white p-4">
+        <h2 class="text-sm font-semibold text-[#252F40] uppercase tracking-wide mb-3">Relacion de Agenda</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-[#4A5565]">
+          <div><span class="font-medium text-[#252F40]">Sede:</span> {{ config.sede.nombre|default:"-" }}</div>
+          <div><span class="font-medium text-[#252F40]">Tramite:</span> {{ config.tipo_tramite.nombre|default:"-" }}</div>
+          <div>
+            <span class="font-medium text-[#252F40]">Area:</span>
+            {% if config.tipo_tramite and config.tipo_tramite.area %}
+              {% if config.tipo_tramite.area.parent %}{{ config.tipo_tramite.area.parent.nombre }}{% else %}{{ config.tipo_tramite.area.nombre }}{% endif %}
+            {% else %}-{% endif %}
+          </div>
+          <div>
+            <span class="font-medium text-[#252F40]">Subarea:</span>
+            {% if config.tipo_tramite and config.tipo_tramite.area and config.tipo_tramite.area.parent %}{{ config.tipo_tramite.area.nombre }}{% else %}-{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
-        <!-- Nombre -->
+      <div class="space-y-6">
+        {% if not config %}
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.nombre.label }}</label>
+          <h2 class="text-sm font-semibold text-[#252F40] uppercase tracking-wide mb-3">Relacion de Agenda</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.sede.label }}</label>
+                {{ form.sede }}
+                <p class="text-xs text-gray-400 mt-1"><a href="{% url 'turnos:sedes_lista' %}" class="text-indigo-600 hover:text-indigo-800">Gestionar sedes</a></p>
+                {% if form.sede.errors %}<p class="mt-1 text-xs text-red-600">{{ form.sede.errors|join:", " }}</p>{% endif %}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.area_principal.label }}</label>
+                {% if es_contexto_tramite %}
+                <input type="hidden" id="{{ form.area_principal.id_for_label }}" name="{{ form.area_principal.name }}" value="{{ form.area_principal.value|default:'' }}">
+                <input type="text" class="form-input w-full rounded-lg border-gray-300 bg-gray-100 text-[#4A5565]" value="{{ form.area_principal.field.queryset.first.nombre|default:'-' }}" readonly>
+                {% else %}
+                {{ form.area_principal }}
+                {% endif %}
+                {% if form.area_principal.errors %}<p class="mt-1 text-xs text-red-600">{{ form.area_principal.errors|join:", " }}</p>{% endif %}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.subarea.label }}</label>
+                {% if es_contexto_tramite %}
+                <input type="hidden" id="{{ form.subarea.id_for_label }}" name="{{ form.subarea.name }}" value="{{ form.subarea.value|default:'' }}">
+                <input type="text" class="form-input w-full rounded-lg border-gray-300 bg-gray-100 text-[#4A5565]" value="{{ form.subarea.field.queryset.first.nombre|default:'-' }}" readonly>
+                {% else %}
+                <select id="{{ form.subarea.id_for_label }}" name="{{ form.subarea.name }}" class="form-select w-full rounded-lg border-gray-300">
+                  <option value="">---------</option>
+                  {% for area in form.subarea.field.queryset %}
+                    <option value="{{ area.id }}" data-parent="{{ area.parent_id }}" {% if form.subarea.value|stringformat:'s' == area.id|stringformat:'s' %}selected{% endif %}>{{ area.nombre }}</option>
+                  {% endfor %}
+                </select>
+                {% endif %}
+                {% if form.subarea.errors %}<p class="mt-1 text-xs text-red-600">{{ form.subarea.errors|join:", " }}</p>{% endif %}
+              </div>
+          </div>
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.tipo_tramite.label }}</label>
+              {% if es_contexto_tramite %}
+              <input type="hidden" id="{{ form.tipo_tramite.id_for_label }}" name="{{ form.tipo_tramite.name }}" value="{{ form.tipo_tramite.value|default:'' }}">
+              <input type="text" class="form-input w-full rounded-lg border-gray-300 bg-gray-100 text-[#4A5565]" value="{{ form.tipo_tramite.field.queryset.first.nombre|default:'-' }}" readonly>
+              {% else %}
+              <select id="{{ form.tipo_tramite.id_for_label }}" name="{{ form.tipo_tramite.name }}" class="form-select w-full rounded-lg border-gray-300">
+                <option value="">---------</option>
+                {% for tipo in form.tipo_tramite.field.queryset %}
+                  <option
+                    value="{{ tipo.id }}"
+                    data-sedes="{% for sede in tipo.sedes_turno.all %}{{ sede.id }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                    data-area="{% if tipo.area.parent_id %}{{ tipo.area.parent_id }}{% else %}{{ tipo.area_id }}{% endif %}"
+                    data-subarea="{% if tipo.area.parent_id %}{{ tipo.area_id }}{% endif %}"
+                    {% if form.tipo_tramite.value|stringformat:'s' == tipo.id|stringformat:'s' %}selected{% endif %}
+                  >
+                    {{ tipo.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
+              {% endif %}
+              <p class="text-xs text-gray-400 mt-1">Selecciona el tramite para vincular esta agenda.</p>
+              {% if form.tipo_tramite.errors %}<p class="mt-1 text-xs text-red-600">{{ form.tipo_tramite.errors|join:", " }}</p>{% endif %}
+            </div>
+        </div>
+        {% else %}
+          <input type="hidden" id="{{ form.sede.id_for_label }}" name="{{ form.sede.name }}" value="{{ form.sede.value|default:'' }}">
+          <input type="hidden" id="{{ form.area_principal.id_for_label }}" name="{{ form.area_principal.name }}" value="{{ form.area_principal.value|default:'' }}">
+          <input type="hidden" id="{{ form.subarea.id_for_label }}" name="{{ form.subarea.name }}" value="{{ form.subarea.value|default:'' }}">
+          <input type="hidden" id="{{ form.tipo_tramite.id_for_label }}" name="{{ form.tipo_tramite.name }}" value="{{ form.tipo_tramite.value|default:'' }}">
+        {% endif %}
+
+        <div class="pt-2 border-t border-[#E5E7EB]">
+          <h2 class="text-sm font-semibold text-[#252F40] uppercase tracking-wide mb-3">Parametros de Agenda</h2>
+          <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.nombre.label }}</label>
           {{ form.nombre }}
+          <p class="text-xs text-gray-400 mt-1">Se completa automaticamente con el nombre del tramite seleccionado.</p>
           {% if form.nombre.errors %}<p class="mt-1 text-xs text-red-600">{{ form.nombre.errors|join:", " }}</p>{% endif %}
         </div>
 
-        <!-- Modo turno -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.modo_turno.label }}</label>
+          <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.modo_turno.label }}</label>
           {{ form.modo_turno }}
         </div>
 
-        <!-- Flags -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+          <label class="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-lg cursor-pointer hover:bg-[#F9FAFB]">
             {{ form.activo }}
             <div>
-              <p class="text-sm font-medium text-gray-700">Activa</p>
+              <p class="text-sm font-medium text-[#4A5565]">Activa</p>
               <p class="text-xs text-gray-400">Visible para el portal ciudadano</p>
             </div>
           </label>
-          <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+          <label class="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-lg cursor-pointer hover:bg-[#F9FAFB]">
             {{ form.requiere_aprobacion }}
             <div>
-              <p class="text-sm font-medium text-gray-700">Requiere aprobación</p>
+              <p class="text-sm font-medium text-[#4A5565]">Requiere aprobacion</p>
               <p class="text-xs text-gray-400">El operador confirma manualmente</p>
             </div>
           </label>
         </div>
 
-        <!-- Anticipación -->
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.anticipacion_minima_hs.label }}</label>
+            <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.anticipacion_minima_hs.label }}</label>
             {{ form.anticipacion_minima_hs }}
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.anticipacion_maxima_dias.label }}</label>
+            <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.anticipacion_maxima_dias.label }}</label>
             {{ form.anticipacion_maxima_dias }}
           </div>
         </div>
 
-        <!-- Cancelación -->
-        <div class="border border-gray-100 rounded-lg p-4 space-y-3">
+        <div class="border border-[#E5E7EB] rounded-lg p-4 space-y-3">
           <label class="flex items-center gap-3 cursor-pointer">
             {{ form.permite_cancelacion_ciudadano }}
-            <span class="text-sm font-medium text-gray-700">{{ form.permite_cancelacion_ciudadano.label }}</span>
+            <span class="text-sm font-medium text-[#4A5565]">{{ form.permite_cancelacion_ciudadano.label }}</span>
           </label>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.cancelacion_hasta_hs.label }}</label>
+            <label class="block text-sm font-medium text-[#4A5565] mb-1">{{ form.cancelacion_hasta_hs.label }}</label>
             {{ form.cancelacion_hasta_hs }}
             <p class="text-xs text-gray-400 mt-1">El ciudadano puede cancelar hasta X horas antes del turno.</p>
           </div>
         </div>
-
       </div>
 
-      <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
-        <a href="{% url 'turnos:configuracion_lista' %}"
-           class="text-sm text-gray-500 hover:text-gray-700">Cancelar</a>
-        <button type="submit"
-                class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg transition-colors">
+      <div class="flex items-center justify-between mt-8 pt-6 border-t border-[#E5E7EB]">
+        <div class="flex items-center gap-3">
+          <a href="{% url 'turnos:configuracion_lista' %}{% if es_contexto_tramite and request.GET.tramite %}?tramite={{ request.GET.tramite }}{% endif %}" class="text-sm text-[#8C8C8C] hover:text-[#4A5565]">Cancelar</a>
+          {% if config %}
+          <button type="button" id="btn-eliminar-config" class="inline-flex items-center gap-2 border border-red-200 text-red-600 hover:text-red-700 hover:border-red-300 font-medium py-2 px-4 rounded-lg transition-colors text-sm">
+            <i class="fas fa-trash"></i> Borrar
+          </button>
+          {% endif %}
+        </div>
+        <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg transition-colors">
           <i class="fas fa-save"></i> {{ accion }}
         </button>
       </div>
@@ -90,12 +178,105 @@
 
   {% if config %}
   <div class="mt-4 text-center">
-    <a href="{% url 'turnos:disponibilidad_grilla' pk=config.pk %}"
-       class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+    <a href="{% url 'turnos:disponibilidad_grilla' pk=config.pk %}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
       <i class="fas fa-calendar-week mr-1"></i> Configurar disponibilidad semanal
     </a>
   </div>
   {% endif %}
 
 </div>
+{% if config %}
+<form id="form-eliminar-config" method="post" action="{% url 'turnos:configuracion_eliminar' pk=config.pk %}" class="hidden">
+  {% csrf_token %}
+</form>
+{% endif %}
+<script>
+  (function () {
+    const areaSelect = document.getElementById("id_area_principal");
+    const subareaSelect = document.getElementById("id_subarea");
+    const sedeSelect = document.getElementById("id_sede");
+    const tramiteSelect = document.getElementById("id_tipo_tramite");
+    if (!areaSelect || !subareaSelect || !sedeSelect) return;
+
+    const subareaMeta = {};
+    Array.from(subareaSelect.options).forEach((opt) => { subareaMeta[opt.value] = opt.dataset.parent || ""; });
+
+    function filtrarSubareas() {
+      const parentId = areaSelect.value;
+      const current = subareaSelect.value;
+      let keepCurrent = false;
+      Array.from(subareaSelect.options).forEach((opt) => {
+        if (!opt.value) { opt.hidden = false; return; }
+        const ok = parentId && subareaMeta[opt.value] === parentId;
+        opt.hidden = !ok;
+        if (ok && opt.value === current) keepCurrent = true;
+      });
+      if (!keepCurrent) subareaSelect.value = "";
+    }
+
+    function filtrarTramites() {
+      const areaId = areaSelect.value;
+      const subareaId = subareaSelect.value;
+      if (!tramiteSelect || tramiteSelect.tagName.toLowerCase() !== "select") return;
+      const current = tramiteSelect.value;
+      let keepCurrent = false;
+      Array.from(tramiteSelect.options).forEach((opt) => {
+        if (!opt.value) { opt.hidden = false; return; }
+        const tramiteArea = opt.dataset.area || "";
+        const tramiteSub = opt.dataset.subarea || "";
+        const okArea = subareaId ? (tramiteSub === subareaId) : (areaId ? (tramiteArea === areaId) : true);
+        const ok = okArea;
+        opt.hidden = !ok;
+        if (ok && opt.value === current) keepCurrent = true;
+      });
+      if (!keepCurrent) tramiteSelect.value = "";
+    }
+
+    const nombreInput = document.getElementById("id_nombre");
+    function syncNombreConTramite() {
+      if (!nombreInput || !tramiteSelect) return;
+      if (tramiteSelect.tagName.toLowerCase() !== "select") return;
+      const opt = tramiteSelect.options[tramiteSelect.selectedIndex];
+      if (!opt || !opt.value) return;
+      nombreInput.value = (opt.text || "").trim();
+    }
+
+    const modoBloqueado = "{{ es_contexto_tramite|yesno:'1,0' }}" === "1";
+    if (!modoBloqueado) {
+      filtrarSubareas();
+      filtrarTramites();
+      syncNombreConTramite();
+      sedeSelect.addEventListener("change", filtrarTramites);
+      areaSelect.addEventListener("change", () => { filtrarSubareas(); filtrarTramites(); });
+      subareaSelect.addEventListener("change", filtrarTramites);
+      if (tramiteSelect && tramiteSelect.tagName.toLowerCase() === "select") {
+        tramiteSelect.addEventListener("change", syncNombreConTramite);
+      }
+    }
+
+    const btnEliminar = document.getElementById("btn-eliminar-config");
+    const formEliminar = document.getElementById("form-eliminar-config");
+    if (btnEliminar && formEliminar) {
+      btnEliminar.addEventListener("click", function () {
+        if (window.Swal) {
+          Swal.fire({
+            title: "Dar de baja agenda",
+            text: "No se otorgaran nuevos turnos. Los turnos ya asignados seguiran su curso.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc2626",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Si, dar de baja",
+            cancelButtonText: "Cancelar",
+          }).then((result) => {
+            if (result.isConfirmed) formEliminar.submit();
+          });
+        } else if (confirm("No se otorgaran nuevos turnos. Los turnos ya asignados seguiran su curso. Continuar?")) {
+          formEliminar.submit();
+        }
+      });
+    }
+  })();
+</script>
 {% endblock %}
+

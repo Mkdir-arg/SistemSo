@@ -1,0 +1,63 @@
+{% extends "includes/base.html" %}
+
+{% block title %}{{ tipo_reclamo.nombre }}{% endblock %}
+
+{% block main-content %}
+<div class="max-w-5xl mx-auto mb-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <div>
+            <a href="{% url 'configuracion:reclamos_configuracion' %}" class="text-sm text-gray-500 hover:text-gray-700">
+                <i class="fas fa-arrow-left mr-1"></i>Volver
+            </a>
+            <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900 mt-1">{{ tipo_reclamo.nombre }}</h1>
+        </div>
+        <a href="{% url 'configuracion:reclamos_configuracion_editar' tipo_reclamo.pk %}" class="bg-arg-azul text-white px-5 py-3 rounded-xl hover:bg-arg-secundario transition-colors font-medium">
+            <i class="fas fa-edit mr-2"></i>Editar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Datos principales</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
+            <div><span class="font-medium">Descripcion:</span> {{ tipo_reclamo.descripcion|default:"-" }}</div>
+            <div><span class="font-medium">Area:</span> {{ tipo_reclamo.area }}</div>
+            <div><span class="font-medium">Prioridad:</span> {{ tipo_reclamo.prioridad_default|default:"-" }}</div>
+            <div><span class="font-medium">SLA horas:</span> {{ tipo_reclamo.sla_horas|default:"-" }}</div>
+            <div class="md:col-span-2">
+                <span class="font-medium">Imagen de portada:</span>
+                {% if tipo_reclamo.imagen_portada %}
+                    <div class="mt-2">
+                        <img src="{{ tipo_reclamo.imagen_portada.url }}" alt="Portada {{ tipo_reclamo.nombre }}" class="max-h-48 rounded-lg border border-gray-200 object-cover">
+                    </div>
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <div><span class="font-medium">Orden:</span> {{ tipo_reclamo.orden }}</div>
+            <div><span class="font-medium">Activo:</span> {% if tipo_reclamo.activo %}Si{% else %}No{% endif %}</div>
+            <div><span class="font-medium">Requiere adjunto:</span> {% if tipo_reclamo.requiere_adjunto %}Si{% else %}No{% endif %}</div>
+            <div><span class="font-medium">Permite anonimo:</span> {% if tipo_reclamo.permite_anonimo %}Si{% else %}No{% endif %}</div>
+            <div><span class="font-medium">Requiere ubicacion:</span> {% if tipo_reclamo.requiere_ubicacion %}Si{% else %}No{% endif %}</div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Campos extra dinamicos</h2>
+        {% if campos_dinamicos %}
+            <div class="space-y-3">
+                {% for campo in campos_dinamicos %}
+                    <div class="border border-gray-200 rounded-lg p-3 text-sm">
+                        <p class="font-medium text-gray-900">{{ campo.nombre }} <span class="text-gray-500">({{ campo.codigo }})</span></p>
+                        <p class="text-gray-700">Tipo: {{ campo.get_tipo_dato_display }} | Obligatorio: {% if campo.obligatorio %}Si{% else %}No{% endif %} | Activo: {% if campo.activo %}Si{% else %}No{% endif %}</p>
+                        {% if campo.descripcion %}
+                            <p class="text-gray-700 mt-1">{{ campo.descripcion }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-sm text-gray-500">No hay campos extra configurados.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

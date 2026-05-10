@@ -62,7 +62,7 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .brand-mark {
             width: 56px;
@@ -373,7 +373,7 @@
             min-height: 320px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
         .program-card i {
             color: var(--brand-strong);
@@ -552,14 +552,14 @@
         @media (max-width: 900px) {
             .topbar-inner {
                 justify-content: flex-start;
-                gap: 12px;
+                gap: 8px;
                 padding: 10px 0;
             }
             .brand { width: 100%; }
             .top-links {
                 width: 100%;
                 justify-content: flex-start;
-                gap: 12px;
+                gap: 8px;
                 font-size: 13px;
                 line-height: 18px;
             }
@@ -582,7 +582,7 @@
             .quick-card p { font-size: 14px; line-height: 21px; }
             .links-block h4 { font-size: 18px; line-height: 26px; }
             .hero { padding-bottom: 28px; }
-            .dual-actions { grid-template-columns: 1fr; gap: 10px; }
+            .dual-actions { grid-template-columns: 1fr; gap: 8px; }
             .program-card {
                 min-height: 280px;
                 padding: 20px;
@@ -604,7 +604,7 @@
             }
             .footer-inner {
                 align-items: flex-start;
-                gap: 12px;
+                gap: 8px;
             }
             .legal-row { font-size: 12px; }
             .chat-bubble {
@@ -626,7 +626,7 @@
             }
             .brand-title strong { font-size: 26px; line-height: 30px; }
             .brand-title span { font-size: 18px; line-height: 20px; }
-            .top-links { gap: 10px; }
+            .top-links { gap: 8px; }
             .top-links .item { font-size: 12px; line-height: 16px; }
             .profile-btn { font-size: 11px; padding: 5px 10px; }
             .section-head h2 { font-size: 22px; line-height: 32px; }
@@ -668,7 +668,7 @@
         </section>
 
         <section class="quick-grid">
-            <a class="quick-card card-lift animate-fadeInUp delay-1" href="{% url 'portal_ciudadano:login' %}?next=/portal-ciudadano/tramites/">
+            <a class="quick-card card-lift animate-fadeInUp delay-1" href="{% url 'portal_ciudadano:tramites' %}">
                 <div>
                     <h3>Iniciá trámites</h3>
                     <p>Comenzá acá las gestiones municipales que necesitás.</p>
@@ -682,7 +682,7 @@
                 </div>
                 <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
             </a>
-            <a class="quick-card card-lift animate-fadeInUp delay-3" href="{% url 'portal_ciudadano:login' %}?next=/portal-ciudadano/reclamos/">
+            <a class="quick-card card-lift animate-fadeInUp delay-3" href="{% if request.user.is_authenticated %}{% url 'portal_ciudadano:reclamos' %}{% else %}{% url 'portal_ciudadano:login' %}?next=/portal-ciudadano/reclamos/{% endif %}">
                 <div>
                     <h3>Ingresá una solicitud</h3>
                     <p>Iniciá todo tipo de solicitudes en tu municipio.</p>
@@ -706,14 +706,14 @@
                 </div>
                 <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
             </a>
-            <a class="quick-card card-lift animate-fadeInUp delay-3" href="{% url 'portal_ciudadano:login' %}?next={% url 'portal:ciudadano_mis_consultas' %}">
+            <a class="quick-card card-lift animate-fadeInUp delay-3" href="{% url 'portal_ciudadano:login' %}?next={% url 'portal_ciudadano:turnos' %}">
                 <div>
                     <h3>Consultas</h3>
                     <p>Seguí tus consultas y conversaciones.</p>
                 </div>
                 <img src="{% static 'custom/portal-ciudadano/arrow-right.svg' %}" alt="" class="icon-img">
             </a>
-            <a class="quick-card card-lift animate-fadeInUp delay-4" href="{% url 'portal:crear_usuario' %}">
+            <a class="quick-card card-lift animate-fadeInUp delay-4" href="{% url 'portal_ciudadano:login' %}">
                 <div>
                     <h3>Instituciones</h3>
                     <p>Registrá tu institución en la red NODO.</p>
@@ -727,8 +727,8 @@
                 <h4>Servicios <span>+</span></h4>
                 <ul>
                     <li><a href="{% url 'portal_ciudadano:mi_perfil' %}">Perfil digital para ciudadanos</a></li>
-                    <li><a href="{% url 'portal:consultar_tramite' %}">Trámites</a></li>
-                    <li><a href="{% url 'portal:ciudadano_mis_consultas' %}">Denuncias</a></li>
+                    <li><a href="{% url 'portal_ciudadano:mi_perfil' %}">Trámites</a></li>
+                    <li><a href="{% url 'portal_ciudadano:mis_solicitudes' %}">Denuncias</a></li>
                     <li><a href="{% url 'portal_ciudadano:turnos' %}">Turnos</a></li>
                 </ul>
             </div>
@@ -764,8 +764,8 @@
                         {% endfor %}
                     </ul>
                     <div class="dual-actions">
-                        <a href="{% url 'portal:consultar_tramite' %}" class="btn btn-secondary">Consulta estado</a>
-                        <a href="{% url 'portal:crear_usuario' %}" class="btn btn-primary">Iniciar trámite</a>
+                        <a href="{% url 'portal_ciudadano:login' %}" class="btn btn-secondary">Consulta estado</a>
+                        <a href="{% url 'portal_ciudadano:tramites' %}" class="btn btn-primary">Iniciar trámite</a>
                     </div>
                 </div>
             </article>
@@ -782,7 +782,7 @@
                         {% endfor %}
                     </ul>
                     <div class="dual-actions">
-                        <a href="{% url 'portal:ciudadano_registro_step1' %}" class="btn btn-secondary">Registrarse</a>
+                        <a href="{% url 'portal_ciudadano:login' %}" class="btn btn-secondary">Registrarse</a>
                         <a href="{% url 'portal_ciudadano:login' %}" class="btn btn-primary">Ingresar</a>
                     </div>
                 </div>

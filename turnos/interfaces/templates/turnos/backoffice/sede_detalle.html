@@ -1,0 +1,132 @@
+{% extends 'includes/base.html' %}
+
+{% block title %}Sede: {{ sede.nombre }}{% endblock %}
+
+{% block main-content %}
+<div class="mb-8">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+    <div>
+      <a href="{% url 'turnos:sedes_lista' %}" class="text-sm text-[#8C8C8C] hover:text-[#4A5565]">
+        <i class="fas fa-arrow-left mr-1"></i>Volver al listado
+      </a>
+      <h1 class="text-2xl sm:text-3xl font-lora font-bold text-[#252F40] mt-1">{{ sede.nombre }}</h1>
+      <p class="text-[#4A5565] mt-1">Detalle operativo de la sede y tramites habilitados</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{% url 'turnos:sede_editar' pk=sede.pk %}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm">
+        <i class="fas fa-pen"></i> Editar sede
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6 mb-6">
+    <h2 class="text-lg font-semibold text-[#252F40] mb-4">Detalle de la sede</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
+      <div><span class="font-medium text-[#4A5565]">Nombre:</span> {{ sede.nombre }}</div>
+      <div>
+        <span class="font-medium text-[#4A5565]">Estado:</span>
+        {% if sede.activo %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 ml-1">Activa</span>
+        {% else %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-[#8C8C8C] ml-1">Inactiva</span>
+        {% endif %}
+      </div>
+      <div><span class="font-medium text-[#4A5565]">Direccion:</span> {{ sede.direccion|default:"-" }}</div>
+      <div><span class="font-medium text-[#4A5565]">Telefono:</span> {{ sede.telefono|default:"-" }}</div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-[#E5E7EB]">
+      <h3 class="font-medium text-[#252F40] mb-2">Resumen de operacion</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+        <div><span class="font-medium text-[#4A5565]">Tramites habilitados:</span> {{ tramites|length }}</div>
+        <div><span class="font-medium text-[#4A5565]">Agendas activas:</span> {{ configs_sede|length }}</div>
+        <div><span class="font-medium text-[#4A5565]">Pendiente de configurar:</span> {{ pendientes_config }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] mb-4">
+    <div class="border-b border-[#E5E7EB]">
+      <nav class="flex -mb-px overflow-x-auto">
+        <button type="button" class="tab-btn tab-button border-b-2 py-4 px-6 font-medium whitespace-nowrap flex items-center {% if tab == 'tramites' %}border-transparent text-[#8C8C8C] hover:text-[#4A5565] hover:border-gray-300{% else %}border-blue-500 text-blue-600{% endif %}" data-tab="tab-detalle">Detalles</button>
+        <button type="button" class="tab-btn tab-button border-b-2 py-4 px-6 font-medium whitespace-nowrap flex items-center {% if tab == 'tramites' %}border-blue-500 text-blue-600{% else %}border-transparent text-[#8C8C8C] hover:text-[#4A5565] hover:border-gray-300{% endif %}" data-tab="tab-tramites">Tramites</button>
+      </nav>
+    </div>
+  </div>
+
+  <div id="tab-detalle" class="tab-panel {% if tab == 'tramites' %}hidden{% endif %} bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6 mb-6">
+    <h2 class="text-lg font-semibold text-[#252F40] mb-4">Detalles de la sede</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+      <div class="border border-[#E5E7EB] rounded-xl p-4">
+        <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Nombre</p>
+        <p class="font-medium text-[#252F40] mt-1">{{ sede.nombre }}</p>
+      </div>
+      <div class="border border-[#E5E7EB] rounded-xl p-4">
+        <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Estado</p>
+        <p class="font-medium text-[#252F40] mt-1">{% if sede.activo %}Activa{% else %}Inactiva{% endif %}</p>
+      </div>
+      <div class="border border-[#E5E7EB] rounded-xl p-4">
+        <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Direccion</p>
+        <p class="font-medium text-[#252F40] mt-1">{{ sede.direccion|default:"-" }}</p>
+      </div>
+      <div class="border border-[#E5E7EB] rounded-xl p-4">
+        <p class="text-xs text-[#8C8C8C] uppercase tracking-wide">Telefono</p>
+        <p class="font-medium text-[#252F40] mt-1">{{ sede.telefono|default:"-" }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-tramites" class="tab-panel {% if tab != 'tramites' %}hidden{% endif %} bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-6 mb-6">
+    <h2 class="text-lg font-semibold text-[#252F40] mb-4">Tramites de la sede</h2>
+    <div class="overflow-hidden border border-[#E5E7EB] rounded-xl">
+      <table class="min-w-full divide-y divide-[#E5E7EB]">
+        <thead class="bg-[#F9FAFB]">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide">Tramite</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide">Area</th>
+            <th class="px-4 py-3 text-center text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide">Agenda</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#E5E7EB]">
+          {% for item in tramites %}
+          <tr class="hover:bg-[#F9FAFB] transition-colors">
+            <td class="px-4 py-3 text-sm font-medium text-[#252F40]">{{ item.obj.nombre }}</td>
+            <td class="px-4 py-3 text-sm text-[#4A5565]">{{ item.obj.area.nombre|default:"-" }}</td>
+            <td class="px-4 py-3 text-center text-sm">
+              {% if item.config_id %}
+              <a href="{% url 'turnos:disponibilidad_grilla' pk=item.config_id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">Ir a agenda</a>
+              {% else %}
+              <a href="{% url 'turnos:configuracion_lista' %}?sede={{ sede.pk }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Configurar agenda</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="px-4 py-8 text-center text-sm text-[#8C8C8C]">No hay tramites habilitados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    if (!tabs.length || !panels.length) return;
+
+    function activate(tabId) {
+      tabs.forEach((btn) => {
+        const active = btn.dataset.tab === tabId;
+        btn.classList.toggle('border-blue-500', active);
+        btn.classList.toggle('text-blue-600', active);
+        btn.classList.toggle('border-transparent', !active);
+        btn.classList.toggle('text-[#8C8C8C]', !active);
+      });
+      panels.forEach((panel) => panel.classList.toggle('hidden', panel.id !== tabId));
+    }
+
+    tabs.forEach((btn) => btn.addEventListener('click', () => activate(btn.dataset.tab)));
+  })();
+</script>
+{% endblock %}
+

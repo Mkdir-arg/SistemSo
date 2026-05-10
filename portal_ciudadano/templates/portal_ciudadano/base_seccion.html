@@ -27,13 +27,15 @@
         .container { width: min(1140px, calc(100vw - 32px)); margin: 0 auto; }
         .topbar { min-height: 92px; background: linear-gradient(0deg, rgba(0,0,0,.13), rgba(0,0,0,.13)), var(--header-bg); color: #fff; }
         .topbar-inner { min-height: 92px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding: 12px 0; }
-        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 8px; }
         .brand-mark { width: 56px; height: 68px; display: block; object-fit: contain; opacity: .58; }
         .brand-title { color: #f9fafb; font-weight: 800; letter-spacing: .3px; line-height: 1; }
         .brand-title strong { display: block; font-size: 30px; line-height: 34px; }
         .brand-title span { display: block; font-size: 20px; line-height: 23px; margin-top: -1px; }
-        .top-links { display: flex; align-items: center; gap: 25px; flex-wrap: wrap; justify-content: flex-end; font-size: 14px; font-weight: 500; line-height: 20px; }
-        .top-links .item { display: inline-flex; align-items: center; gap: 6px; }
+        .top-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .icon-link { width: 34px; height: 34px; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); transition: all .2s ease; }
+        .icon-link:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+        .icon-link i { line-height: 1; }
         .profile-btn, .btn { min-height: 32px; border-radius: 12px; padding: 6px 12px; font-size: 12px; font-weight: 500; line-height: 20px; display: inline-flex; justify-content: center; align-items: center; gap: 6px; }
         .profile-btn, .btn-secondary { background: #f9fafb; border: 1px solid var(--line); color: var(--text-body); }
         .btn-primary { background: linear-gradient(45deg, #7928ca 0%, #ff0080 100%); color: #fff; border: 0; }
@@ -77,9 +79,10 @@
         .legal-row .heart { color: #f5222d; }
         .legal-row strong { color: #fff; font-weight: 700; }
         @media (max-width: 900px) {
-            .topbar-inner { justify-content: flex-start; gap: 12px; padding: 10px 0; }
+            .topbar-inner { justify-content: flex-start; gap: 8px; padding: 10px 0; }
             .brand, .top-links { width: 100%; }
-            .top-links { justify-content: flex-start; gap: 12px; font-size: 13px; }
+            .top-links { justify-content: flex-start; gap: 8px; }
+            .icon-link { width: 30px; height: 30px; font-size: 14px; }
             .hero { padding: 28px 20px 72px; }
             .hero h1 { font-size: 32px; line-height: 42px; }
             .hero h1 span { font-size: 28px; line-height: 36px; margin-top: -2px; }
@@ -97,14 +100,26 @@
                 <div class="brand-title"><strong>Nodo</strong><span>Ciudadano</span></div>
             </a>
             <div class="top-links">
-                <a class="item" href="{% url 'portal_ciudadano:home' %}">Inicio</a>
-                <a class="item" href="{% url 'portal_ciudadano:turnos' %}">Turnos</a>
-                <a class="item" href="{% url 'portal_ciudadano:programas' %}">Programas</a>
-                <span class="item"><i class="fa-solid fa-phone"></i>0800-111-1234</span>
-                <a href="{% url 'portal_ciudadano:mi_perfil' %}" class="profile-btn">
-                    Mi perfil
-                    <img src="{% static 'custom/portal-ciudadano/user-circle.svg' %}" alt="" class="icon-img">
+                <a class="icon-link" href="{% url 'portal_ciudadano:home' %}" aria-label="Inicio"><i class="fa-solid fa-house"></i></a>
+                {% if request.user.is_authenticated %}
+                <a class="icon-link" href="{% url 'portal_ciudadano:mi_perfil' %}" aria-label="Perfil"><i class="fa-regular fa-user"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:mis_solicitudes' %}" aria-label="Seguimiento"><i class="fa-regular fa-rectangle-list"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Turnos"><i class="fa-regular fa-calendar-days"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:turnos' %}" aria-label="Campanita"><i class="fa-regular fa-bell"></i></a>
+                <a class="icon-link" href="{% url 'portal_ciudadano:chat' %}" aria-label="Chat"><i class="fa-regular fa-comments"></i></a>
+                <form method="post" action="{% url 'portal_ciudadano:logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="profile-btn">
+                        Cerrar sesión
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'portal_ciudadano:login' %}" class="profile-btn">
+                    Iniciar sesión
+                    <i class="fa-solid fa-right-to-bracket"></i>
                 </a>
+                {% endif %}
             </div>
         </div>
     </header>

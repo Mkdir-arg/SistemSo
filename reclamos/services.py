@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 
@@ -13,17 +15,11 @@ from .models import (
 
 
 def obtener_estado_inicial(municipio=None):
-    estado = EstadoReclamo.objects.filter(activo=True, es_inicial=True, municipio=municipio).order_by("orden", "id").first()
-    if estado:
-        return estado
-    return EstadoReclamo.objects.filter(activo=True, es_inicial=True, municipio__isnull=True).order_by("orden", "id").first()
+    return EstadoReclamo.objects.filter(activo=True, es_inicial=True).order_by("orden", "id").first()
 
 
 def obtener_prioridad_base(municipio=None):
-    prioridad = PrioridadReclamo.objects.filter(activo=True, municipio=municipio).order_by("nivel", "id").first()
-    if prioridad:
-        return prioridad
-    return PrioridadReclamo.objects.filter(activo=True, municipio__isnull=True).order_by("nivel", "id").first()
+    return PrioridadReclamo.objects.filter(activo=True).order_by("nivel", "id").first()
 
 
 def registrar_historial(
@@ -88,6 +84,13 @@ def _normalizar_valor_campo(campo, valor):
             if d:
                 return d.isoformat()
         raise ValueError(f"El campo '{campo.nombre}' requiere una fecha valida (ISO).")
+    if tipo == CampoDinamicoReclamo.TipoDato.HORARIO:
+        valor_str = str(valor).strip()
+        try:
+            datetime.strptime(valor_str, "%H:%M")
+        except ValueError as exc:
+            raise ValueError(f"El campo '{campo.nombre}' requiere un horario valido (HH:MM).") from exc
+        return valor_str
     if tipo == CampoDinamicoReclamo.TipoDato.SELECCION:
         valor_str = str(valor).strip()
         existe = CampoDinamicoOpcion.objects.filter(campo=campo, activo=True, valor=valor_str).exists()

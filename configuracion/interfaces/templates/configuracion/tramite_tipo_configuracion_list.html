@@ -1,0 +1,165 @@
+{% extends "includes/base.html" %}
+
+{% block title %}Configuracion de Tramites{% endblock %}
+
+{% block main-content %}
+<div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-lora font-bold text-gray-900">Configuracion de Tramites</h1>
+            <p class="text-gray-600 mt-2">Administra tipos de tramite y sus campos extra.</p>
+            <p class="text-xs text-gray-500 mt-1">Agenda semanal: <a href="{% url 'turnos:configuracion_lista' %}" class="text-arg-azul hover:underline">Turnos > Configuraciones</a></p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ back_url }}" class="bg-white border border-gray-300 text-gray-800 px-5 py-3 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+                <i class="fas fa-sliders-h mr-2"></i>Configuraciones de Tramites
+            </a>
+            <a href="{% url 'configuracion:tramites_configuracion_crear' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors font-medium text-center">
+                <i class="fas fa-plus mr-2"></i>Agregar
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o descripcion" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul" />
+
+            <select id="filtro-area" name="area" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul">
+                <option value="">Area (todas)</option>
+                {% for area in areas %}
+                    <option value="{{ area.id }}" {% if filtros.area == area.id|stringformat:'s' %}selected{% endif %}>{{ area.nombre }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="filtro-subarea" name="subarea" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul">
+                <option value="">Subarea (todas)</option>
+                {% for subarea in subareas %}
+                    <option value="{{ subarea.id }}" data-parent="{{ subarea.parent_id }}" {% if filtros.subarea == subarea.id|stringformat:'s' %}selected{% endif %}>{{ subarea.nombre }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="prioridad" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul">
+                <option value="">Prioridad (todas)</option>
+                {% for prioridad in prioridades %}
+                    <option value="{{ prioridad.id }}" {% if filtros.prioridad == prioridad.id|stringformat:'s' %}selected{% endif %}>{{ prioridad.nombre }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="activo" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul">
+                <option value="">Estado (todos)</option>
+                <option value="1" {% if filtros.activo == '1' %}selected{% endif %}>Activos</option>
+                <option value="0" {% if filtros.activo == '0' %}selected{% endif %}>Inactivos</option>
+            </select>
+
+            <select name="destacado" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul">
+                <option value="">Destacado (todos)</option>
+                <option value="1" {% if filtros.destacado == '1' %}selected{% endif %}>Si</option>
+                <option value="0" {% if filtros.destacado == '0' %}selected{% endif %}>No</option>
+            </select>
+
+            <select name="requiere_turno" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul">
+                <option value="">Turno (todos)</option>
+                <option value="1" {% if filtros.requiere_turno == '1' %}selected{% endif %}>Con turno</option>
+                <option value="0" {% if filtros.requiere_turno == '0' %}selected{% endif %}>Sin turno</option>
+            </select>
+
+            <div class="flex gap-2">
+                <button type="submit" class="bg-gray-800 text-white px-3.5 py-2 rounded-md text-sm">Filtrar</button>
+                <a href="{% url 'configuracion:tramites_configuracion' %}" class="bg-gray-100 text-gray-700 px-3.5 py-2 rounded-md text-sm">Limpiar</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        {% if tipos_tramite %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Nombre</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Area</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Subarea</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Prioridad</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Destacado</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Estado</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for tipo in tipos_tramite %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ tipo.nombre }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{% if tipo.area.parent %}{{ tipo.area.parent.nombre }}{% else %}{{ tipo.area.nombre }}{% endif %}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{% if tipo.area.parent %}{{ tipo.area.nombre }}{% else %}-{% endif %}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700">{{ tipo.prioridad_default|default:'-' }}</td>
+                                <td class="px-6 py-4 text-sm">{% if tipo.destacado %}<span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800">Si</span>{% else %}<span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">No</span>{% endif %}</td>
+                                <td class="px-6 py-4 text-sm">{% if tipo.activo %}<span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">Activo</span>{% else %}<span class="inline-flex items-center rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700">Inactivo</span>{% endif %}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{% url 'configuracion:tramites_configuracion_detalle' tipo.pk %}" class="text-arg-azul hover:text-arg-secundario" title="Detalle"><i class="fas fa-eye"></i></a>
+                                        <a href="{% url 'configuracion:tramites_configuracion_editar' tipo.pk %}" class="text-green-700 hover:text-green-800" title="Editar"><i class="fas fa-edit"></i></a>
+                                        {% if tipo.requiere_turno %}
+                                            {% if tipo.agenda_config_id %}
+                                                <a href="{% url 'turnos:configuracion_lista' %}?tramite={{ tipo.id }}" title="Ver agendas por sede"><i class="fas fa-calendar-week" style="color:#15803d;"></i></a>
+                                            {% else %}
+                                                <a href="{% url 'turnos:configuracion_lista' %}?tramite={{ tipo.id }}" title="Crear/gestionar agendas por sede"><i class="fas fa-calendar-plus" style="color:#b91c1c;"></i></a>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600" title="Este tramite no usa turnos">Sin turno</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if is_paginated %}
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="text-sm text-gray-600">
+                        Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}&q={{ q|urlencode }}&area={{ filtros.area|urlencode }}&subarea={{ filtros.subarea|urlencode }}&prioridad={{ filtros.prioridad|urlencode }}&activo={{ filtros.activo|urlencode }}&destacado={{ filtros.destacado|urlencode }}&requiere_turno={{ filtros.requiere_turno|urlencode }}" class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-100">Anterior</a>
+                        {% endif %}
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}&q={{ q|urlencode }}&area={{ filtros.area|urlencode }}&subarea={{ filtros.subarea|urlencode }}&prioridad={{ filtros.prioridad|urlencode }}&activo={{ filtros.activo|urlencode }}&destacado={{ filtros.destacado|urlencode }}&requiere_turno={{ filtros.requiere_turno|urlencode }}" class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-100">Siguiente</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="p-12 text-center">
+                <i class="fas fa-list text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay tipos de tramite</h3>
+                <p class="text-gray-600 mb-6">Comienza agregando el primer tipo de tramite</p>
+                <a href="{% url 'configuracion:tramites_configuracion_crear' %}" class="bg-arg-azul text-white px-6 py-3 rounded-xl hover:bg-arg-secundario transition-colors"><i class="fas fa-plus mr-2"></i>Agregar</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    (function () {
+        const areaSelect = document.getElementById("filtro-area");
+        const subareaSelect = document.getElementById("filtro-subarea");
+        if (!areaSelect || !subareaSelect) return;
+        const currentSubarea = subareaSelect.value;
+        const currentArea = areaSelect.value;
+        function filtrarSubareas() {
+            const parentId = areaSelect.value;
+            let keepCurrent = false;
+            Array.from(subareaSelect.options).forEach((opt) => {
+                if (!opt.value) { opt.hidden = false; return; }
+                const ok = !parentId || opt.dataset.parent === parentId;
+                opt.hidden = !ok;
+                if (ok && opt.value === currentSubarea) keepCurrent = true;
+            });
+            if (!keepCurrent && currentArea !== parentId) subareaSelect.value = "";
+        }
+        filtrarSubareas();
+        areaSelect.addEventListener("change", filtrarSubareas);
+    })();
+</script>
+{% endblock %}

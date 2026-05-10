@@ -3,93 +3,202 @@
 {% block title %}Configuraciones de Turnos{% endblock %}
 
 {% block main-content %}
-<div class="max-w-6xl mx-auto px-4 py-8">
+<div class="max-w-7xl mx-4 lg:mx-8">
 
-  <div class="flex items-center justify-between mb-6">
+  <div class="mb-8 flex items-start justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Configuraciones de Turnos</h1>
-      <p class="text-gray-500 mt-1">Cada configuración puede asociarse a un Programa, Institución o Actividad.</p>
+      <h1 class="text-3xl font-bold text-[#252F40] mb-2">Configuraciones de Turnos</h1>
+      {% if es_contexto_tramite and tramite_contexto %}
+      <p class="text-[#8C8C8C]">Agendas del tramite: <span class="font-semibold text-[#4A5565]">{{ tramite_contexto.nombre }}</span></p>
+      {% else %}
+      <p class="text-[#8C8C8C]">Cada configuracion define la agenda operativa por sede y tramite.</p>
+      {% endif %}
     </div>
-    <a href="{% url 'turnos:configuracion_crear' %}"
-       class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm">
-      <i class="fas fa-plus"></i> Nueva configuración
-    </a>
+    <div class="flex items-center gap-2">
+      <a href="{% url 'configuracion:tramites_configuracion' %}" class="bg-white text-[#4A5565] px-4 py-2.5 rounded-xl hover:bg-[#F9FAFB] transition-all border border-[#E5E7EB] inline-flex items-center gap-2 text-sm">
+        <i class="fas fa-list"></i> Tramites
+      </a>
+      <a href="{% url 'turnos:configuracion_crear' %}{% if es_contexto_tramite and filtros.tramite %}?tramite={{ filtros.tramite }}{% endif %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl transition-all inline-flex items-center gap-2 text-sm font-medium">
+        <i class="fas fa-plus"></i> Nueva agenda
+      </a>
+    </div>
   </div>
+
+  {% if not es_contexto_tramite %}
+  <div class="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4 mb-6">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3">
+      <div>
+        <label for="filtro_sede" class="block text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide mb-1">Sede</label>
+        <select id="filtro_sede" name="sede" class="form-select w-full rounded-lg border-gray-300">
+          <option value="">Todas</option>
+          {% for sede in sedes %}
+          <option value="{{ sede.id }}" {% if filtros.sede == sede.id|stringformat:'s' %}selected{% endif %}>{{ sede.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="filtro_area" class="block text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide mb-1">Area</label>
+        <select id="filtro_area" name="area" class="form-select w-full rounded-lg border-gray-300">
+          <option value="">Todas</option>
+          {% for area in areas %}
+          <option value="{{ area.id }}" {% if filtros.area == area.id|stringformat:'s' %}selected{% endif %}>{{ area.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="filtro_subarea" class="block text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide mb-1">Subarea</label>
+        <select id="filtro_subarea" name="subarea" class="form-select w-full rounded-lg border-gray-300">
+          <option value="">Todas</option>
+          {% for subarea in subareas %}
+          <option value="{{ subarea.id }}" data-parent="{{ subarea.parent_id }}" {% if filtros.subarea == subarea.id|stringformat:'s' %}selected{% endif %}>{{ subarea.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="filtro_tramite" class="block text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide mb-1">Tramite</label>
+        <select id="filtro_tramite" name="tramite" class="form-select w-full rounded-lg border-gray-300">
+          <option value="">Todos</option>
+          {% for tramite in tramites %}
+          <option
+            value="{{ tramite.id }}"
+            data-area="{% if tramite.area.parent_id %}{{ tramite.area.parent_id }}{% else %}{{ tramite.area_id }}{% endif %}"
+            data-subarea="{% if tramite.area.parent_id %}{{ tramite.area_id }}{% endif %}"
+            {% if filtros.tramite == tramite.id|stringformat:'s' %}selected{% endif %}
+          >{{ tramite.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="filtro_activo" class="block text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide mb-1">Activa</label>
+        <select id="filtro_activo" name="activo" class="form-select w-full rounded-lg border-gray-300">
+          <option value="">Todas</option>
+          <option value="1" {% if filtros.activo == "1" %}selected{% endif %}>Si</option>
+          <option value="0" {% if filtros.activo == "0" %}selected{% endif %}>No</option>
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+        <a href="{% url 'turnos:configuracion_lista' %}" class="inline-flex items-center gap-2 bg-[#F9FAFB] hover:bg-gray-100 text-[#4A5565] border border-[#E5E7EB] px-4 py-2.5 rounded-lg text-sm font-medium">
+          Limpiar
+        </a>
+      </div>
+    </form>
+  </div>
+  {% endif %}
 
   {% if configs %}
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-100">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Nombre</th>
-          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Modo</th>
-          <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Aprobación</th>
-          <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Franjas activas</th>
-          <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Turnos pendientes</th>
-          <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Estado</th>
-          <th class="px-4 py-3"></th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100">
-        {% for config in configs %}
-        <tr class="hover:bg-gray-50 transition-colors">
-          <td class="px-4 py-3 font-medium text-gray-900">{{ config.nombre }}</td>
-          <td class="px-4 py-3 text-sm text-gray-600">{{ config.get_modo_turno_display }}</td>
-          <td class="px-4 py-3 text-center">
-            {% if config.requiere_aprobacion %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Manual</span>
-            {% else %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Auto</span>
-            {% endif %}
-          </td>
-          <td class="px-4 py-3 text-center text-sm text-gray-600">{{ config.total_disponibilidades }}</td>
-          <td class="px-4 py-3 text-center">
-            {% if config.total_turnos_pendientes %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-              {{ config.total_turnos_pendientes }}
-            </span>
-            {% else %}
-            <span class="text-gray-400 text-sm">—</span>
-            {% endif %}
-          </td>
-          <td class="px-4 py-3 text-center">
-            {% if config.activo %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-              <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>Activa
-            </span>
-            {% else %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
-              <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>Inactiva
-            </span>
-            {% endif %}
-          </td>
-          <td class="px-4 py-3 text-right">
-            <div class="flex items-center justify-end gap-2">
-              <a href="{% url 'turnos:disponibilidad_grilla' pk=config.pk %}"
-                 class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Disponibilidad</a>
-              <a href="{% url 'turnos:configuracion_editar' pk=config.pk %}"
-                 class="text-xs text-gray-600 hover:text-gray-800 font-medium">Editar</a>
-              <a href="{% url 'turnos:agenda' %}?config={{ config.pk }}"
-                 class="text-xs text-gray-400 hover:text-gray-600 font-medium">Agenda</a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-[#F9FAFB]">
+          <tr class="text-left text-xs font-semibold text-[#8C8C8C] uppercase tracking-wide">
+            <th class="px-4 py-3">Configuracion</th>
+            <th class="px-4 py-3">Sede</th>
+            <th class="px-4 py-3">Tramite</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3 text-center">Franjas</th>
+            <th class="px-4 py-3 text-center">Pendientes</th>
+            <th class="px-4 py-3">Modo</th>
+            <th class="px-4 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#E5E7EB]">
+          {% for config in configs %}
+          <tr class="hover:bg-[#FCFCFD]">
+            <td class="px-4 py-3">
+              <p class="font-semibold text-[#252F40]">{{ config.nombre }}</p>
+            </td>
+            <td class="px-4 py-3 text-[#4A5565]">{{ config.sede.nombre|default:"-" }}</td>
+            <td class="px-4 py-3 text-[#4A5565]">{{ config.tipo_tramite.nombre|default:"-" }}</td>
+            <td class="px-4 py-3">
+              {% if config.activo %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Activa</span>
+              {% else %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-[#8C8C8C]">Inactiva</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-center font-semibold text-[#252F40]">{{ config.total_disponibilidades|default:0 }}</td>
+            <td class="px-4 py-3 text-center font-semibold {% if config.total_turnos_pendientes %}text-[#F59E0B]{% else %}text-[#252F40]{% endif %}">{{ config.total_turnos_pendientes|default:0 }}</td>
+            <td class="px-4 py-3 text-[#4A5565]">{{ config.get_modo_turno_display }}</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-end gap-2">
+                <a href="{% url 'turnos:disponibilidad_grilla' pk=config.pk %}{% if es_contexto_tramite and filtros.tramite %}?tramite={{ filtros.tramite }}{% endif %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-600 hover:bg-indigo-100">Disponibilidad</a>
+                <a href="{% url 'turnos:configuracion_editar' pk=config.pk %}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-gray-100 text-[#4A5565] hover:bg-gray-200">Editar</a>
+                <a href="{% url 'turnos:agenda' %}?config={{ config.pk }}" class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100">Agenda</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-
   {% else %}
-  <div class="bg-white rounded-xl border border-dashed border-gray-200 p-12 text-center">
-    <i class="fas fa-calendar-plus text-gray-300 text-4xl mb-4"></i>
-    <h3 class="text-gray-500 font-medium mb-2">No hay configuraciones creadas</h3>
-    <p class="text-gray-400 text-sm mb-4">Creá una configuración para empezar a ofrecer turnos.</p>
-    <a href="{% url 'turnos:configuracion_crear' %}"
-       class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm">
-      <i class="fas fa-plus"></i> Crear primera configuración
+  <div class="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-12 text-center">
+    <div class="text-gray-400 text-4xl mb-4"><i class="fas fa-calendar-plus"></i></div>
+    <p class="text-[#8C8C8C] text-lg">No hay configuraciones creadas</p>
+    <p class="text-gray-400 text-sm mt-2">Crea una configuracion para empezar a ofrecer turnos.</p>
+    <a href="{% url 'turnos:configuracion_crear' %}{% if es_contexto_tramite and filtros.tramite %}?tramite={{ filtros.tramite }}{% endif %}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm mt-4">
+      <i class="fas fa-plus"></i> Crear primera agenda
     </a>
   </div>
   {% endif %}
 
 </div>
+{% if not es_contexto_tramite %}
+<script>
+  (function () {
+    const areaSelect = document.getElementById("filtro_area");
+    const subareaSelect = document.getElementById("filtro_subarea");
+    const tramiteSelect = document.getElementById("filtro_tramite");
+    if (!areaSelect || !subareaSelect || !tramiteSelect) return;
+
+    function filtrarSubareas() {
+      const areaId = areaSelect.value;
+      const current = subareaSelect.value;
+      let keepCurrent = false;
+      Array.from(subareaSelect.options).forEach((opt) => {
+        if (!opt.value) {
+          opt.hidden = false;
+          return;
+        }
+        const ok = !areaId || opt.dataset.parent === areaId;
+        opt.hidden = !ok;
+        if (ok && opt.value === current) keepCurrent = true;
+      });
+      if (!keepCurrent) subareaSelect.value = "";
+    }
+
+    function filtrarTramites() {
+      const areaId = areaSelect.value;
+      const subareaId = subareaSelect.value;
+      const current = tramiteSelect.value;
+      let keepCurrent = false;
+      Array.from(tramiteSelect.options).forEach((opt) => {
+        if (!opt.value) {
+          opt.hidden = false;
+          return;
+        }
+        const tramiteArea = opt.dataset.area || "";
+        const tramiteSub = opt.dataset.subarea || "";
+        const ok = subareaId ? (tramiteSub === subareaId) : (!areaId || tramiteArea === areaId);
+        opt.hidden = !ok;
+        if (ok && opt.value === current) keepCurrent = true;
+      });
+      if (!keepCurrent) tramiteSelect.value = "";
+    }
+
+    filtrarSubareas();
+    filtrarTramites();
+    areaSelect.addEventListener("change", () => {
+      filtrarSubareas();
+      filtrarTramites();
+    });
+    subareaSelect.addEventListener("change", filtrarTramites);
+  })();
+</script>
+{% endif %}
 {% endblock %}
+

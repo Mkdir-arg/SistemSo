@@ -3,6 +3,18 @@
 {% block title %}{{ tramite.numero }}{% endblock %}
 
 {% block main-content %}
+<div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2 pointer-events-none"></div>
+{% if messages %}
+    <div id="toast-data" class="hidden">
+        {% for message in messages %}
+            <div data-level="{{ message.tags|default:'info' }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+<style>
+    .solicitud-campo-btn { display: none !important; }
+    body.modo-solicitud-datos .solicitud-campo-btn { display: inline-flex !important; }
+</style>
 <div class="mb-8">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <div>
@@ -14,179 +26,602 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white rounded-xl shadow-lg p-6 xl:col-span-2">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Datos principales</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><span class="font-medium text-gray-700">Tipo:</span> {{ tramite.tipo_tramite.nombre }}</div>
-                <div><span class="font-medium text-gray-700">Estado:</span> {{ tramite.estado.nombre }}</div>
-                <div><span class="font-medium text-gray-700">Prioridad:</span> {{ tramite.prioridad.nombre }}</div>
-                <div>
-                    <span class="font-medium text-gray-700">Ciudadano:</span> 
-                    {% if tramite.ciudadano %}
-                        <a href="{% url 'legajos:ciudadano_detalle' tramite.ciudadano.pk %}" class="text-blue-600 hover:underline">{{ tramite.ciudadano }}</a>
-                    {% else %}
-                        No especificado
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Detalle del tramite</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
+            <div><span class="font-medium text-gray-700">Estado:</span> <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ estado_badge_class }}">{{ tramite.estado.nombre }}</span></div>
+            <div><span class="font-medium text-gray-700">Prioridad:</span> {{ tramite.prioridad.nombre }}</div>
+            <div><span class="font-medium text-gray-700">Area actual:</span> {{ tramite.area_actual.nombre }}</div>
+            <div><span class="font-medium text-gray-700">Asignado:</span> {{ tramite.asignado_a|default:"Sin asignar" }}</div>
+            <div><span class="font-medium text-gray-700">Tipo:</span> {{ tramite.tipo_tramite.nombre }}</div>
+            <div><span class="font-medium text-gray-700">Inicio:</span> {{ tramite.fecha_inicio|date:"d/m/Y H:i" }}</div>
+            <div><span class="font-medium text-gray-700">Estado solicitud de datos:</span> {{ estado_solicitud_modificacion }}</div>
+            <div><span class="font-medium text-gray-700">Seguimiento solicitud de datos:</span> {{ solicitudes_modificacion_pendientes }} pendientes / {{ solicitudes_modificacion_respondidas }} respondidas ({{ solicitudes_modificacion_total }} total)</div>
+            <div class="xl:col-span-2"><span class="font-medium text-gray-700">Descripcion:</span> {{ tramite.descripcion }}</div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <h3 class="font-medium text-gray-900 mb-2">Datos del ciudadano</h3>
+            {% if tramite.ciudadano %}
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 text-sm">
+                    <div><span class="font-medium text-gray-700">Nombre:</span> {{ tramite.ciudadano.nombre }} {{ tramite.ciudadano.apellido }}</div>
+                    <div><span class="font-medium text-gray-700">DNI:</span> {{ tramite.ciudadano.dni }}</div>
+                    <div><span class="font-medium text-gray-700">Telefono:</span> {{ tramite.ciudadano.telefono|default:"-" }}</div>
+                    <div><span class="font-medium text-gray-700">Email:</span> {{ tramite.ciudadano.email|default:"-" }}</div>
+                </div>
+            {% else %}
+                <p class="text-sm text-gray-500">No hay ciudadano asociado.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg mb-4">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px overflow-x-auto">
+                <button type="button" class="tab-btn tab-button border-b-2 border-blue-500 text-blue-600 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-resumen">Resumen</button>
+                <button type="button" class="tab-btn tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-persona">Persona</button>
+                <button type="button" class="tab-btn tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-estados">Estados</button>
+                <button type="button" class="tab-btn tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-derivaciones">Derivaciones</button>
+                <button type="button" class="tab-btn tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-observaciones">Seguimiento</button>
+                <button type="button" class="tab-btn tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium whitespace-nowrap flex items-center" data-tab="tab-historial">Historial</button>
+                <button type="button" class="tab-btn tab-button border-b-2 border-transparent text-gray-700 hover:text-gray-900 hover:border-gray-300 py-4 px-6 font-bold whitespace-nowrap flex items-center" data-tab="tab-respuesta">Finalizar tramite</button>
+            </nav>
+        </div>
+    </div>
+
+    <div id="tab-resumen" class="tab-panel bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-start gap-3 mb-4">
+            <h2 class="text-lg font-semibold text-gray-900 mb-0">Resumen del tramite</h2>
+            {% if tramite.ciudadano_id %}
+            <button type="button" id="toggle-solicitud-campos" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-arg-azul text-white text-sm font-medium hover:opacity-90">
+                <i class="fas fa-file-pen"></i>
+                Pedido de actualización de datos
+            </button>
+            {% endif %}
+        </div>
+        <div class="space-y-4">
+            <div class="border border-gray-200 rounded-xl p-4">
+                <h3 class="font-medium text-gray-900 mb-3">Datos principales</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 text-sm">
+                    <div><span class="font-medium text-gray-700">Tipo:</span> {{ tramite.tipo_tramite.nombre }}</div>
+                    <div><span class="font-medium text-gray-700">Inicio:</span> {{ tramite.fecha_inicio|date:"d/m/Y H:i" }}</div>
+                    <div><span class="font-medium text-gray-700">Origen:</span> {{ tramite.get_origen_display }}</div>
+                    <div><span class="font-medium text-gray-700">Area responsable:</span> {{ tramite.area_responsable|default:"-" }}</div>
+                    <div><span class="font-medium text-gray-700">Provincia:</span> {{ tramite.provincia|default:"-" }}</div>
+                    <div><span class="font-medium text-gray-700">Municipio:</span> {{ tramite.municipio|default:"-" }}</div>
+                    <div><span class="font-medium text-gray-700">Localidad:</span> {{ tramite.localidad|default:"-" }}</div>
+                    <div><span class="font-medium text-gray-700">Barrio:</span> {{ tramite.barrio|default:"-" }}</div>
+                </div>
+            </div>
+            <div class="border border-gray-200 rounded-xl p-4">
+                <h3 class="font-medium text-gray-900 mb-3">Datos {% if tramite.ciudadano_id %}<button type="button" class="solicitar-dato-btn solicitud-campo-btn text-arg-azul hover:text-arg-secundario ml-2" data-campo="adjuntos_imagenes" title="Solicitar nuevos adjuntos" style="display:none;"><i class="fas fa-file-pen"></i></button>{% endif %}</h3>
+                {% if adjuntos_items %}
+                <div class="mb-3 flex gap-2 overflow-x-auto pb-1">
+                    {% for adjunto in adjuntos_items %}
+                    <a href="{{ adjunto.archivo.url }}" target="_blank" rel="noopener noreferrer" class="min-w-[150px] max-w-[150px] rounded-lg border border-gray-200 bg-gray-50 p-2 text-center">
+                        {% with ext4=adjunto.archivo.url|lower|slice:"-4:" ext5=adjunto.archivo.url|lower|slice:"-5:" %}
+                            {% if ext4 == ".png" or ext4 == ".jpg" or ext5 == ".jpeg" or ext5 == ".webp" or ext4 == ".gif" %}
+                                <img src="{{ adjunto.archivo.url }}" alt="{{ adjunto.nombre_original|default:'Imagen' }}" class="h-24 w-full rounded border border-gray-200 object-cover">
+                            {% elif ext4 == ".pdf" %}
+                                <div class="h-24 w-full rounded border border-gray-200 bg-white flex items-center justify-center text-gray-500 text-2xl"><i class="fa-regular fa-file-pdf"></i></div>
+                            {% elif ext4 == ".doc" or ext5 == ".docx" %}
+                                <div class="h-24 w-full rounded border border-gray-200 bg-white flex items-center justify-center text-gray-500 text-2xl"><i class="fa-regular fa-file-word"></i></div>
+                            {% elif ext4 == ".xls" or ext5 == ".xlsx" %}
+                                <div class="h-24 w-full rounded border border-gray-200 bg-white flex items-center justify-center text-gray-500 text-2xl"><i class="fa-regular fa-file-excel"></i></div>
+                            {% else %}
+                                <div class="h-24 w-full rounded border border-gray-200 bg-white flex items-center justify-center text-gray-500 text-2xl"><i class="fa-regular fa-file-lines"></i></div>
+                            {% endif %}
+                        {% endwith %}
+                        <p class="mt-1 text-xs text-gray-700 break-words">{{ adjunto.nombre_original|default:"Archivo" }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+                    {% for dato in datos_dinamicos_items %}
+                        <div class="p-3 text-sm">
+                            <p class="font-medium text-gray-900">{{ dato.campo.nombre }}</p>
+                            {% if tramite.ciudadano_id %}
+                                <button type="button" class="solicitar-dato-btn solicitud-campo-btn text-arg-azul hover:text-arg-secundario ml-2" data-campo="campo_dinamico:{{ dato.campo.nombre }}" title="Solicitar correccion de este campo" style="display:none;">
+                                    <i class="fas fa-file-pen"></i>
+                                </button>
+                            {% endif %}
+                            <p class="text-gray-700 mt-1 whitespace-pre-line">{{ dato.valor|default:"-" }}</p>
+                        </div>
+                    {% empty %}{% if not adjuntos_items %}
+                        <p class="text-sm text-gray-500 p-3">No hay datos cargados.</p>
+                    {% endif %}{% endfor %}
+                </div>
+            </div>
+            {% if not tramite.ciudadano_id %}
+                <div class="border border-amber-200 bg-amber-50 rounded-xl p-4">
+                    <p class="text-sm text-amber-800">
+                        Tramite sin ciudadano asociado: no se pueden solicitar ediciones de datos.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="tab-persona" class="tab-panel hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Datos de la persona</h2>
+        {% if tramite.ciudadano %}
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-arg-azul flex items-center justify-center text-white text-xl font-bold">
+                    {{ tramite.ciudadano.nombre|first|upper }}
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm flex-1">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Nombre completo</p>
+                        <p class="font-medium text-gray-900">{{ tramite.ciudadano.nombre }} {{ tramite.ciudadano.apellido }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">DNI</p>
+                        <p class="font-medium text-gray-900">{{ tramite.ciudadano.dni }}</p>
+                    </div>
+                    {% if tramite.ciudadano.telefono %}
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Telefono</p>
+                        <p class="font-medium text-gray-900">{{ tramite.ciudadano.telefono }}</p>
+                    </div>
+                    {% endif %}
+                    {% if tramite.ciudadano.email %}
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Email</p>
+                        <p class="font-medium text-gray-900">{{ tramite.ciudadano.email }}</p>
+                    </div>
                     {% endif %}
                 </div>
-                <div><span class="font-medium text-gray-700">Area actual:</span> {{ tramite.area_actual.nombre }}</div>
-                <div><span class="font-medium text-gray-700">Asignado:</span> {{ tramite.asignado_a|default:"Sin asignar" }}</div>
-                <div><span class="font-medium text-gray-700">Inicio:</span> {{ tramite.fecha_inicio|date:"d/m/Y H:i" }}</div>
+                <div class="flex-shrink-0">
+                    <a href="{% url 'legajos:ciudadano_detalle' tramite.ciudadano.pk %}" class="inline-flex items-center gap-1 text-sm text-arg-azul hover:underline font-medium">
+                        <i class="fas fa-external-link-alt text-xs"></i> Ver legajo
+                    </a>
+                </div>
             </div>
-            <div class="mt-4">
-                <p class="font-medium text-gray-700 mb-1">Descripcion</p>
-                <p class="text-sm text-gray-700 whitespace-pre-line">{{ tramite.descripcion }}</p>
-            </div>
-        </div>
+        {% else %}
+            <p class="text-sm text-gray-500">No hay ciudadano asociado a este tramite.</p>
+        {% endif %}
+    </div>
 
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Acciones</h2>
-
-            <form method="post" class="space-y-3 mb-6">
+    <div id="tab-estados" class="tab-panel hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Estados</h2>
+        <div class="space-y-4">
+            <form method="post" class="space-y-3 border border-gray-200 rounded-xl p-4">
                 {% csrf_token %}
                 <input type="hidden" name="accion" value="cambiar_estado">
-                <h3 class="font-medium text-gray-800">Cambio de estado</h3>
+                <h3 class="font-medium text-gray-800">Nuevo cambio de estado</h3>
                 {{ estado_form.non_field_errors }}
-                <div>
-                    <label class="block text-sm text-gray-700 mb-1">{{ estado_form.estado_nuevo.label }}</label>
-                    {{ estado_form.estado_nuevo }}
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-700 mb-1">{{ estado_form.comentario.label }}</label>
-                    {{ estado_form.comentario }}
-                </div>
-                <button type="submit" class="w-full bg-arg-azul text-white px-4 py-2 rounded-lg text-sm">Guardar estado</button>
+                <div class="text-sm"><span class="font-medium text-gray-700">Estado actual:</span> <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ estado_badge_class }}">{{ tramite.estado.nombre }}</span></div>
+                <div><label class="block text-sm text-gray-700 mb-1">Cambiar estado a</label>{{ estado_form.estado_nuevo }}</div>
+                <div><label class="block text-sm text-gray-700 mb-1">{{ estado_form.comentario.label }}</label>{{ estado_form.comentario }}</div>
+                <button type="submit" class="bg-arg-azul text-white px-4 py-2 rounded-lg text-sm">Guardar estado</button>
             </form>
+            <div>
+                <h3 class="font-medium text-gray-800 mb-2">Historial de estados</h3>
+                <div class="space-y-3 max-h-[540px] overflow-auto">
+                    {% for item in historial_estados %}
+                        <div class="border border-gray-200 rounded-lg p-3 text-sm">
+                            <p class="font-medium text-gray-800">{{ item.fecha|date:"d/m/Y H:i" }}</p>
+                            <p class="text-gray-700">
+                                {% if item.estado_anterior %}
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold {{ item.estado_anterior_badge_class }}">{{ item.estado_anterior }}</span>
+                                {% else %}-{% endif %}
+                                <i class="fas fa-arrow-right mx-1 text-xs text-gray-400"></i>
+                                {% if item.estado_nuevo %}
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold {{ item.estado_nuevo_badge_class }}">{{ item.estado_nuevo }}</span>
+                                {% else %}-{% endif %}
+                            </p>
+                            <p class="text-gray-600 mt-1">Usuario: {{ item.usuario|default:"Sistema" }}</p>
+                            {% if item.comentario %}<p class="text-gray-700 mt-1">{{ item.comentario }}</p>{% endif %}
+                        </div>
+                    {% empty %}
+                        <p class="text-sm text-gray-500">Sin historial de estados.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <form method="post" class="space-y-3 mb-6">
+    <div id="tab-derivaciones" class="tab-panel hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Derivaciones y asignaciones</h2>
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div class="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                    <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Ubicacion actual</p>
+                    <p class="text-sm text-gray-900 font-medium">
+                        {% if tramite.area_actual.parent %}
+                            {{ tramite.area_actual.parent.nombre }} / {{ tramite.area_actual.nombre }}
+                        {% else %}
+                            {{ tramite.area_actual.nombre }}
+                        {% endif %}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">Asignado: {{ tramite.asignado_a|default:"Sin asignar" }}</p>
+                </div>
+                <div class="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                    <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Destino seleccionado</p>
+                    <p id="derivacion-destino-label" class="text-sm text-gray-900 font-medium">-</p>
+                    <p id="derivacion-destino-usuario" class="text-xs text-gray-500 mt-1">Asignado: Sin asignar</p>
+                </div>
+            </div>
+            <form method="post" class="space-y-3 border border-gray-200 rounded-xl p-4">
                 {% csrf_token %}
                 <input type="hidden" name="accion" value="derivar">
-                <h3 class="font-medium text-gray-800">Derivar / asignar</h3>
+                <h3 class="font-medium text-gray-800">Nueva derivacion</h3>
                 {{ derivacion_form.non_field_errors }}
+                <div><label class="block text-sm text-gray-700 mb-1">{{ derivacion_form.area_principal.label }}</label>{{ derivacion_form.area_principal }}</div>
                 <div>
-                    <label class="block text-sm text-gray-700 mb-1">{{ derivacion_form.area.label }}</label>
-                    {{ derivacion_form.area }}
+                    <label for="{{ derivacion_form.subarea.id_for_label }}" class="block text-sm text-gray-700 mb-1">{{ derivacion_form.subarea.label }}</label>
+                    <select name="{{ derivacion_form.subarea.name }}" id="{{ derivacion_form.subarea.id_for_label }}" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                        <option value="">---------</option>
+                        {% for area in derivacion_form.subarea.field.queryset %}
+                            <option value="{{ area.id }}" data-parent="{{ area.parent_id }}" {% if derivacion_form.subarea.value|stringformat:'s' == area.id|stringformat:'s' %}selected{% endif %}>{{ area.nombre }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <div>
-                    <label class="block text-sm text-gray-700 mb-1">{{ derivacion_form.usuario.label }}</label>
-                    {{ derivacion_form.usuario }}
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-700 mb-1">{{ derivacion_form.motivo.label }}</label>
-                    {{ derivacion_form.motivo }}
-                </div>
-                <button type="submit" class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg text-sm">Derivar</button>
+                <div><label class="block text-sm text-gray-700 mb-1">{{ derivacion_form.usuario.label }}</label>{{ derivacion_form.usuario }}</div>
+                <div><label class="block text-sm text-gray-700 mb-1">{{ derivacion_form.motivo.label }}</label>{{ derivacion_form.motivo }}</div>
+                {{ derivacion_form.area }}
+                <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm">Derivar</button>
             </form>
+            <div class="space-y-3 max-h-[260px] overflow-auto">
+                {% for item in historial_derivaciones %}
+                    <div class="border border-gray-200 rounded-lg p-3 text-sm">
+                        <p class="font-medium text-gray-800">{{ item.fecha|date:"d/m/Y H:i" }}</p>
+                        <p class="text-gray-700">Area: {{ item.area_anterior|default:"-" }} <i class="fas fa-arrow-right mx-1 text-xs text-gray-400"></i> {{ item.area_nueva|default:"-" }}</p>
+                        <p class="text-gray-700">Asignado: {{ item.asignado_anterior|default:"-" }} <i class="fas fa-arrow-right mx-1 text-xs text-gray-400"></i> {{ item.asignado_nuevo|default:"-" }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-sm text-gray-500">Sin historial de derivaciones.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
-            <form method="post" class="space-y-3">
+    <div id="tab-observaciones" class="tab-panel hidden bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Seguimiento</h2>
+        <div class="space-y-4">
+            <form method="post" class="space-y-3 border border-gray-200 rounded-xl p-4">
                 {% csrf_token %}
                 <input type="hidden" name="accion" value="seguimiento">
-                <h3 class="font-medium text-gray-800">Seguimiento</h3>
                 {{ seguimiento_form.non_field_errors }}
-                <div>
-                    <label class="block text-sm text-gray-700 mb-1">{{ seguimiento_form.comentario.label }}</label>
-                    {{ seguimiento_form.comentario }}
-                </div>
+                <div><label class="block text-sm text-gray-700 mb-1">{{ seguimiento_form.comentario.label }}</label>{{ seguimiento_form.comentario }}</div>
                 <label class="flex items-center gap-2 text-sm text-gray-700">{{ seguimiento_form.es_interno }} {{ seguimiento_form.es_interno.label }}</label>
                 <label class="flex items-center gap-2 text-sm text-gray-700">{{ seguimiento_form.visible_ciudadano }} {{ seguimiento_form.visible_ciudadano.label }}</label>
-                <button type="submit" class="w-full bg-green-700 text-white px-4 py-2 rounded-lg text-sm">Agregar seguimiento</button>
+                <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded-lg text-sm">Guardar seguimiento</button>
             </form>
+            <div class="divide-y divide-gray-200 border border-gray-200 rounded-lg max-h-[540px] overflow-auto">
+                <div class="px-3 py-2 border-b border-gray-200 flex items-center justify-between gap-2">
+                    <h3 class="font-medium text-gray-800">Observaciones</h3>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="filtro-seg-interno" class="seguimiento-filter-pill px-2.5 py-1 rounded-full text-xs border border-gray-300 text-gray-700 bg-white">Interno</button>
+                        <button type="button" id="filtro-seg-visible" class="seguimiento-filter-pill px-2.5 py-1 rounded-full text-xs border border-gray-300 text-gray-700 bg-white">Visible ciudadano</button>
+                    </div>
+                </div>
+                {% for item in comentarios_seguimiento_items %}
+                    <div class="p-3 text-sm seguimiento-row" data-es-interno="{% if item.es_interno %}1{% else %}0{% endif %}" data-es-visible="{% if item.visible_ciudadano %}1{% else %}0{% endif %}">
+                        <p class="font-medium text-gray-800">{{ item.created_at|date:"d/m/Y H:i" }} - {{ item.usuario|default:"Sistema" }}</p>
+                        <p class="text-gray-700 mt-1 whitespace-pre-line">{{ item.comentario }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{% if item.es_interno %}Interno{% else %}Publico{% endif %} {% if item.visible_ciudadano %}| Visible para ciudadano{% else %}| No visible para ciudadano{% endif %}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-sm text-gray-500 p-3">Sin seguimientos registrados.</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 
-    {% if tramite.ciudadano %}
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Ciudadano</h2>
-        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-arg-azul flex items-center justify-center text-white text-xl font-bold">
-                {{ tramite.ciudadano.nombre|first|upper }}
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm flex-1">
-                <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Nombre completo</p>
-                    <p class="font-medium text-gray-900">{{ tramite.ciudadano.nombre }} {{ tramite.ciudadano.apellido }}</p>
+    <div id="tab-historial" class="tab-panel hidden bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Historial completo</h2>
+        <div class="divide-y divide-gray-200 border border-gray-200 rounded-lg max-h-[640px] overflow-auto">
+            {% for entry in historial_full_items %}
+                <div class="p-3 text-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                        <p class="font-medium text-gray-900">{{ entry.fecha|date:"d/m/Y H:i" }}</p>
+                        <p class="text-xs text-gray-500">Usuario: {% if entry.tipo == "historial" %}{{ entry.obj.usuario|default:"Sistema" }}{% else %}{{ entry.obj.usuario|default:entry.obj.ciudadano|default:"Sistema" }}{% endif %}</p>
+                    </div>
+                    {% if entry.tipo == "historial" %}
+                        <p class="text-gray-800 mt-1"><span class="font-medium">Accion:</span> {{ entry.obj.accion_label|default:entry.obj.accion|default:"-" }}</p>
+                        {% if entry.obj.accion == "solicitud_datos_ciudadano" %}
+                            <p class="text-gray-700 mt-1"><span class="font-medium">Estado solicitud:</span> {{ entry.obj.solicitud_datos_estado|default:"Pendiente" }}</p>
+                        {% endif %}
+                        {% if entry.obj.comentario %}<p class="text-gray-700 mt-1 whitespace-pre-line"><span class="font-medium">Detalle:</span> {{ entry.obj.comentario_label|default:entry.obj.comentario }}</p>{% endif %}
+                        {% if entry.obj.campos_valores %}
+                            <div class="mt-2 space-y-2">
+                                {% for cv in entry.obj.campos_valores %}
+                                    <div class="text-gray-700">
+                                        <p><span class="font-medium">{{ cv.campo|default:"Campo" }}:</span>
+                                            {% if cv.tipo == "archivo" %}
+                                                {{ cv.valor|default:"Archivo" }}
+                                            {% else %}
+                                                {{ cv.valor|default:"-" }}
+                                            {% endif %}
+                                        </p>
+                                        {% if cv.tipo == "archivo" and cv.url %}
+                                            {% with ext4=cv.url|lower|slice:"-4:" ext5=cv.url|lower|slice:"-5:" %}
+                                                {% if ext4 == ".png" or ext4 == ".jpg" or ext5 == ".jpeg" or ext5 == ".webp" or ext4 == ".gif" %}
+                                                    <img src="{{ cv.url }}" alt="{{ cv.campo|default:'Imagen' }}" class="mt-1 max-h-20 rounded border border-gray-200">
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-gray-800 mt-1"><span class="font-medium">Accion:</span> Seguimiento</p>
+                        <p class="text-gray-700 mt-1 whitespace-pre-line"><span class="font-medium">Observacion:</span> {{ entry.obj.comentario }}</p>
+                    {% endif %}
                 </div>
-                <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">DNI</p>
-                    <p class="font-medium text-gray-900">{{ tramite.ciudadano.dni }}</p>
-                </div>
-                {% if tramite.ciudadano.telefono %}
-                <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Teléfono</p>
-                    <p class="font-medium text-gray-900">{{ tramite.ciudadano.telefono }}</p>
-                </div>
-                {% endif %}
-                {% if tramite.ciudadano.email %}
-                <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Email</p>
-                    <p class="font-medium text-gray-900">{{ tramite.ciudadano.email }}</p>
-                </div>
-                {% endif %}
-                {% if tramite.ciudadano.domicilio %}
-                <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Domicilio</p>
-                    <p class="font-medium text-gray-900">{{ tramite.ciudadano.domicilio }}</p>
-                </div>
-                {% endif %}
-                {% if tramite.ciudadano.municipio %}
-                <div>
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Municipio</p>
-                    <p class="font-medium text-gray-900">{{ tramite.ciudadano.municipio }}</p>
-                </div>
-                {% endif %}
-            </div>
-            <div class="flex-shrink-0">
-                <a href="{% url 'legajos:ciudadano_detalle' tramite.ciudadano.pk %}" class="inline-flex items-center gap-1 text-sm text-arg-azul hover:underline font-medium">
-                    <i class="fas fa-external-link-alt text-xs"></i> Ver legajo
-                </a>
-            </div>
+            {% empty %}
+                <p class="text-sm text-gray-500 p-3">Sin movimientos en historial.</p>
+            {% endfor %}
         </div>
     </div>
-    {% endif %}
 
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Historial</h2>
-            <div class="space-y-3 max-h-[500px] overflow-auto">
-                {% for item in historial_items %}
-                    <div class="border border-gray-200 rounded-lg p-3 text-sm">
-                        <p class="font-medium text-gray-800">{{ item.accion|capfirst }} - {{ item.fecha|date:"d/m/Y H:i" }}</p>
-                        <p class="text-gray-600">Usuario: {{ item.usuario|default:"Sistema" }}</p>
-                        {% if item.comentario %}<p class="text-gray-700 mt-1">{{ item.comentario }}</p>{% endif %}
-                    </div>
-                {% empty %}
-                    <p class="text-sm text-gray-500">Sin historial.</p>
-                {% endfor %}
+    <div id="tab-respuesta" class="tab-panel hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Finalizar tramite</h2>
+        <form method="post" enctype="multipart/form-data" class="space-y-3 border border-gray-200 rounded-xl p-4">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="respuesta_ciudadano">
+            <input type="hidden" name="respuesta_html" id="respuesta-html-tramite" value="">
+            <input type="hidden" name="respuesta_texto" id="respuesta-texto-tramite" value="">
+            <div class="flex flex-wrap gap-2">
+                <button type="button" class="editor-btn px-2 py-1 text-xs rounded border border-gray-300" data-target="editor-tramite" data-cmd="bold"><b>B</b></button>
+                <button type="button" class="editor-btn px-2 py-1 text-xs rounded border border-gray-300" data-target="editor-tramite" data-cmd="italic"><i>I</i></button>
+                <button type="button" class="editor-btn px-2 py-1 text-xs rounded border border-gray-300" data-target="editor-tramite" data-cmd="insertUnorderedList">Lista</button>
+                <button type="button" class="editor-btn px-2 py-1 text-xs rounded border border-gray-300" data-target="editor-tramite" data-cmd="createLink">Link</button>
             </div>
-        </div>
+            <div id="editor-tramite" contenteditable="true" class="min-h-[140px] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-arg-azul"></div>
+            <div>
+                <label class="block text-sm text-gray-700 mb-1">Adjuntar archivos</label>
+                <input type="file" name="respuesta_adjuntos" multiple class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-arg-azul text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm">Enviar y finalizar tramite</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Comentarios y asignaciones</h2>
-            <h3 class="font-medium text-gray-800 mb-2">Comentarios</h3>
-            <div class="space-y-3 max-h-[220px] overflow-auto mb-4">
-                {% for item in comentarios_items %}
-                    <div class="border border-gray-200 rounded-lg p-3 text-sm">
-                        <p class="font-medium text-gray-800">{{ item.usuario|default:"Sistema" }} - {{ item.created_at|date:"d/m/Y H:i" }}</p>
-                        <p class="text-gray-700 mt-1">{{ item.comentario }}</p>
-                    </div>
-                {% empty %}
-                    <p class="text-sm text-gray-500">Sin comentarios.</p>
-                {% endfor %}
-            </div>
-
-            <h3 class="font-medium text-gray-800 mb-2">Asignaciones</h3>
-            <div class="space-y-3 max-h-[220px] overflow-auto">
-                {% for item in asignaciones_items %}
-                    <div class="border border-gray-200 rounded-lg p-3 text-sm">
-                        <p class="font-medium text-gray-800">{{ item.area.nombre }} - {{ item.fecha_asignacion|date:"d/m/Y H:i" }}</p>
-                        <p class="text-gray-600">Usuario: {{ item.usuario|default:"Sin usuario" }}</p>
-                        {% if item.motivo %}<p class="text-gray-700 mt-1">{{ item.motivo }}</p>{% endif %}
-                    </div>
-                {% empty %}
-                    <p class="text-sm text-gray-500">Sin asignaciones.</p>
-                {% endfor %}
-            </div>
+{% if tramite.ciudadano_id %}
+<div id="solicitar-dato-modal" class="hidden fixed inset-0 z-50 bg-black/40">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-xl p-5">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Solicitar actualización de dato</h3>
+            <form method="post" class="space-y-3">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="solicitar_dato_campo_ciudadano">
+                <input type="hidden" id="modal-campo-objetivo" name="campo_objetivo" value="">
+                <div><p class="text-sm text-gray-600">Campo seleccionado: <span id="modal-campo-label" class="font-medium text-gray-900">-</span></p></div>
+                <div><label class="block text-sm text-gray-700 mb-1">Motivo</label><textarea name="motivo" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></textarea></div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="cerrar-modal-solicitar-dato" class="px-4 py-2 rounded-lg border border-gray-300 text-sm">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-arg-azul text-white text-sm">Enviar solicitud</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+{% endif %}
+
+<script>
+    (function () {
+        document.querySelectorAll("div.mb-4.rounded-md.p-4[x-data][x-show]").forEach((el) => el.remove());
+        const tabs = document.querySelectorAll(".tab-btn");
+        const panels = document.querySelectorAll(".tab-panel");
+        if (!tabs.length || !panels.length) return;
+        function activate(tabId) {
+            panels.forEach((panel) => panel.classList.toggle("hidden", panel.id !== tabId));
+            tabs.forEach((btn) => {
+                const isActive = btn.dataset.tab === tabId;
+                btn.classList.toggle("border-blue-500", isActive);
+                btn.classList.toggle("text-blue-600", isActive);
+                btn.classList.toggle("border-transparent", !isActive);
+                btn.classList.toggle("text-gray-500", !isActive);
+            });
+        }
+        tabs.forEach((btn) => btn.addEventListener("click", () => activate(btn.dataset.tab)));
+
+        const areaSelect = document.getElementById("{{ derivacion_form.area_principal.id_for_label }}");
+        const subareaSelect = document.getElementById("{{ derivacion_form.subarea.id_for_label }}");
+        const usuarioSelect = document.getElementById("{{ derivacion_form.usuario.id_for_label }}");
+        const destinoLabel = document.getElementById("derivacion-destino-label");
+        const destinoUsuario = document.getElementById("derivacion-destino-usuario");
+        if (areaSelect && subareaSelect) {
+            const optionMeta = {};
+            Array.from(subareaSelect.options).forEach((opt) => { optionMeta[opt.value] = opt.dataset.parent || ""; });
+            function textoSeleccionado(selectEl) {
+                if (!selectEl) return "";
+                const idx = selectEl.selectedIndex;
+                if (idx < 0) return "";
+                const txt = (selectEl.options[idx] && selectEl.options[idx].text || "").trim();
+                return txt === "---------" ? "" : txt;
+            }
+            function actualizarPreviewDestino() {
+                if (!destinoLabel || !destinoUsuario) return;
+                const areaTxt = textoSeleccionado(areaSelect);
+                const subareaTxt = textoSeleccionado(subareaSelect);
+                if (areaTxt && subareaTxt) destinoLabel.textContent = areaTxt + " / " + subareaTxt;
+                else if (areaTxt) destinoLabel.textContent = areaTxt;
+                else destinoLabel.textContent = "-";
+                const userTxt = textoSeleccionado(usuarioSelect);
+                destinoUsuario.textContent = "Asignado: " + (userTxt || "Sin asignar");
+            }
+            function filtrarSubareas() {
+                const parentId = areaSelect.value;
+                const current = subareaSelect.value;
+                let keepCurrent = false;
+                Array.from(subareaSelect.options).forEach((opt) => {
+                    if (!opt.value) { opt.hidden = false; return; }
+                    const ok = parentId && optionMeta[opt.value] === parentId;
+                    opt.hidden = !ok;
+                    if (ok && opt.value === current) keepCurrent = true;
+                });
+                if (!keepCurrent) subareaSelect.value = "";
+                actualizarPreviewDestino();
+            }
+            filtrarSubareas();
+            areaSelect.addEventListener("change", filtrarSubareas);
+            subareaSelect.addEventListener("change", actualizarPreviewDestino);
+            if (usuarioSelect) usuarioSelect.addEventListener("change", actualizarPreviewDestino);
+            actualizarPreviewDestino();
+        }
+
+        const internoCheckbox = document.getElementById("{{ seguimiento_form.es_interno.id_for_label }}");
+        const visibleCheckbox = document.getElementById("{{ seguimiento_form.visible_ciudadano.id_for_label }}");
+        if (internoCheckbox && visibleCheckbox) {
+            function normalizarEstadoInicial() {
+                if (!internoCheckbox.checked && !visibleCheckbox.checked) internoCheckbox.checked = true;
+                if (internoCheckbox.checked && visibleCheckbox.checked) visibleCheckbox.checked = false;
+            }
+            function sincronizar(origen) {
+                if (origen === internoCheckbox && internoCheckbox.checked) visibleCheckbox.checked = false;
+                else if (origen === visibleCheckbox && visibleCheckbox.checked) internoCheckbox.checked = false;
+                else if (!internoCheckbox.checked && !visibleCheckbox.checked) {
+                    if (origen === internoCheckbox) visibleCheckbox.checked = true;
+                    else internoCheckbox.checked = true;
+                }
+            }
+            normalizarEstadoInicial();
+            internoCheckbox.addEventListener("change", () => sincronizar(internoCheckbox));
+            visibleCheckbox.addEventListener("change", () => sincronizar(visibleCheckbox));
+        }
+
+        const filtroInternoBtn = document.getElementById("filtro-seg-interno");
+        const filtroVisibleBtn = document.getElementById("filtro-seg-visible");
+        const seguimientoRows = document.querySelectorAll(".seguimiento-row");
+        let filtroInternoActivo = false;
+        let filtroVisibleActivo = false;
+        function actualizarEstadoPill(btn, activo) {
+            if (!btn) return;
+            btn.classList.toggle("bg-arg-azul", activo);
+            btn.classList.toggle("text-white", activo);
+            btn.classList.toggle("border-arg-azul", activo);
+            btn.classList.toggle("bg-white", !activo);
+            btn.classList.toggle("text-gray-700", !activo);
+            btn.classList.toggle("border-gray-300", !activo);
+        }
+        function aplicarFiltroSeguimiento() {
+            seguimientoRows.forEach((row) => {
+                const esInterno = row.dataset.esInterno === "1";
+                const esVisible = row.dataset.esVisible === "1";
+                const pasaInterno = !filtroInternoActivo || esInterno;
+                const pasaVisible = !filtroVisibleActivo || esVisible;
+                row.classList.toggle("hidden", !(pasaInterno && pasaVisible));
+            });
+            actualizarEstadoPill(filtroInternoBtn, filtroInternoActivo);
+            actualizarEstadoPill(filtroVisibleBtn, filtroVisibleActivo);
+        }
+        if (filtroInternoBtn) filtroInternoBtn.addEventListener("click", () => { const n = !filtroInternoActivo; filtroInternoActivo = n; filtroVisibleActivo = false; aplicarFiltroSeguimiento(); });
+        if (filtroVisibleBtn) filtroVisibleBtn.addEventListener("click", () => { const n = !filtroVisibleActivo; filtroVisibleActivo = n; filtroInternoActivo = false; aplicarFiltroSeguimiento(); });
+        aplicarFiltroSeguimiento();
+
+        const modal = document.getElementById("solicitar-dato-modal");
+        const modalCampoInput = document.getElementById("modal-campo-objetivo");
+        const modalCampoLabel = document.getElementById("modal-campo-label");
+        const cerrarModalBtn = document.getElementById("cerrar-modal-solicitar-dato");
+        const botonesSolicitud = document.querySelectorAll(".solicitar-dato-btn");
+        const toggleSolicitudCamposBtn = document.getElementById("toggle-solicitud-campos");
+        const botonesSolicitudCampo = document.querySelectorAll(".solicitud-campo-btn");
+        let modoSolicitudCampos = false;
+        document.body.classList.remove("modo-solicitud-datos");
+        function actualizarModoSolicitudCampos() {
+            document.body.classList.toggle("modo-solicitud-datos", modoSolicitudCampos);
+            if (toggleSolicitudCamposBtn) {
+                toggleSolicitudCamposBtn.innerHTML = modoSolicitudCampos
+                    ? '<i class="fas fa-xmark"></i> Cancelar pedido de actualización'
+                    : '<i class="fas fa-file-pen"></i> Pedido de actualización de datos';
+            }
+        }
+        if (toggleSolicitudCamposBtn) {
+            toggleSolicitudCamposBtn.addEventListener("click", function () {
+                modoSolicitudCampos = !modoSolicitudCampos;
+                actualizarModoSolicitudCampos();
+            });
+            actualizarModoSolicitudCampos();
+        }
+        function nombreCampoLegible(campo) {
+            const mapa = {
+                "descripcion": "Descripcion",
+                "calle": "Calle",
+                "numero_calle": "Numero",
+                "piso_departamento": "Piso/Depto",
+                "entre_calles": "Entre calles",
+                "referencia": "Referencia",
+                "adjuntos_imagenes": "Adjuntos e imagenes"
+            };
+            if (!campo) return "-";
+            if (campo.startsWith("campo_dinamico:")) return campo.split(":",2)[1] || "Campo dinamico";
+            return mapa[campo] || campo.replaceAll("_", " ");
+        }
+        function abrirModalSolicitud(campo) {
+            if (!modal || !modalCampoInput || !modalCampoLabel) return;
+            modalCampoInput.value = campo || "";
+            modalCampoLabel.textContent = nombreCampoLegible(campo || "");
+            modal.classList.remove("hidden");
+        }
+        function cerrarModalSolicitud() { if (modal) modal.classList.add("hidden"); }
+        botonesSolicitud.forEach((btn) => btn.addEventListener("click", () => abrirModalSolicitud(btn.dataset.campo || "")));
+        if (cerrarModalBtn) cerrarModalBtn.addEventListener("click", cerrarModalSolicitud);
+        if (modal) modal.addEventListener("click", (ev) => { if (ev.target === modal) cerrarModalSolicitud(); });
+
+        const toastContainer = document.getElementById("toast-container");
+        const toastData = document.getElementById("toast-data");
+        function toastStyle(level) {
+            const value = String(level || "").toLowerCase();
+            if (value.includes("error") || value.includes("danger")) return { bg: "#dc2626", color: "#ffffff" };
+            if (value.includes("warning")) return { bg: "#f59e0b", color: "#111827" };
+            if (value.includes("success")) return { bg: "#15803d", color: "#ffffff" };
+            if (value.includes("info")) return { bg: "#2563eb", color: "#ffffff" };
+            return { bg: "#1f2937", color: "#ffffff" };
+        }
+        function showToast(text, level) {
+            if (!toastContainer || !text) return;
+            const toast = document.createElement("div");
+            toast.className = "pointer-events-auto text-sm px-4 py-3 rounded-lg shadow-lg transition-all duration-300 opacity-0 translate-y-[-6px]";
+            const style = toastStyle(level || "");
+            toast.style.backgroundColor = style.bg;
+            toast.style.color = style.color;
+            toast.textContent = text;
+            toastContainer.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove("opacity-0", "translate-y-[-6px]"));
+            setTimeout(() => { toast.classList.add("opacity-0", "translate-y-[-6px]"); setTimeout(() => toast.remove(), 250); }, 5000);
+        }
+        if (toastData) toastData.querySelectorAll("div[data-level]").forEach((node) => showToast((node.textContent || "").trim(), node.dataset.level || "info"));
+
+        document.querySelectorAll(".editor-btn").forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const targetId = btn.dataset.target;
+                const cmd = btn.dataset.cmd;
+                const editor = document.getElementById(targetId);
+                if (!editor || !cmd) return;
+                editor.focus();
+                if (cmd === "createLink") {
+                    const url = window.prompt("URL del enlace:");
+                    if (url) document.execCommand(cmd, false, url);
+                    return;
+                }
+                document.execCommand(cmd, false, null);
+            });
+        });
+        const formRespuestaTramite = document.querySelector('form input[name="accion"][value="respuesta_ciudadano"]')?.closest("form");
+        if (formRespuestaTramite) {
+            formRespuestaTramite.addEventListener("submit", function () {
+                const editor = document.getElementById("editor-tramite");
+                const htmlInput = document.getElementById("respuesta-html-tramite");
+                const textInput = document.getElementById("respuesta-texto-tramite");
+                if (editor && htmlInput && textInput) {
+                    htmlInput.value = editor.innerHTML.trim();
+                    textInput.value = editor.innerText.trim();
+                }
+            });
+        }
+
+        let tabInicial = "tab-resumen";
+        {% if estado_form.errors or estado_form.non_field_errors %}tabInicial = "tab-estados";
+        {% elif derivacion_form.errors or derivacion_form.non_field_errors %}tabInicial = "tab-derivaciones";
+        {% elif seguimiento_form.errors or seguimiento_form.non_field_errors %}tabInicial = "tab-observaciones";
+        {% endif %}
+        activate(tabInicial);
+    })();
+</script>
 {% endblock %}

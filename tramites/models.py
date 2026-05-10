@@ -118,13 +118,26 @@ class TipoTramite(AuditModel):
     nombre = models.CharField(max_length=120, db_index=True)
     descripcion = models.TextField(blank=True)
     codigo = models.CharField(max_length=40, db_index=True)
+    icono = models.CharField(max_length=80, blank=True, default="")
+    imagen_portada = models.ImageField(upload_to="tramites/tipos/portadas/%Y/%m/", null=True, blank=True)
+    destacado = models.BooleanField(default=False, db_index=True)
     area = models.ForeignKey("reclamos.Area", on_delete=models.PROTECT, related_name="tipos_tramite")
     requiere_pago = models.BooleanField(default=False)
     requiere_turno = models.BooleanField(default=False)
     permite_online = models.BooleanField(default=True)
     permite_presencial = models.BooleanField(default=True)
+    recurso_turnos = models.ForeignKey(
+        "portal.RecursoTurnos",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tipos_tramite",
+    )
     requiere_adjunto = models.BooleanField(default=False)
     requiere_validacion_manual = models.BooleanField(default=False)
+    costo = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    requisitos_info = models.TextField(blank=True)
+    informacion_extra = models.TextField(blank=True)
     sla_horas = models.PositiveIntegerField(null=True, blank=True)
     prioridad_default = models.ForeignKey(
         "tramites.PrioridadTramite",
@@ -191,6 +204,7 @@ class CampoDinamicoTramite(AuditModel):
         TEXTO = "texto", "Texto"
         NUMERO = "numero", "Numero"
         FECHA = "fecha", "Fecha"
+        HORARIO = "horario", "Horario"
         BOOLEANO = "booleano", "Booleano"
         SELECCION = "seleccion", "Seleccion"
         EMAIL = "email", "Email"
@@ -586,3 +600,5 @@ class TramiteDatoDinamico(AuditModel):
 
     def __str__(self):
         return f"{self.tramite.numero} - {self.campo.nombre}"
+
+
