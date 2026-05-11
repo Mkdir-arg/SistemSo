@@ -62,6 +62,8 @@ from .forms import (
     CiudadanoNuevaConsultaForm,
     CiudadanoPasswordResetForm,
     ReclamoDetalleForm,
+    RegistroStep1Form,
+    RegistroStep2Form,
     TramiteDetalleForm,
 )
 

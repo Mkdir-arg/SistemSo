@@ -6074,3 +6074,35 @@ otas_backoffice.
     - Con esto, las vistas vuelven a renderizar su contenido en lugar de quedar vacías.
   - pendientes:
     - Validación visual rápida de `/portal-ciudadano/mis-datos/` y sección de consultas.
+
+## 2026-05-11 - Fix NameError registro portal ciudadano
+- Tarea: resolver `NameError: RegistroStep1Form is not defined` en `/portal-ciudadano/registro/`.
+- Archivos modificados:
+  - `portal_ciudadano/views.py`
+  - `docs/tmp/WORKLOG.md`
+- Cambios realizados:
+  - Agregué `RegistroStep1Form` y `RegistroStep2Form` al import local desde `.forms` en `portal_ciudadano/views.py`.
+- Verificación:
+  - Import de `PortalCiudadanoRegistroStep1View`, `RegistroStep1Form` y `RegistroStep2Form` OK.
+  - `Client(HTTP_HOST='localhost').get('/portal-ciudadano/registro/')` devuelve HTTP 200.
+- Pendientes:
+  - Ninguno para este error puntual.
+
+## 2026-05-11 - Registro portal ciudadano visual rama actual
+- Tarea: hacer que `/portal-ciudadano/registro/` vuelva a verse como portal ciudadano en la rama actual, sin tocar branding.
+- Archivos modificados:
+  - `portal_ciudadano/templates/portal_ciudadano/registro_step1.html`
+  - `portal_ciudadano/templates/portal_ciudadano/registro_step2.html`
+  - `docs/tmp/WORKLOG.md`
+- Cambios realizados:
+  - Reemplacé los templates standalone viejos por una estructura visual alineada al login del portal de esta rama.
+  - Mantengo colores, huella, header, hero, panel, card y footer propios del portal ciudadano actual.
+  - Corregí textos visibles con acentos en ambos pasos.
+  - No modifiqué branding ni configuración de marca.
+- Verificación:
+  - `get_template` OK para `registro_step1.html` y `registro_step2.html`.
+  - `Client(HTTP_HOST='localhost').get('/portal-ciudadano/registro/')` devuelve HTTP 200.
+  - HTML renderizado contiene `Crear cuenta`, `Verificá tu identidad` y `register-wrap`.
+  - No hay secuencias mojibake en ambos templates.
+- Pendientes:
+  - Revisar visualmente en navegador si se quiere ajustar tamaños/espaciado fino.
