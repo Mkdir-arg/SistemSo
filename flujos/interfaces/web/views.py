@@ -28,17 +28,27 @@ from flujos.infrastructure.selectors import (
     enrich_tarea_runtime_metadata,
     get_assignable_users_queryset,
     get_bandeja_tareas_queryset,
+    rol_programa_esta_en_uso,
     serialize_instancia_log,
     serialize_tarea_bandeja_item,
     serialize_tarea_detalle_item,
 )
 from .forms import (
+    AsignacionRolProgramaForm,
     DefinicionFlujoForm,
+    RolProgramaForm,
     TareaAsignacionForm,
     TareaResolverForm,
     build_tarea_resolution_form,
 )
-from flujos.models import Flujo, InstanciaFlujo, TareaFlujo, VersionFlujo
+from flujos.models import (
+    AsignacionRolPrograma,
+    Flujo,
+    InstanciaFlujo,
+    RolPrograma,
+    TareaFlujo,
+    VersionFlujo,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +125,7 @@ def api_definicion(request, programa_id):
     except (json.JSONDecodeError, ValueError):
         return JsonResponse({'error': 'JSON inválido.'}, status=400)
 
-    form = DefinicionFlujoForm({'definicion': body})
+    form = DefinicionFlujoForm({'definicion': body}, programa=programa)
     if not form.is_valid():
         return JsonResponse({'error': form.errors['definicion'][0]}, status=400)
 
@@ -165,6 +175,7 @@ def api_publicar(request, programa_id):
         form = DefinicionFlujoForm(
             {'definicion': borrador.definicion},
             validation_mode='publish',
+            programa=programa,
         )
         if not form.is_valid():
             return JsonResponse({'error': form.errors['definicion'][0]}, status=400)
@@ -179,6 +190,24 @@ def api_publicar(request, programa_id):
         borrador.save(update_fields=['definicion', 'estado', 'fecha_publicacion'])
 
     return JsonResponse({'ok': True, 'version_id': borrador.pk})
+
+
+@login_required
+@require_http_methods(['GET'])
+@module_required("flujos")
+def api_roles_programa(request, programa_id):
+    if not _tiene_permiso_editar(request.user):
+        return JsonResponse({'error': 'Sin permiso.'}, status=403)
+
+    programa = get_object_or_404(Programa, pk=programa_id)
+    roles = RolPrograma.objects.filter(programa=programa).order_by('nombre')
+
+    return JsonResponse({
+        'results': [
+            {'id': rol.pk, 'nombre': rol.nombre, 'descripcion': rol.descripcion}
+            for rol in roles
+        ],
+    })
 
 
 @login_required
@@ -433,6 +462,8 @@ def editor_flujo(request, programa_id):
         'hay_borrador': hay_borrador,
         'api_definicion_url': reverse('flujos:api_definicion', kwargs={'programa_id': programa_id}),
         'api_publicar_url': reverse('flujos:api_publicar', kwargs={'programa_id': programa_id}),
+        'api_roles_url': reverse('flujos:api_roles_programa', kwargs={'programa_id': programa_id}),
+        'roles_programa_url': reverse('flujos_editor:roles_programa_list', kwargs={'programa_id': programa_id}),
     })
 
 
@@ -562,3 +593,110 @@ def tarea_resolver(request, pk):
         messages.success(request, f'Tarea "{tarea.nombre}" resuelta correctamente.')
 
     return redirect(request.POST.get('next', 'flujos_editor:bandeja_tareas'))
+
+
+# ---------------------------------------------------------------------------
+# Roles de programa
+# ---------------------------------------------------------------------------
+
+@login_required
+@group_required(['programaConfigurar'])
+@module_required("flujos")
+def roles_programa_list(request, programa_id):
+    programa = get_object_or_404(Programa, pk=programa_id)
+    roles = (
+        RolPrograma.objects
+        .filter(programa=programa)
+        .prefetch_related('asignaciones__usuario')
+        .order_by('nombre')
+    )
+
+    return render(request, 'flujos/backoffice/roles_programa.html', {
+        'programa': programa,
+        'roles': roles,
+        'rol_form': RolProgramaForm(programa=programa),
+        'asignacion_form': AsignacionRolProgramaForm(),
+    })
+
+
+@login_required
+@group_required(['programaConfigurar'])
+@require_POST
+@module_required("flujos")
+def rol_programa_crear(request, programa_id):
+    programa = get_object_or_404(Programa, pk=programa_id)
+    form = RolProgramaForm(request.POST, programa=programa)
+
+    if not form.is_valid():
+        messages.warning(request, 'No se pudo crear el rol: revisá los datos ingresados.')
+    else:
+        RolPrograma.objects.create(
+            programa=programa,
+            nombre=form.cleaned_data['nombre'],
+            descripcion=form.cleaned_data['descripcion'],
+        )
+        messages.success(request, f'Rol "{form.cleaned_data["nombre"]}" creado correctamente.')
+
+    return redirect('flujos_editor:roles_programa_list', programa_id=programa_id)
+
+
+@login_required
+@group_required(['programaConfigurar'])
+@require_POST
+@module_required("flujos")
+def rol_programa_eliminar(request, pk):
+    rol = get_object_or_404(RolPrograma, pk=pk)
+    programa_id = rol.programa_id
+
+    if rol_programa_esta_en_uso(rol):
+        messages.warning(
+            request,
+            f'No se puede eliminar el rol "{rol.nombre}": tiene usuarios asignados o está '
+            f'referenciado en un nodo del flujo. Desasigná o desconfigurá primero.',
+        )
+    else:
+        nombre = rol.nombre
+        rol.delete()
+        messages.success(request, f'Rol "{nombre}" eliminado correctamente.')
+
+    return redirect('flujos_editor:roles_programa_list', programa_id=programa_id)
+
+
+@login_required
+@group_required(['programaConfigurar'])
+@require_POST
+@module_required("flujos")
+def rol_programa_asignar(request, pk):
+    rol = get_object_or_404(RolPrograma, pk=pk)
+    form = AsignacionRolProgramaForm(request.POST)
+
+    if not form.is_valid():
+        messages.warning(request, 'Elegí un usuario válido para asignar.')
+    else:
+        usuario = form.cleaned_data['usuario']
+        _, creada = AsignacionRolPrograma.objects.get_or_create(
+            rol=rol,
+            usuario=usuario,
+            defaults={'asignado_por': request.user},
+        )
+        if creada:
+            messages.success(request, f'{usuario} asignado al rol "{rol.nombre}".')
+        else:
+            messages.info(request, f'{usuario} ya tenía asignado el rol "{rol.nombre}".')
+
+    return redirect('flujos_editor:roles_programa_list', programa_id=rol.programa_id)
+
+
+@login_required
+@group_required(['programaConfigurar'])
+@require_POST
+@module_required("flujos")
+def rol_programa_desasignar(request, pk):
+    asignacion = get_object_or_404(AsignacionRolPrograma, pk=pk)
+    programa_id = asignacion.rol.programa_id
+    usuario = asignacion.usuario
+    rol_nombre = asignacion.rol.nombre
+    asignacion.delete()
+    messages.success(request, f'{usuario} ya no tiene el rol "{rol_nombre}".')
+
+    return redirect('flujos_editor:roles_programa_list', programa_id=programa_id)

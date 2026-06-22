@@ -20,6 +20,30 @@ def get_assignable_users_queryset():
     )
 
 
+def rol_programa_esta_en_uso(rol) -> bool:
+    """
+    True si el rol tiene asignaciones activas o esta referenciado en
+    config.rol_programa_id de algun nodo de cualquier VersionFlujo
+    (borrador, publicada o archivada) del flujo del programa.
+    """
+    from flujos.models import Flujo
+
+    if rol.asignaciones.exists():
+        return True
+
+    try:
+        flujo = rol.programa.flujo
+    except Flujo.DoesNotExist:
+        return False
+
+    for definicion in flujo.versiones.values_list('definicion', flat=True):
+        for nodo in (definicion or {}).get('nodos', []):
+            if (nodo.get('config') or {}).get('rol_programa_id') == rol.pk:
+                return True
+
+    return False
+
+
 def _find_node(definicion, nodo_id):
     for nodo in definicion.get('nodos', []):
         if nodo.get('id') == nodo_id:

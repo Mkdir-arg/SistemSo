@@ -70,3 +70,20 @@ export async function cargarDefinicion(url) {
   }
   return resp.json();
 }
+
+/**
+ * Lista los RolPrograma definidos para el programa, usados en el dropdown
+ * "Rol requerido" de un nodo accion_humana.
+ * @param {string} url - URL del endpoint GET /api/flujos/<id>/roles/
+ * @returns {Promise<Array<{id, nombre, descripcion}>>}
+ */
+export async function cargarRolesPrograma(url) {
+  const resp = await fetch(url, {
+    headers: { 'Accept': 'application/json' },
+  });
+  if (!resp.ok) {
+    throw new Error(`Error ${resp.status} al cargar los roles del programa.`);
+  }
+  const data = await resp.json();
+  return data.results || [];
+}

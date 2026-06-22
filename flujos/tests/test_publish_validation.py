@@ -234,3 +234,96 @@ class FlujosPublishValidationTests(TestCase):
         self.assertEqual(nodo["surface"], ["backoffice"])
         self.assertEqual(nodo["config"]["ui"]["type"], "form")
         self.assertEqual(nodo["config"]["ui"]["sections"][0]["fields"][0]["id"], "resultado")
+
+    def _definicion_simple_con_condicion(self, valor):
+        return {
+            "nodos": [
+                {"id": "inicio", "tipo": "inicio", "nombre": "Inicio"},
+                {"id": "revision", "tipo": "accion_humana", "nombre": "Revision"},
+                {"id": "fin_ok", "tipo": "fin", "nombre": "Fin OK"},
+                {"id": "fin_otro", "tipo": "fin", "nombre": "Fin otro"},
+            ],
+            "transiciones": [
+                {"desde": "inicio", "hasta": "revision", "condicion": None},
+                {
+                    "desde": "revision",
+                    "hasta": "fin_ok",
+                    "condicion": {"campo": "aprobado", "operador": "==", "valor": valor},
+                },
+                {"desde": "revision", "hasta": "fin_otro", "condicion": None},
+            ],
+        }
+
+    def test_publish_rejects_condition_value_with_trailing_space(self):
+        self._create_draft(self._definicion_simple_con_condicion("true "))
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("flujos:api_publicar", args=[self.programa.pk]))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("espacios", response.json()["error"])
+
+    def test_draft_save_accepts_condition_value_with_trailing_space(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("flujos:api_definicion", args=[self.programa.pk]),
+            data=json.dumps(self._definicion_simple_con_condicion("true ")),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_publish_rejects_unknown_rol_programa_id(self):
+        definicion = {
+            "nodos": [
+                {"id": "inicio", "tipo": "inicio", "nombre": "Inicio"},
+                {
+                    "id": "revision",
+                    "tipo": "accion_humana",
+                    "nombre": "Revision",
+                    "config": {"rol_programa_id": 9999},
+                },
+                {"id": "fin", "tipo": "fin", "nombre": "Fin"},
+            ],
+            "transiciones": [
+                {"desde": "inicio", "hasta": "revision", "condicion": None},
+                {"desde": "revision", "hasta": "fin", "condicion": None},
+            ],
+        }
+        self._create_draft(definicion)
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("flujos:api_publicar", args=[self.programa.pk]))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("rol_programa_id", response.json()["error"])
+
+    def test_publish_accepts_rol_programa_id_of_same_programa(self):
+        from flujos.models import RolPrograma
+
+        rol = RolPrograma.objects.create(programa=self.programa, nombre="Evaluador")
+        definicion = {
+            "nodos": [
+                {"id": "inicio", "tipo": "inicio", "nombre": "Inicio"},
+                {
+                    "id": "revision",
+                    "tipo": "accion_humana",
+                    "nombre": "Revision",
+                    "config": {"rol_programa_id": rol.pk},
+                },
+                {"id": "fin", "tipo": "fin", "nombre": "Fin"},
+            ],
+            "transiciones": [
+                {"desde": "inicio", "hasta": "revision", "condicion": None},
+                {"desde": "revision", "hasta": "fin", "condicion": None},
+            ],
+        }
+        version = self._create_draft(definicion)
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("flujos:api_publicar", args=[self.programa.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        version.refresh_from_db()
+        self.assertEqual(version.estado, VersionFlujo.Estado.PUBLICADA)

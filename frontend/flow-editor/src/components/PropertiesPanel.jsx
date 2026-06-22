@@ -590,7 +590,7 @@ function buildNodeConfigTabs(nodeType, hasDeclarativeUi) {
   return tabs;
 }
 
-export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onUpdateNode, onUpdateEdge, presentation = 'sidebar' }) {
+export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onUpdateNode, onUpdateEdge, presentation = 'sidebar', roles = [] }) {
   const [expandedSectionKey, setExpandedSectionKey] = useState(null);
   const [expandedFieldKey, setExpandedFieldKey] = useState(null);
   const [activeNodeConfigTab, setActiveNodeConfigTab] = useState('general');
@@ -1792,6 +1792,26 @@ export default function PropertiesPanel({ selectedNode, selectedEdge, nodes, onU
             {!formulario && !uiConfig && (
               <div style={hintStyle}>
                 Si dejás este paso sin contrato de captura, la resolución seguirá dependiendo de la salida libre o del JSON/manual según la configuración del flujo.
+              </div>
+            )}
+
+            <label style={labelStyle}>Rol requerido (opcional)</label>
+            <select
+              style={inputStyle}
+              value={nodeConfig?.rol_programa_id ?? ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                updateNodeConfig({ rol_programa_id: value ? Number(value) : null });
+              }}
+            >
+              <option value="">Ninguno — cualquier operador con permiso de programa</option>
+              {roles.map((rol) => (
+                <option key={rol.id} value={rol.id}>{rol.nombre}</option>
+              ))}
+            </select>
+            {roles.length === 0 && (
+              <div style={hintStyle}>
+                Este programa no tiene roles definidos todavía. Gestionalos desde "Roles del programa" en el editor.
               </div>
             )}
 

@@ -19,7 +19,7 @@ import DecisionNode from './components/nodes/DecisionNode.jsx';
 import EsperaNode from './components/nodes/EsperaNode.jsx';
 import FinNode from './components/nodes/FinNode.jsx';
 import InicioNode from './components/nodes/InicioNode.jsx';
-import { cargarDefinicion, guardarDefinicion, publicarFlujo } from './utils/api.js';
+import { cargarDefinicion, cargarRolesPrograma, guardarDefinicion, publicarFlujo } from './utils/api.js';
 import { puedePublicar, validarFlujo } from './utils/validators.js';
 
 const NODE_TYPES = {
@@ -159,7 +159,7 @@ function flowToDefinicion(nodes, edges) {
   };
 }
 
-export default function App({ programaId, programaNombre, apiDefinicionUrl, apiPublicarUrl }) {
+export default function App({ programaId, programaNombre, apiDefinicionUrl, apiPublicarUrl, apiRolesUrl }) {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([NODO_INICIO_DEFAULT]);
@@ -172,6 +172,14 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
   const [guardando, setGuardando] = useState(false);
   const [publicando, setPublicando] = useState(false);
   const [versionInfo, setVersionInfo] = useState(null);
+  const [roles, setRoles] = useState([]);
+
+  useEffect(() => {
+    if (!apiRolesUrl) return;
+    cargarRolesPrograma(apiRolesUrl)
+      .then(setRoles)
+      .catch(() => setRoles([]));
+  }, [apiRolesUrl]);
 
   const showToast = (mensaje, tipo = 'success') => {
     setToast({ mensaje, tipo });
@@ -504,6 +512,7 @@ export default function App({ programaId, programaNombre, apiDefinicionUrl, apiP
                 onUpdateNode={onUpdateNode}
                 onUpdateEdge={onUpdateEdge}
                 presentation="modal"
+                roles={roles}
               />
             </div>
           </div>

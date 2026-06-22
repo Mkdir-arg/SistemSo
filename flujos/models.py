@@ -316,3 +316,88 @@ class TareaFlujo(models.Model):
 
     def __str__(self):
         return f'Tarea {self.pk}: {self.nombre} ({self.estado})'
+
+
+class RolPrograma(TimeStamped):
+    """
+    Rol interno definido por un programa para restringir quién puede operar
+    un paso `accion_humana` del flujo (distinto de los grupos Django
+    globales `programaConfigurar`/`programaOperar`). Vive en `flujos` porque
+    hoy el único consumidor es el motor de flujos (config.rol_programa_id
+    de un nodo) y su editor visual.
+    """
+
+    programa = models.ForeignKey(
+        'legajos.Programa',
+        on_delete=models.CASCADE,
+        related_name='roles_flujo',
+        verbose_name='Programa',
+    )
+    nombre = models.CharField(
+        max_length=100,
+        verbose_name='Nombre',
+        help_text='Ej: Evaluador, Coordinador territorial, Aprobador',
+    )
+    descripcion = models.TextField(
+        blank=True,
+        verbose_name='Descripción',
+    )
+
+    class Meta:
+        verbose_name = 'Rol de programa'
+        verbose_name_plural = 'Roles de programa'
+        ordering = ['programa', 'nombre']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['programa', 'nombre'],
+                name='uq_rolprograma_programa_nombre',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.nombre} ({self.programa.nombre})'
+
+
+class AsignacionRolPrograma(TimeStamped):
+    """
+    Asignación de un usuario a un RolPrograma. Un usuario puede tener varios
+    roles en el mismo programa, pero no el mismo rol dos veces.
+    """
+
+    rol = models.ForeignKey(
+        RolPrograma,
+        on_delete=models.CASCADE,
+        related_name='asignaciones',
+        verbose_name='Rol de programa',
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='roles_programa_asignados',
+        verbose_name='Usuario',
+    )
+    asignado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asignaciones_rol_programa_realizadas',
+        verbose_name='Asignado por',
+    )
+
+    class Meta:
+        verbose_name = 'Asignación de rol de programa'
+        verbose_name_plural = 'Asignaciones de rol de programa'
+        ordering = ['-creado']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['rol', 'usuario'],
+                name='uq_asignrolprograma_rol_usuario',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['usuario', 'rol'], name='ix_asignrol_usuario_rol'),
+        ]
+
+    def __str__(self):
+        return f'{self.usuario} → {self.rol}'

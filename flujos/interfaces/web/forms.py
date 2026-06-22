@@ -22,9 +22,10 @@ INFO_ALERT_CLASS_BY_TONE = {
 
 
 class DefinicionFlujoForm(forms.Form):
-    def __init__(self, *args, validation_mode="draft", **kwargs):
+    def __init__(self, *args, validation_mode="draft", programa=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.validation_mode = validation_mode
+        self.programa = programa
 
     definicion = forms.JSONField(
         label='Definición',
@@ -34,7 +35,11 @@ class DefinicionFlujoForm(forms.Form):
     def clean_definicion(self):
         data = self.cleaned_data['definicion']
         try:
-            return normalize_flow_definition(data, validation_mode=self.validation_mode)
+            return normalize_flow_definition(
+                data,
+                validation_mode=self.validation_mode,
+                programa_id=self.programa.pk if self.programa is not None else None,
+            )
         except ValueError as exc:
             raise forms.ValidationError(str(exc)) from exc
 
@@ -398,6 +403,52 @@ def build_tarea_resolution_form(*, tarea, data=None, initial_runtime_data=None):
         )
 
     return TareaResolverForm(data, initial={'datos': initial_runtime_data})
+
+
+class RolProgramaForm(forms.Form):
+    nombre = forms.CharField(
+        max_length=100,
+        label='Nombre',
+        widget=forms.TextInput(attrs={
+            'class': 'block w-full rounded-md border border-gray-300 py-2 px-3 text-sm',
+            'placeholder': 'Ej: Evaluador',
+        }),
+    )
+    descripcion = forms.CharField(
+        required=False,
+        label='Descripción',
+        widget=forms.Textarea(attrs={
+            'class': 'block w-full rounded-md border border-gray-300 py-2 px-3 text-sm',
+            'rows': 2,
+        }),
+    )
+
+    def __init__(self, *args, programa=None, **kwargs):
+        self.programa = programa
+        super().__init__(*args, **kwargs)
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data['nombre'].strip()
+        if not nombre:
+            raise forms.ValidationError('El nombre no puede estar vacío.')
+        from flujos.models import RolPrograma
+        if self.programa is not None and RolPrograma.objects.filter(
+            programa=self.programa, nombre__iexact=nombre,
+        ).exists():
+            raise forms.ValidationError('Ya existe un rol con ese nombre en este programa.')
+        return nombre
+
+
+class AsignacionRolProgramaForm(forms.Form):
+    usuario = forms.ModelChoiceField(
+        queryset=get_user_model().objects.none(),
+        label='Usuario',
+        widget=forms.Select(attrs={'class': 'form-select'}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['usuario'].queryset = get_assignable_users_queryset()
 
 
 class TareaAsignacionForm(forms.Form):

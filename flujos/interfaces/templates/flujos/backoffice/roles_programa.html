@@ -1,0 +1,136 @@
+{% extends "includes/main.html" %}
+{% load static %}
+
+{% block title %}Roles del programa — {{ programa.nombre }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'configuracion:programas' %}">Programas</a></li>
+<li class="breadcrumb-item"><a href="{% url 'flujos_editor:editor_flujo' programa.pk %}">Editor de Flujo</a></li>
+<li class="breadcrumb-item active">Roles del programa</li>
+{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Roles del programa</h1>
+            <p class="text-sm text-gray-500">{{ programa.nombre }} ({{ programa.codigo }})</p>
+        </div>
+        <a href="{% url 'flujos_editor:editor_flujo' programa.pk %}"
+           class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Volver al editor
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="mb-4 space-y-2">
+        {% for message in messages %}
+        <div class="rounded-lg p-3 text-sm {% if message.tags == 'error' or message.tags == 'warning' %}bg-amber-50 text-amber-800{% else %}bg-green-50 text-green-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">Nuevo rol</h2>
+        <form method="post" action="{% url 'flujos_editor:rol_programa_crear' programa.pk %}" class="flex flex-wrap gap-2 items-start">
+            {% csrf_token %}
+            <div class="flex-1 min-w-[180px]">
+                {{ rol_form.nombre }}
+                {% if rol_form.nombre.errors %}<p class="text-xs text-red-600 mt-1">{{ rol_form.nombre.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="flex-1 min-w-[220px]">
+                {{ rol_form.descripcion }}
+            </div>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                <i class="fas fa-plus mr-1"></i>Crear rol
+            </button>
+        </form>
+    </div>
+
+    <div class="space-y-4">
+        {% for rol in roles %}
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-4 py-3 flex items-center justify-between border-b border-gray-100">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900">{{ rol.nombre }}</h3>
+                    {% if rol.descripcion %}<p class="text-xs text-gray-500">{{ rol.descripcion }}</p>{% endif %}
+                </div>
+                <a href="{% url 'flujos_editor:rol_programa_eliminar' rol.pk %}"
+                   class="text-red-600 hover:text-red-900 text-sm"
+                   onclick="return confirmarEliminarRol(event, this, '{{ rol.nombre|escapejs }}')">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            <div class="px-4 py-3">
+                <div class="flex flex-wrap gap-2 mb-3">
+                    {% for asignacion in rol.asignaciones.all %}
+                    <span class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">
+                        {{ asignacion.usuario.get_full_name|default:asignacion.usuario.username }}
+                        <a href="{% url 'flujos_editor:rol_programa_desasignar' asignacion.pk %}"
+                           class="text-gray-400 hover:text-red-600"
+                           onclick="return confirmarDesasignar(event, this)">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                    {% empty %}
+                    <span class="text-xs text-gray-400">Sin usuarios asignados todavía.</span>
+                    {% endfor %}
+                </div>
+                <form method="post" action="{% url 'flujos_editor:rol_programa_asignar' rol.pk %}" class="flex gap-2">
+                    {% csrf_token %}
+                    {{ asignacion_form.usuario }}
+                    <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap">
+                        Asignar
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow p-8 text-center text-sm text-gray-500">
+            Este programa todavía no tiene roles definidos. Creá el primero arriba.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmarEliminarRol(e, el, nombre) {
+    e.preventDefault();
+    Swal.fire({
+        title: '¿Eliminar rol?',
+        text: `"${nombre}" será eliminado. No se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = el.getAttribute('href');
+            form.innerHTML = '{% csrf_token %}';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+    return false;
+}
+
+function confirmarDesasignar(e, el) {
+    e.preventDefault();
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = el.getAttribute('href');
+    form.innerHTML = '{% csrf_token %}';
+    document.body.appendChild(form);
+    form.submit();
+    return false;
+}
+</script>
+{% endblock %}

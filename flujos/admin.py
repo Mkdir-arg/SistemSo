@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Flujo, InstanciaFlujo, InstanciaLog, VersionFlujo
+from .models import (
+    AsignacionRolPrograma,
+    Flujo,
+    InstanciaFlujo,
+    InstanciaLog,
+    RolPrograma,
+    VersionFlujo,
+)
 
 
 @admin.register(Flujo)
@@ -30,3 +37,16 @@ class InstanciaLogAdmin(admin.ModelAdmin):
     list_display = ('pk', 'instancia', 'nodo_desde', 'nodo_hasta', 'timestamp', 'usuario')
     raw_id_fields = ('instancia', 'usuario')
     readonly_fields = ('timestamp',)
+
+
+@admin.register(RolPrograma)
+class RolProgramaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'programa', 'creado')
+    search_fields = ('nombre', 'programa__nombre')
+    raw_id_fields = ('programa',)
+
+
+@admin.register(AsignacionRolPrograma)
+class AsignacionRolProgramaAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'rol', 'asignado_por', 'creado')
+    raw_id_fields = ('rol', 'usuario', 'asignado_por')

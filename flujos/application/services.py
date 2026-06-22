@@ -2,7 +2,7 @@
 
 from django.db import transaction
 
-from flujos.models import InstanciaLog, TareaFlujo
+from flujos.models import AsignacionRolPrograma, InstanciaLog, TareaFlujo
 from flujos.runtime import FlowRuntime
 
 
@@ -10,10 +10,43 @@ class FlowTaskActionError(ValueError):
     """Error controlado al operar tareas del runtime."""
 
 
+def _rol_programa_id_requerido(tarea: TareaFlujo):
+    """
+    Lee el rol_programa_id snapshotteado en `tarea.datos.config` al momento
+    de creación del nodo. Tareas creadas antes de agregar el rol a un nodo
+    no se ven afectadas retroactivamente (el snapshot no lo tiene).
+    """
+    return (tarea.datos or {}).get('config', {}).get('rol_programa_id')
+
+
+def _usuario_tiene_rol_programa(usuario, rol_programa_id) -> bool:
+    if usuario is None:
+        return False
+    return AsignacionRolPrograma.objects.filter(
+        rol_id=rol_programa_id,
+        usuario=usuario,
+    ).exists()
+
+
+def _verificar_rol_requerido(tarea: TareaFlujo, usuario) -> None:
+    rol_programa_id = _rol_programa_id_requerido(tarea)
+    if rol_programa_id is None:
+        return
+    if usuario is not None and usuario.is_superuser:
+        return
+    if not _usuario_tiene_rol_programa(usuario, rol_programa_id):
+        raise FlowTaskActionError(
+            'No tenés el rol de programa requerido para operar esta tarea.'
+        )
+
+
 @transaction.atomic
 def asignar_tarea_flujo(*, tarea: TareaFlujo, usuario_asignado, usuario_actor=None):
     if tarea.estado != TareaFlujo.Estado.PENDIENTE:
         raise FlowTaskActionError('Solo se pueden asignar tareas pendientes.')
+
+    if usuario_asignado is not None:
+        _verificar_rol_requerido(tarea, usuario_asignado)
 
     asignado_anterior = tarea.asignado_a
     if asignado_anterior == usuario_asignado:
@@ -65,6 +98,8 @@ def resolver_tarea_flujo(*, tarea: TareaFlujo, usuario, datos=None):
 
     if instancia.nodo_actual != tarea.nodo_id:
         raise FlowTaskActionError('La tarea no coincide con el nodo actual de la instancia.')
+
+    _verificar_rol_requerido(tarea, usuario)
 
     try:
         return FlowRuntime.avanzar(instancia, datos=datos or {}, usuario=usuario)

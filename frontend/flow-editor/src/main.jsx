@@ -14,6 +14,7 @@ if (rootEl) {
         programaNombre={config.programaNombre}
         apiDefinicionUrl={config.apiDefinicionUrl}
         apiPublicarUrl={config.apiPublicarUrl}
+        apiRolesUrl={config.apiRolesUrl}
       />
     </React.StrictMode>
   );

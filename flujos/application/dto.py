@@ -48,7 +48,22 @@ def _reachable_nodes(start_node_id, adjacency):
 	return visited
 
 
-def _normalize_condition(condicion, transicion_idx):
+def _validar_valor_condicion_sin_espacios(valor, transicion_idx):
+	if isinstance(valor, str) and valor != valor.strip():
+		raise ValueError(
+			f'La condicion de la transicion #{transicion_idx} tiene un "valor" con espacios '
+			f'al inicio o al final: "{valor}". Quita los espacios antes de publicar.'
+		)
+	if isinstance(valor, list):
+		for item in valor:
+			if isinstance(item, str) and item != item.strip():
+				raise ValueError(
+					f'La condicion de la transicion #{transicion_idx} tiene un valor con espacios '
+					f'al inicio o al final en la lista: "{item}". Quita los espacios antes de publicar.'
+				)
+
+
+def _normalize_condition(condicion, transicion_idx, *, validation_mode="draft"):
 	if not isinstance(condicion, dict):
 		raise ValueError(
 			f'La condicion de la transicion #{transicion_idx} debe ser un objeto JSON o null.'
@@ -70,6 +85,9 @@ def _normalize_condition(condicion, transicion_idx):
 		raise ValueError(
 			f'La condicion de la transicion #{transicion_idx} debe incluir la clave "valor".'
 		)
+
+	if validation_mode == "publish":
+		_validar_valor_condicion_sin_espacios(condicion.get("valor"), transicion_idx)
 
 	return {
 		**condicion,
@@ -813,6 +831,36 @@ def _normalize_action_ui_config(node_id, ui_config):
 	}
 
 
+def _normalize_action_role_config(node_id, node_type, config, *, programa_id, validation_mode):
+	rol_programa_id = config.get("rol_programa_id")
+	if rol_programa_id is None:
+		return config
+
+	if node_type != "accion_humana":
+		raise ValueError(
+			f'El nodo "{node_id}" solo puede definir "config.rol_programa_id" si es de tipo "accion_humana".'
+		)
+
+	if not isinstance(rol_programa_id, int) or isinstance(rol_programa_id, bool):
+		raise ValueError(
+			f'El nodo "{node_id}" debe definir "config.rol_programa_id" como un entero o null.'
+		)
+
+	if validation_mode == "publish" and programa_id is not None:
+		from flujos.models import RolPrograma
+
+		if not RolPrograma.objects.filter(pk=rol_programa_id, programa_id=programa_id).exists():
+			raise ValueError(
+				f'El nodo "{node_id}" referencia un "rol_programa_id" inexistente o de otro '
+				f'programa: {rol_programa_id}.'
+			)
+
+	return {
+		**config,
+		"rol_programa_id": rol_programa_id,
+	}
+
+
 def _normalize_action_runtime_contract(node_id, node_type, schema_version, actor, surface, config):
 	has_v3_contract = actor is not None or surface is not None or config.get("ui") is not None
 	if not has_v3_contract:
@@ -905,7 +953,7 @@ def _validate_action_form_contracts(normalized_nodes, normalized_transitions):
 			)
 
 
-def normalize_flow_definition(definicion, *, validation_mode="draft"):
+def normalize_flow_definition(definicion, *, validation_mode="draft", programa_id=None):
 	if validation_mode not in {"draft", "publish"}:
 		raise ValueError(f'Modo de validacion no soportado: "{validation_mode}".')
 
@@ -957,6 +1005,13 @@ def normalize_flow_definition(definicion, *, validation_mode="draft"):
 		config = _normalize_action_form_config(node_id, tipo, config)
 		config = _normalize_email_action_config(node_id, tipo, schema_version, config)
 		config = _normalize_http_action_config(node_id, tipo, schema_version, config)
+		config = _normalize_action_role_config(
+			node_id,
+			tipo,
+			config,
+			programa_id=programa_id,
+			validation_mode=validation_mode,
+		)
 		actor, surface, config = _normalize_action_runtime_contract(
 			node_id,
 			tipo,
@@ -1012,7 +1067,7 @@ def normalize_flow_definition(definicion, *, validation_mode="draft"):
 
 		condicion = transicion.get("condicion")
 		if condicion is not None:
-			condicion = _normalize_condition(condicion, index)
+			condicion = _normalize_condition(condicion, index, validation_mode=validation_mode)
 
 		normalized_transitions.append(
 			{

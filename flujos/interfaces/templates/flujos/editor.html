@@ -276,6 +276,9 @@
                 <p class="editor-surface-subtitle">Editá nodos, conexiones y reglas de transición en un solo espacio de trabajo.</p>
             </div>
             <div class="editor-surface-meta">
+                <a href="{{ roles_programa_url }}" class="editor-surface-pill text-decoration-none">
+                    <i class="fas fa-user-shield me-1"></i>Roles del programa
+                </a>
                 <span class="editor-surface-pill"><strong>Editor operativo</strong></span>
                 {% if ultima_version %}
                 <span class="editor-surface-pill">v{{ ultima_version.numero_version }} · {{ ultima_version.get_estado_display }}</span>
@@ -313,6 +316,7 @@ window.flowEditorConfig = {
     programaNombre: "{{ programa.nombre|escapejs }}",
     apiDefinicionUrl: "{{ api_definicion_url }}",
     apiPublicarUrl: "{{ api_publicar_url }}",
+    apiRolesUrl: "{{ api_roles_url }}",
     csrfCookieName: "csrftoken",
 };
 </script>

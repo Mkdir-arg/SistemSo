@@ -146,6 +146,9 @@ class FlowRuntime:
 
         instancia.save(update_fields=['nodo_actual', 'estado', 'fecha_cierre', 'datos'])
 
+        if nodo_destino['tipo'] == TIPO_FIN:
+            FlowRuntime._cerrar_inscripcion_un_solo_acto(instancia)
+
         InstanciaLog.objects.create(
             instancia=instancia,
             nodo_desde=nodo_desde,
@@ -240,6 +243,9 @@ class FlowRuntime:
         if not encontrado:
             return False
 
+        valor_dato = FlowRuntime._normalizar_valor_comparacion(valor_dato)
+        valor = FlowRuntime._normalizar_valor_comparacion(valor)
+
         try:
             if operador == '==':
                 return valor_dato == valor
@@ -259,6 +265,53 @@ class FlowRuntime:
             return False
 
         return False
+
+    @staticmethod
+    def _normalizar_valor_comparacion(valor):
+        """
+        Quita espacios sobrantes de strings (y de cada item si es una lista de
+        strings, para el operador `in`) antes de comparar. Evita que un dato
+        con espacio accidental (ej. "true ") rompa silenciosamente la
+        transición. No toca valores no-string (bool, int, None, etc.).
+        """
+        if isinstance(valor, str):
+            return valor.strip()
+        if isinstance(valor, list):
+            return [item.strip() if isinstance(item, str) else item for item in valor]
+        return valor
+
+    @staticmethod
+    def _cerrar_inscripcion_un_solo_acto(instancia: InstanciaFlujo) -> None:
+        """
+        Si el programa de la inscripcion es de naturaleza UN_SOLO_ACTO, cierra
+        automaticamente la inscripcion al completarse el flujo (nodo fin).
+        Vive en `flujos` (no en `legajos`) porque ya tiene acceso directo a
+        `instancia.inscripcion` via la FK existente, sin necesitar un import
+        cruzado hacia legajos. Se ejecuta dentro de la misma transaccion
+        atomica de `avanzar()`.
+        """
+        from legajos.models_programas import InscripcionPrograma, Programa
+
+        inscripcion = (
+            InscripcionPrograma.objects
+            .select_for_update()
+            .select_related('programa')
+            .get(pk=instancia.inscripcion_id)
+        )
+
+        if inscripcion.programa.naturaleza != Programa.Naturaleza.UN_SOLO_ACTO:
+            return
+
+        if inscripcion.estado in (
+            InscripcionPrograma.Estado.CERRADO,
+            InscripcionPrograma.Estado.DADO_DE_BAJA,
+        ):
+            return
+
+        inscripcion.estado = InscripcionPrograma.Estado.CERRADO
+        inscripcion.motivo_cierre = 'Cierre automático por finalización de flujo.'
+        inscripcion.fecha_cierre = timezone.now().date()
+        inscripcion.save(update_fields=['estado', 'motivo_cierre', 'fecha_cierre'])
 
     @staticmethod
     def _notificar_accion_humana(instancia: InstanciaFlujo, nodo: dict) -> None:
